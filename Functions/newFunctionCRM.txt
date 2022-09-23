@@ -1,0 +1,59 @@
+Hallo..
+
+Now I need to have in the Export part a part to export the files according to this document you see here.
+
+
+Example of a company with SAFT: http://ftp.sage.pt/sage/saft/Examplo_SAFT_v1_01.xml
+Example of the file on the finances of Portugal: https://info.portaldasfinancas.gov.pt/apps/saft-pt01/SAFTPT1.01_01.xsd
+
+PT Legislative Diploma: https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/legislacao/diplomas_legislativos/Documents/Portaria_302_2016.pdf
+
+This is the file that a company has to send every month or an entire year to the Portuguese State's finances to account for all invoices originating from the software.
+
+For that we need all the invoice information that our software generates.
+
+
+We have to have a part in the settings that we have to enter the data of the company that manages the SAFT (Company responsible for the Software):
+- <ProductCompanyTaxID>123456789</ProductCompanyTaxID>(TaxID of the company that made the software, which in this case will be the same as the company).
+- <SoftwareCertificateNumber>0</SoftwareCertificateNumber> (I have to certify this program and give me a number).
+- <ProductID>Management sadsad sadfsd/Sage sd fsd</ProductID> (Name of the program itself, in this case it is CRM. But it will be PCTECK-Management).
+- <ProductVersion>07.01.0004</ProductVersion> (Program Version).
+- <HeaderComment>Comments on exported SAFT</HeaderComment> Any extra comments.
+
+
+After clicking on Generate SAFT-PT it should appear:
+1 - Choose Entire Company, or select a specific warehouse.
+2 - Choose Start Date and End Date.
+3 - And click on generate the SAFT that will generate a file with the fields of our corresponding database. and create the coreespondente xml file like the one there.
+4 - After that, you can send it via email as an attachment or download it.
+
+
+I'm willing to give another €700 For this job given here you have to link Data Company, Suppliers, Customers, Products, Invoices. All in one file Only.
+
+
+
+Another feature is software license management. Which is to be able to install on another server enter the data and install. And then have a license and validity for sale as a subscription. Given my goal is to have a subscription software And as each company evolves at the application level. Whenever necessary. And if you have updates, you can do it. But of course everything on my side do you understand?
+
+
+Imagine having a license for a computer company. (Which goes with the menus and settings that we define and the customer understands)
+A license for Clothing Company.
+A Workshop Company license.
+A Wine Company license.
+A Car Rental Company license.
+
+And we have our application due by licenses and of course what is installed for the end customer varies from license to license and of course the corresponding menus appear. But everything is done with the mother application. Which is the CRM we have.
+
+And then we start to gain customers and input money. What do you think??
+
+For this, the license plus €500 at the beginning, then let's see what is needed for each business. OK?
+
+
+
+
+I don't know if you've done something like that or if you've already done something if it's better for you.
+
+I want to partner with you after opening the company. Nor that we have a monthly fee later for new projects or something of the kind of invoicing.
+
+I want reliable people and I have this filing that you are responsible and professional.
+
+I await your response to complete this new task in the same program. 
