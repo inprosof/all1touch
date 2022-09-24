@@ -85,10 +85,7 @@
             <div class="collapse navbar-collapse" id="navbar-mobile">
                 <ul class="nav navbar-nav mr-auto float-left">
                     <li class="nav-item d-none d-md-block">
-						<a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i class="ft-menu"></i></a>
-					</li>
-                    <li class="nav-item d-none d-md-block">
-						<a class="nav-link nav-link-expand" href="#"><i class="ficon ft-maximize"></i></a>
+						<a class="nav-link nav-link-expand" data-toggle="modal" data-target="#shortFullScreen"><i class="ficon ft-maximize"></i></a>
 					</li>
                     <li class="nav-item d-none d-md-block nav-link ">
 						<a href="<?php echo base_url() ?>dashboard" class="btn btn-amber btn-md t_tooltip" title="Access POS"><i class="icon-speedometer"></i><?php echo $this->lang->line('Dashboard') ?> </a>
@@ -158,8 +155,6 @@
                     </li>
                     <?php if ($this->aauth->auto_attend()) { ?>
                         <li class="dropdown dropdown-d nav-item">
-
-
                             <?php if ($this->aauth->clock()) {
 
                                 echo ' <a class="nav-link nav-link-label" href="#" data-toggle="dropdown"><i class="ficon spinner icon-clock"></i><span class="badge badge-pill badge-default badge-success badge-default badge-up">' . $this->lang->line('On') . '</span></a>';
@@ -168,7 +163,6 @@
                                 echo ' <a class="nav-link nav-link-label" href="#" data-toggle="dropdown"><i class="ficon icon-clock"></i><span class="badge badge-pill badge-default badge-warning badge-default badge-up">' . $this->lang->line('Off') . '</span></a>';
                             }
                             ?>
-
                             <ul class="dropdown-menu dropdown-menu-right border-primary border-lighten-3 text-xs-center">
                                 <br><br>
                                 <?php echo '<span class="p-1 text-bold-300">' . $this->lang->line('Attendance') . ':</span>';

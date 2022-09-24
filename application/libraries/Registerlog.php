@@ -32,9 +32,12 @@ class Registerlog
 
     public function check($id)
     {
+		$this->RI->db->select('geopos_register.*,geopos_users.username,geopos_employees.name');
         $this->RI->db->from('geopos_register');
-        $this->RI->db->where('uid', $id);
-        $this->RI->db->where('active', 1);
+		$this->RI->db->join('geopos_users', 'geopos_register.uid=geopos_users.id', 'left');
+		$this->RI->db->join('geopos_employees', 'geopos_users.username=geopos_employees.username', 'left');
+        $this->RI->db->where('geopos_register.uid', $id);
+        $this->RI->db->where('geopos_register.active', 1);
         $query = $this->RI->db->get();
         $result = $query->row_array();
         if ($result) {
@@ -47,10 +50,13 @@ class Registerlog
 
     public function view($id)
     {
+		$this->RI->db->select('geopos_register.*,geopos_users.username, geopos_employees.name');
         $this->RI->db->from('geopos_register');
         $this->RI->db->where('geopos_register.id', $id);
-              $this->RI->db->join('geopos_users', 'geopos_register.uid=geopos_users.id', 'left');
-            if ($this->RI->aauth->get_user()->loc) {
+        $this->RI->db->join('geopos_users', 'geopos_register.uid=geopos_users.id', 'left');
+		$this->RI->db->join('geopos_employees', 'geopos_users.username=geopos_employees.username', 'left');
+		
+        if ($this->RI->aauth->get_user()->loc) {
             $this->RI->db->group_start();
             $this->RI->db->where('geopos_users.loc', $this->RI->aauth->get_user()->loc);
             if (BDATA) $this->RI->db->or_where('geopos_users.loc', 0);
@@ -69,7 +75,7 @@ class Registerlog
     }
 
 
-    public function create($id, $cash, $card, $bank, $cheque)
+    public function create($id, $cash, $card, $bank, $cheque, $tot_start)
     {
         $data = array(
             'uid' => $id,
@@ -78,17 +84,28 @@ class Registerlog
             'card' => $card,
             'bank' => $bank,
             'cheque' => $cheque,
+			'tot_start' => $tot_start,
+			'balanco' => '0.00',
+			'mbway' => '0.00',
+			'paypal' => '0.00',
+			'cupoes' => '0.00',
+			'outros' => '0.00',
             'active'=>1
         );
         return $this->RI->db->insert('geopos_register', $data);
     }
 
-    public function update($id, $cash = 0,  $card = 0, $bank = 0, $cheque = 0,$change = 0)
+    public function update($id, $cash = 0, $card = 0, $bank = 0, $cheque = 0, $balanco = 0, $mbway = 0, $paypal = 0, $cupoes = 0, $outros = 0, $change = 0)
     {
         $this->RI->db->set('cash', "cash+$cash", FALSE);
         $this->RI->db->set('card', "card+$card", FALSE);
         $this->RI->db->set('bank', "bank+$bank", FALSE);
         $this->RI->db->set('cheque', "cheque+$cheque", FALSE);
+		$this->RI->db->set('balanco', "balanco+$balanco", FALSE);
+		$this->RI->db->set('mbway', "mbway+$mbway", FALSE);
+		$this->RI->db->set('paypal', "paypal+$paypal", FALSE);
+		$this->RI->db->set('cupoes', "cupoes+$cupoes", FALSE);
+		$this->RI->db->set('outros', "outros+$outros", FALSE);
         $this->RI->db->set('r_change', "r_change+$change", FALSE);
         $this->RI->db->where('uid', $id);
         $this->RI->db->where('active', 1);

@@ -1,4 +1,15 @@
 <?php
+/**
+ *
+ *  ************************************************************************
+ *  * This software is furnished under a license and may be used and copied
+ *  * only  in  accordance  with  the  terms  of such  license and with the
+ *  * inclusion of the above PCTECKSERV notice.
+ *  *
+ *  *
+ * ***********************************************************************
+ */
+
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Search_products extends CI_Controller

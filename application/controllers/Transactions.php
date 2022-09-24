@@ -1,18 +1,12 @@
 <?php
 /**
-
- * 
- * ***********************************************************************
- *
- 
- 
  *
  *  ************************************************************************
  *  * This software is furnished under a license and may be used and copied
  *  * only  in  accordance  with  the  terms  of such  license and with the
- *  * inclusion of the above copyright notice.
- *  * 
- *  * 
+ *  * inclusion of the above PCTECKSERV notice.
+ *  *
+ *  *
  * ***********************************************************************
  */
 
@@ -630,13 +624,13 @@ class Transactions extends CI_Controller
 			if($pay_type == 'Salaries')
 			{
 				$subject = $payer_name . '<br>Realizada uma transferência de Salário.<br>';
-				$body = $subject . '<br> Foi transferido o valor de: ' . $this->lang->line('Amount') . '<br> Obrigado pela sua Colaboração.';
+				$body = $subject . '<br> Foi transferido o valor de: ' . $amount . '<br> Obrigado pela sua Colaboração.';
 			}else{
 				$subject = $payer_name . '<br>' . $this->lang->line('Transaction has been').'<br>';
 				if ($pay_type == 'Income' || $pay_type == 'Subscription' || $pay_type == 'Transfer') {
-					$body = $subject . '<br> Foi dado como Crédito o valor de: ' . $this->lang->line('Amount') . '<br> Obrigado pela sua Preferência.';
+					$body = $subject . '<br> Foi dado como Crédito o valor de: ' . $amount . '<br> Obrigado pela sua Preferência.';
 				} elseif ($pay_type == 'Expense') {
-					$body = $subject . '<br> Foi dado como Débito o valor de: ' . $this->lang->line('Amount') . '<br> Obrigado pela sua Preferência.';
+					$body = $subject . '<br> Foi dado como Débito o valor de: ' .$amount. '<br> Obrigado pela sua Preferência.';
 				}
 			}
             
@@ -660,7 +654,7 @@ class Transactions extends CI_Controller
         if ($amount > 0) {
             if ($this->transactions->addtransfer($pay_acc, $pay_acc2, $amount, $this->aauth->get_user()->id, $this->aauth->get_user()->loc)) {
                 echo json_encode(array('status' => 'Success', 'message' =>
-                    "Transfer has been successfully done! <a href='" . base_url() . "transactions/transfer' class='btn btn-indigo btn-sm'><span class='icon-plus-circle' aria-hidden='true'></span> " . $this->lang->line('New') . "  </a> <a href='" . base_url() . "accounts' class='btn btn-indigo btn-sm'><span class='icon-list-ul' aria-hidden='true'></span></a>"));
+                    "A transferência foi realizada com Sucesso! <a href='" . base_url() . "transactions/transfer' class='btn btn-indigo btn-sm'><span class='icon-plus-circle' aria-hidden='true'></span> " . $this->lang->line('New') . "  </a> <a href='" . base_url() . "accounts' class='btn btn-indigo btn-sm'><span class='icon-list-ul' aria-hidden='true'></span></a>"));
             }
         } else {
             echo json_encode(array('status' => 'Error', 'message' =>

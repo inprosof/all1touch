@@ -11,7 +11,7 @@
                 <h5>Woo Commerce Integration Using REST</h5>
                 <hr>
                 <p>Woo Commerce (WC) 2.6+ is fully integrated with the WordPress REST API. <br><span
-                            class="text-primary">You can link your WooCommerce Store to Geo POS. To create or manage keys for a specific WordPress user, go to WooCommerce > Settings >Advanced > REST API.</span>
+                            class="text-primary">You can link your WooCommerce Store to All1Touch. To create or manage keys for a specific WordPress user, go to WooCommerce > Settings >Advanced > REST API.</span>
                 </p>
 
                 <div class="form-group row">
@@ -182,7 +182,7 @@
                     <hr>
 
 
-                    <p>You can import your woocommerce products to geo pos with one click.</p>
+                    <p>You can import your woocommerce products to All1Touch with one click.</p>
                     <a href="#" data-toggle="modal" data-target="#importProducts"
                        class="btn btn-blue-grey btn-lg margin-bottom"
                        data-loading-text="Importing..."><?php echo $this->lang->line('Import') ?></a>
@@ -190,9 +190,7 @@
                 </div>
                 <div class="col-md-6"><h5>Import Woocommerce Orders</h5>
                     <hr>
-
-
-                    <p>You can import your woocommerce orders to geo pos with one click.</p>
+                    <p>You can import your woocommerce orders to All1Touch with one click.</p>
                     <a href="#" data-toggle="modal" data-target="#importOrders"
                        class="btn btn-blue btn-lg margin-bottom"
                        data-loading-text="Importt..."><?php echo $this->lang->line('Import') ?></a>

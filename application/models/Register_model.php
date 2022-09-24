@@ -28,10 +28,11 @@ class Register_model extends CI_Model
 
     private function _get_datatables_query()
     {
-        $this->db->select('geopos_register.*,geopos_users.username');
+        $this->db->select('geopos_register.*,geopos_users.username, geopos_employees.name');
         $this->db->from($this->table);
         $this->db->join('geopos_users', 'geopos_register.uid=geopos_users.id', 'left');
-            if ($this->aauth->get_user()->loc) {
+		$this->db->join('geopos_employees', 'geopos_users.username=geopos_employees.username', 'left');
+        if ($this->aauth->get_user()->loc) {
             $this->db->group_start();
             $this->db->where('geopos_users.loc', $this->aauth->get_user()->loc);
             if (BDATA) $this->db->or_where('geopos_users.loc', 0);

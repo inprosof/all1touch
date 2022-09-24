@@ -9,7 +9,7 @@
     <?php if (@$title) {
         echo "<title>$title</title >";
     } else {
-        echo "<title>Geo POS</title >";
+        echo "<title>All1Touch</title >";
     }
     ?>
     <link rel="apple-touch-icon" href="<?php echo assets_url() ?>app-assets/images/ico/apple-icon-120.png">

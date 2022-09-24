@@ -9,6 +9,7 @@
  *  *
  * ***********************************************************************
  */
+
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Customers_notes extends CI_Controller

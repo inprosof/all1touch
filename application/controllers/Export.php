@@ -85,24 +85,6 @@ class Export extends CI_Controller {
 		}
     }
 
-
-    // this is the funtion for the download xml file by eyno
-
-	function tax_authority()
-    {
-		if (!$this->aauth->premission(119) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
-            exit($this->lang->line('translate19'));
-        }
-		$this->li_a = 'taxstsaft';
-        $head['title'] = "Saft Export";
-        $head['usernm'] = $this->aauth->get_user()->username;
-		$this->load->model('locations_model');
-        $data['locations'] = $this->locations_model->locations_list();
-        $this->load->view('fixed/header', $head);
-        $this->load->view('export/saft_export', $data);
-        $this->load->view('fixed/footer');
-    }
-
     function crm()
     {
 		if (!$this->aauth->premission(118) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
@@ -580,8 +562,24 @@ class Export extends CI_Controller {
         $pdf->Output('Statement' . $customer . '.pdf', 'I');
     }
 
+    // this is the funtion for the download xml file by eyno
 
-	function tax_authority() {
+    function tax_authority()
+    {
+        if (!$this->aauth->premission(119) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
+            exit($this->lang->line('translate19'));
+        }
+        $this->li_a = 'taxstsaft';
+        $head['title'] = "Saft Export";
+        $head['usernm'] = $this->aauth->get_user()->username;
+        $this->load->model('locations_model');
+        $data['locations'] = $this->locations_model->locations_list();
+        $this->load->view('fixed/header', $head);
+        $this->load->view('export/saft_export', $data);
+        $this->load->view('fixed/footer');
+    }
+
+	/*function tax_authority() {
 		if (!$this->aauth->premission(118) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
             exit($this->lang->line('translate19'));
         }
@@ -595,7 +593,7 @@ class Export extends CI_Controller {
         $this->load->view('fixed/header', $head);
         $this->load->view('export/saft_export', $data);
         $this->load->view('fixed/footer');
-    }
+    }*/
 
     public function save_val_ativate()
     {

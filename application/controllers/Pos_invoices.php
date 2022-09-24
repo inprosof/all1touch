@@ -1,4 +1,15 @@
 <?php
+/**
+ *
+ *  ************************************************************************
+ *  * This software is furnished under a license and may be used and copied
+ *  * only  in  accordance  with  the  terms  of such  license and with the
+ *  * inclusion of the above PCTECKSERV notice.
+ *  *
+ *  *
+ * ***********************************************************************
+ */
+
 defined('BASEPATH') or exit('No direct script access allowed');
 require_once APPPATH . 'third_party/vendor/autoload.php';
 require_once APPPATH . 'third_party/qrcode/vendor/autoload.php';
@@ -150,8 +161,8 @@ class Pos_invoices extends CI_Controller
 			$data['lastinvoice'] = $numget;
 			$head['title'] = "Novo Documento POS";
 			$head['usernm'] = $this->aauth->get_user()->username;
-			$head['s_mode'] = false;
 			$this->load->view('fixed/header-pos', $head);
+			$head['s_mode'] = true;
 			$this->load->view('pos/newinvoice', $data);
 			$this->load->view('fixed/footer-pos');
 		}
@@ -427,16 +438,18 @@ class Pos_invoices extends CI_Controller
         if ($ptype == 4) {
             $p_amount = $this->input->post('p_amount');
             $pmethod = $this->input->post('p_method');
-
-            $c_amt = $p_amount - $total;
-            if ($c_amt == 0.00) {
+			
+			$c_amt = $p_amount;
+            $c_amt_v = $p_amount - $total;
+            if ($c_amt_v == 0.00) {
                 $status = 'Paid';
                 $pamnt = $total;
-            } elseif ($c_amt < 0.00) {
+            } elseif ($c_amt_v < 0.00) {
                 $status = 'Partial';
-                if ($p_amount == 0.00) $status = 'Due';
+                if ($p_amount == 0.00) 
+					$status = 'Due';
                 $pamnt = $p_amount;
-                $c_amt = 0;
+                $c_amt_v = 0;
             } else {
                 $status = 'Paid';
                 $pamnt = $total;
@@ -470,7 +483,7 @@ class Pos_invoices extends CI_Controller
                     $total_discount += $amount;
                 }
             }
-            $data = array('tid' => $invocieno, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'pmethod' => $metretnotqo, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'loc' => $warehouse, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 1, 'ext' => 0, 'irs_type' => $invoi_type);
+            $data = array('tid' => $invocieno, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'pmethod' => $metretnotqo, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'loc' => $warehouse, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 1, 'ext' => 0, 'irs_type' => $invoi_type, 'datedoc' => date('Y-m-d H:i:s'));
 			if ($this->db->insert('geopos_invoices', $data)) {
                 $invocieno_n = $invocieno;
                 $invocieno2 = $invocieno;
@@ -574,7 +587,6 @@ class Pos_invoices extends CI_Controller
                         $this->db->where_in('serial', $product_serial);
                         $this->db->update('geopos_product_serials');
                     }
-
                 }
                 $validtoken = hash_hmac('ripemd160', $invocieno, $this->config->item('encryption_key'));
                 $link = base_url('billing/view?id=' . $invocieno . '&token=' . $validtoken);
@@ -594,21 +606,44 @@ class Pos_invoices extends CI_Controller
 				$pmethoget = $this->invocies->methodpayname($pmethod);
 				$pmethodname = $pmethoget['methodname'];
                 $tnote = 'POS Nº: ' . $invocieno_n . '-' . $pmethodname;
-				if($pmethod == 40 || $pmethod == 45)
+				$r_amt1 = 0;
+				$r_amt2 = 0;
+				$r_amt3 = 0;
+				$r_amt4 = 0;
+				$r_amt5 = 0;
+				$r_amt6 = 0;
+				$r_amt7 = 0;
+				$r_amt8 = 0;
+				$r_amt9 = 0;
+				
+				if($pmethod == 40)
 				{
-					$r_amt1 = 0;
-					$r_amt2 = $pamnt;
-					$r_amt3 = 0;
-				}else if($pmethod == 42 || $pmethod == 43 || $pmethod == 46 || $pmethod == 41)
-				{
-					$r_amt1 = 0;
-					$r_amt2 = 0;
-					$r_amt3 = $pamnt;
-				}else {
 					$r_amt1 = $pamnt;
-					$r_amt2 = 0;
-					$r_amt3 = 0;
+				}else if($pmethod == 44)
+				{
+					$r_amt2 = $pamnt;
+				}else if($pmethod == 46)
+				{
+					$r_amt3 = $pamnt;
+				}else if($pmethod == 41)
+				{
+					$r_amt4 = $pamnt;
+				}else if($pmethod == 62)
+				{
+					$r_amt5 = $pamnt;
+				}else if($pmethod == 42)
+				{
+					$r_amt6 = $pamnt;
+				}else if($pmethod == 45)
+				{
+					$r_amt7 = $pamnt;
+				}else if($pmethod == 63)
+				{
+					$r_amt8 = $pamnt;
+				}else {
+					$r_amt9 = $pamnt;
 				}
+				
                 $d_trans = $this->plugins->universal_api(69);
 				if ($d_trans['key2']) {
 					
@@ -652,7 +687,7 @@ class Pos_invoices extends CI_Controller
 				}
                 if ($pamnt > 0) 
 					$this->billing->paynow($invocieno, $pamnt, $tnote, $pmethod, $this->aauth->get_user()->loc, $bill_date, $account);
-					$this->registerlog->update($this->aauth->get_user()->id, $r_amt1, $r_amt2, $r_amt3, 0, $c_amt);
+					$this->registerlog->update($this->aauth->get_user()->id, $r_amt1, $r_amt2, $r_amt3, $r_amt4, $r_amt5, $r_amt6, $r_amt7, $r_amt8, $r_amt9, $c_amt);
 					// now try it
 					$ua=$this->aauth->getBrowser();
 					$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
@@ -929,22 +964,6 @@ class Pos_invoices extends CI_Controller
             }
         } else {
 			//draft
-            $p_amount = 0;
-            $c_amt = @$p_amount - $total;
-            if ($c_amt == 0.00) {
-                $status = 'Paid';
-                $pamnt = $total;
-            } elseif ($c_amt < 0.00) {
-                $status = 'Partial';
-                $pamnt = $p_amount;
-
-
-            } else {
-                $status = 'Paid';
-                $pamnt = $total;
-            }
-
-
             $i = 0;
             if ($discountFormat == '0') {
                 $discstatus = 0;
@@ -1329,10 +1348,7 @@ class Pos_invoices extends CI_Controller
             $pterms = $this->input->post('pterms');
             //edit
             $diff = $total - $old_total;
-            $c_amt = $p_amount - $diff;
-            if ($c_amt < 0) {
-                $c_amt = 0;
-            }
+			$c_amt = $p_amount;
             $i = 0;
             if ($this->limited) {
                 $employee = $this->invocies->invoice_details($invocieno, $this->limited);
@@ -1441,28 +1457,49 @@ class Pos_invoices extends CI_Controller
                     $transok = false;
                 }
                 echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('Invoice has  been updated') . " <a href='view?id=$invocieno' class='btn btn-info btn-lg'><span class='icon-file-text2' aria-hidden='true'></span> " . $this->lang->line('View') . " </a> "));
-
                 $this->load->model('billing_model', 'billing');
-                $tnote = '#' . $invocieno_n . '-' . $pmethod;
-                switch ($pmethod) {
-                    case 'Cash' :
-                        $r_amt1 = $diff;
-                        $r_amt2 = 0;
-                        $r_amt3 = 0;
-                        break;
-                    case 'Card Swipe' :
-                        $r_amt1 = 0;
-                        $r_amt2 = $diff;
-                        $r_amt3 = 0;
-                        break;
-                    case 'Bank' :
-                        $r_amt1 = 0;
-                        $r_amt2 = 0;
-                        $r_amt3 = $diff;
-                        break;
-                }
+				$pmethoget = $this->invocies->methodpayname($pmethod);
+				$pmethodname = $pmethoget['methodname'];
+                $tnote = 'POS Nº: ' . $invocieno_n . '-' . $pmethodname;
+				$r_amt1 = 0;
+				$r_amt2 = 0;
+				$r_amt3 = 0;
+				$r_amt4 = 0;
+				$r_amt5 = 0;
+				$r_amt6 = 0;
+				$r_amt7 = 0;
+				$r_amt8 = 0;
+				$r_amt9 = 0;
+				
+				if($pmethod == 40)
+				{
+					$r_amt1 = $pamnt;
+				}else if($pmethod == 44)
+				{
+					$r_amt2 = $pamnt;
+				}else if($pmethod == 46)
+				{
+					$r_amt3 = $pamnt;
+				}else if($pmethod == 41)
+				{
+					$r_amt4 = $pamnt;
+				}else if($pmethod == 62)
+				{
+					$r_amt5 = $pamnt;
+				}else if($pmethod == 42)
+				{
+					$r_amt6 = $pamnt;
+				}else if($pmethod == 45)
+				{
+					$r_amt7 = $pamnt;
+				}else if($pmethod == 63)
+				{
+					$r_amt8 = $pamnt;
+				}else {
+					$r_amt9 = $pamnt;
+				}
                 $this->billing->paynow($invocieno, $diff, $tnote, $pmethod, $this->aauth->get_user()->loc, 0, $account);
-                $this->registerlog->update($this->aauth->get_user()->id, $r_amt1, $r_amt2, $r_amt3, 0, $c_amt);
+                $this->registerlog->update($this->aauth->get_user()->id, $r_amt1, $r_amt2, $r_amt3, $r_amt4, $r_amt5, $r_amt6, $r_amt7, $r_amt8, $r_amt9, $c_amt);
                 if ($promo_flag) {
                     $cqty = $result_c['available'] - 1;
                     if ($cqty > 0) {

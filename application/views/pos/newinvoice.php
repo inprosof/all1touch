@@ -178,7 +178,7 @@
                                         class="fa fa-credit-card"></i> <?php echo $this->lang->line('Card') ?>
                             </a>
                         <?php } ?>
-
+						<a href="<?= base_url('stockreturn/create?ty=1') ?>" class="red float-right"><i class="fa fa-reply-all"></i></a>
                     </div>
                 </div>
 
@@ -374,14 +374,8 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
             </div>
 
         </div>
-
-
         <div class="col-md-6 card  order-sm-first  order-md-2 border-amber bg-lighten-1 bg-faded round pt-1">
-
-
             <div class="row border-bottom-grey-blue  border-bottom-lighten-4">
-
-
                 <div class="col-sm-9">
 					<div class="input-group">
 						<div class="input-group-prepend">
@@ -444,6 +438,28 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 </form>
 <audio id="beep" src="<?php echo  assets_url() ?>assets/js/beep.wav" autoplay="false"></audio>
 
+<div id="shortFullScreen" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Ecrâ Total</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped table-bordered">
+                    <tr>
+                        <td>Click Por favor na tecla F11 do seu Teclado. Para Sair Click de novo na tecla F11 do seu Teclado.</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="shortkeyboard" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
@@ -451,35 +467,35 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
         <div class="modal-content">
             <div class="modal-header">
 
-                <h4 class="modal-title">ShortCuts</h4>
+                <h4 class="modal-title">Comandos Rápidos</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <table class="table table-striped table-bordered">
                     <tr>
                         <td>Alt+X</td>
-                        <td>Focus to products search</td>
+                        <td>Foco na pesquisa de produtos</td>
                     </tr>
                     <tr>
                         <td>Alt+C</td>
-                        <td>Focus to customer search</td>
+                        <td>Foco na busca de clientes</td>
                     </tr>
 
                     <tr>
                         <td>Alt+S (twice)</td>
-                        <td>PayNow + Thermal Print</td>
+                        <td>Pague agora + impressão térmica</td>
                     </tr>
                     <tr>
                         <td>Alt+Z</td>
-                        <td>Make Card Payment</td>
+                        <td>Fazer pagamento com cartão</td>
                     </tr>
                     <tr>
                         <td>Alt+Q</td>
-                        <td>Select First product</td>
+                        <td>Selecione o primeiro produto</td>
                     </tr>
                     <tr>
                         <td>Alt+N</td>
-                        <td>Create New Invoice</td>
+                        <td>Criar Novo Documento</td>
                     </tr>
 
 
@@ -590,30 +606,42 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 
                                 </div>
                             </div>
-
-                            <?php
-                            if (is_array($custom_fields_c)) {
-                                foreach ($custom_fields_c as $row) {
-                                    if ($row['f_type'] == 'text') { ?>
-                                        <div class="form-group row">
-
-                                            <label class="col-sm-2 col-form-label"
-                                                   for="docid"><?php echo  $row['name'] ?></label>
-
-                                            <div class="col-sm-8">
-                                                <input type="text" placeholder="<?php echo  $row['placeholder'] ?>"
-                                                       class="form-control margin-bottom b_input"
-                                                       name="custom[<?php echo  $row['id'] ?>]">
-                                            </div>
-                                        </div>
-
-
-                                    <?php }
-                                }
-                            }
-                            ?>
-
-
+							<?php
+							if (is_array($custom_fields_c)) {
+								foreach ($custom_fields_c as $row) {
+									if ($row['f_type'] == 'text') { ?>
+										<div class="form-group row">
+											<label class="col-sm-2 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+													   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]">
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'check') { ?>
+										<div class="form-group row">
+											<label class="col-sm-2 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
+												<label class="custom-control-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'textarea') { ?>
+										<div class="form-group row">
+											<label class="col-sm-2 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<textarea placeholder="<?php echo $row['placeholder'] ?>"
+													   class="summernote <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
+											</div>
+										</div>
+									<?php }
+								}
+							}?>
                         </div>
 
                         <!-- shipping -->
@@ -824,32 +852,31 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 
             <!-- Modal Header -->
             <div class="modal-header">
-
-                <h4 class="modal-title"><?php echo $this->lang->line('Your Register') ?></h4>
+                <h4 class="modal-title">Movimentos de Caixa</h4>
                 <button type="button" class="close" data-dismiss="modal">
                     <span aria-hidden="true">&times;</span>
                     <span class="sr-only"><?php echo $this->lang->line('Close') ?></span>
                 </button>
-
             </div>
-
+			<h6>Indicação do estado da caixa deste terminal.</h6>
             <!-- Modal Body -->
             <div class="modal-body">
                 <div class="text-center m-1"><?php echo $this->lang->line('Active') ?> - <span id="r_date"></span></div>
                 <div class="row">
                     <div class="col-6">
-                        <div class="form-group  text-bold-600 green">
-                            <label for="amount"><?php echo $this->lang->line('Cash') ?>
+                        <div class="form-group  text-bold-600 blue">
+                            <label for="amount blue"><?php echo $this->lang->line('Cash') ?>
                                 (<?php echo  $this->config->item('currency'); ?>)
                             </label>
-                            <input type="number" class="form-control green" id="r_cash"
+                            <input type="number" class="form-control blue" id="r_cash"
                                    value="0.00"
                                    readonly>
                         </div>
                     </div>
                     <div class="col-5 col-md-5 pull-right">
                         <div class="form-group text-bold-600 blue">
-                            <label for="b_change blue"><?php echo $this->lang->line('Card') ?></label>
+                            <label for="r_card blue"><?php echo $this->lang->line('Card') ?></label>
+							(<?php echo  $this->config->item('currency'); ?>)
                             <input
                                     type="number"
                                     class="form-control blue"
@@ -857,22 +884,90 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                         </div>
                     </div>
                 </div>
-
-                <div class="row">
+				<div class="row">
                     <div class="col-6">
-                        <div class="form-group  text-bold-600 indigo">
-                            <label for="amount"><?php echo $this->lang->line('Bank') ?>
+                        <div class="form-group  text-bold-600 blue">
+                            <label for="r_bank blue"><?php echo $this->lang->line('Bank') ?></label>
+							(<?php echo  $this->config->item('currency'); ?>)
                             </label>
-                            <input type="number" class="form-control indigo" id="r_bank"
+                            <input type="number" class="form-control blue" id="r_bank"
+                                   value="0.00"
+                                   readonly>
+                        </div>
+                    </div>
+                    <div class="col-5 col-md-5 pull-right">
+                        <div class="form-group text-bold-600 blue">
+                            <label for="r_cheque blue">Cheque</label>
+							(<?php echo  $this->config->item('currency'); ?>)
+                            <input
+                                    type="number"
+                                    class="form-control blue"
+                                    id="r_cheque" value="0" readonly>
+                        </div>
+                    </div>
+                </div>
+				
+				<div class="row">
+                    <div class="col-6">
+                        <div class="form-group  text-bold-600 blue">
+                            <label for="r_balanco blue">Balanço Cliente</label>
+							(<?php echo  $this->config->item('currency'); ?>)
+                            <input type="number" class="form-control blue" id="r_balanco"
+                                   value="0.00"
+                                   readonly>
+                        </div>
+                    </div>
+                    <div class="col-5 col-md-5 pull-right">
+                        <div class="form-group text-bold-600 blue">
+                            <label for="r_mbway blue">MBWay</label>
+							(<?php echo  $this->config->item('currency'); ?>)
+                            <input
+                                    type="number"
+                                    class="form-control blue"
+                                    id="r_mbway" value="0" readonly>
+                        </div>
+                    </div>
+                </div>
+				
+				<div class="row">
+                    <div class="col-6">
+                        <div class="form-group  text-bold-600 blue">
+                            <label for="r_paypal blue">Paypal</label>
+							(<?php echo  $this->config->item('currency'); ?>)
+                            <input type="number" class="form-control blue" id="r_paypal"
+                                   value="0.00"
+                                   readonly>
+                        </div>
+                    </div>
+                    <div class="col-5 col-md-5 pull-right">
+                        <div class="form-group text-bold-600 blue">
+                            <label for="r_cupoes blue">Cupões Cliente</label>
+							(<?php echo  $this->config->item('currency'); ?>)
+                            <input
+                                    type="number"
+                                    class="form-control blue"
+                                    id="r_cupoes" value="0" readonly>
+                        </div>
+                    </div>
+                </div>
+				
+				
+				
+                <div class="row">
+					<div class="col-6">
+                        <div class="form-group  text-bold-600 blue">
+                            <label for="r_outros blue">Outros</label>
+							(<?php echo  $this->config->item('currency'); ?>)
+                            <input type="number" class="form-control blue" id="r_outros"
                                    value="0.00"
                                    readonly>
                         </div>
                     </div>
                     <div class="col-5 col-md-5 pull-right">
                         <div class="form-group text-bold-600 red">
-                            <label for="b_change">Diferença(-)</label>
-                            <input
-                                    type="number"
+                            <label for="r_change">Diferença(+)</label>
+							(<?php echo  $this->config->item('currency'); ?>)
+                            <input type="number"
                                     class="form-control red"
                                     id="r_change" value="0" readonly>
                         </div>
@@ -1035,8 +1130,14 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                 $('#r_cash').val(data.cash);
                 $('#r_card').val(data.card);
                 $('#r_bank').val(data.bank);
-                $('#r_change').val(data.change);
-                $('#r_date').text(data.date);
+				$('#r_cheque').val(data.cheque);
+				$('#r_balanco').val(data.balanco);
+				$('#r_mbway').val(data.mbway);
+				$('#r_paypal').val(data.paypal);
+                $('#r_cupoes').val(data.cupoes);
+				$('#r_outros').val(data.outros);
+				$('#r_change').val(data.change);
+                $('#r_date').html('Os movimentos de caixa neste terminal estão abertos. A caixa foi aberta pelo operador <strong>'+data.operator+'</strong> em <strong>'+data.date+'</strong> com o valor de <strong>'+data.tot_start+'</strong> €');
             }
         });
     }

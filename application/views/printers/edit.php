@@ -37,7 +37,7 @@
                             <option value="network">Network Printer</option>
                             <option value="windows">Windows Printer (USB)</option>
                             <option value="test">Test Dummy Printer</option>
-                            <option value="server">GEO POS REST Print Server</option>
+                            <option value="server">All1Touch REST Print Server</option>
                         </select>
                     </div>
                 </div>
