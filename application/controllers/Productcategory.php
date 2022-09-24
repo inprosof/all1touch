@@ -46,6 +46,7 @@ class Productcategory extends CI_Controller
 		if (!$this->aauth->premission(28) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
         }
+		
         $data['cat'] = $this->products_cat->warehouse();
         $head['title'] = "Product Warehouse";
         $head['usernm'] = $this->aauth->get_user()->username;
@@ -397,15 +398,26 @@ class Productcategory extends CI_Controller
 
                 $wr = " AND geopos_warehouse.loc='" . $this->aauth->get_user()->loc . "'";
             }
-
             switch ($r_type) {
                 case 1 :
-                    $query = $this->db->query("SELECT geopos_invoices.tid,geopos_invoice_items.qty,geopos_invoice_items.price,geopos_invoices.invoicedate FROM geopos_invoice_items LEFT JOIN geopos_invoices ON geopos_invoices.id=geopos_invoice_items.tid LEFT JOIN geopos_products ON geopos_products.pid=geopos_invoice_items.pid $qj WHERE geopos_invoices.status!='canceled'  AND (DATE(geopos_invoices.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date')) AND geopos_products.warehouse='$pid' $wr");
+                    $query = $this->db->query("SELECT CONCAT(geopos_irs_typ_doc.type, ' ',geopos_series.serie, '/', geopos_invoices.tid) as tid,geopos_invoice_items.qty, geopos_invoice_items.price,CONCAT(geopos_invoices.invoicedate, ' - ', geopos_invoice_items.product) as invoicedate 
+					FROM geopos_invoice_items 
+					LEFT JOIN geopos_invoices ON geopos_invoices.id=geopos_invoice_items.tid 
+					LEFT JOIN geopos_products ON geopos_products.pid=geopos_invoice_items.pid $qj 
+					LEFT JOIN geopos_irs_typ_doc ON geopos_invoices.irs_type = geopos_irs_typ_doc.id 
+					LEFT JOIN geopos_series ON geopos_series.id = geopos_invoices.serie 
+					WHERE geopos_invoices.status!='canceled'  AND (DATE(geopos_invoices.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date')) AND geopos_products.warehouse='$pid' $wr");
                     $result = $query->result_array();
                     break;
-
                 case 2 :
-                    $query = $this->db->query("SELECT geopos_purchase.tid,geopos_purchase_items.qty,geopos_purchase_items.price,geopos_purchase.invoicedate FROM geopos_purchase_items LEFT JOIN geopos_purchase ON geopos_purchase.id=geopos_purchase_items.tid LEFT JOIN geopos_products ON geopos_products.pid=geopos_purchase_items.pid  LEFT JOIN geopos_product_cat ON geopos_product_cat.id=geopos_products.pcat  WHERE geopos_purchase.status!='canceled' AND (DATE(geopos_purchase.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date')) AND geopos_products.pcat='$pid' ");
+                    $query = $this->db->query("SELECT CONCAT(geopos_irs_typ_doc.type, ' ',geopos_series.serie, '/', geopos_purchase.tid) as tid,geopos_purchase_items.qty, geopos_purchase_items.price,CONCAT(geopos_purchase.invoicedate, ' - ', geopos_purchase_items.product) as invoicedate 
+					FROM geopos_purchase_items 
+					LEFT JOIN geopos_purchase ON geopos_purchase.id=geopos_purchase_items.tid 
+					LEFT JOIN geopos_products ON geopos_products.pid=geopos_purchase_items.pid 
+					LEFT JOIN geopos_product_cat ON geopos_product_cat.id=geopos_products.pcat 
+					LEFT JOIN geopos_irs_typ_doc ON geopos_purchase.irs_type = geopos_irs_typ_doc.id 
+					LEFT JOIN geopos_series ON geopos_series.id = geopos_purchase.serie 
+					WHERE geopos_purchase.status!='canceled' AND (DATE(geopos_purchase.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date')) AND geopos_products.pcat='$pid' ");
                     $result = $query->result_array();
                     break;
 
@@ -414,8 +426,6 @@ class Productcategory extends CI_Controller
                     $result = $query->result_array();
                     break;
             }
-
-
             $this->db->select('*');
             $this->db->from('geopos_warehouse');
             $this->db->where('id', $pid);

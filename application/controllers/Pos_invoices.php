@@ -645,8 +645,7 @@ class Pos_invoices extends CI_Controller
 				}
 				
                 $d_trans = $this->plugins->universal_api(69);
-				if ($d_trans['key2']) {
-					
+				if ($d_trans['key2'] == 1) {
 					$t_data = array(
 						'type' => 'Income',
 						'cat' => 3,
