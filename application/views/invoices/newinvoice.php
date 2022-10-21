@@ -523,8 +523,8 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 														}
 														echo "<td>".$row['invoicedate']."</td>";
 														echo "<td>".$row['taxid']."</td>";
-														echo '<td><input type="hidden" disabled readonly value="'.$row['total'].'" id="val_tot_rel-'.$valdocrela.'"></td>';
-														echo '<td><input type="hidden" disabled readonly value="'.$row['total'].'" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+														echo '<td><input type="text" disabled readonly value="'.$row['total_discount_tax'].'" id="val_tot_rel-'.$valdocrela.'"></td>';
+														echo '<td><input type="text" disabled readonly value="'.$row['pamnt'].'" id="val_tot_rel_con-'.$valdocrela.'"></td>';
 														echo '</tr>';
 													}
 													

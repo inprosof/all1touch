@@ -994,11 +994,11 @@ class Customers extends CI_Controller
 
             if (!$this->upload->do_upload('userfile')) {
                 $data['response'] = 0;
-                $data['responsetext'] = 'File Upload Error';
+                $data['responsetext'] = $this->lang->line('File upload error');
 
             } else {
                 $data['response'] = 1;
-                $data['responsetext'] = 'Document Uploaded Successfully. <a href="documents?id=' . $cid . '"
+                $data['responsetext'] = $this->lang->line('File upload success') . '<a href="documents?id=' . $cid . '"
                                        class="btn btn-indigo btn-md"><i
                                                 class="icon-folder"></i>
                                     </a>';

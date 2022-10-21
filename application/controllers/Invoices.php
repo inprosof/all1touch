@@ -120,9 +120,9 @@ class Invoices extends CI_Controller
 			}
 			$this->load->library("Related");
 			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
-			$data['csd_name'] = $data['docs_origem']['name'];
-			$data['csd_tax'] = $data['docs_origem']['taxid'];
-			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['csd_name'] = $data['docs_origem'][0]['name'];
+			$data['csd_tax'] = $data['docs_origem'][0]['taxid'];
+			$data['csd_id'] = $data['docs_origem'][0]['id'];
 			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
 		}else if($projectget != "")
 		{
@@ -1471,7 +1471,7 @@ class Invoices extends CI_Controller
 		$data['c_custom_fields'] = [];
         if (CUSTOM) 
 			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
-        $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Customer'), 'prefix' => $pref, 't_type' => 0);
+        $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_s'], 't_type' => 0);
         ini_set('memory_limit', '64M');
 		
 		$data['invoice']['type'] = $data['invoice']['irs_type_n'];

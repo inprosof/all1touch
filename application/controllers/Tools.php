@@ -480,11 +480,7 @@ class Tools extends CI_Controller
 
             $this->load->view('notes/adddocument', $data);
         } else {
-
-
             $this->load->view('notes/adddocument', $data);
-
-
         }
         $this->load->view('fixed/footer');
 
