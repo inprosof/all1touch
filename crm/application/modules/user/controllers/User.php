@@ -34,14 +34,9 @@ class User extends CI_Controller
      */
     public function login()
     {
-
-
         $data['captcha_on'] = $this->captcha;
         $data['captcha'] = $this->general->public_key()->recaptcha_p;
-
-
-
-
+		
         if (isset($_SESSION['user_details'])) {
             redirect(base_url() . 'invoices', 'refresh');
         }
@@ -516,23 +511,38 @@ class User extends CI_Controller
                         $this->load->library('parser');
 
                         $template = $this->User_model->template_info(14);
+						
+						$mailfromtilte = '';
+						$mailfrom = '';
+						
+						$this->db->select("emailo_remet, email_app");
+						$this->db->from('geopos_system_permiss');
+						if($this->aauth->get_user()->loc > 0){
+							$this->db->where('loc', $this->aauth->get_user()->loc);
+						}else{
+							$this->db->where('loc', 0);
+						}
+						$query = $this->db->get();
+						$vals = $query->row_array();
+						$mailfromtilte = $vals['emailo_remet'];
+						if($mailfromtilte == '')
+						{
+							$mailfromtilte = $this->config->item('ctitle');
+						}
                         $tdata = array(
-                            'Company' => $this->config->item('ctitle'),
+                            'Company' => $mailfromtilte,
                             'NAME' => $data['name']
                         );
                         $subject = $this->parser->parse_string($template['key1'], $tdata, TRUE);
                         $reg_url = base_url() . 'user/confirm?token=' . $udata['code'];
                         $tdata = array(
-                            'Company' => $this->config->item('ctitle'),
+                            'Company' => $mailfromtilte,
                             'NAME' => $data['name'],
                             'REG_URL' => $reg_url
                         );
                         $message = $this->parser->parse_string($template['other'], $tdata, TRUE);
-
-                         $this->general->send_email($zdata1['email'],$data['name'], $subject, $message);
+                        $this->general->send_email($zdata1['email'],$data['name'], $subject, $message, $this->aauth->get_user()->loc);
                     }
-
-
                     $this->session->set_flashdata('messagePr', 'Registered Successfully! ');
                        redirect(base_url() . 'user/' . $redirect, 'refresh');
                 } else {
@@ -726,14 +736,9 @@ class User extends CI_Controller
 
     public function confirm()
     {
-
-
         if ($this->input->get('token', true) && $this->input->get('token', true) != '') {
             $res = $this->User_model->get_data_by_row('users', 'code', $this->input->get('token'));
-
             if ($res['code']) {
-
-
                 $this->User_model->updateRow('users', 'code', $this->input->get('token'), array('status' => 'active', 'code' => null));
                 $this->session->set_flashdata('messagePr', 'Activated.');
                 $result['result'] = 'success';
@@ -747,31 +752,27 @@ class User extends CI_Controller
         redirect(base_url() . 'user/login', 'refresh');
     }
 
-        public function reset()
+    public function reset()
     {
-
         if ($this->input->post('n_code', true) && $this->input->post('n_password', true) != ''  && $this->input->post('n_password', true) != '') {
             $return = $this->User_model->ResetPpassword();
 
-             if ($return) {
-                echo json_encode(array('status' => 'Success', 'message' => 'Successfully! Changed! <a href="'.base_url().'">Go to Home</a>' ));
-      //      redirect(base_url() . 'user/login', 'refresh');
+       if ($return) {
+          echo json_encode(array('status' => 'Success', 'message' => 'Successfully! Changed! <a href="'.base_url().'">Go to Home</a>' ));
+      //  redirect(base_url() . 'user/login', 'refresh');
         } else {
             $this->session->set_flashdata('messagePr', 'Unable to update password');
            // redirect(base_url() . 'user/login', 'refresh');
         }
 
         }
-             else if ($this->input->get('email', true) && $this->input->get('token', true) != ''){
+        else if ($this->input->get('email', true) && $this->input->get('token', true) != ''){
             $data['code']=$this->input->get('token', true);
-              $data['email']=$this->input->get('email', true);
-             $this->load->view('header');
-        $this->load->view('reset',$data);
+            $data['email']=$this->input->get('email', true);
+            $this->load->view('header');
+			$this->load->view('reset',$data);
         $this->load->view('footer');
         }
-
-
-
         if ($this->input->post('email', true) && $this->input->post('token', true) != '') {
             $res = $this->User_model->get_data_by_row('users', 'code', $this->input->get('token'));
 

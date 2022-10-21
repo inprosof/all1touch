@@ -21,7 +21,7 @@
 			<label class="col-sm-3 col-form-label"
 				   for="currency">Tipo de Documento</label>
 			<div class="col-sm-8">
-				<select name="typ_doc" class="form-control margin-bottom b_input">
+				<select name="typ_doc" id="typ_doc" class="form-control margin-bottom b_input">
 					<option value="<?php echo $irs_typ['typ_doc'] ?>">--<?php echo $irs_typ['nameused'] ?>--</option>
 					<?php foreach ($typ_docs as $row) {
 						echo '<option value="' . $row['id'] . '">' . $row['type'] . " - ". $row['description'];  '</option>';
@@ -35,9 +35,8 @@
 				<thead>
 				<tr class="item_header bg-gradient-directional-blue white">
 					<th width="31%" class="text-center">Serie</th>
-					<th width="15%" class="text-center"><?php echo $this->lang->line('Preset') ?></th>
-					<th width="7%" class="text-center">Nº <?php echo $this->lang->line('Copys') ?></th>
-					<th width="13%" class="text-center"><?php echo $this->lang->line('Tax Incl') ?>.</th>
+					<th width="20%" class="text-center"><?php echo $this->lang->line('Preset') ?></th>
+					<th width="10%" class="text-center"><?php echo $this->lang->line('Copys') ?></th>
 					<th width="17%" class="text-center"><?php echo $this->lang->line('Class Ativ') ?>.</th>
 					<th width="10%" class="text-center"><?php echo $this->lang->line('Warehouse') ?></th>
 					<th width="17%" class="text-center"><?php echo $this->lang->line('Type Com') ?>.</th>
@@ -56,13 +55,7 @@
 								<option value="1">'.$this->lang->line('Yes').'</option>
 							</select>
 						</td>
-						<td><input type="text" class="form-control text-center" name="serie_copy[]" id="serie_copy-' . $i . '" value="' . $row['copy'] . '">
-						</td>
-						<td><select name="serie_tax_inc[]" id="serie_tax_inc-' . $i . '" class="form-control b_input">
-								<option value="' . $row['taxs'] . '">--' . $row['taxsname'] . '--</option>
-								<option value="0">'.$this->lang->line('No').'</option>
-								<option value="1">'.$this->lang->line('Yes').'</option>
-							</select>
+						<td><input type="text" class="form-control text-center" name="serie_copy[]" id="serie_copy-' . $i . '" value="' . $row['copyname'] . '">
 						</td>
 						<td><input type="text" class="form-control text-center" name="serie_class[]" id="serie_class-' . $i . '" value="' . $row['claname'] . '">
 						</td>
@@ -79,6 +72,7 @@
 						<td class="text-center"><button type="button" data-rowid="'.$i.'" class="btn btn-danger removeProd" title="Remove" > <i class="fa fa-minus-square"></i> </button> </td>
 						<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $i . '" value="' . $row['serie'] . '">
 						<input type="hidden" class="pdIn" name="pactid[]" id="pactid-' . $i . '" value="' . $row['cla'] . '">
+						<input type="hidden" class="pdIn" name="pcopyid[]" id="pcopyid-' . $i . '" value="' . $row['copy'] . '">
 						<input type="hidden" class="pdIn" name="pwareid[]" id="pwareid-' . $i . '" value="' . $row['warehouse'] . '">
 						'; 
 						$i++;
@@ -111,6 +105,7 @@
 		<input type="hidden" value="<?php echo $i; ?>" name="counter" id="ganak">
 		<input type="hidden" value="search_series" id="bill_serie">
 		<input type="hidden" value="search_activi" id="bill_activ">
+		<input type="hidden" value="search_copys" id="bill_copys">
 		<input type="hidden" value="search_wareh" id="bill_wareh">
 	</form>
 </div>

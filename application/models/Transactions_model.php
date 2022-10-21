@@ -353,12 +353,12 @@ class Transactions_model extends CI_Model
             $this->db->update('geopos_purchase');
         }
         $this->db->delete('geopos_transactions', array('id' => $id));
-        $alert = $this->custom->api_config(66);
-        if ($alert['key2'] == 1) {
+        $alert = $this->custom->get_configs_emails($this->aauth->get_user()->loc);
+		if ($alert['trans_email'] == 1) {
             $this->load->model('communication_model');
             $subject = $trans['payer'] . ' ' . $this->lang->line('DELETED');
             $body = $subject . '<br> ' . $this->lang->line('Credit') . ' ' . $this->lang->line('Amount') . ' ' . $trans['credit'] . '<br> ' . $this->lang->line('Debit') . ' ' . $this->lang->line('Amount') . ' ' . $trans['debit'] . '<br> ID# ' . $trans['id'];
-            $out = $this->communication_model->send_corn_email($alert['url'], $alert['url'], $subject, $body, false, '');
+            $out = $this->communication_model->send_corn_email($alert['email_app'], $alert['emailo_remet'], $subject, $body, false, '');
         }
         return array('status' => 'Success', 'message' => $this->lang->line('DELETED'));
 

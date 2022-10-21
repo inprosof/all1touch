@@ -90,7 +90,7 @@
                     <tr>
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
-                        <th><?php echo $this->lang->line('Qty') ?></th>
+                        <th>Stock</th>
                         <th><?php echo $this->lang->line('Code') ?></th>
                         <th><?php echo $this->lang->line('Category') ?></th>
                         <th><?php echo $this->lang->line('Warehouse') ?></th>
@@ -105,7 +105,7 @@
                     <tr>
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
-                        <th><?php echo $this->lang->line('Qty') ?></th>
+                        <th>Stock</th>
                         <th><?php echo $this->lang->line('Code') ?></th>
                         <th><?php echo $this->lang->line('Category') ?></th>
                         <th><?php echo $this->lang->line('Warehouse') ?></th>

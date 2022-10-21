@@ -37,17 +37,8 @@ class Events extends CI_Controller
             redirect('/user/', 'refresh');
 
         }
-
-
-
-        if (!$this->aauth->premission(6)) {
-
-
-
+        if (!$this->aauth->premission(86) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
             exit($this->lang->line('translate19'));
-
-
-
         }
 
         $this->load->model('events_model');
@@ -692,7 +683,7 @@ class Events extends CI_Controller
 
 		if ($this->events_model->addEventType($name, $paid)) {
 
-			echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "   <a href='event' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a> <a href='events' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
+			echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "   <a href='event' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='events' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
 
 		}else{
 
@@ -824,7 +815,7 @@ class Events extends CI_Controller
 
             if ($this->events_model->updateEventType($id, $name, $paid)) {
 
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='event_type' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a> <a href='events_type' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='event_type' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='events_type' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
 
             } else {
 

@@ -52,7 +52,8 @@ class Accounts_model extends CI_Model
 		} else {
             $this->db->where('loc', $lid);
         }
-
+		
+		$this->db->where('enable', 'Yes');
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -100,7 +101,7 @@ class Accounts_model extends CI_Model
         return $query->row_array();
     }
 
-    public function addnew($accno, $holder, $intbal, $acode, $lid,$account_type)
+    public function addnew($accno, $holder, $intbal, $acode, $lid, $bank, $branch, $address, $account_type, $enable, $payonline, $notes, $lcurrency)
     {
         $data = array(
             'acn' => $accno,
@@ -109,7 +110,14 @@ class Accounts_model extends CI_Model
             'lastbal' => $intbal,
             'code' => $acode,
             'loc' => $lid,
-            'account_type'=>$account_type
+			'name' => $bank,
+			'branch' => $branch,
+			'adress' => $address,
+			'enable' => $enable,
+			'payonline' => $payonline,
+			'note' => $notes,
+            'account_type'=>$account_type,
+			'currency'=>$lcurrency
         );
 
         if ($this->db->insert('geopos_accounts', $data)) {
@@ -123,17 +131,24 @@ class Accounts_model extends CI_Model
 
     }
 
-    public function edit($acid, $accno, $holder, $acode, $lid, $account_equity='', $account_type)
+    public function edit($acid, $accno, $holder, $intbal, $acode, $lid, $bank, $branch, $address, $account_type, $enable, $payonline, $notes, $lcurrency)
     {
-        if($account_equity){
+        if($account_type == 'Equity'){
                $data = array(
 				'acn' => $accno,
 				'holder' => $holder,
+				'lastbal' => $intbal,
 				'code' => $acode,
 				'loc' => $lid,
-				'lastbal'=>$account_equity,
-				'account_type'=>$account_type
-			);
+				'name' => $bank,
+				'branch' => $branch,
+				'adress' => $address,
+				'enable' => $enable,
+				'payonline' => $payonline,
+				'note' => $notes,
+				'account_type'=>$account_type,
+				'currency'=>$lcurrency
+				);
         }
         else{
                $data = array(
@@ -141,10 +156,17 @@ class Accounts_model extends CI_Model
 				'holder' => $holder,
 				'code' => $acode,
 				'loc' => $lid,
-				'account_type'=>$account_type
+				'name' => $bank,
+				'branch' => $branch,
+				'adress' => $address,
+				'enable' => $enable,
+				'payonline' => $payonline,
+				'note' => $notes,
+				'account_type' => $account_type,
+				'currency' => $lcurrency
 			);
         }
-
+		
         $this->db->set($data);
         $this->db->where('id', $acid);
          if ($this->aauth->get_user()->loc) {

@@ -50,12 +50,12 @@
                                 </li>
                                   <li class="nav-item">
                                     <a class="nav-link" id="base-tab3" data-toggle="tab" aria-controls="tab3"
-                                       href="#tab4" role="tab"
+                                       href="#tab3" role="tab"
                                        aria-selected="false"><?php echo $this->lang->line('CustomFields') ?></a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="base-tab3" data-toggle="tab" aria-controls="tab3"
-                                       href="#tab3" role="tab"
+                                    <a class="nav-link" id="base-tab4" data-toggle="tab" aria-controls="tab4"
+                                       href="#tab4" role="tab"
                                        aria-selected="false"><?php echo $this->lang->line('Other') . ' ' . $this->lang->line('Settings') ?></a>
                                 </li>
 
@@ -285,72 +285,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
-                                    <div class="form-group row"><label class="col-sm-2 col-form-label"
-                                                                       for="Discount"><?php echo $this->lang->line('Discount') ?> </label>
-                                        <div class="col-sm-6">
-                                            <input type="text" placeholder="<?php echo $this->lang->line('Discount') ?>"
-                                                   class="form-control margin-bottom b_input" name="discount" value="<?php echo $customer['discount_c'] ?>">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-
-                                        <label class="col-sm-2 col-form-label"
-                                               for="docid"><?php echo $this->lang->line('Document') ?> ID</label>
-
-                                        <div class="col-sm-6">
-                                            <input type="text" placeholder="Document ID"
-                                                   class="form-control margin-bottom b_input" name="docid">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row"><label class="col-sm-2 col-form-label"
-                                                                       for="c_field"><?php echo $this->lang->line('Extra') ?> </label>
-                                        <div class="col-sm-6">
-                                            <input type="text" placeholder="Custom Field"
-                                                   class="form-control margin-bottom b_input" name="c_field" value="<?php echo $customer['custom1'] ?>">
-                                        </div>
-                                    </div>
-
-
-
-                                    <div class="form-group row">
-
-                                        <label class="col-sm-2 col-form-label"
-                                               for="customergroup"><?php echo $this->lang->line('Customer group') ?></label>
-
-                                        <div class="col-sm-6">
-                                            <select name="customergroup" class="form-control b_input">
-                                                <?php
-												echo '<option value="' . $customergroup['id'] . '">' . $customergroup['title'] . ' (S)</option>';
-                                                foreach ($customergrouplist as $row) {
-                                                    $cid = $row['id'];
-                                                    $title = $row['title'];
-                                                    echo "<option value='$cid'>$title</option>";
-                                                }
-                                                ?>
-                                            </select>
-
-
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
-
-                                        <label class="col-sm-2 col-form-label"
-                                               for="currency"><?php echo $this->lang->line('Language') ?></label>
-
-                                        <div class="col-sm-6">
-                                            <select name="language" class="form-control b_input">
-                                                <?php
-												echo '<option value="' . $customer['lang'] . '">-' . ucfirst($customer['lang']) . '-</option>';
-                                                echo $langs;
-                                                ?>
-
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane show" id="tab4" role="tabpanel" aria-labelledby="base-tab4">
+								<div class="tab-pane show" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
                                  <?php
                                     foreach ($custom_fields as $row) {
                                         if ($row['f_type'] == 'text') { ?>
@@ -386,6 +321,80 @@
                                         <?php }
                                     }
                                     ?>
+                                </div>
+                                <div class="tab-pane" id="tab4" role="tabpanel" aria-labelledby="base-tab4">
+                                    <div class="form-group row"><label class="col-sm-2 col-form-label"
+                                                                       for="Discount"><?php echo $this->lang->line('Discount') ?> </label>
+                                        <div class="col-sm-6">
+                                            <input type="text" placeholder="<?php echo $this->lang->line('Discount') ?>"
+                                                   class="form-control margin-bottom b_input" name="discount" value="<?php echo $customer['discount_c'] ?>">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+
+                                        <label class="col-sm-2 col-form-label"
+                                               for="docid"><?php echo $this->lang->line('Document') ?> ID</label>
+
+                                        <div class="col-sm-6">
+                                            <input type="text" placeholder="Document ID"
+                                                   class="form-control margin-bottom b_input" name="docid">
+                                        </div>
+                                    </div>
+									
+									<div class="form-group row">
+                                        <label class="col-sm-2 col-form-label" for="c_field">Inactivar</label>
+                                        <div class="col-sm-6">
+                                            <select name="c_field" class="form-control b_input" <?php if($customer['delete1'] == 0) echo 'disabled' ?>>
+												<option value="<?php echo $customer['inactive']?>">--
+												<?php 
+												if($customer['inactive'] == '0')
+												{
+													echo $this->lang->line('No');
+												}else{
+													echo $this->lang->line('Yes');
+												}?>
+												--</option>
+												<option value="0"><?php echo $this->lang->line('No') ?></option>
+                                                <option value="1"><?php echo $this->lang->line('Yes') ?></option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label"
+                                               for="customergroup"><?php echo $this->lang->line('Customer group') ?></label>
+
+                                        <div class="col-sm-6">
+                                            <select name="customergroup" class="form-control b_input">
+                                                <?php
+												echo '<option value="' . $customergroup['id'] . '">' . $customergroup['title'] . ' (S)</option>';
+                                                foreach ($customergrouplist as $row) {
+                                                    $cid = $row['id'];
+                                                    $title = $row['title'];
+                                                    echo "<option value='$cid'>$title</option>";
+                                                }
+                                                ?>
+                                            </select>
+
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+
+                                        <label class="col-sm-2 col-form-label"
+                                               for="currency"><?php echo $this->lang->line('Language') ?></label>
+
+                                        <div class="col-sm-6">
+                                            <select name="language" class="form-control b_input">
+                                                <?php
+												echo '<option value="' . $customer['lang'] . '">-' . ucfirst($customer['lang']) . '-</option>';
+                                                echo $langs;
+                                                ?>
+
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div id="mybutton">
                                     <input type="submit" id="submit-data"

@@ -47,7 +47,7 @@ class Productgroups extends CI_Controller
 
     public function add()
     {
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
         $data['units'] = $this->products->units();
         $data['warehouse'] = $this->categories_model->warehouse_list();
         $data['custom_fields'] = $this->custom->add_fields(4);

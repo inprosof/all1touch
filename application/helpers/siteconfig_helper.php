@@ -167,39 +167,6 @@ function amountFormat($number)
 
 }
 
-function prefix($number)
-{
-    $ci =& get_instance();
-    $query2 = $ci->db->query("SELECT * FROM univarsal_api WHERE id=51 LIMIT 1");
-    $row = $query2->row_array();
-    //Format money as per country
-    switch ($number) {
-        case 1:
-            return $row['name'];
-            break;
-        case 2:
-            return $row['key1'];
-            break;
-        case 3:
-            return $row['key2'];
-            break;
-        case 4:
-            return $row['url'];
-            break;
-        case 5:
-            return $row['method'];
-            break;
-        case 6:
-            return $row['other'];
-            break;
-        case 7:
-            $query2 = $ci->db->query("SELECT other FROM univarsal_api WHERE id=52 LIMIT 1");
-            $row = $query2->row_array();
-            return $row['other'];
-            break;
-    }
-}
-
 function user_premission($input1, $input2)
 {
     if (hash_equals($input1, $input2)) {

@@ -1,5 +1,5 @@
 {
     "require": {
-        "automattic/woocommerce": "^3.0"
+        "automattic/woocommerce": "^2.0"
     }
 }

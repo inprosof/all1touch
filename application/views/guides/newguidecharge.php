@@ -890,41 +890,5 @@
 			
 			$('.associate').addClass('hidden');
 		}
-    })
-	
-	
-	
-    $("#guide_type").on('change', function () {
-        $("#guide_serie").val('').trigger('change');
-        var tips = $('#guide_type').val();
-		var el = $("#iguide_type option:selected").attr('data-serie');
-		
-		$("#guide_type_val").val(el);
-        $("#guide_serie").select2({
-
-            ajax: {
-                url: baseurl + 'settings/sub_series?id=' + tips,
-                dataType: 'json',
-                type: 'POST',
-                quietMillis: 50,
-                data: function (product) {
-                    return {
-                        product: product,
-                        '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.seriename,
-                                value: item.serie_id,
-								id: item.serie_id
-                            }
-                        })
-                    };
-                },
-            }
-        });
     });
 </script>

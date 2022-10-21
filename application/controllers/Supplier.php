@@ -70,7 +70,9 @@ class Supplier extends CI_Controller
 		$data['custom_fields'] = $this->custom->view_fields_data($custid, 4);
         $head['title'] = 'View Supplier';
         $this->load->view('fixed/header', $head);
-        if ($data['details']['id']) $this->load->view('supplier/view', $data);
+        if ($data['details']['id']) 
+			$data['due'] = $this->supplier->get_all_due_supplier($data['details']['id']);
+			$this->load->view('supplier/view', $data);
         $this->load->view('fixed/footer');
     }
 	
@@ -96,7 +98,7 @@ class Supplier extends CI_Controller
             $row = array();
             $row[] = $no;
 			$colunaComplet = '<a href="supplier/view?id=' . $suppler->id . '">' . $suppler->name . '</a><br>';
-			$colunaComplet .= $suppler->adress.'<br>';
+			$colunaComplet .= $suppler->address.'<br>';
 			$colunaComplet .= $suppler->postbox.' '.$suppler->city.' - '.$suppler->region.'<br>';
 			$colunaComplet .= $suppler->country;
 			
@@ -358,7 +360,7 @@ class Supplier extends CI_Controller
             $no++;
 			$row = array();
 			$row[] = $invoices->serie_name;
-            $row[] = '<a href="' . base_url("invoices_supli/view?id=$invoices->id&ty=0") . '">&nbsp; ' . $invoices->tid . '</a>';
+            $row[] = '<a href="' . base_url("invoices_supli/view?id=$invoices->id&ty=0") . '">'.$invoices->type.'/'. $invoices->tid . '</a>';
 			$row[] = dateformat($invoices->invoicedate);
             $row[] = $invoices->name;
             $row[] = $invoices->taxid;

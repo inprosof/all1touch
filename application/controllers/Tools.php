@@ -120,7 +120,7 @@ class Tools extends CI_Controller
         $tdate = datefordatabase($tdate);
 
         if ($this->tools->addtask($name, $status, $priority, $stdate, $tdate, $employee, $assign, $content)) {
-            echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('New Task Added') . "  <a href='addtask' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a>   <a href='todo' class='btn btn-blue btn-lg'><span class='icon-list-ul' aria-hidden='true'></span>  </a>"));
+            echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('New Task Added') . "  <a href='addtask' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a><a href='todo' class='btn btn-grey-blue btn-lg'><span class='fa fa-list-alt' aria-hidden='true'></span></a>"));
         } else {
             echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
         }
@@ -328,7 +328,7 @@ class Tools extends CI_Controller
             $content = $this->input->post('content');
 
             if ($this->tools->addnote($title, $content)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='addnote' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='addnote' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='notes' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }

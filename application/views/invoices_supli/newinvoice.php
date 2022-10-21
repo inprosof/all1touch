@@ -194,7 +194,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 							
 							<?php 
 							
-							if($products != null)
+							if(!empty($products))
 							{
 								$cvalue = 0;
 								$functionNum = "'".$cvalue."'";
@@ -617,37 +617,4 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 		$("#account_set").val(accountaaa);
 		$("#account_set_id").val(tips);
 	});
-	
-    $("#invoi_type").on('change', function () {
-        $("#invoi_serie").val('').trigger('change');
-        var tips = $('#invoi_type').val();
-		var el = $("#invoi_type option:selected").attr('data-serie');
-		
-		$("#invoi_type_val").val(el);
-        $("#invoi_serie").select2({
-            ajax: {
-                url: baseurl + 'settings/sub_series?id=' + tips,
-                dataType: 'json',
-                type: 'POST',
-                quietMillis: 50,
-                data: function (product) {
-                    return {
-                        product: product,
-                        '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.seriename,
-                                value: item.serie_id,
-								id: item.serie_id
-                            }
-                        })
-                    };
-                },
-            }
-        });
-    });	
 </script>

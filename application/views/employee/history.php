@@ -53,8 +53,7 @@
                                       class="btn btn-danger rounded">
                                        <?php echo $this->lang->line('Export PDF') ?>
                                    </a>
-
-                                   <a data-object-id="<?php echo $salary['id'] ?>" class="btn btn-danger btn-xs delete-object delemp"><span class="icon-bin"></span>Delete</a>
+									<a href="#" data-object-id="<?php echo $salary['id'] ?>" data-object-tid="<?php echo $salary['id'] ?>" data-object-draft="0" class="btn btn-danger rounded delete-object"><?php echo $this->lang->line('Delete') ?></a>
                                </td>
                            </tr>
                         <?php endforeach; ?>
@@ -72,25 +71,25 @@
 
                 <div class="form-group row">
                     <div class="col-12">
-                        <label for="salary_month" class="col-form-label">Month:</label>
+                        <label for="salary_month" class="col-form-label">Mês:</label>
                         <select name="salary_month" id="salary_month" class="form-control">
                             <?php for($i = 1; $i < 13; $i++):?>
                                 <option value="<?php echo $i;?>" ><?php echo $i;?></option>
                             <?php endfor;?>
                         </select>
-                        <label for="salary_year" class="col-form-label">Year</label>
+                        <label for="salary_year" class="col-form-label">Ano</label>
                         <select name="salary_year" id="salary_year" class="form-control">
                             <?php for($i = 2021; $i < 2030; $i++):?>
                                 <option value="<?php echo $i;?>" ><?php echo $i;?></option>
                             <?php endfor;?>
                         </select>
 						<div class="col-12">
-							<label for="credit_value" class="col-form-label">Credit Value</label>
+							<label for="credit_value" class="col-form-label">Valor A Crédito</label>
 							<code>Values to add in salary</code>
 							<input type="text" name="credit_value" class="form-control" id="credit_value" value="0">
 						</div>
 						<div class="col-12">
-							<label for="debit_value" class="col-form-label">Debit Value</label>
+							<label for="debit_value" class="col-form-label">Valor a Débito</label>
 							<code>Values to subtration in salary</code>
 							<input type="text" name="debit_value" class="form-control" id="debit_value" value="0">
 						</div>
@@ -122,12 +121,6 @@
             var newUrl = actionurl + "&month=" + month + "&year=" + year + "&debit_value=" + debit + "&credit_value=" + credit ;
             
             $(this).attr('href', newUrl);
-        })
-
-        $('.delemp').click(function (e) {
-            e.preventDefault();
-            $('#empid').val($(this).attr('data-object-id'));
-
         });
 
 
@@ -146,40 +139,14 @@
                     <p>Tem a certeza que pretende apagar este registo ? <br></p>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" id="object-id" value="">
-                    <input type="hidden" id="action-url" value="employee/disable_user">
-                    <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete-confirm">Confirm
-                    </button>
+					<input type="hidden" id="object-id" value="">
+					<input type="hidden" id="object-tid" value="">
+					<input type="hidden" id="object-tdraft" value="">
+                    <input type="hidden" id="action-url" value="employee/delete_history">
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete-confirm">Confirm</button>
                     <button type="button" data-dismiss="modal" class="btn">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
-	
-    <div id="pop_model" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title"><?php echo $this->lang->line('Delete'); ?></h4>
-                </div>
-
-                <div class="modal-body">
-                    <form id="form_model">
-                        <div class="modal-body">
-                            <p>Apagar Geramento de Salário</p>
-                        </div>
-                        <div class="modal-footer">
-                            <input type="hidden" class="form-control required"
-                                   name="empid" id="empid" value="">
-                            <button type="button" class="btn btn-default"
-                                    data-dismiss="modal"><?php echo $this->lang->line('Close'); ?></button>
-                            <input type="hidden" id="action-url" value="employee/delete_user">
-                            <button type="button" class="btn btn-primary"
-                                    id="submit_model"><?php echo $this->lang->line('Delete'); ?></button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>

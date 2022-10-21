@@ -29,13 +29,12 @@
 				<table class="table-responsive tfr my_stripe">
 					<thead>
 					<tr class="item_header bg-gradient-directional-blue white">
-						<th width="21%" class="text-center">Serie</th>
-						<th width="7%" class="text-center"><?php echo $this->lang->line('Preset') ?></th>
-						<th width="5%" class="text-center">Nº <?php echo $this->lang->line('Copys') ?></th>
-						<th width="7%" class="text-center"><?php echo $this->lang->line('Tax Incl') ?>.</th>
-						<th width="18%" class="text-center"><?php echo $this->lang->line('Class Ativ') ?>.</th>
-						<th width="18%" class="text-center"><?php echo $this->lang->line('Warehouse') ?></th>
-						<th width="18%" class="text-center"><?php echo $this->lang->line('Type Com') ?>.</th>
+						<th width="31%" class="text-center">Serie</th>
+						<th width="20%" class="text-center"><?php echo $this->lang->line('Preset') ?></th>
+						<th width="10%" class="text-center"><?php echo $this->lang->line('Copys') ?></th>
+						<th width="17%" class="text-center"><?php echo $this->lang->line('Class Ativ') ?>.</th>
+						<th width="10%" class="text-center"><?php echo $this->lang->line('Warehouse') ?></th>
+						<th width="17%" class="text-center"><?php echo $this->lang->line('Type Com') ?>.</th>
 						<th width="5%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
 					</tr>
 					</thead>
@@ -67,6 +66,7 @@
 			<input type="hidden" value="0" name="counter" id="ganak">
 			<input type="hidden" value="search_series" id="bill_serie">
 			<input type="hidden" value="search_activi" id="bill_activ">
+			<input type="hidden" value="search_copys" id="bill_copys">
 			<input type="hidden" value="search_wareh" id="bill_wareh">
 		</form>
 	</div>

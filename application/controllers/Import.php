@@ -45,7 +45,7 @@ class Import extends CI_Controller
         $this->load->model('categories_model');
         $head['title'] = "Import Products";
         $head['usernm'] = $this->aauth->get_user()->username;
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
         $data['warehouse'] = $this->categories_model->warehouse_list();
         $this->load->view('fixed/header', $head);
         $this->load->view('import/products', $data);
@@ -161,7 +161,7 @@ class Import extends CI_Controller
         $this->load->model('categories_model');
         $head['title'] = "Import Products";
         $head['usernm'] = $this->aauth->get_user()->username;
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
         $data['warehouse'] = $this->categories_model->warehouse_list();
         $this->load->view('fixed/header', $head);
         $this->load->view('import/customers', $data);

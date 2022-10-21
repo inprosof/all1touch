@@ -15,6 +15,7 @@ require_once APPPATH . 'third_party/qrcode/vendor/autoload.php';
 
 use Omnipay\Omnipay;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class Supplier_notes extends CI_Controller
 {
@@ -32,8 +33,14 @@ class Supplier_notes extends CI_Controller
             redirect('/user/', 'refresh');
         }
 
-        if (!$this->aauth->premission(2)) {
+        if ((!$this->aauth->premission(57) && !$this->aauth->premission(122)) && (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
+        }
+		
+		if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(128)) {
+            $this->limited = '';
+        } else {
+			$this->limited = $this->aauth->get_user()->id;
         }
 		$this->li_a = 'suppliers';
         //exit('Em desenvolvimento. Obrigado pela Compreensão.');
@@ -68,12 +75,18 @@ class Supplier_notes extends CI_Controller
 	}
 	
     //
-    public function create($quo = 0,$ty = 0)
+    public function create($relation = 0, $typrelation = 0)
     {
+		$this->load->model('plugins_model', 'plugins');
+		$this->load->model('settings_model', 'settings');
+		$this->load->model('customers_model', 'customers');
+		$this->load->library("Custom");
+        $this->load->library("Common");
         $data['taxlist'] = $this->common->taxlist($this->config->item('tax'));
         $data['exchange'] = $this->plugins->universal_api(5);
         $data['currency'] = $this->notes_model->currencies();
-		if($ty == 1)
+		$ty = $this->input->get('ty');
+		if($typrelation == 1)
 		{
 			$head['title'] = "Nova Nota de Crédito Fornecedor";
 			if(count($this->settings->billingterms(21)) == 0)
@@ -91,25 +104,92 @@ class Supplier_notes extends CI_Controller
 			}
 			$data['terms'] = $this->settings->billingterms(20);
 		}
-       
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		
+		$data['typrelation'] = $typrelation;
+		$data['relationid'] = $relation;
+		
+		if($relation > 0)
+		{
+			$this->load->library("Related");
+			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
+			$data['csd_name'] = $data['relation']['name'];
+			$data['csd_tax'] = $data['relation']['taxid'];
+			$data['csd_id'] = $data['relation']['id'];
+			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
+		}else{
+			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
+			$data['csd_tax'] = "999999990";
+			$data['csd_id'] = "99999999";
+			$data['docs_origem'] = [];
+		}
+		
+		
+		////////////////////////Relação entre Permissões//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		if($discship['ac_id_f'] == 0 && $discship['pac'] == 0)
+		{
+			if($this->aauth->get_user()->loc == 0)
+			{
+				exit('Defina a conta Por defeito para os Documentos de Fornecedor na Empresa! <a class="match-width match-height" href="'.base_url().'settings/company?id=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}else{
+				exit('Defina a conta Por defeito para os Documentos de Fornecedor na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}
+		}else{
+			if($discship['ac_id_f'] == 0)
+			{
+				if($this->aauth->get_user()->loc){
+					exit('Defina a conta Por defeito para os Documentos de Fornecedor na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+				}
+			}
+			$accountin = $this->accounts_model->details($discship['ac_id_f'],false);
+			$accountincome = ((integer)$accountin['id']);
+			$accountincomename = $accountin['holder'];
+			$data['accountid'] = $accountincome;
+			$data['accountname'] = $accountincomename;
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+		
         $head['usernm'] = $this->aauth->get_user()->username;
         $data['warehouse'] = $this->notes_model->warehouses();
         $data['taxdetails'] = $this->common->taxdetail();
 		$data['currency'] = $this->notes_model->currencies();
 		$data['taxsiva'] = $this->settings->slabscombo();		
 		$data['typesinvoices'] = "";
-		if($ty == 1)
+		if($typrelation == 1)
 		{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(21);
-			$data['seriesinvoiceselect'] = $this->common->default_series(21);
 		}else{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(20);
-			$data['seriesinvoiceselect'] = $this->common->default_series(20);
 		}
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
 		
 		if($data['seriesinvoiceselect'] == NULL)
 		{
-			if($ty == 1)
+			if($typrelation == 1)
 			{
 				exit('Deve Inserir pelo menos uma Série no Tipo Notas de Crédito Fornecedores. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
@@ -118,15 +198,13 @@ class Supplier_notes extends CI_Controller
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 			}
 		}else{
-			$seri_did_df = 0;
-			if($ty == 1)
+			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
+			if($typrelation == 1)
 			{
 				$data['type'] = 'Credito';
-				$seri_did_df = $this->common->default_series_id(21);
 				$numget = $this->common->lastdoc(21,$seri_did_df);
 			}else{
 				$data['type'] = 'Debito';
-				$seri_did_df = $this->common->default_series_id(20);
 				$numget = $this->common->lastdoc(20,$seri_did_df);
 			}
 			$data['lastinvoice'] = $numget;
@@ -271,13 +349,19 @@ class Supplier_notes extends CI_Controller
             exit;
 		}
 
-        $this->load->model('plugins_model', 'plugins');
-        $empl_e = $this->plugins->universal_api(69);
-        if ($empl_e['key1']) {
+        $this->load->model('settings_model', 'settings');
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$emp = 0;
+		if ($discship['emps'] == 1) {
             $emp = $this->input->post('employee');
-        } else {
-            $emp = $this->aauth->get_user()->id;
-        }
+        }else{
+			$emp = $this->aauth->get_user()->id;
+		}
 		
         $transok = true;
         $st_c = 0;
@@ -870,22 +954,54 @@ class Supplier_notes extends CI_Controller
 		$codQRD .= 'S:'.$campfim.'*';
 		
 		$qrCode = new QrCode($codQRD);
-		$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		
+		$writer = new PngWriter();
+		$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		ini_set('memory_limit', '64M');
 		
 		$data['Tipodoc'] = "Original";
 		$data2 = $data;
 		$data2['Tipodoc'] = "Duplicado";
+		$data3 = $data;
+		$data3['Tipodoc'] = "Triplicado";
+		$data4 = $data;
+		$data4['Tipodoc'] = "Quadruplicado";
 		
-		
-        $html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
+		$html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
 		$html2 = $this->load->view('print_files/invoice-a4_v' . INVV, $data2, true);
-        //PDF Rendering
-        $this->load->library('pdf');
+		$html3 = $this->load->view('print_files/invoice-a4_v' . INVV, $data3, true);
+		$html4 = $this->load->view('print_files/invoice-a4_v' . INVV, $data4, true);
+		
+		$this->load->library('pdf');
         $pdf = $this->pdf->load_split(array('margin_top' => 10));
-        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">{PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
-		$pdf->WriteHTML($html);
-		$pdf->AddPage();
-		$pdf->WriteHTML($html2);
+		$loc2 = location(0);
+        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
+		if($data['invoice']['numcop'] == 'copy1')
+		{
+			$pdf->WriteHTML($html);
+		}else if($data['invoice']['numcop'] == 'copy2')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+		}else if($data['invoice']['numcop'] == 'copy3')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+		}else if($data['invoice']['numcop'] == 'copy4')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html4);
+		}
 		
         $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', 'NT_'.$data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
         if ($this->input->get('d')) {

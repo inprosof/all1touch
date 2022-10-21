@@ -12,10 +12,10 @@
                             <div id="customerpanel" class="inner-cmp-pnl">
 								<input type="hidden" name="typeinvoice" value="<?php echo $typeinvoice ?>">
 								<input type="hidden" name="iddoc" value="<?php echo $invoice['iddoc'] ?>">
-								<input type="hidden" value="<?php echo $invoice['loc_adress']; ?>" name="compa_adr" id="compa_adr">
-								<input type="hidden" value="<?php echo $invoice['loc_postbox']; ?>" name="compa_post" id="compa_post">
-								<input type="hidden" value="<?php echo $invoice['loc_city']; ?>" name="compa_city" id="compa_city">
-								<input type="hidden" value="<?php echo $invoice['loc_country']; ?>" name="compa_country" id="compa_country">
+								<input type="hidden" value="<?php echo $locations['address']; ?>" name="compa_adr" id="compa_adr">
+								<input type="hidden" value="<?php echo $locations['postbox']; ?>" name="compa_post" id="compa_post">
+								<input type="hidden" value="<?php echo $locations['city']; ?>" name="compa_city" id="compa_city">
+								<input type="hidden" value="<?php echo $locations['country']; ?>" data-serie="<?php echo $locations['namecountry']; ?>" name="compa_country" id="compa_country">
 								<div class="form-group row">
 									<div class="fcol-sm-12">
 										<h3 class="title">
@@ -39,6 +39,8 @@
 									<div class="clientinfo">
 										<?php echo $this->lang->line('Client Details'); ?>
 										<hr>
+										<input type="hidden" name="typrelation" id="typrelation" value="<?php echo $typrelation?>" />
+										<input type="hidden" name="relationid" id="relationid" value="<?php echo $relationid?>" />
 										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $invoice['csd']; ?>">
 										<div id="customer_name"><strong><?php echo $invoice['name']; ?></strong></div>
 									</div>
@@ -145,12 +147,6 @@
 											<span class="input-group-addon" title="<?php echo 'A data inserida tem que ser no formato: dd-mm-aaaa';?>"><i class="fa fa-info fa-2x"></i></span>
 										</div>
 									</div>
-								</div>
-								<div class="form-group row">
-									<div class="col-sm-12">
-										<label for="toAddInfo"
-											   class="caption"><?php echo $invoice['type'].' Notas' ?></label>
-										<textarea class="form-control round" name="notes" rows="2"><?php echo $invoice['notes'] ?></textarea></div>
 								</div>
                             </div>
                         </div>
@@ -399,44 +395,279 @@
 							?>
                     </div>
 					<hr>
-					<div id="saman-row-payments">
-                        <table id="myTablePayments" class="table-responsive tfr my_stripe">
-                            <thead>
-                            <tr class="item_header bg-gradient-directional-blue white">
-                                <th width="40%" class="text-center">Método de Pagamento</th>
-                                <th width="12%" class="text-center">Data</th>
-                                <th width="10%" class="text-center">Valor (€)</th>
-								<th width="28%" class="text-center">Observações</th>
-                                <th width="10%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-							
-							<?php 
-							$cvaluepay = 0;
-							foreach ($payments as $row2) {
-								echo '<tr><input type="hidden" class="pdPaymen"/><td><select name="pay_met[]" id="pay_met-'.$cvaluepay.'" class="form-control round payment">';
-								if($row2['pay_met'] == null || $row2['pay_met'] == "") echo '<option value="">Escolha uma Opção</option>'; else echo '<option value="' . $row2['pay_met'] . '" data-type="'.$row2['datapay'].'">-' . $row2['methodname'] . '-</option>';
-								echo $metodos_pagamentos;
-								echo '</select></td><td><input type="text" class="form-control required" placeholder="00-00-0000" name="pay_date[]" id="pay_date-'.$cvaluepay.'" data-toggle="datepicker" autocomplete="true" value="'.$row2['pay_date'].'"/></td>
-								<td><div class="input-group"><input type="text" class="form-control req prc" name="pay_tot[]" value="'.$row2['pay_tot'].'" id="pay_tot-'.$cvaluepay.'" onkeypress="return isNumber(event)" onkeyup="rowTotalPayments('.$cvaluepay.')" autocomplete="off" inputmode="numeric">
-								<a title="€" class="btn btn-blue btn-sm pay_but_tot" name="pay_but_tot[]" id="pay_but_tot-'.$cvaluepay.'"><span class="fa fa-edit" aria-hidden="false"></span></a></div></td>
-								<td><input type="text" class="form-control" name="pay_obs[]" id="pay_obs-'.$cvaluepay.'" value="'.$row2['pay_obs'].'"></td>
-								<td class="text-center"><button type="button" data-rowid="' .$cvaluepay. '" class="btn btn-danger removePayment" title="Remove" > <i class="fa fa-minus-square"></i></button></td></tr>';
-								
-								$cvaluepay++;
-							} ?>
-							
-							<tr class="last-item-row-payments sub_c_payment">
-                                <td class="add-row-payment">
-                                    <button type="button" class="btn btn-success" aria-label="Left Align" id="addpayment">
-                                        <i class="fa fa-plus-square"></i> <?php echo $this->lang->line('Add Row') ?>
-                                    </button>
-                                </td>
-                                <td colspan="5"></td>
-                            </tr>
-							</tbody>
-						</table>
+					<div id="accordionWrapar" role="tablist" aria-multiselectable="true">
+						<div id="headingr" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapar" href="#accordionr"
+							   aria-expanded="false" aria-controls="accordionr"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Documentos relacionados
+							</a>
+						</div>
+						<div id="accordionr" role="tabpanel" aria-labelledby="headingr"
+							 class="card-collapse <?php if ($docs_origem == null) echo 'collapse'?>" aria-expanded="false">
+							<div class="card-body">
+								<table id="myTableAddRelations" class="table-responsive">
+									<thead>
+										<tr>
+											<th></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>Relacionar este documento com outros</td>
+											<td><button type="button" class="btn btn-default" id="choise_docs_related_but">Escolher Documentos</button></td>
+										</tr>
+									</tbody>
+								</table>
+								<hr>
+								<table id="relationsdocs" name="relationsdocs" class="table-responsive <?php if ($docs_origem == null) echo 'hidden'?>">
+									<thead>
+										<tr>
+											<th width="20%">Série</th>
+											<th width="10%">Nº</th>
+											<th width="15%">Data Emissão</th>
+											<th width="15%">Cliente</th>
+											<th width="20%">Total Liq.</th>
+											<th width="20%">Valor Conciliado</th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php 
+											$valdocrela = 0;
+											foreach ($docs_origem as $row) {
+												$tiiid = $row['iddoc'];
+												echo '<tr class="last-item-row-related sub_related">';
+												echo '<input type="hidden" value="'.$row['iddoc'].'" name="idtyprelation[]" id="idtyprelation-'.$valdocrela.'">';
+												echo '<input type="hidden" value="'.$row['type_related'].'" name="typrelation[]" id="typrelation-'.$valdocrela.'">';
+												echo "<td><strong>".$row['serie_name']."</strong></td>";
+												if($row['type_related'] == "0" || $row['type_related'] == "2"){
+													if($row['draft'] == "0"){
+														echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+													}else{
+														echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+													}
+												}else if($row['type_related'] == "1"){
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}else if($row['type_related'] == "3"){
+													echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}
+												echo "<td>".$row['invoicedate']."</td>";
+												echo "<td>".$row['taxid']."</td>";
+												echo '<td><input type="text" disabled readonly value="'.$row['total'].'" id="val_tot_rel-'.$valdocrela.'"></td>';
+												echo '<td><input type="text" disabled readonly value="'.$row['total'].'" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+												echo '</tr>';
+												$valdocrela++;
+											}
+										?>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div id="accordionWrapap" role="tablist" aria-multiselectable="true">
+						<div id="headingp" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapap" href="#accordionp"
+							   aria-expanded="false" aria-controls="accordionp"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Pagamentos
+							</a>
+						</div>
+						<div id="accordionp" role="tabpanel" aria-labelledby="headingp"
+							 class="card-collapse collapse" aria-expanded="false">
+							<div id="saman-row-payments">
+								<table id="myTablePayments" class="table-responsive tfr my_stripe">
+									<thead>
+									<tr class="item_header bg-gradient-directional-blue white">
+										<th width="40%" class="text-center">Método de Pagamento</th>
+										<th width="12%" class="text-center">Data</th>
+										<th width="10%" class="text-center">Valor (€)</th>
+										<th width="28%" class="text-center">Observações</th>
+										<th width="10%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
+									</tr>
+									</thead>
+									<tbody>
+									
+									<?php 
+									$cvaluepay = 0;
+									foreach ($payments as $row2) {
+										echo '<tr><input type="hidden" class="pdPaymen"/><td><select name="pay_met[]" id="pay_met-'.$cvaluepay.'" class="form-control round payment">';
+										if($row2['pay_met'] == null || $row2['pay_met'] == "") echo '<option value="">Escolha uma Opção</option>'; else echo '<option value="' . $row2['pay_met'] . '" data-type="'.$row2['datapay'].'">-' . $row2['methodname'] . '-</option>';
+										echo $metodos_pagamentos;
+										echo '</select></td><td><input type="text" class="form-control required" placeholder="00-00-0000" name="pay_date[]" id="pay_date-'.$cvaluepay.'" data-toggle="datepicker" autocomplete="true" value="'.$row2['pay_date'].'"/></td>
+										<td><div class="input-group"><input type="text" class="form-control req prc" name="pay_tot[]" value="'.$row2['pay_tot'].'" id="pay_tot-'.$cvaluepay.'" onkeypress="return isNumber(event)" onkeyup="rowTotalPayments('.$cvaluepay.')" autocomplete="off" inputmode="numeric">
+										<a title="€" class="btn btn-blue btn-sm pay_but_tot" name="pay_but_tot[]" id="pay_but_tot-'.$cvaluepay.'"><span class="fa fa-edit" aria-hidden="false"></span></a></div></td>
+										<td><input type="text" class="form-control" name="pay_obs[]" id="pay_obs-'.$cvaluepay.'" value="'.$row2['pay_obs'].'"></td>
+										<td class="text-center"><button type="button" data-rowid="' .$cvaluepay. '" class="btn btn-danger removePayment" title="Remove" > <i class="fa fa-minus-square"></i></button></td></tr>';
+										
+										$cvaluepay++;
+									} ?>
+									
+									<tr class="last-item-row-payments sub_c_payment">
+										<td class="add-row-payment">
+											<button type="button" class="btn btn-success" aria-label="Left Align" id="addpayment">
+												<i class="fa fa-plus-square"></i> <?php echo $this->lang->line('Add Row') ?>
+											</button>
+										</td>
+										<td colspan="5"></td>
+									</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div id="accordionWrapa1" role="tablist" aria-multiselectable="true">
+						<div id="heading2" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion2"
+							   aria-expanded="false" aria-controls="accordion2"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Entrega e Transporte
+							</a>
+						</div>
+						<div id="accordion2" role="tabpanel" aria-labelledby="heading2"
+							 class="card-collapse <?php if ($invoice['exp_date'] == null || $invoice['exp_date'] == '') echo 'collapse' ?>" aria-expanded="false">
+							<div class="card-body">
+								<table class="table-responsive">
+								<tbody>
+								<tr class="sub_c" style="display: table-row;">
+										<td colspan="1">Transporte 
+											<div class="col-sm-12">
+												<div class="custom-control custom-checkbox">
+													<input type="checkbox" class="custom-control-input required" name="copy_date"
+														   id="copy_date"/>
+													<label class="custom-control-label"
+														   for="copy_date">Preencher com a data e hora de agora</label>
+												</div>
+												<label for="guidedate" class="caption">Início do transporte</label>
+												<div class="input-group">
+													<input type="text" id="start_date_guide" name="start_date_guide" class="form-control round required" value="<?php echo $invoice['exp_date'] ?>" placeholder="0000-00-00 00:00:00"/>
+													<span class="input-group-addon" title="<?php echo 'A data inserida tem que ser no formato: aaaa-mm-dd hh:mm';?>"><i class="fa fa-info fa-2x"></i></span>
+												</div>
+												<label type="text" id="zone_date" name="zone_date" value="" placeholder="timezone"></label>
+												<label for="exped" class="caption">Expedição</label>
+												<select name="exped_se" id="exped_se" class="form-control round">
+													<?php 
+														echo '<option value="' . $invoice['expedition'] . '" data-type="'.$invoice['expd_t'].'">-' . $invoice['expd_name'] . '-</option>'; 
+														echo $expeditions; 
+													?>
+												</select>
+												<label for="autos_s" class="caption">Viatura</label>
+												<div class="input-group">
+													<select name="autos_se" id="autos_se" class="form-control round" <?php if($invoice['autoid'] == 0) echo 'disabled';?>>
+														<?php if($invoice['autoid'] == 0) echo '<option value="">Escolha uma Opção</option>'; else echo '<option value="' . $invoice['autoid'] . '">-' . $invoice['autoid_name'] . '-</option>'; 
+														echo $autos; ?>
+													</select>
+													<a class="btn btn-primary btn-sm rounded ajaddauto">+Veiculo</a>
+												</div>
+												
+												
+												<div class="col-sm-12 associate <?php if($invoice['expd_t'] == null || $invoice['expd_t'] == '' || $invoice['expd_t'] == 'exp1' || $invoice['expd_t'] == 'exp2' || $invoice['expd_t'] == 'exp3') echo 'hidden'; ?>">
+													<label for="guidedate" class="caption">Matrícula</label>
+													<input type="text" class="form-control round" placeholder="matricula" value="<?php echo $invoice['exp_mat'] ?>" name="matricula_aut" id="matricula_aut"/>
+													<label for="guidedate" class="caption">Designacao</label>
+													<input type="text" class="form-control round" placeholder="designacao" value="<?php echo $invoice['exp_des'] ?>" name="designacao_aut" id="designacao_aut"/>
+													<div class="custom-control custom-checkbox">
+														<input type="checkbox" class="custom-control-input" name="copy_autos"
+															   id="copy_autos">
+														<label class="custom-control-label"
+															   for="copy_autos">Guardar nas minhas viaturas</label>
+													</div>
+												</div>
+											</div>
+										</td>
+										<td colspan="2">Local de Carga 
+											<div class="col-sm-32">
+												<div class="custom-control custom-checkbox">
+													<input type="checkbox" class="custom-control-input" name="copy_comp" id="copy_comp"/>
+													<label class="custom-control-label" for="copy_comp">Preencher com os dados da empresa</label>
+												</div>
+												<label for="guideloc" class="caption">Morada</label>
+												<div class="input-group">
+													<input type="text" id="loc_guide_comp" name="loc_guide_comp" value="<?php echo $invoice['charge_address'] ?>" class="form-control round required" placeholder=""/>
+													<span class="input-group-addon" title="<?php echo 'Defina o local de carga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
+												</div>
+												<div class="form-group row">
+													<div class="col-sm-6">
+														<label for="guideloc" class="caption">Cód. Postal</label>
+														<input type="text" id="post_guide_comp" name="post_guide_comp" value="<?php echo $invoice['charge_postbox'] ?>" class="form-control round required" placeholder=""/>
+													</div>
+													<div class="col-sm-12">
+														<label for="guideloc" class="caption">Localidade</label>
+														<input type="text" id="city_guide_comp" name="city_guide_comp" value="<?php echo $invoice['charge_city'] ?>" class="form-control round required" placeholder=""/>
+													</div>
+												</div>
+												<div class="col-sm-12">
+													<label for="mcustomer_gui_comp"><?php echo $this->lang->line('Country') ?></label>
+													<select name="mcustomer_gui_comp" class="form-control b_input required" id="mcustomer_gui_comp">
+														<?php
+														echo '<option value="' . $invoice['charge_country'] . '">-' . $invoice['charge_country_name'] . '-</option>';
+														echo $countrys;
+														?>
+
+													</select>
+												</div>
+											</div>
+										</td>
+										<td colspan="3">Local de Descarga 
+											<div class="col-sm-32">
+												<div class="custom-control custom-checkbox">
+													<input type="checkbox" class="custom-control-input" name="copy_cos" id="copy_cos"/>
+													<label class="custom-control-label" for="copy_cos">Preencher com os dados do cliente</label>
+												</div>
+												<label for="guideloc" class="caption">Morada</label>
+												<div class="input-group">
+													<input type="text" id="loc_guide_cos" name="loc_guide_cos" value="<?php echo $invoice['discharge_address'] ?>" class="form-control round required"" placeholder=""/>
+													<span class="input-group-addon" title="<?php echo 'Defina o local de descarga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
+												</div>
+												<div class="form-group row">
+													<div class="col-sm-6">
+														<label for="guideloc" class="caption">Cód. Postal</label>
+														<input type="text" id="post_guide_cos" name="post_guide_cos" value="<?php echo $invoice['discharge_postbox'] ?>" class="form-control round required" placeholder=""/>
+													</div>
+													<div class="col-sm-12">
+														<label for="guideloc" class="caption">Localidade</label>
+														<input type="text" id="city_guide_cos" name="city_guide_cos" value="<?php echo $invoice['discharge_city'] ?>" class="form-control round required" placeholder=""/>
+													</div>
+												</div>
+												<div class="col-sm-12">
+													<label for="mcustomer_gui_cos"><?php echo $this->lang->line('Country') ?></label>
+													<select name="mcustomer_gui_cos" class="form-control b_input" id="mcustomer_gui_cos">
+														<?php
+														echo '<option value="' . $invoice['discharge_country'] . '">-' .$invoice['discharge_country_name']. '-</option>';
+														echo $countrys;
+														?>
+
+													</select>
+												</div>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div id="accordionWrapa3" role="tablist" aria-multiselectable="true">
+						<div id="heading3" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapa3" href="#accordion3"
+							   aria-expanded="false" aria-controls="accordion3"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Observações
+							</a>
+						</div>
+						<div id="accordion3" role="tabpanel" aria-labelledby="heading3"
+							 class="card-collapse <?php if ($invoice['notes'] == null || $invoice['notes'] == '') echo 'collapse' ?>" aria-expanded="false">
+							<div class="card-body">
+								<textarea class="form-control round" name="notes" rows="2"><?php echo $invoice['notes'] ?></textarea></div>
+							</div>
+						</div>
 					</div>
 					<hr>
 					<div id="saman-row-buts">
@@ -807,14 +1038,45 @@
         let selectedCategoryType = $(this).find('option:selected').data('type');
 		$('#autos_se').prop('selectedIndex', -1);
 		$("#autos_se").val('');
-		$("#autos_se").val('');
 		$("#expedival").val(selectedCategoryType);
+		console.log(selectedCategoryType);
         if(selectedCategoryType == 'exp3'){
 			$("#autos_se").attr({ disabled: false});
+			$('.ajaddauto').removeClass('hidden');
         }else{
 			$("#autos_se").attr({ disabled: true});
+			$('.ajaddauto').addClass('hidden');
 		}
+		if(!$('.associate').hasClass('hidden'))
+		{
+			$('.associate').addClass('hidden');
+		}
+		$("#matricula_aut").val('');
+		$("#designacao_aut").val('');
+		$("#copy_autos").val('');
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
     });
+	
+	$('select[name="autos_se"]').change(function (){
+		$("#matricula_aut").val('');
+		$("#designacao_aut").val('');
+		$("#copy_autos").val('');
+		if(!$('.associate').hasClass('hidden'))
+		{
+			$('.associate').addClass('hidden');
+		}
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
+	});
+	
+	$("#copy_autos").change(function () {
+		if ($(this).prop("checked") == true) {
+			$('#val_save_bd').val('1');
+		} else {
+			$('#val_save_bd').val('0');
+		}
+	});
 	
 	
 	$("#copy_date").change(function () {
@@ -902,8 +1164,10 @@
 		$("#matricula_aut").val('');
 		$("#designacao_aut").val('');
 		$("#copy_autos").val('');
-		$("#copy_autos").attr("checked", false);
-		
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
+		$('#autos_se').prop('selectedIndex', -1);
+		$("#autos_se").val('');
 		if($('.associate').hasClass('hidden'))
 		{
 			$('.associate').removeClass('hidden');
@@ -919,37 +1183,4 @@
 		$("#account_set").val(accountaaa);
 		$("#account_set_id").val(tips);
 	});
-	
-    $("#invoi_type").on('change', function () {
-        $("#invoi_serie").val('').trigger('change');
-        var tips = $('#invoi_type').val();
-		var el = $("#invoi_type option:selected").attr('data-serie');
-		
-		$("#invoi_type_val").val(el);
-        $("#invoi_serie").select2({
-            ajax: {
-                url: baseurl + 'settings/sub_series?id=' + tips,
-                dataType: 'json',
-                type: 'POST',
-                quietMillis: 50,
-                data: function (product) {
-                    return {
-                        product: product,
-                        '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.seriename,
-                                value: item.serie_id,
-								id: item.serie_id
-                            }
-                        })
-                    };
-                },
-            }
-        });
-    });	
 </script>

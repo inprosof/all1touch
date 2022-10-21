@@ -14,10 +14,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 require_once APPPATH . 'third_party/vendor/autoload.php';
 require_once APPPATH . 'third_party/qrcode/vendor/autoload.php';
 
-use Endroid\QrCode\Color\Color;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
-use Endroid\QrCode\Writer\PngWriter;					   																							
+				   																							
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
@@ -27,6 +24,10 @@ use Mike42\Escpos\EscposImage;
 
 use Omnipay\Omnipay;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
+use Endroid\QrCode\Writer\PngWriter;	
 
 
 class Pos_invoices extends CI_Controller
@@ -72,33 +73,56 @@ class Pos_invoices extends CI_Controller
         $this->load->library("Common");
         $data['custom_fields_c'] = $this->custom->add_fields(1);
 		
-		$discship = $this->plugins->universal_api(65);
-		
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
 		if($this->aauth->get_user()->loc == 0)
 		{
-			$data['accounts'] = $this->locations->accountslist();
-			$data['accountid'] = $discship['url'];
-			$data['accountname'] = "Conta Por Defeito";
+			$discship = $this->settings->online_pay_settings_main();
 		}else{
-			if($discship['url'] == "" || $discship['url'] == null)
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		if($discship['ac_id_d'] == 0 && $discship['pac'] == 0)
+		{
+			if($this->aauth->get_user()->loc == 0)
 			{
-				echo json_encode(array('status' => 'Error', 'message' => 'Por favor Selecionar uma conta por defeito Configurações de Negócio->Configurações Avançadas->Contabilidade e Entrada Dupla'));
-				exit;
+				exit('Defina a conta Por defeito para os Documentos na Empresa! <a class="match-width match-height" href="'.base_url().'settings/company?id=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
 			}else{
-				$accountin = $this->accounts_model->details($discship['url'],false);
-				$accountincome = ((integer)$accountin['id']);
-				$accountincomename = $accountin['holder'];
-				$data['accountid'] = $accountincome;
-				$data['accountname'] = $accountincomename;
+				exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
 			}
+		}else{
+			if($discship['ac_id_d'] == 0)
+			{
+				if($this->aauth->get_user()->loc){
+					exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+				}
+			}
+			$accountin = $this->accounts_model->details($discship['ac_id_d'],false);
+			$accountincome = ((integer)$accountin['id']);
+			$accountincomename = $accountin['holder'];
+			$data['accountid'] = $accountincome;
+			$data['accountname'] = $accountincomename;
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
 		}
 		
         $data['gateway'] = $this->invocies->gateway_list('Yes');
         $data['exchange'] = $this->plugins->universal_api(5);
         $data['enable_card'] = $this->plugins->universal_api(54);
         $data['draft_list'] = $this->invocies->drafts();
-		
-		$data['emp'] = $this->plugins->universal_api(69);
 		
 		$this->tipSelec = 0;
 		if($this->aauth->get_user()->loc)
@@ -112,7 +136,7 @@ class Pos_invoices extends CI_Controller
 				$data['terms'] =$this->settings->billingterms($this->common->default_typ_id_doc($this->tipSelec));
 			}
 		}else{
-			if ($data['emp']['key2'] == 0) {
+			if ($data['configs']['doc_default'] == 0) {
 				$this->tipSelec = 2;
 				if(count($this->settings->billingterms(2)) == 0)
 				{
@@ -121,7 +145,7 @@ class Pos_invoices extends CI_Controller
 				}
 				$data['terms'] =$this->settings->billingterms(2);
 			}else{
-				$this->tipSelec = $data['emp']['key2'];
+				$this->tipSelec = $data['configs']['doc_default'];
 				if(count($this->settings->billingterms($this->tipSelec)) == 0)
 				{
 					exit('Deve Inserir pelo menos um Termo para o Tipo Definido para o POS. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
@@ -132,37 +156,29 @@ class Pos_invoices extends CI_Controller
 		}
         
         $data['currency'] = $this->invocies->currencies();
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
         $data['taxdetails'] = $this->common->taxdetail();
 		$data['exchange'] = $this->plugins->universal_api(5);
 		$data['company'] = $this->settings->company_details(1);
         $data['customergrouplist'] = $this->customers->group_list();
 		$data['countrys'] = $this->common->countrys();
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
-		
         $data['warehouse'] = $this->invocies->warehouses();	
 		$data['typesinvoices'] = $this->settings->list_irs_typ_id_fact();
 		$data['typesinvoicesdefault'] = $this->common->default_typ_doc($this->tipSelec);
 		$invoi_type = $this->common->default_typ_id_doc($this->tipSelec);
-		$data['seriesinvoiceselect'] = $this->common->default_series($invoi_type);
-		
-        if ($data['emp']['key1']) {
-            $this->load->model('employee_model', 'employee');
-            $data['employee'] = $this->employee->list_employee();
-        }
-		
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
 		if($data['seriesinvoiceselect'] == NULL)
 		{
-			exit('Deve Inserir pelo menos uma Série no Tipo Fatura Definido. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
-												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
+			exit('Ainda não definiu nenhuma série para esta Localização. <a class="match-width match-height"  href="'.base_url().'settings/series"><i class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
-			$seri_did_df = $this->common->default_series_id($this->tipSelec);
+			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
 			$numget = $this->common->lastdoc($this->tipSelec,$seri_did_df);
 			$data['lastinvoice'] = $numget;
 			$head['title'] = "Novo Documento POS";
 			$head['usernm'] = $this->aauth->get_user()->username;
+			$head['s_mode'] = false;
 			$this->load->view('fixed/header-pos', $head);
-			$head['s_mode'] = true;
 			$this->load->view('pos/newinvoice', $data);
 			$this->load->view('fixed/footer-pos');
 		}
@@ -220,7 +236,7 @@ class Pos_invoices extends CI_Controller
         
         $data['currency'] = $this->invocies->currencies();
         $head['usernm'] = $this->aauth->get_user()->username;
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
         $data['taxdetails'] = $this->common->taxdetail();
 		$data['exchange'] = $this->plugins->universal_api(5);
 		$data['company'] = $this->settings->company_details(1);
@@ -230,8 +246,15 @@ class Pos_invoices extends CI_Controller
         $data['warehouse'] = $this->invocies->warehouses();
 		$data['typesinvoices'] = $this->settings->list_irs_typ_id_fact();
 		
-		$data['emp'] = $this->plugins->universal_api(69);
-		
+		$this->load->model('settings_model', 'settings');
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
 		$this->tipSelec = 0;
 		if($this->aauth->get_user()->loc)
 		{
@@ -244,7 +267,7 @@ class Pos_invoices extends CI_Controller
 				$data['terms'] =$this->settings->billingterms($this->common->default_typ_id_doc($this->tipSelec));
 			}
 		}else{
-			if ($data['emp']['key2'] == 0) {
+			if ($data['configs']['doc_default'] == 0) {
 				$this->tipSelec = 2;
 				if(count($this->settings->billingterms(2)) == 0)
 				{
@@ -253,7 +276,7 @@ class Pos_invoices extends CI_Controller
 				}
 				$data['terms'] =$this->settings->billingterms(2);
 			}else{
-				$this->tipSelec = $data['emp']['key2'];
+				$this->tipSelec = $data['configs']['doc_default'];
 				if(count($this->settings->billingterms($this->tipSelec)) == 0)
 				{
 					exit('Deve Inserir pelo menos um Termo para o Tipo Definido para o POS. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
@@ -265,14 +288,13 @@ class Pos_invoices extends CI_Controller
 		
 		$data['typesinvoicesdefault'] = $this->common->default_typ_doc($this->tipSelec);
 		$invoi_type = $this->common->default_typ_id_doc($this->tipSelec);
-		$data['seriesinvoiceselect'] = $this->common->default_series($invoi_type);
-		
-		$seri_did_df = $this->common->default_series_id($invoi_type);
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
+		$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
 		$numget = $this->common->lastdoc($this->tipSelec,$seri_did_df);
 		
 		$data['typesinvoices'] = $this->settings->list_irs_typ_id_fact();
 		$data['lastinvoice'] = $numget;
-        if ($data['emp']['key1']) {
+        if ($discship['emps'] == 1) {
             $this->load->model('employee_model', 'employee');
             $data['employee'] = $this->employee->list_employee();
         }
@@ -311,7 +333,7 @@ class Pos_invoices extends CI_Controller
         $data['warehouse'] = $this->invocies->warehouses();
         $this->load->model('plugins_model', 'plugins');
         $data['exchange'] = $this->plugins->universal_api(5);
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
         $this->load->library("Common");
         $data['taxlist'] = $this->common->taxlist_edit($data['invoice']['taxstatus']);
         $this->load->view('fixed/header-pos', $head);
@@ -416,13 +438,19 @@ class Pos_invoices extends CI_Controller
             exit;
 		}
 
-        $this->load->model('plugins_model', 'plugins');
-        $empl_e = $this->plugins->universal_api(69);
-        if ($empl_e['key1']) {
+        $this->load->model('settings_model', 'settings');
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$emp = 0;
+		if ($discship['emps'] == 1) {
             $emp = $this->input->post('employee');
-        } else {
-            $emp = $this->aauth->get_user()->id;
-        }
+        }else{
+			$emp = $this->aauth->get_user()->id;
+		}
         $print_now = $this->input->post('printnow');
         $this->load->model('plugins_model', 'plugins');
 		
@@ -644,8 +672,16 @@ class Pos_invoices extends CI_Controller
 					$r_amt9 = $pamnt;
 				}
 				
-                $d_trans = $this->plugins->universal_api(69);
-				if ($d_trans['key2'] == 1) {
+				$this->load->model('settings_model', 'settings');
+				$discship = [];
+				if($this->aauth->get_user()->loc == 0)
+				{
+					$discship = $this->settings->online_pay_settings_main();
+				}else{
+					$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+				}
+				$d_trans = $discship;
+				if($dual['dual_entry']>0){
 					$t_data = array(
 						'type' => 'Income',
 						'cat' => 3,
@@ -656,22 +692,21 @@ class Pos_invoices extends CI_Controller
 						'tid' => $invocieno,
 						'loc' =>$this->aauth->get_user()->loc
 					);
-					$dual = $this->custom->api_config(65);
 					$this->db->select('holder');
 					$this->db->from('geopos_accounts');
-					$this->db->where('id', $dual['key2']);
+					$this->db->where('id', $dual['ac_id_d']);
 					$query = $this->db->get();
 					$account_d = $query->row_array();
 					$t_data['credit'] = 0;
 					$t_data['debit'] = $total;
 					$t_data['type'] = 'Expense';
-					$t_data['acid'] = $dual['key2'];
+					$t_data['acid'] = $dual['ac_id_d'];
 					$t_data['account'] = $account_d['holder'];
 					$t_data['note'] = 'Debit ' . $tnote;
 					$this->db->insert('geopos_transactions', $t_data);
 					//account update
 					$this->db->set('lastbal', "lastbal-$total", FALSE);
-					$this->db->where('id', $dual['key2']);
+					$this->db->where('id', $dual['ac_id_d']);
 					$this->db->update('geopos_accounts');
 					
 					// now try it
@@ -1189,6 +1224,7 @@ class Pos_invoices extends CI_Controller
         foreach ($list as $invoices) {
             $no++;
 			$width = 0;
+			
 			if($invoices->pamnt == 0 || $invoices->pamnt == null || $invoices->pamnt == "" || $invoices->total == 0 || $invoices->total == null || $invoices->total == "")
 			{
 				$width = round(0*100,2);
@@ -1196,12 +1232,14 @@ class Pos_invoices extends CI_Controller
 			{
 				$width = round(($invoices->pamnt/$invoices->total)*100,2);
 			}
+			
             $row = array();
 			$row[] = $invoices->serie_name;
-            $row[] = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '">&nbsp; ' . $invoices->tid . '</a>';
+            $row[] = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '">'.$invoices->type. $invoices->tid . '</a>';
 			$row[] = dateformat($invoices->invoicedate);
             $row[] = $invoices->name;
             $row[] = $invoices->taxid;
+			$row[] = $invoices->qty;
 			$row[] = amountExchange($invoices->subtotal, 0, $this->aauth->get_user()->loc);
 			$row[] = amountExchange($invoices->tax, 0, $this->aauth->get_user()->loc);
 			$row[] = amountExchange($invoices->total, 0, $this->aauth->get_user()->loc);
@@ -2075,9 +2113,11 @@ die();
 		$codQRD .= 'S:'.$campfim.'*';
 		
 		$qrCode = new QrCode($codQRD);
-		$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
-		// boost the memory limit if it's low ;)
-        ini_set('memory_limit', '64M');
+		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		
+		$writer = new PngWriter();
+		$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		ini_set('memory_limit', '64M');
         // load library
         $this->load->library('pdf');
         $this->pheight = 0;
@@ -2088,21 +2128,51 @@ die();
         $pdf->charset_in = 'UTF-8';
         //   $pdf->SetDirectionality('rtl'); // Set lang direction for rtl lang
         $pdf->autoLangToFont = true;
+        $h = 230 + $this->pheight;
+        //  $pdf->_setPageSize(array(70, $h), $this->orientation);
+        $pdf->_setPageSize(array(70, $h), $pdf->DefOrientation);
 		
 		$data['Tipodoc'] = "Original";
 		$data2 = $data;
 		$data2['Tipodoc'] = "Duplicado";
-			
-        $html = $this->load->view('print_files/pos_pdf_compact', $data, true);
-		$html2 = $this->load->view('print_files/pos_pdf_compact', $data2, true);
+		$data3 = $data;
+		$data3['Tipodoc'] = "Triplicado";
+		$data4 = $data;
+		$data4['Tipodoc'] = "Quadruplicado";
 		
-        $h = 220 + $this->pheight;
-        //  $pdf->_setPageSize(array(70, $h), $this->orientation);
-        $pdf->_setPageSize(array(70, $h), $pdf->DefOrientation);
+		$html = $this->load->view('print_files/pos_pdf_compact' . POSV, $data, true);
+		$html2 = $this->load->view('print_files/pos_pdf_compact' . POSV, $data2, true);
+		$html3 = $this->load->view('print_files/pos_pdf_compact' . POSV, $data3, true);
+		$html4 = $this->load->view('print_files/pos_pdf_compact' . POSV, $data4, true);
 		
-        $pdf->WriteHTML($html);
-		$pdf->AddPage();
-		$pdf->WriteHTML($html2);
+        $pdf = $this->pdf->load_split(array('margin_top' => 10));
+		$loc2 = location(0);
+        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
+		if($data['invoice']['numcop'] == 'copy1')
+		{
+			$pdf->WriteHTML($html);
+		}else if($data['invoice']['numcop'] == 'copy2')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+		}else if($data['invoice']['numcop'] == 'copy3')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+		}else if($data['invoice']['numcop'] == 'copy4')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html4);
+		}
 		
         // render the view into HTML
         // write the HTML into the PDF
@@ -2147,9 +2217,25 @@ die();
         $this->load->library('parser');
         $this->load->model('templates_model', 'templates');
         $template = $this->templates->template_info(6);
-
+		
+		$mailfromtilte = '';
+		$mailfrom = '';
+		
+		$this->db->select("emailo_remet, email_app");
+		$this->db->from('geopos_system_permiss');
+		$this->db->where('docs_email', 1);
+		if($this->aauth->get_user()->loc > 0){
+			$this->db->where('loc', $this->aauth->get_user()->loc);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$mailfromtilte = $vals['emailo_remet'];
+		$mailfrom = $vals['email_app'];
+		
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'BillNumber' => $invocieno2
         );
         $subject = $this->parser->parse_string($template['key1'], $data, TRUE);
@@ -2158,18 +2244,16 @@ die();
 
 
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'BillNumber' => $invocieno2,
             'URL' => "<a href='$link'>$link</a>",
-            'CompanyDetails' => '<h6><strong>' . $this->config->item('ctitle') . ',</strong></h6>
+            'CompanyDetails' => '<h6><strong>' . $mailfromtilte . ',</strong></h6>
 <address>' . $this->config->item('address') . '<br>' . $this->config->item('address2') . '</address>
              ' . $this->lang->line('Phone') . ' : ' . $this->config->item('phone') . '<br>  ' . $this->lang->line('Email') . ' : ' . $this->config->item('email'),
             'DueDate' => dateformat($idate),
             'Amount' => amountExchange($total, $multi)
         );
         $message = $this->parser->parse_string($template['other'], $data, TRUE);
-
-
         return array('subject' => $subject, 'message' => $message);
     }
 

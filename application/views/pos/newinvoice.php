@@ -146,7 +146,7 @@
 					</div>
 				</div>
                 <hr>
-                <?php if ($emp['key1']) { ?>
+                <?php if ($configs['emps'] == 1) { ?>
                     <div class="col">
                         <div class="form-group form-group-sm text-g">
                             <label for="employee"><?php echo $this->lang->line('Employee') ?></label>
@@ -178,7 +178,7 @@
                                         class="fa fa-credit-card"></i> <?php echo $this->lang->line('Card') ?>
                             </a>
                         <?php } ?>
-						<a href="<?= base_url('stockreturn/create?ty=1') ?>" class="red float-right"><i class="fa fa-reply-all"></i></a>
+						<a href="<?= base_url('stockreturn/create?ty=0') ?>" class="red float-right"><i class="fa fa-reply-all"></i></a>
                     </div>
                 </div>
 
@@ -393,15 +393,11 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 
 
 				</div>
-                <div class="col-md-3  grey text-xs-center"><select
-                            id="categories"
-                            class="form-control round teal">
-                        <option value="0"><?php echo $this->lang->line('All') ?></option><?php
-                        foreach ($cat as $row) {
-                            $cid = $row['id'];
-                            $title = $row['title'];
-                            echo "<option value='$cid'>$title</option>";
-                        }
+                <div class="col-md-3  grey text-xs-center">
+					<select id="categories" class="form-control round teal">
+						<option value="0"><?php echo $this->lang->line('All') ?></option>
+						<?php
+							echo $cat;
                         ?>
                     </select></div>
 

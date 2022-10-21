@@ -304,99 +304,170 @@
 										<?php }
 										} echo '</div>';
 									}?>
-						<div id="invoice-footer"><p class="lead">Entrega e Transporte:</p>
-							<table class="table table-striped">
-								<thead>
-								<tr>
-									<th>Expedição</th>
-									<th>Viatura</th>
-									<th>Data / Hora Início do Transporte</th>
-									<th>Local da Carga</th>
-									<th>Local da Descarga</th>
-								</tr>
-								</thead>
-								<tbody id="activity">
-								<?php 
-								echo '<tr>';
-								echo '<td>';
-								if($guide['expedition'] == 'exp1') 
-										echo 'Correio'; 
-									elseif($guide['expedition'] == 'exp2') 
-										echo 'Download/Formato Digital'; 
-									elseif($guide['expedition'] == 'exp3') 
-										echo 'Nossa Viatura';
-									elseif($guide['expedition'] == 'exp4') 
-										echo 'Transportadora';
-									elseif($guide['expedition'] == 'exp5') 
-										echo 'Viatura Cliente';
-									else 
-										echo 'Nossa Viatura';
-								
-								echo '</td>';
-								echo '<td>';
-								if($guide['autoid'] == 0)
-								{
-									echo $guide['methodname'];
-								}else{
-									echo '<a href="'.base_url('manageassets/edit?id=' . $guide['autoid']).'">'.$guide['autoid_name'].'</a>';
-								}
-								echo '</td>';
-								echo '<td>'.$guide['exp_date'].'</td>';
-								echo '<td>'.$guide['charge_address'].'<br>'.$guide['charge_postbox'].'<br>'.$guide['charge_city'].'<br>'.$guide['charge_country_name'].'<br>'.'</td>';
-								echo '<td>'.$guide['discharge_address'].'<br>'.$guide['discharge_postbox'].'<br>'.$guide['discharge_city'].'<br>'.$guide['discharge_country_name'].'<br>'.'</td>';
-								
-								echo '<tr>';
-								echo '<td colspan="5">'.$guide['notes'].'</td>';
-								echo '</tr>';
-								?>
+						<?php 
+							if($guide['expedition'] != null && $guide['expedition'] != "") {?>
+								<div id="invoice-footer"><p class="lead">Entrega e Transporte:</p>
+									<table class="table table-striped">
+										<thead>
+										<tr>
+											<th>Expedição</th>
+											<th>Viatura</th>
+											<th>Data / Hora Início do Transporte</th>
+											<th>Local da Carga</th>
+											<th>Local da Descarga</th>
+										</tr>
+										</thead>
+										<tbody id="activity">
+										<?php 
+										echo '<tr>';
+										echo '<td>';
+										echo $guide['exp_mat'];
+										echo '</td>';
+										echo '<td>';
+										if($guide['autoid'] == 0)
+										{
+											echo $guide['expd_name'];
+										}else{
+											echo '<a href="'.base_url('assests/edit?id=' . $guide['autoid']).'">'.$guide['autoid_name'].'</a>';
+										}
+										echo '</td>';
+										echo '<td>'.$guide['exp_date'].'</td>';
+										echo '<td>'.$guide['charge_address'].'<br>'.$guide['charge_postbox'].'<br>'.$guide['charge_city'].'<br>'.$guide['charge_country_name'].'<br>'.'</td>';
+										echo '<td>'.$guide['discharge_address'].'<br>'.$guide['discharge_postbox'].'<br>'.$guide['discharge_city'].'<br>'.$guide['discharge_country_name'].'<br>'.'</td>';
+										
+										echo '<tr>';
+										echo '<td colspan="5">'.$guide['notes'].'</td>';
+										echo '</tr>';
+										?>
 
-								</tbody>
-							</table>
+										</tbody>
+									</table>
 
-							<div class="row">
+									<div class="row">
 
-								<div class="col-md-7 col-sm-12">
+										<div class="col-md-7 col-sm-12">
+											<h6><?php echo $this->lang->line('Terms & Condition') ?></h6>
+											<?php echo '<br>'.$guide['terms']; ?>
+										</div>
 
-									<h6><?php echo $this->lang->line('Terms & Condition') ?></h6>
-									<p> <?php
+									</div>
 
-										echo '<strong>' . $guide['termtit'] . '</strong><br>' . $guide['terms'];
-										?></p>
-								</div>
-
-							</div>
-
-						</div>
+								</div>	
+						<?php }?>
 					</div>
-					
 					<div class="tab-pane" id="tab2" role="tabpanel" aria-labelledby="base-tab2">
 						<h4>Documentos relacionados</h4>
 						<h6>O documento <?php echo $invoice['irs_type_n'].' '.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'] ?> teve origem nos documentos abaixo (Está conciliado com)</h6>
 						<div class="row">
 							<table class="table table-striped">
-								<thead>
-								</thead>
-								<tbody id="activity">
 								<?php if(is_array($docs_origem)) {
-									//echo '<tr><td></td></tr>';
+									$reicoun = count($docs_origem);
+									if($reicoun > 0){
+										echo "<thead>
+											<tr>
+												<th>Documento</th>
+												<th>Série/Nº</th>
+												<th>Data Emissão</th>
+												<th>NIF/NIC</th>
+												<th>Ilíquido</th>
+												<th>Impostos</th>
+												<th>Total Liq.</th>
+												<th>".$this->lang->line('Settings')."</th>
+											</tr>
+										</thead>
+										<tbody id='activity'>";
+										foreach ($docs_origem as $row) {
+											$tiiid = $row['id'];
+											echo '<tr>';
+											echo "<td><strong>".$row['tipo']."</strong></td>";
+											echo "<td>".$row['serie_name'].'/'.$row['tid']."</td>";
+											echo "<td>".$row['invoicedate']."</td>";
+											echo "<td>".$row['tax_id']."</td>";
+											echo "<td>".amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc)."</td>";
+											echo "<td>".amountExchange($row['tax'], 0, $this->aauth->get_user()->loc)."</td>";
+											echo "<td>".amountExchange($row['total'], 0, $this->aauth->get_user()->loc)."</td>";
+											if($row['type_related'] == "0" || $row['type_related'] == "2"){
+												if($row['draft'] == "0"){
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}else{
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}
+											}else if($row['type_related'] == "1"){
+												echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+											}else if($row['type_related'] == "3"){
+												echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+											}
+											echo '</tr>';
+										}
+										echo "</tbody>";
+									}else
+									{
+										echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que tivesse origem neste documento!</td><tr></tbody>';
+									}
+									
 								}else {
-									echo '<tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr>';
+									echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que tivesse origem neste documento!</td><tr></tbody>';
 								}?>
-								</tbody>
 							</table>
 						</div>
 						<h6>O documento <?php echo $invoice['irs_type_n'].' '.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'] ?> deu origem aos documentos abaixo (Foi conciliado com)</h6>
 						<div class="row">
 							<table class="table table-striped">
-								<thead>
-								</thead>
-								<tbody id="activity">
-								<?php if(is_array($docs_origem)) {
-									//echo '<tr><td></td></tr>';
+								<?php if(is_array($docs_deu_origem)) {
+									$reicoun2 = count($docs_deu_origem);
+									if($reicoun2 > 0){
+										echo "<thead>
+											<tr>
+												<th>Documento</th>
+												<th>Série/Nº</th>
+												<th>Data Emissão</th>
+												<th>NIF/NIC</th>
+												<th>Ilíquido</th>
+												<th>Impostos</th>
+												<th>Total Liq.</th>
+												<th>".$this->lang->line('Settings')."</th>
+											</tr>
+										</thead>
+										<tbody>";
+										foreach ($docs_deu_origem as $row) {
+											$tiiide = $row['id'];
+											echo '<tr>';
+											echo "<td><strong>".$row['tipo']."</strong></td>";
+											echo "<td>".$row['serie_name'].'/'.$row['tid']."</td>";
+											echo "<td>".$row['invoicedate']."</td>";
+											echo "<td>".$row['tax_id']."</td>";
+											echo "<td>".amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc)."</td>";
+											echo "<td>".amountExchange($row['tax'], 0, $this->aauth->get_user()->loc)."</td>";
+											echo "<td>".amountExchange($row['total'], 0, $this->aauth->get_user()->loc)."</td>";
+											if($row['type_related'] == "0" || $row['type_related'] == "2"){
+												if($row['draft'] == "0"){
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}else{
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=1").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}
+											}else if($row['type_related'] == "1"){
+												echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+											}else if($row['type_related'] == "3"){
+												echo '<td><a href="'.base_url("quote/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("quote/printquote?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+											}
+											
+											echo '</tr>';
+										}
+										echo "</tbody>";
+									}else{
+										echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr></tbody>';
+									}
 								}else {
-									echo '<tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr>';
+									echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr></tbody>';
 								}?>
-								</tbody>
 							</table>
 						</div>
 						<hr>

@@ -43,23 +43,53 @@ class Invoices_model extends CI_Model
 	
 	public function invoice_details2($id, $eid = '',$p=true)
     {
-        $this->db->select("geopos_draft.*,geopos_draft.id as iddoc, CASE WHEN geopos_locations.address = '' OR geopos_locations.address IS NULL THEN geopos_system.address ELSE geopos_locations.address END AS loc_name
-		, CASE WHEN geopos_locations.address = '' OR geopos_locations.address IS NULL THEN geopos_system.address ELSE geopos_locations.address END AS loc_adress
-		, CASE WHEN geopos_locations.postbox = '' OR geopos_locations.postbox IS NULL THEN geopos_system.postbox ELSE geopos_locations.postbox END AS loc_postbox
-		, CASE WHEN geopos_locations.city = '' OR geopos_locations.city IS NULL THEN geopos_system.city ELSE geopos_locations.city END AS loc_city
-		, CASE WHEN geopos_locations.country = '' OR geopos_locations.country IS NULL THEN geopos_system.country ELSE geopos_locations.country END AS loc_country,
-		CASE WHEN geopos_locations.taxid = '' OR geopos_locations.taxid IS NULL THEN geopos_system.taxid ELSE geopos_locations.taxid END AS loc_taxid,
-		CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL 
-			THEN 
-				CASE WHEN w2.title is null or w2.title = '' 
-					THEN 'Todos' 
-				ELSE w2.title 
-				END 
-			ELSE w1.title 
-			END AS loc_cname,
-		geopos_currencies.code as multiname, geopos_series.serie AS serie_name, geopos_irs_typ_doc.type AS irs_type_s, geopos_irs_typ_doc.description AS irs_type_n, 
-		SUM(geopos_draft.shipping + geopos_draft.ship_tax) AS shipping,geopos_customers.*,geopos_draft.loc as loc,geopos_draft.id AS iid,geopos_customers.id AS cid,geopos_terms.id AS termid,geopos_terms.title AS termtit,geopos_terms.terms AS terms");
+        $this->db->select("geopos_draft.*,
+			geopos_data_transport.autoid,
+			geopos_data_transport.expedition,
+			geopos_data_transport.exp_date,
+			geopos_data_transport.exp_mat,
+			geopos_data_transport.exp_des,
+			geopos_data_transport.charge_address,
+			geopos_data_transport.charge_postbox,geopos_data_transport.charge_city,geopos_data_transport.charge_country,geopos_data_transport.discharge_address,
+			geopos_data_transport.discharge_postbox,
+			geopos_data_transport.discharge_city,
+			geopos_data_transport.discharge_country, CASE WHEN geopos_locations.address = '' THEN geopos_system.address ELSE geopos_locations.address END AS loc_name,
+			geopos_assets.assest_name as autoid_name,l1.name as charge_country_name, l2.name as discharge_country_name, c1.val2 as expd_t, c1.val1 as expd_name, 
+			geopos_draft.id as iddoc, CASE WHEN geopos_locations.address = '' OR geopos_locations.address IS NULL THEN geopos_system.address ELSE geopos_locations.address END AS loc_adress
+			, CASE WHEN geopos_locations.postbox = '' OR geopos_locations.postbox IS NULL THEN geopos_system.postbox ELSE geopos_locations.postbox END AS loc_postbox
+			, CASE WHEN geopos_locations.city = '' OR geopos_locations.city IS NULL THEN geopos_system.city ELSE geopos_locations.city END AS loc_city
+			, CASE WHEN geopos_locations.country = '' OR geopos_locations.country IS NULL THEN geopos_system.country ELSE geopos_locations.country END AS loc_country,
+			CASE WHEN geopos_locations.taxid = '' OR geopos_locations.taxid IS NULL THEN geopos_system.taxid ELSE geopos_locations.taxid END AS loc_taxid,
+			CASE WHEN geopos_accounts.acn = '' OR geopos_accounts.acn IS NULL THEN 'Sem Informação Disponível' ELSE geopos_accounts.acn END as loc_contabancaria,
+			CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL 
+				THEN 
+					CASE WHEN w2.title is null or w2.title = '' 
+						THEN 'Todos' 
+					ELSE w2.title 
+					END 
+				ELSE w1.title 
+				END AS loc_cname,
+			geopos_currencies.code as multiname, geopos_series.serie AS serie_name, geopos_irs_typ_doc.type AS irs_type_s, geopos_irs_typ_doc.description AS irs_type_n, 
+			SUM(geopos_draft.shipping + geopos_draft.ship_tax) AS shipping,geopos_customers.*,geopos_draft.loc as loc,geopos_draft.id AS iid,geopos_customers.id AS cid,geopos_terms.id AS termid,geopos_terms.title AS termtit,geopos_terms.terms AS terms");
 		$this->db->from('geopos_draft');
+		$this->db->join('geopos_data_transport', 'geopos_draft.id=geopos_data_transport.tid', 'left');
+		$this->db->join('geopos_assets', 'geopos_data_transport.autoid = geopos_assets.id', 'left');
+		$this->db->join('geopos_countrys as l1', 'geopos_data_transport.charge_country = l1.prefix', 'left');
+		$this->db->join('geopos_countrys as l2', 'geopos_data_transport.discharge_country = l2.prefix', 'left');
+		$this->db->join('geopos_config as c1', 'c1.id = geopos_data_transport.expedition', 'left');
+		$this->db->join('geopos_accounts', "geopos_accounts.loc = geopos_draft.loc and geopos_accounts.payonline = 'Yes'", 'left');
+		$this->db->join('geopos_system', 'geopos_system.id = 1', 'left');
+		$this->db->join('geopos_locations', 'geopos_locations.id = geopos_draft.loc', 'left');
+		$this->db->join('geopos_warehouse as w1', 'geopos_locations.ware=w1.id', 'left');
+		$this->db->join('geopos_warehouse as w2', 'geopos_draft.loc=w2.id', 'left');
+		$this->db->join('geopos_currencies', 'geopos_currencies.id = geopos_draft.multi', 'left');
+		$this->db->join('geopos_irs_typ_doc', 'geopos_draft.irs_type = geopos_irs_typ_doc.id', 'left');
+		$this->db->join('geopos_documents_copys', 'geopos_draft.loc = geopos_documents_copys.loc and geopos_draft.irs_type = geopos_documents_copys.typ_doc', 'inner');
+		$this->db->join('geopos_config as copys', 'geopos_documents_copys.copy = copys.id', 'left');
+		$this->db->join('geopos_series', 'geopos_series.id = geopos_draft.serie', 'left');
+        $this->db->join('geopos_customers', 'geopos_draft.csd = geopos_customers.id', 'left');
+        $this->db->join('geopos_terms', 'geopos_terms.id = geopos_draft.term', 'left');
+		$this->db->where('geopos_series.predf', 1);
 		$this->db->where('geopos_draft.ext', 0);
         $this->db->where('geopos_draft.id', $id);
         if ($eid) {
@@ -72,15 +102,6 @@ class Invoices_model extends CI_Model
                 $this->db->where('geopos_draft.loc', 0);
             }
         }
-		$this->db->join('geopos_system', 'geopos_system.id = 1', 'left');
-		$this->db->join('geopos_locations', 'geopos_locations.id = geopos_draft.loc', 'left');
-		$this->db->join('geopos_warehouse as w1', 'geopos_locations.ware=w1.id', 'left');
-		$this->db->join('geopos_warehouse as w2', 'geopos_draft.loc=w2.id', 'left');
-		$this->db->join('geopos_currencies', 'geopos_currencies.id = geopos_draft.multi', 'left');
-		$this->db->join('geopos_irs_typ_doc', 'geopos_draft.irs_type = geopos_irs_typ_doc.id', 'left');
-		$this->db->join('geopos_series', 'geopos_series.id = geopos_draft.serie', 'left');
-        $this->db->join('geopos_customers', 'geopos_draft.csd = geopos_customers.id', 'left');
-        $this->db->join('geopos_terms', 'geopos_terms.id = geopos_draft.term', 'left');
         $query = $this->db->get();
         return $query->row_array();
     }
@@ -90,28 +111,51 @@ class Invoices_model extends CI_Model
     {
 		if($this->aauth->get_user()->loc == 0)
 		{
-			$this->db->select("geopos_invoices.*, geopos_invoices.id as iddoc, 
-			CASE WHEN geopos_locations.address = '' OR geopos_locations.address IS NULL THEN geopos_system.address ELSE geopos_locations.cname END AS loc_name
-			, CASE WHEN geopos_locations.address = '' OR geopos_locations.address IS NULL THEN geopos_system.address ELSE geopos_locations.address END AS loc_adress
-			, CASE WHEN geopos_locations.postbox = '' OR geopos_locations.postbox IS NULL THEN geopos_system.postbox ELSE geopos_locations.postbox END AS loc_postbox
-			, CASE WHEN geopos_locations.city = '' OR geopos_locations.city IS NULL THEN geopos_system.city ELSE geopos_locations.city END AS loc_city
-			, CASE WHEN geopos_locations.country = '' OR geopos_locations.country IS NULL THEN geopos_system.country ELSE geopos_locations.country END AS loc_country,
-			CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL 
-			THEN 
-				CASE WHEN w2.title is null or w2.title = '' 
-					THEN 'Todos' 
-				ELSE w2.title 
-				END 
-			ELSE w1.title 
-			END AS loc_cname,
-			CASE WHEN geopos_locations.taxid = '' OR geopos_locations.taxid IS NULL THEN geopos_system.taxid ELSE geopos_locations.taxid END AS loc_taxid,
-			geopos_system.zon_fis AS loc_zon_fis, geopos_system.certification as loc_certification, geopos_bank_ac.acn as loc_contabancaria,
-			geopos_currencies.code as multiname, geopos_series.serie AS serie_name, geopos_series.atc AS atc_serie, geopos_irs_typ_doc.type AS irs_type_s, geopos_irs_typ_doc.description AS irs_type_n, 
-			SUM(geopos_invoices.shipping + geopos_invoices.ship_tax) AS shipping,geopos_customers.*,
-			geopos_invoices.loc as loc,geopos_invoices.id AS iid,geopos_customers.id AS cid,geopos_terms.id AS termid,geopos_terms.title AS termtit,geopos_terms.terms AS terms");
+			$this->db->select("geopos_invoices.*,
+				geopos_data_transport.autoid,
+				geopos_data_transport.expedition,
+				geopos_data_transport.exp_date,
+				geopos_data_transport.exp_mat,
+				geopos_data_transport.exp_des,
+				geopos_data_transport.charge_address,
+				geopos_data_transport.charge_postbox,geopos_data_transport.charge_city,geopos_data_transport.charge_country,geopos_data_transport.discharge_address,
+				geopos_data_transport.discharge_postbox,
+				geopos_data_transport.discharge_city,
+				geopos_data_transport.discharge_country, CASE WHEN geopos_locations.address = '' THEN geopos_system.address ELSE geopos_locations.address END AS loc_name,
+				geopos_assets.assest_name as autoid_name,l1.name as charge_country_name, l2.name as discharge_country_name, c1.val2 as expd_t, c1.val1 as expd_name, 
+				geopos_invoices.id as iddoc, 
+				, CASE WHEN geopos_locations.address = '' OR geopos_locations.address IS NULL THEN geopos_system.address ELSE geopos_locations.address END AS loc_adress
+				, CASE WHEN geopos_locations.postbox = '' OR geopos_locations.postbox IS NULL THEN geopos_system.postbox ELSE geopos_locations.postbox END AS loc_postbox
+				, CASE WHEN geopos_locations.city = '' OR geopos_locations.city IS NULL THEN geopos_system.city ELSE geopos_locations.city END AS loc_city
+				, CASE WHEN geopos_locations.country = '' OR geopos_locations.country IS NULL THEN geopos_system.country ELSE geopos_locations.country END AS loc_country,
+				CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL 
+				THEN 
+					CASE WHEN w2.title is null or w2.title = '' 
+						THEN 'Todos' 
+					ELSE w2.title 
+					END 
+				ELSE w1.title 
+				END AS loc_cname,
+				CASE WHEN geopos_locations.taxid = '' OR geopos_locations.taxid IS NULL THEN geopos_system.taxid ELSE geopos_locations.taxid END AS loc_taxid,
+				geopos_system.zon_fis AS loc_zon_fis, geopos_system.certification as loc_certification, 
+				CASE WHEN geopos_accounts.acn = '' OR geopos_accounts.acn IS NULL THEN 'Sem Informação Disponível' ELSE geopos_accounts.acn END as loc_contabancaria,
+				geopos_currencies.code as multiname, geopos_series.serie AS serie_name, geopos_series.atc AS atc_serie, geopos_irs_typ_doc.type AS irs_type_s, geopos_irs_typ_doc.description AS irs_type_n, 
+				SUM(geopos_invoices.shipping + geopos_invoices.ship_tax) AS shipping,geopos_customers.*,
+				copys.val2 as numcop,
+				geopos_invoices.loc as loc,geopos_invoices.id AS iid,geopos_customers.id AS cid,geopos_terms.id AS termid,geopos_terms.title AS termtit,geopos_terms.terms AS terms");
 		}else{
-			$this->db->select("geopos_invoices.*, geopos_invoices.id as iddoc, 
-			CASE WHEN geopos_locations.address = '' OR geopos_locations.address IS NULL THEN geopos_system.address ELSE geopos_locations.cname END AS loc_name
+			$this->db->select("geopos_invoices.*,
+			geopos_data_transport.autoid,
+			geopos_data_transport.expedition,
+			geopos_data_transport.exp_date,
+			geopos_data_transport.exp_mat,
+			geopos_data_transport.exp_des,
+			geopos_data_transport.charge_address,
+			geopos_data_transport.charge_postbox,geopos_data_transport.charge_city,geopos_data_transport.charge_country,geopos_data_transport.discharge_address,
+			geopos_data_transport.discharge_postbox,
+			geopos_data_transport.discharge_city,
+			geopos_data_transport.discharge_country, CASE WHEN geopos_locations.address = '' THEN geopos_system.address ELSE geopos_locations.address END AS loc_name, 
+			geopos_invoices.id as iddoc, 
 			, CASE WHEN geopos_locations.address = '' OR geopos_locations.address IS NULL THEN geopos_system.address ELSE geopos_locations.address END AS loc_adress
 			, CASE WHEN geopos_locations.postbox = '' OR geopos_locations.postbox IS NULL THEN geopos_system.postbox ELSE geopos_locations.postbox END AS loc_postbox
 			, CASE WHEN geopos_locations.city = '' OR geopos_locations.city IS NULL THEN geopos_system.city ELSE geopos_locations.city END AS loc_city
@@ -125,15 +169,35 @@ class Invoices_model extends CI_Model
 			ELSE w1.title 
 			END AS loc_cname,
 			CASE WHEN geopos_locations.taxid = '' OR geopos_locations.taxid IS NULL THEN geopos_system.taxid ELSE geopos_locations.taxid END AS loc_taxid,
-			geopos_locations.zon_fis AS loc_zon_fis, geopos_system.certification as loc_certification, geopos_bank_ac.acn as loc_contabancaria,
+			geopos_locations.zon_fis AS loc_zon_fis, geopos_system.certification as loc_certification, 
+			CASE WHEN geopos_accounts.acn = '' OR geopos_accounts.acn IS NULL THEN 'Sem Informação Disponível' ELSE geopos_accounts.acn END as loc_contabancaria,
 			geopos_currencies.code as multiname, geopos_series.serie AS serie_name, geopos_series.atc AS atc_serie, geopos_irs_typ_doc.type AS irs_type_s, geopos_irs_typ_doc.description AS irs_type_n, 
 			SUM(geopos_invoices.shipping + geopos_invoices.ship_tax) AS shipping,geopos_customers.*,
+			copys.val2 as numcop,
 			geopos_invoices.loc as loc,geopos_invoices.id AS iid,geopos_customers.id AS cid,geopos_terms.id AS termid,geopos_terms.title AS termtit,geopos_terms.terms AS terms");
 		}
         
         $this->db->from($this->table);
-        $this->db->where('geopos_invoices.id', $id);
+		$this->db->join('geopos_data_transport', 'geopos_invoices.id=geopos_data_transport.tid', 'left');
+		$this->db->join('geopos_assets', 'geopos_data_transport.autoid = geopos_assets.id', 'left');
+		$this->db->join('geopos_countrys as l1', 'geopos_data_transport.charge_country = l1.prefix', 'left');
+		$this->db->join('geopos_countrys as l2', 'geopos_data_transport.discharge_country = l2.prefix', 'left');
+		$this->db->join('geopos_config as c1', 'c1.id = geopos_data_transport.expedition', 'left');
+		$this->db->join('geopos_accounts', "geopos_accounts.loc = geopos_invoices.loc and geopos_accounts.payonline = 'Yes'", 'left');
+		$this->db->join('geopos_system', 'geopos_system.id = 1', 'left');
+		$this->db->join('geopos_locations', 'geopos_locations.id = geopos_invoices.loc', 'left');
+		$this->db->join('geopos_warehouse as w1', 'geopos_locations.ware=w1.id', 'left');
+		$this->db->join('geopos_warehouse as w2', 'geopos_invoices.loc=w2.id', 'left');
+		$this->db->join('geopos_currencies', 'geopos_currencies.id = geopos_invoices.multi', 'left');
+		$this->db->join('geopos_irs_typ_doc', 'geopos_invoices.irs_type = geopos_irs_typ_doc.id', 'left');
+		$this->db->join('geopos_documents_copys', 'geopos_invoices.loc = geopos_documents_copys.loc and geopos_invoices.irs_type = geopos_documents_copys.typ_doc', 'inner');
+		$this->db->join('geopos_config as copys', 'geopos_documents_copys.copy = copys.id', 'left');
+		$this->db->join('geopos_series', 'geopos_series.id = geopos_invoices.serie', 'left');
+        $this->db->join('geopos_customers', 'geopos_invoices.csd = geopos_customers.id', 'left');
+        $this->db->join('geopos_terms', 'geopos_terms.id = geopos_invoices.term', 'left');
+		$this->db->where('geopos_invoices.id', $id);
 		$this->db->where('geopos_invoices.ext', 0);
+		$this->db->where('geopos_series.predf', 1);
         if ($eid) {
             $this->db->where('geopos_invoices.eid', $eid);
         }
@@ -145,16 +209,6 @@ class Invoices_model extends CI_Model
             }
         }
 		
-		$this->db->join('geopos_bank_ac', 'geopos_bank_ac.id = 1', 'left');
-		$this->db->join('geopos_system', 'geopos_system.id = 1', 'left');
-		$this->db->join('geopos_locations', 'geopos_locations.id = geopos_invoices.loc', 'left');
-		$this->db->join('geopos_warehouse as w1', 'geopos_locations.ware=w1.id', 'left');
-		$this->db->join('geopos_warehouse as w2', 'geopos_invoices.loc=w2.id', 'left');
-		$this->db->join('geopos_currencies', 'geopos_currencies.id = geopos_invoices.multi', 'left');
-		$this->db->join('geopos_irs_typ_doc', 'geopos_invoices.irs_type = geopos_irs_typ_doc.id', 'left');
-		$this->db->join('geopos_series', 'geopos_series.id = geopos_invoices.serie', 'left');
-        $this->db->join('geopos_customers', 'geopos_invoices.csd = geopos_customers.id', 'left');
-        $this->db->join('geopos_terms', 'geopos_terms.id = geopos_invoices.term', 'left');
         $query = $this->db->get();
         return $query->row_array();
     }
@@ -381,12 +435,12 @@ class Invoices_model extends CI_Model
             $data = array('type' => 9, 'rid' => $id);
             $this->db->delete('geopos_metadata', $data);
 
-                        $alert= $this->custom->api_config(66);
-            if ($alert['method'] == 1) {
-                 $this->load->model('communication_model');
-                 $subject= $result['tid'].' '. $this->lang->line('DELETED');
-                 $body=$subject.'<br> '. $this->lang->line('Amount').' '. $result['total'].'<br> '. $this->lang->line('Employee').' '. $this->aauth->get_user()->username.'<br> ID# '. $result['tid'];
-               $out= $this->communication_model->send_corn_email($alert['url'], $alert['url'], $subject, $body, false, '');
+            $alert = $this->custom->get_configs_emails($this->aauth->get_user()->loc);
+			if ($alert['docs_email'] == 1) {
+                $this->load->model('communication_model');
+                $subject= $result['tid'].' '. $this->lang->line('DELETED');
+                $body=$subject.'<br> '. $this->lang->line('Amount').' '. $result['total'].'<br> '. $this->lang->line('Employee').' '. $this->aauth->get_user()->username.'<br> ID# '. $result['tid'];
+				$out= $this->communication_model->send_corn_email($alert['email_app'], $alert['emailo_remet'], $subject, $body, false, '');
             }
 
             if ($this->db->trans_complete()) {
@@ -401,8 +455,8 @@ class Invoices_model extends CI_Model
 
     private function _get_datatables_query($opt = '')
     {
-        $this->db->select("geopos_invoices.id,geopos_series.serie AS serie_name,geopos_invoices.tid,geopos_invoices.invoicedate, geopos_customers.name, geopos_customers.taxid, geopos_invoices.subtotal, geopos_invoices.tax, geopos_invoices.total, geopos_invoices.status, geopos_invoices.pamnt, geopos_invoices.invoiceduedate, geopos_irs_typ_doc.type,
-		CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL 
+        $this->db->select("geopos_invoices.id, geopos_invoices.irs_type, geopos_irs_typ_doc.id as irs_type_c, geopos_series.serie AS serie_name,geopos_invoices.tid,geopos_invoices.invoicedate, geopos_customers.name, geopos_customers.taxid, geopos_invoices.subtotal, geopos_invoices.tax, geopos_invoices.total, geopos_invoices.status, geopos_invoices.pamnt, geopos_invoices.invoiceduedate, geopos_irs_typ_doc.type,
+		geopos_invoices.ext, CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL
 			THEN 
 				CASE WHEN w2.title is null or w2.title = '' 
 					THEN 'Todos' 
@@ -429,6 +483,8 @@ class Invoices_model extends CI_Model
             $this->db->where('DATE(geopos_invoices.invoicedate) >=', datefordatabase($this->input->post('start_date')));
             $this->db->where('DATE(geopos_invoices.invoicedate) <=', datefordatabase($this->input->post('end_date')));
         }
+		$this->db->join('geopos_data_transport', 'geopos_invoices.id=geopos_data_transport.tid', 'left');
+		$this->db->join('geopos_assets', 'geopos_data_transport.autoid=geopos_assets.id', 'left');
         $this->db->join('geopos_customers', 'geopos_invoices.csd=geopos_customers.id', 'left');
 		$this->db->join('geopos_irs_typ_doc', 'geopos_invoices.irs_type = geopos_irs_typ_doc.id', 'left');
 		$this->db->join('geopos_series', 'geopos_series.id = geopos_invoices.serie', 'left');
@@ -497,6 +553,8 @@ class Invoices_model extends CI_Model
             $this->db->where('DATE(geopos_draft.invoicedate) >=', datefordatabase($this->input->post('start_date')));
             $this->db->where('DATE(geopos_draft.invoicedate) <=', datefordatabase($this->input->post('end_date')));
         }
+		$this->db->join('geopos_data_transport', 'geopos_draft.id=geopos_data_transport.tid', 'left');
+		$this->db->join('geopos_assets', 'geopos_data_transport.autoid=geopos_assets.id', 'left');
         $this->db->join('geopos_customers', 'geopos_draft.csd=geopos_customers.id', 'left');
 		$this->db->join('geopos_irs_typ_doc', 'geopos_draft.irs_type = geopos_irs_typ_doc.id', 'left');
 		$this->db->join('geopos_series', 'geopos_series.id = geopos_draft.serie', 'left');
@@ -605,18 +663,14 @@ class Invoices_model extends CI_Model
 
     public function count_all($opt = '')
     {
-        $this->db->select('geopos_invoices.id');
-        $this->db->from($this->table);
-		$this->db->where('geopos_invoices.ext', 0);
-		$this->db->where('geopos_invoices.i_class', 0);
+        $this->_get_datatables_query($opt);
         if ($opt) {
             $this->db->where('geopos_invoices.eid', $opt);
-
         }
         if ($this->aauth->get_user()->loc) {
             $this->db->where('geopos_invoices.loc', $this->aauth->get_user()->loc);
         }  elseif(!BDATA) { 
-				$this->db->where('geopos_invoices.loc', 0); }
+			$this->db->where('geopos_invoices.loc', 0); }
         return $this->db->count_all_results();
     }
 

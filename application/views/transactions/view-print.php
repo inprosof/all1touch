@@ -26,10 +26,10 @@
 </head>
 <body style="font-family: Helvetica;" dir="<?php echo LTR ?>">
 
-<h5><?php echo $this->lang->line('Transaction Details') . ' ID : ' . prefix(5) . $trans['id'] ?></h5>
+<h5><?php echo $this->lang->line('Transaction Details') . ' ID : TRANS' . $trans['id'] ?></h5>
 
 <table>
-    <?php echo '<tr><td>' . $this->lang->line('Date') . ' : ' . dateformat($trans['date']) . '</td><td>Transaction ID : ' . prefix(5) . $trans['id'] . '</td>
+    <?php echo '<tr><td>' . $this->lang->line('Date') . ' : ' . dateformat($trans['date']) . '</td><td>Transaction ID : TRANS' . $trans['id'] . '</td>
 	<p>Código: ' . $trans['cod_cat'] . '</p>
 	<td> ' . $this->lang->line('Category') . ' : ' . $trans['name_cat'] . '</td></tr>'; ?>
 </table>

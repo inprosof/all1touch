@@ -1141,13 +1141,12 @@ $lang['saft3'] = "É aqui que pode exportar o SAF-T global para o seu computador
 $lang['saft4'] = "Exportar SAF-T Global";
 $lang['saft5'] = "Versão";
 $lang['saft6'] = "1. Comunicação AT";
-$lang['saft7'] = "Termos de Utilização\n\n<br><br>
-A comunicação em Tempo Real está pendente do correto funcionamento dos servidores da Autoridade Tributária.\n<br>
-Assim, o All1Touch não pode ser responsabilizado em caso de falha dos mesmos.\n<br>
-Pode consultar o estado das comunicações pendentes no menu: A. Tributária > Comunicação automática > Listagem de pendentes.\n\n<br><br>
+$lang['saft7'] = "A comunicação em Tempo Real está pendente do correto funcionamento dos servidores da Autoridade Tributária.\n
+Assim, o All1Touch não pode ser responsabilizado em caso de falha dos mesmos.\n
+Pode consultar o estado das comunicações pendentes no menu: Outras Opções > Saft-PT > Listagem de pendentes.\n\n
 
-No âmbito da Portaria n.º 144/2019 de 15 de Maio, a emissão de faturas sem papel obriga, entre outras condicionantes, à comunicação imediata de documentos, pelo que o intervalo de comunicação deverá estar configuração a 0 dias\n<br>
-Atenção: Caso desative a comunicação automática para voltar a ativar é necessária a intervenção do Apoio ao Cliente.\n\n<br><br>
+No âmbito da Portaria n.º 144/2019 de 15 de Maio, a emissão de faturas sem papel obriga, entre outras condicionantes, à comunicação imediata de documentos, pelo que o intervalo de comunicação deverá estar configuração a 0 dias\n
+Atenção: Caso desative a comunicação automática para voltar a ativar é necessária a intervenção do Apoio ao Cliente.\n\n
 
 Caso o seu volume de negócios tenha ultrapassado 100.000 Euros no último período de tributação, encontra-se abrangido pela obrigação de comunicar os seus documentos de transporte à AT, antes do início do transporte efetivo. Ative já a comunicação automática das suas guias e deixe essa tarefa com o All1Touch.
 
@@ -1157,13 +1156,11 @@ Para concluir a ativação, necessitará indicar um utilizador autorizado a efet
 
 Os termos e condições de utilização deste serviço fazem parte dos termos e condições gerais de utilização do All1Touch.";
 $lang['saft8'] = "Ativar";
-
-
 $lang['saft9'] = "Ativação da comunicação automática";
 $lang['saft10'] = "Quais são os documentos que deseja comunicar automaticamente à AT?";
 $lang['saft11'] = "Documentos de faturação";
 $lang['saft12'] = "Documentos de transporte";
-$lang['saft13'] = "Preencha os dados de utilizador e palavra-passe autorizados a efetuar a comunicaSção dos documentos indicados:";
+$lang['saft13'] = "Preencha os dados de utilizador e palavra-passe autorizados a efetuar a comunicação dos documentos indicados:";
 $lang['saft14'] = "No caso dos documentos de faturação, pode definir a data de início da sua comunicação automática pelo que esta será efetuada apenas para os documentos cuja data seja igual ou posterior à data que indicou.
 
 Caso indique uma data anterior à data atual e já tenha faturas emitidas desde essa data, estas serão automaticamente comunicadas quando concluir a ativação.";

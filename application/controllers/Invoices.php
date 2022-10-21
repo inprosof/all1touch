@@ -17,6 +17,7 @@ require_once APPPATH . 'third_party/qrcode/vendor/autoload.php';
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\Printer;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class Invoices extends CI_Controller
 {
@@ -45,20 +46,28 @@ class Invoices extends CI_Controller
         $this->li_a = 'sales';
     }
 	
-	public function nt_convert()
+	////////////////////////Funcões Get convert//////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+	public function duplicate()
 	{
-		$tid = $this->input->get('qo');
-		$this->create(0, $tid);
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$ext = $this->input->get('ext');
+		$this->create($tid, 0, $typ, $ext);
 	}
 	
-	public function quote_convert()
+	
+	public function convert()
 	{
-		$tid = $this->input->get('qo');
-		$this->create($tid);
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$ext = $this->input->get('ext');
+		$this->create($tid, $typ, 0, $ext);
 	}
 
     //create invoice
-    public function create($quo = 0, $nt = 0)
+    public function create($relation = 0, $typrelation = 0, $typeggc = 0, $ext = 0)
     {
 		if (!$this->aauth->premission(2) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
@@ -69,12 +78,17 @@ class Invoices extends CI_Controller
 		$this->load->model('customers_model', 'customers');
         $this->load->model('plugins_model', 'plugins');
 		$this->load->model('settings_model', 'settings');
-        $data['emp'] = $this->plugins->universal_api(69);
-        if ($data['emp']['key1']) {
-            $this->load->model('employee_model', 'employee');
-            $data['employee'] = $this->employee->list_employee();
-        }
-		$typegg = $this->input->get('ty');
+		$typegg = "";
+		
+		$data['tiprelated'] = 0;
+		if($typeggc > 0)
+		{
+			$typegg = $typeggc;
+			$data['tiprelated'] = 2;
+		}else{
+			$typegg = $this->input->get('ty');
+		}
+		
 		$typename = "";
 		if($typegg == null || $typegg == '')
 		{
@@ -93,60 +107,85 @@ class Invoices extends CI_Controller
 			$typegg = 1;
 			$typename = 'Fatura';
 		}
-		$projectget = $this->input->get('project');
-		$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
-		$data['csd_tax'] = "999999990";
-		$data['csd_id'] = "99999999";
+		$projectget = $this->input->get('project');		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['typrelation'] = $typrelation;
+		$data['relationid'] = $relation;
 		
-		if($projectget != "")
+		if($relation > 0)
+		{
+			if($typrelation == 0){
+				$data['tiprelated'] = 1;
+			}
+			$this->load->library("Related");
+			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
+			$data['csd_name'] = $data['docs_origem']['name'];
+			$data['csd_tax'] = $data['docs_origem']['taxid'];
+			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
+		}else if($projectget != "")
 		{
 			$csdproject = $this->customers->detailsFromProject($projectget);
 			$data['csd_name'] = $csdproject['name'];
 			$data['csd_tax'] = $csdproject['taxid'];
 			$data['csd_id'] = $csdproject['id'];
+			$data['docs_origem'] = [];
+			$data['products'] = [];
+		}else{
+			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
+			$data['csd_tax'] = "999999990";
+			$data['csd_id'] = "99999999";
+			$data['docs_origem'] = [];
+			$data['products'] = [];
 		}
 		
-		if($quo > 0)
-		{
-			$data['invoice'] = $this->invocies->detailsFromQuote($quo);
-			$data['csd_name'] = $data['invoice']['name'];
-			$data['csd_tax'] = $data['invoice']['taxid'];
-			$data['csd_id'] = $data['invoice']['id'];
-			$data['quote'] = $quo;
-			$data['products'] = $this->invocies->items_with_product_quote($quo);
-		}
-		
-		if($nt > 0)
-		{
-			$data['invoice'] = $this->invocies->detailsFromNT($nt);
-			$data['csd_name'] = $data['invoice']['name'];
-			$data['csd_tax'] = $data['invoice']['taxid'];
-			$data['csd_id'] = $data['invoice']['id'];
-			$data['not_enc'] = $nt;
-			$data['products'] = $this->invocies->items_with_product_note_enco($nt);
-		}
-		
-		$discship = $this->plugins->universal_api(65);
-		
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
 		if($this->aauth->get_user()->loc == 0)
 		{
-			$data['accounts'] = $this->locations->accountslist();
-			$data['accountid'] = $discship['key2'];
-			$data['accountname'] = "Conta Por Defeito";
+			$discship = $this->settings->online_pay_settings_main();
 		}else{
-			if($discship['key2'] == "" || $discship['key2'] == null)
-			{
-				echo json_encode(array('status' => 'Error', 'message' => 'Por favor Selecionar uma conta por defeito Configurações de Negócio->Configurações Avançadas->Contabilidade e Entrada Dupla'));
-				exit;
-			}else{
-				$accountin = $this->accounts_model->details($discship['key2'],false);
-				$accountincome = ((integer)$accountin['id']);
-				$accountincomename = $accountin['holder'];
-				$data['accountid'] = $accountincome;
-				$data['accountname'] = $accountincomename;
-			}
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
 		}
-        
+		
+		if($discship['ac_id_d'] == 0 && $discship['pac'] == 0)
+		{
+			if($this->aauth->get_user()->loc == 0)
+			{
+				exit('Defina a conta Por defeito para os Documentos na Empresa! <a class="match-width match-height" href="'.base_url().'settings/company?id=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}else{
+				exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}
+		}else{
+			if($discship['ac_id_d'] == 0)
+			{
+				if($this->aauth->get_user()->loc){
+					exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+				}
+			}
+			$accountin = $this->accounts_model->details($discship['ac_id_d'],false);
+			$accountincome = ((integer)$accountin['id']);
+			$accountincomename = $accountin['holder'];
+			$data['accountid'] = $accountincome;
+			$data['accountname'] = $accountincomename;
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+        $data['accounts'] = $this->locations->accountslist();
         $data['exchange'] = $this->plugins->universal_api(5);
 		$data['company'] = $this->settings->company_details(1);
         $data['customergrouplist'] = $this->customers->group_list();
@@ -159,8 +198,14 @@ class Invoices extends CI_Controller
 		$data['typesinvoices'] = $this->settings->list_irs_typ_id_fact();
 		
 		$data['typesinvoicesdefault'] = $this->common->default_typ_doc($typegg);
-		$data['seriesinvoiceselect'] = $this->common->default_series($typegg);
-		
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+
 		if(count($this->settings->billingterms($typegg)) == 0)
 		{
 			exit('Deve Inserir pelo menos um Termo para o Tipo '.$typename.'. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
@@ -171,11 +216,10 @@ class Invoices extends CI_Controller
 		
 		if($data['seriesinvoiceselect'] == NULL)
 		{
-			exit('Deve Inserir pelo menos uma Série no Tipo Fatura. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
-												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
+			exit('Ainda não definiu nenhuma série para esta Localização. <a class="match-width match-height"  href="'.base_url().'settings/series"><i class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
 			$invoi_type = $this->common->default_typ_id_doc($typegg);
-			$seri_did_df = $this->common->default_series_id($typegg);
+			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
 			$numget = $this->common->lastdoc($invoi_type,$seri_did_df);
 			$data['lastinvoice'] = $numget;
 			
@@ -216,29 +260,45 @@ class Invoices extends CI_Controller
 			$data['title'] = "Alterar Fatura #$tid";
 			$data['typeinvoice'] = 'Invoice';
 			$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
-			$data['products'] = $this->invocies->items_with_product($tid);
 			$data['payments'] = $this->invocies->invoice_transactions($tid);
 		}else{
 			$head['title'] = "Alterar Rascunho #$tid";
 			$data['title'] = "Alterar Rascunho #$tid";
 			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
-			$data['products'] = $this->invocies->items_with_product2($tid);
 			$data['payments'] = $this->invocies->invoice_transactions2($tid);
 			$data['typeinvoice'] = 'Rascunho';
 		}
-
-		$data['quote'] = 0;
-		if (strpos($data['invoice']['pmethod'], 'NT') !== false)
-		{
-			$data['quote'] = str_replace("", "QO", $data['invoice']['pmethod']);
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		
+		if($type == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,1);
 		}
 		
-		$data['not_enc'] = 0;
-		if (strpos($data['invoice']['pmethod'], 'NT') !== false)
-		{
-			$data['not_enc'] = str_replace("", "NT", $data['invoice']['pmethod']);
+		if($data['docs_deu_origem'] != null){
+			for($i = 0; $i < count($data['docs_deu_origem']); $i++)
+			{
+				if($data['docs_deu_origem'][$i]['tipologia'] == 1){
+					$data['tiprelated'] = $data['docs_deu_origem'][$i]['doc'];
+					break;
+				}
+			}
 		}
-        
+		
+		$data['iddoc'] = $data['invoice']['id'];
+		$data['csd_name'] = $data['invoice']['name'];
+		$data['csd_tax'] = $data['invoice']['taxid'];
+		$data['csd_id'] = $data['invoice']['id'];
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
         $head['usernm'] = $this->aauth->get_user()->username;
 		$data['countrys'] = $this->common->countrys();
         $data['warehouse'] = $this->invocies->warehouses();
@@ -246,20 +306,46 @@ class Invoices extends CI_Controller
 		$data['taxsiva'] = $this->settings->slabscombo();
         $data['custom_fields'] = $this->custom->view_edit_fields($tid, 2);
 		$data['taxdetails'] = $this->common->taxdetail();
-		$discship = $this->plugins->universal_api(65);
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
 		
 		if($this->aauth->get_user()->loc == 0)
 		{
-			$data['accounts'] = $this->locations->accountslist();
-			$data['accountid'] = $discship['key2'];
-			$data['accountname'] = "Conta Por Defeito";
+			$discship = $this->settings->online_pay_settings_main();
 		}else{
-			$accountin = $this->accounts_model->details($discship['key2'],false);
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		if($discship['ac_id_d'] == 0 && $discship['pac'] == 0)
+		{
+			if($this->aauth->get_user()->loc == 0)
+			{
+				exit('Defina a conta Por defeito para os Documentos na Empresa! <a class="match-width match-height" href="'.base_url().'settings/company?id=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}else{
+				exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}
+		}else{
+			if($discship['ac_id_d'] == 0)
+			{
+				if($this->aauth->get_user()->loc){
+					exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+				}
+			}
+			$accountin = $this->accounts_model->details($discship['ac_id_d'],false);
 			$accountincome = ((integer)$accountin['id']);
 			$accountincomename = $accountin['holder'];
 			$data['accountid'] = $accountincome;
 			$data['accountname'] = $accountincomename;
 		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
 		
 		if($data['invoice']['status'] == 'paid') 
 			redirect(base_url('invoices'));
@@ -312,29 +398,24 @@ class Invoices extends CI_Controller
 		$account_set_id = $this->input->post('account_set_id');
 		$account_set = $this->input->post('account_set');
 		if ($account_set_id == 0 || $account_set_id == "0") {
-			if($this->aauth->get_user()->loc == 0)
-			{
-				echo json_encode(array('status' => 'Error', 'message' => 'Por favor Selecione uma Conta.'));
-			}else{
-				echo json_encode(array('status' => 'Error', 'message' => 'Por favor Selecione uma Conta. Ou então defina na parte Configurações de Negócios->Locais da Empresa'));
-			}
+			echo json_encode(array('status' => 'Error', 'message' => 'Não foi selecionada qualquer conta para a Operação.'));
             exit;
         }
 		
-		$not_e_tid = $this->input->post('not_e_tid');
-		$quote_tid = $this->input->post('quote_tid');
+		$accountincome = $account_set_id;
+		$accountincomename = $account_set;
+
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$this->load->library("Transport");
+		$typrelation = $this->input->post('typrelation');
+		$relationid = $this->input->post('relationid');
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
 		
-		$metretnotqo = "";
-		if($not_e_tid > 0)
-		{
-			$metretnotqo = 'NT'.$not_e_tid;
-		}
 		
-		if($quote_tid > 0)
-		{
-			$metretnotqo = 'QO'.$quote_tid;
-		}
-		
+		$justification_cancel = '';
 		$invocieencorc = $this->input->post('invocieencorc');
 		$customer_info = $this->customers->recipientinfo($customer_id);
         $customer_name = $customer_info['name'];
@@ -384,13 +465,225 @@ class Invoices extends CI_Controller
             exit;
 		}
 		
-        $this->load->model('plugins_model', 'plugins');
-        $empl_e = $this->plugins->universal_api(69);
-        if ($empl_e['key1']) {
+		$this->load->model('settings_model', 'settings');
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+        if ($discship['emps'] == 1) {
             $emp = $this->input->post('employee');
-        } else {
-            $emp = $this->aauth->get_user()->id;
-        }
+        }else{
+			$emp = $this->aauth->get_user()->id;
+		}
+		
+		$guideddta = $this->input->post('invoicedate', true);
+		$guidedate = datefordatabase($guideddta);
+		$start_date = $this->input->post('start_date_guide', true);
+		$start_date_guide = '';
+		if ($start_date == "") {
+			$start_date_guide = null;
+		}else{
+			$start_date_guide = datefordatabase($start_date);
+		}
+		
+		$id_auto_ins = 0;
+		$cop_sele = $this->input->post('val_save_bd');
+		$auto_bus = $this->input->post('autos_se');
+		if($this->input->post('autos_se') != "") {
+			$id_auto_ins = $this->input->post('autos_se');
+		}else{
+			if($this->input->post('val_save_bd') == 1) {
+				$product_name = $this->input->post('matricula_aut', true);
+				$catid = 1;
+				//$warehouse = $this->aauth->get_user()->loc;
+				$product_qty = 1;
+				$product_desc = $this->input->post('designacao_aut', true);
+				$inspection_date = NULL;
+				$insurance_date = NULL;
+				$employee_id = $emp;
+				$data = array('acat' => $catid, 'warehouse' => $warehouse, 'assest_name' => $product_name, 'qty' => $product_qty, 'product_des' => $product_desc, 'inspection_date' => $inspection_date, 'insurance_date' => $insurance_date, 'employee_id' => $employee_id);
+				if ($this->db->insert('geopos_assets', $data)) {
+					$id_auto_ins = $this->db->insert_id();
+				}
+			}else{
+				$id_auto_ins = 0;
+			}
+		}
+		
+		$matricula_aut = "";
+		$designacao_aut = "";
+		$expeditionid = "";
+		$expedition = "";
+		$expedition = $this->input->post('expedival');
+		$expeditionid = $this->input->post('exped_se');
+		if($id_auto_ins == 0 || $id_auto_ins == "0"){
+			if($expedition == 'exp3'){
+				$matricula_aut = $this->input->post('matricula_aut');
+				$designacao_aut = $this->input->post('designacao_aut');
+			}else if($expedition == 'exp4'){
+				$matricula_aut = $this->input->post('matricula_aut');
+				$designacao_aut = $this->input->post('designacao_aut');
+			}else if($expedition == 'exp5'){
+				$matricula_aut = $this->input->post('matricula_aut');
+				$designacao_aut = $this->input->post('designacao_aut');
+			}else if($expedition == 'exp1'){
+				$matricula_aut = "Correio";
+				$designacao_aut = "Expedido Por Correio";
+			}else if($expedition == 'exp2'){
+				$matricula_aut = "Download/Formato Digital";
+				$designacao_aut = "Envio online";
+			}
+			if($matricula_aut == ""){
+				$matricula_aut = "Nossa Viatura";
+			}
+			
+			if($designacao_aut == ""){
+				$designacao_aut = "Por defeito";
+			}
+		}else{
+			$matricula_aut = "";
+			$designacao_aut = "";
+		}
+		
+		$loc_guide_comp = "";
+		$post_guide_comp = "";
+		$city_guide_comp = "";
+		$mcustomer_gui_comp = "";
+		
+		if(filter_has_var(INPUT_POST,'copy_comp')) {
+			if(filter_has_var(INPUT_POST,'loc_guide_comp')) {
+				$loc_guide_comp = $this->input->post('loc_guide_comp');
+				if($loc_guide_comp == ""){
+					$loc_guide_comp = "Desconhecido";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'post_guide_comp')) {
+				$post_guide_comp = $this->input->post('post_guide_comp');
+				if($post_guide_comp == ""){
+					$post_guide_comp = "0000-000";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'city_guide_comp')) {
+				$city_guide_comp = $this->input->post('city_guide_comp');
+				if($city_guide_comp == ""){
+					$city_guide_comp = "Desconhecido";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'mcustomer_gui_comp')) {
+				$mcustomer_gui_comp = $this->input->post('mcustomer_gui_comp');
+				if($mcustomer_gui_comp == ""){
+					$mcustomer_gui_comp = "PT";
+				}
+			}
+		}else{
+			if(filter_has_var(INPUT_POST,'loc_guide_comp')) {
+				$loc_guide_comp = $this->input->post('loc_guide_comp');
+				if($loc_guide_comp == ""){
+					$loc_guide_comp = "Desconhecido";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'post_guide_comp')) {
+				$post_guide_comp = $this->input->post('post_guide_comp');
+				if($post_guide_comp == ""){
+					$post_guide_comp = "0000-000";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'city_guide_comp')) {
+				$city_guide_comp = $this->input->post('city_guide_comp');
+				if($city_guide_comp == ""){
+					$city_guide_comp = "Desconhecido";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'mcustomer_gui_comp')) {
+				$mcustomer_gui_comp = $this->input->post('mcustomer_gui_comp');
+				if($mcustomer_gui_comp == ""){
+					$mcustomer_gui_comp = "PT";
+				}
+			}
+		}
+		
+		
+		$loc_guide_cos = "";
+		$post_guide_cos = "";
+		$city_guide_cos = "";
+		$mcustomer_gui_cos = "";
+		if(filter_has_var(INPUT_POST,'copy_cos')) {
+			if(filter_has_var(INPUT_POST,'loc_guide_cos')) {
+				$loc_guide_cos = $this->input->post('loc_guide_cos');
+				if($loc_guide_cos == ""){
+					$loc_guide_cos = "Desconhecido";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'post_guide_cos')) {
+				$post_guide_cos = $this->input->post('post_guide_cos');
+				if($post_guide_cos == ""){
+					$post_guide_cos = "0000-000";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'city_guide_cos')) {
+				$city_guide_cos = $this->input->post('city_guide_cos');
+				if($city_guide_cos == ""){
+					$city_guide_cos = "Desconhecido";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'mcustomer_gui_cos')) {
+				$mcustomer_gui_cos = $this->input->post('mcustomer_gui_cos');
+				if($mcustomer_gui_cos == ""){
+					$mcustomer_gui_cos = "PT";
+				}
+			}
+		}else{
+			if(filter_has_var(INPUT_POST,'loc_guide_cos')) {
+				$loc_guide_cos = $this->input->post('loc_guide_cos');
+				if($loc_guide_cos == ""){
+					$loc_guide_cos = "Desconhecido";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'post_guide_cos')) {
+				$post_guide_cos = $this->input->post('post_guide_cos');
+				if($post_guide_cos == ""){
+					$post_guide_cos = "0000-000";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'city_guide_cos')) {
+				$city_guide_cos = $this->input->post('city_guide_cos');
+				if($city_guide_cos == ""){
+					$city_guide_cos = "Desconhecido";
+				}
+			}
+			
+			
+			if(filter_has_var(INPUT_POST,'mcustomer_gui_cos')) {
+				$mcustomer_gui_cos = $this->input->post('mcustomer_gui_cos');
+				if($mcustomer_gui_cos == ""){
+					$mcustomer_gui_cos = "PT";
+				}
+			}
+		}
 		
         $transok = true;
         $st_c = 0;
@@ -408,10 +701,17 @@ class Invoices extends CI_Controller
 		$numget = $numget+1;
 		$invocieno = $numget;
 		$invocieno2 = $invocieno;
-        $data = array('tid' => $invocieno, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'pmethod' => $metretnotqo, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'loc' => $warehouse, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 0, 'ext' => 0, 'irs_type' => $invoi_type, 'datedoc' => date('Y-m-d H:i:s'));
+		$data = [];
 		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data = array('tid' => $invocieno, 'loc' => $this->aauth->get_user()->loc, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'justification_cancel' => $justification_cancel, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 0, 'ext' => 0, 'irs_type' => $invoi_type, 'datedoc' => date('Y-m-d H:i:s'));
+		
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
 		if($typ == 0 || $typ == 3){
 			if($typ == 3){
+				$this->db->delete('geopos_log', array('id_c' => $idgu,'type_log' => 'fa'));
 				$this->db->delete('geopos_draft', array('id' => $idgu));
 				$this->db->delete('geopos_draft_items', array('tid' => $idgu));
 				$this->db->delete('geopos_draft_payments', array('tid' => $idgu));
@@ -449,6 +749,7 @@ class Invoices extends CI_Controller
 				$product_hsn = $this->input->post('hsn', true);
 				$product_alert = $this->input->post('alert');
 				$product_serial = $this->input->post('serial');
+				$verify_typ = $this->input->post('verif_typ');
 				
 				$taxaname = $this->input->post('taxaname');
 				$taxaid = $this->input->post('taxaid');
@@ -485,7 +786,7 @@ class Invoices extends CI_Controller
 					$i++;
 					$prodindex++;
 					$amt = numberClean($product_qty[$key]);
-					if ($product_id[$key] > 0) {
+					if ($product_id[$key] > 0 && $verify_typ[$key] == 1) {
 						$this->db->set('qty', "qty-$amt", FALSE);
 						$this->db->where('pid', $product_id[$key]);
 						$this->db->update('geopos_products');
@@ -516,9 +817,17 @@ class Invoices extends CI_Controller
 						$pmethoget = $this->invocies->methodpayname($pay_met[$keyp]);
 						$pmethodname = $pmethoget['methodname'];
 						$tnote = 'Fatura Nº: ' . $invocieno2 . '-'.$pay_obs[$keyp]. '-' . $pmethodname;
-						$d_trans = $this->plugins->universal_api(69);
-						if ($d_trans['key1'] == 1) 
+						
+						$this->load->model('settings_model', 'settings');
+						$discship = [];
+						if($this->aauth->get_user()->loc == 0)
 						{
+							$discship = $this->settings->online_pay_settings_main();
+						}else{
+							$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+						}
+						$dual = $discship;
+						if($dual['dual_entry']>0){
 							$t_data = array(
 								'type' => 'Income',
 								'cat' => 3,
@@ -529,26 +838,22 @@ class Invoices extends CI_Controller
 								'tid' => $invocieno,
 								'loc' =>$this->aauth->get_user()->loc
 							);
-							
-							
-							
-							$dual = $this->custom->api_config(65);
 							$this->db->select('holder');
 							$this->db->from('geopos_accounts');
-							$this->db->where('id', $dual['key2']);
+							$this->db->where('id', $dual['ac_id_d']);
 							$query = $this->db->get();
 							$account_d = $query->row_array();
 							$t_data['credit'] = 0;
 							$t_data['debit'] = $pay_tot[$keyp];
 							$t_data['type'] = 'Expense';
-							$t_data['acid'] = $dual['key2'];
+							$t_data['acid'] = $dual['ac_id_d'];
 							$t_data['account'] = $account_d['holder'];
 							$t_data['note'] = 'Debit ' . $tnote;
 
 							$this->db->insert('geopos_transactions', $t_data);
 							//account update
 							$this->db->set('lastbal', "lastbal-$total_pay", FALSE);
-							$this->db->where('id', $dual['key2']);
+							$this->db->where('id', $dual['ac_id_d']);
 							$this->db->update('geopos_accounts');
 							
 							// now try it
@@ -601,6 +906,7 @@ class Invoices extends CI_Controller
 						"Please choose product from product list. Go to Item manager section if you have not added the products."));
 					$transok = false;
 				}
+				
 				if ($transok) {
 					$validtoken = hash_hmac('ripemd160', $invocieno, $this->config->item('encryption_key'));
 					$link = base_url('billing/view?id=' . $invocieno . '&token=' . $validtoken);
@@ -630,45 +936,59 @@ class Invoices extends CI_Controller
 						$statuPay = 'Paga na Parcialidade.';
 					}
 					
+					///////////////////////////////////////////////////////////////////////
+					////////////////////////Relação entre documentos//////////////////////
+					$textconver = '';
+					if($typrelation == 3)
+					{
+						$textconver = 'Converteu com sucesso em Fatura o Orçamento. ';
+						$this->db->set('status', 'ended');
+						$this->db->where('id', $relationid);
+						$this->db->update('geopos_quotes');
+					}else if($typrelation == 6)
+					{
+						$textconver = 'Converteu com sucesso em Fatura a Nota de Encomenda. ';
+						$this->db->set('status', 'ended');
+						$this->db->where('id', $relationid);
+						$this->db->update('geopos_purchase');
+					}
+					
+					if($relationid > 0){
+						$this->related->removeALL($invocieno,$typrelation,0);
+						$this->related->add($invocieno,$typrelation,0,$relationid,0);
+					}
+					///////////////////////////////////////////////////////////////////////
+					////////////////////////Relação entre documentos//////////////////////
+					
+					if($start_date_guide != null)
+					{
+						$this->transport->add($invocieno,0,0,$id_auto_ins,$expeditionid,$start_date_guide,$matricula_aut,$designacao_aut,$loc_guide_comp,$post_guide_comp,$city_guide_comp,$mcustomer_gui_comp,$loc_guide_cos,$post_guide_cos,$city_guide_cos,$mcustomer_gui_cos);
+					}
+					$this->custom->save_fields_data($invocieno, 2);
+					
 					$striPay = "[CREATED]<br>Utilizador: ".$this->aauth->get_user()->username;
 					$striPay = $striPay.'<br>'.$yourbrowser;
 					$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-					$striPay = $striPay.'<br>Fatura Nº: '.$invocieno2.' - '.$statuPay;
+					$striPay = $striPay.' '.$textconver.'<br>Fatura Nº: '.$invocieno2.' - '.$statuPay;
 					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'fa', $invocieno);
 					
-					$passouquo = false;
-					if($quote_tid > 0){
-						$this->db->set('status', 'ended');
-						$this->db->where('id', $quote_tid);
-						$this->db->update('geopos_quotes');
-						$passouquo = true;
-					}
+					echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('Invoice Success') . " <a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 					
-					$passount = false;
-					if($not_e_tid > 0)
+					/*if($passouquo)
 					{
-						$this->db->set('status', 'ended');
-						$this->db->where('id', $not_e_tid);
-						$this->db->update('geopos_purchase');
-						$passount = true;
-					}
-					
-					$this->custom->save_fields_data($invocieno, 2);
-					
-					if($passouquo)
-					{
-						echo json_encode(array('status' => 'Success', 'message' => "Converteu com sucesso em Fatura o Orçamento. <a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+						echo json_encode(array('status' => 'Success', 'message' => $textconver."<a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 					}else if($passount)
 					{
-						echo json_encode(array('status' => 'Success', 'message' => "Converteu com sucesso em Fatura a Nota de Encomenda. <a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+						echo json_encode(array('status' => 'Success', 'message' => $textconver."<a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 					}else{
-						echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('Invoice Success') . " <a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
-					}
+						
+					}*/
 				}
 			} else {
 				echo json_encode(array('status' => 'Error', 'message' => "Problema ao criar a fatura. Tente mais tarde."));
 				$transok = false;
 			}
+			
 			if ($transok) {
 				if ($this->aauth->premission(4) and $project > 0) {
 					$data = array('pid' => $project, 'meta_key' => 11, 'meta_data' => $invocieno, 'value' => '0');
@@ -724,11 +1044,8 @@ class Invoices extends CI_Controller
 					$t_profit += $s_cost - $t_cost;
 				}
 				$data = array('type' => 9, 'rid' => $invocieno, 'col1' => $t_profit, 'd_date' => $bill_date);
-
 				$this->db->insert('geopos_metadata', $data);
-
 				$this->custom->save_fields_data($invocieno, 2);
-
 			}
 		}else if($typ == 1){
 			if ($this->db->insert('geopos_draft', $data)) {
@@ -819,6 +1136,21 @@ class Invoices extends CI_Controller
 				$this->db->update('geopos_draft');*/
 				
 				$this->db->trans_complete();
+				
+				///////////////////////////////////////////////////////////////////////
+				////////////////////////Relação entre documentos//////////////////////
+				if($relationid > 0){
+					$this->related->removeALL($invocieno,$typrelation,1);
+					$this->related->add($invocieno,$typrelation,1,$relationid,0);
+				}
+				///////////////////////////////////////////////////////////////////////
+				////////////////////////Relação entre documentos//////////////////////
+				
+				if($start_date_guide != null)
+				{
+					$this->transport->add($invocieno,0,1,$id_auto_ins,$expeditionid,$start_date_guide,$matricula_aut,$designacao_aut,$loc_guide_comp,$post_guide_comp,$city_guide_comp,$mcustomer_gui_comp,$loc_guide_cos,$post_guide_cos,$city_guide_cos,$mcustomer_gui_cos);
+				}
+				
 				// now try it
 				$ua=$this->aauth->getBrowser();
 				$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
@@ -931,6 +1263,20 @@ class Invoices extends CI_Controller
 				
 				$this->db->trans_complete();
 				// now try it
+				
+				///////////////////////////////////////////////////////////////////////
+				////////////////////////Relação entre documentos//////////////////////
+				if($relationid > 0){
+					$this->related->removeALL($invocieno,$typrelation,1);
+					$this->related->add($invocieno,$typrelation,1,$relationid,0);
+				}
+				///////////////////////////////////////////////////////////////////////
+				////////////////////////Relação entre documentos//////////////////////
+				if($start_date_guide != null)
+				{
+					$this->transport->add($invocieno,0,1,$id_auto_ins,$expeditionid,$start_date_guide,$matricula_aut,$designacao_aut,$loc_guide_comp,$post_guide_comp,$city_guide_comp,$mcustomer_gui_comp,$loc_guide_cos,$post_guide_cos,$city_guide_cos,$mcustomer_gui_cos);
+				}
+				
 				$ua=$this->aauth->getBrowser();
 				$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
 				
@@ -946,7 +1292,6 @@ class Invoices extends CI_Controller
 				$transok = false;
 				exit;
 			}
-			
 		}
     }
 
@@ -968,6 +1313,7 @@ class Invoices extends CI_Controller
 			}
 			
             $row = array();
+			$row['status'] = $invoices->status;
 			$row[] = $invoices->serie_name;
             $row[] = '<a href="' . base_url("invoices/view?id=$invoices->id&ty=0") . '">'.$invoices->type. $invoices->tid . '</a>';
 			$row[] = dateformat($invoices->invoicedate);
@@ -979,11 +1325,17 @@ class Invoices extends CI_Controller
 			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='$invoices->pamnt' aria-valuemin='0' aria-valuemax='$invoices->total' style='width:$width%;'>$width%</div></div>";
             $row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span><br>'.$invoices->loc_cname;
             if($invoices->status == 'canceled'){
-				$row[] = '<a href="' . base_url("invoices/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+				$option = '<a href="' . base_url("invoices/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option .= '<a id="choise_type_duplicate_but" name="choise_type_duplicate_but" data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>';
+				$row[] = $option;
 			}else{
-				$option = '<a href="' . base_url("invoices/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+				$option = '<a href="' . base_url("invoices/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option .= '<a id="choise_type_convert_but" name="choise_type_convert_but" data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>&nbsp;';
+				$option .= '<a id="choise_type_duplicate_but" name="choise_type_duplicate_but" data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+				$option .= '<a id="choise_docs_relateds_but" name="choise_docs_relateds_but" data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+				
 				if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
-					$option .= '<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" data-object-draft="1" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+					$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
 				}
 				$row[] = $option;
 			}
@@ -1012,7 +1364,7 @@ class Invoices extends CI_Controller
             $row[] = 'Rascunho';
 			$option = '<a href="' . base_url("invoices/view?id=$drafts->id&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$drafts->id&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
 			if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
-				$option .= '<a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" data-object-draft="0" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				$option .= '<a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" class="btn btn-danger btn-sm delete-object2"><span class="fa fa-trash"></span></a>';
 			}
             $row[] = $option;
             $data[] = $row;
@@ -1040,9 +1392,7 @@ class Invoices extends CI_Controller
 		$token = $this->input->get('token');
 		$type = $this->input->get('ty');
 		if($type == 0){
-			
 			$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
-			$data['products'] = $this->invocies->invoice_products($tid);
 			$data['activity'] = $this->invocies->invoice_transactions($tid);
 			$data['title'] = $data['invoice']['irs_type_n'].': ' . $data['invoice']['tid'];
 			$head['title'] = $data['invoice']['irs_type_n'].': ' . $data['invoice']['tid'];
@@ -1051,13 +1401,28 @@ class Invoices extends CI_Controller
 			$data['typeinvoice'] = 0;
 		}else{
 			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
-			$data['products'] = $this->invocies->invoice_products2($tid);
 			$data['activity'] = $this->invocies->invoice_transactions2($tid);
 			$data['title'] = 'Rascunho: ' . $data['invoice']['tid'];
 			$head['title'] = 'Rascunho: ' . $data['invoice']['tid'];
 			$data['typeinvoice'] = 1;
 			$data['history'] = $this->common->history($tid,'draft');
 		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		if($type == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		
         $data['iddoc'] = $data['invoice']['id'];
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
         $head['usernm'] = $this->aauth->get_user()->username;
@@ -1103,13 +1468,13 @@ class Invoices extends CI_Controller
 			$data['ImageBackGround'] = 'assets/images/rascunho.png';
 		}
         $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
+		$data['c_custom_fields'] = [];
         if (CUSTOM) 
 			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
         $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Customer'), 'prefix' => $pref, 't_type' => 0);
         ini_set('memory_limit', '64M');
 		
 		$data['invoice']['type'] = $data['invoice']['irs_type_n'];
-		
 		$data['qrc'] = 'pos_' . date('Y_m_d_H_i_s') . '_.png';
 		$static_q = $data['qrc'];
 		
@@ -1263,22 +1628,55 @@ class Invoices extends CI_Controller
 		$codQRD .= 'S:'.$campfim.'*';
 		
 		$qrCode = new QrCode($codQRD);
-		$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
 		
+		$writer = new PngWriter();
+		$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		ini_set('memory_limit', '64M');
+
 		$data['Tipodoc'] = "Original";
 		$data2 = $data;
 		$data2['Tipodoc'] = "Duplicado";
+		$data3 = $data;
+		$data3['Tipodoc'] = "Triplicado";
+		$data4 = $data;
+		$data4['Tipodoc'] = "Quadruplicado";
 		
-		
-        $html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
+		$html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
 		$html2 = $this->load->view('print_files/invoice-a4_v' . INVV, $data2, true);
-        //PDF Rendering
-        $this->load->library('pdf');
+		$html3 = $this->load->view('print_files/invoice-a4_v' . INVV, $data3, true);
+		$html4 = $this->load->view('print_files/invoice-a4_v' . INVV, $data4, true);
+		
+		$this->load->library('pdf');
         $pdf = $this->pdf->load_split(array('margin_top' => 10));
-        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">{PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
-		$pdf->WriteHTML($html);
-		$pdf->AddPage();
-		$pdf->WriteHTML($html2);
+		$loc2 = location(0);
+        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
+		
+		if($data['invoice']['numcop'] == 'copy1')
+		{
+			$pdf->WriteHTML($html);
+		}else if($data['invoice']['numcop'] == 'copy2')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+		}else if($data['invoice']['numcop'] == 'copy3')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+		}else if($data['invoice']['numcop'] == 'copy4')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html4);
+		}
 		
         $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
         if ($this->input->get('d')) {
@@ -1299,6 +1697,9 @@ class Invoices extends CI_Controller
 		
 		if($draft == 0)
 		{
+			$this->db->delete('geopos_log', array('id_c' => $id,'type_log' => 'fa'));
+			$this->db->delete('geopos_data_related', array('tid' => $id));
+			$this->db->delete('geopos_data_transport', array('tid' => $id));
 			$this->db->delete('geopos_draft_items', array('id' => $id));
 			$this->db->delete('geopos_draft', array('id' => $id));
 			// now try it
@@ -1310,22 +1711,25 @@ class Invoices extends CI_Controller
 			$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
 			$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
 			$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'draft', $id);
-			echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso.'));
+			echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso. Atualize a página para verificar as Alterações.'));
 		}else{
+			$justification = $this->input->post('justification');
 			$this->db->set('status', 'canceled');
+			$this->db->set('justification_cancel', $justification);
 			$this->db->where('id', $id);
 			$this->db->update('geopos_invoices');
 			
 			// now try it
 			$ua=$this->aauth->getBrowser();
 			$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
-			
-			$striPay = "Utilizador: ".$this->aauth->get_user()->username;
-			$striPay = $striPay.'<br>'.$yourbrowser;
-			$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-			$striPay = $striPay.'<br>Fatura Anulada: '.$tid;
+			$striPay = '>Colocar documento em estado anulado';
+			$striPay .= '<br>Utilizador: '.$this->aauth->get_user()->username;
+			$striPay .= '<br>Email: '.$this->aauth->get_user()->email;
+			$striPay .= '<br>Ip: '.$this->aauth->get_user()->ip_address;
+			$striPay .= '<br>'.$yourbrowser;
+			$striPay .= '<br>Observações:'.$justification;
 			$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'fa', $id);
-			echo json_encode(array('status' => 'Success', 'message' => 'Documento Anulado com Sucesso.'));
+			echo json_encode(array('status' => 'Success', 'message' => 'Documento Anulado com Sucesso. Atualize a página para verificar as Alterações.'));
 		}
 		
 	   /* if () {
@@ -1434,58 +1838,30 @@ class Invoices extends CI_Controller
         } else {
             $pdf->Output('DO_#' . $data['invoice']['tid'] . '.pdf', 'I');
         }
-
-
     }
-
-    public function proforma()
-    {
-        $tid = $this->input->get('id');
-        $data['id'] = $tid;
-        $data['title'] = "Invoice $tid";
-        $data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
-        if ($data['invoice']['id']) $data['products'] = $this->invocies->invoice_products($tid);
-        if ($data['invoice']['id']) $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
-		
-		$data['qrc'] = 'pos_' . date('Y_m_d_H_i_s') . '_.png';
-		$static_q = $data['qrc'];
-		$qrCode = new QrCode(base_url('billing/card?id=' . $tid . '&itype=inv&token=' . $token));
-		$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
-		
-        ini_set('memory_limit', '64M');
-		
-		$data['Tipodoc'] = "Original";
-		$data2 = $data;
-		$data2['Tipodoc'] = "Duplicado";
-		
-        $html = $this->load->view('invoices/proforma', $data, true);
-		$html2 = $this->load->view('invoices/proforma', $data2, true);
-		
-        //PDF Rendering
-        $this->load->library('pdf');
-        $pdf = $this->pdf->load();
-        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">{PAGENO}/{nbpg} #' . $tid . '</div>');
-        $pdf->WriteHTML($html);
-		$pdf->AddPage();
-		$pdf->WriteHTML($html2);
-        if ($this->input->get('d')) {
-            $pdf->Output('Proforma_#' . $data['invoice']['tid'] . '.pdf', 'D');
-        } else {
-            $pdf->Output('Proforma_#' . $data['invoice']['tid'] . '.pdf', 'I');
-        }
-
-
-    }
-
 
     public function send_invoice_auto($invocieno, $invocieno2, $idate, $total, $multi)
     {
         $this->load->library('parser');
         $this->load->model('templates_model', 'templates');
         $template = $this->templates->template_info(6);
-
+		
+		$nomesend = '';
+		$this->db->select("emailo_remet");
+		$this->db->from('geopos_system_permiss');
+		$this->db->where('docs_email', 1);
+		if ($this->aauth->get_user()->loc) {
+			$this->db->where('loc', $this->aauth->get_user()->loc);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$nomesend = $vals->emailo_remet;
+		
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $nomesend,
             'BillNumber' => $invocieno2
         );
         $subject = $this->parser->parse_string($template['key1'], $data, TRUE);
@@ -1494,10 +1870,10 @@ class Invoices extends CI_Controller
 
 
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $nomesend,
             'BillNumber' => $invocieno2,
             'URL' => "<a href='$link'>$link</a>",
-            'CompanyDetails' => '<h6><strong>' . $this->config->item('ctitle') . ',</strong></h6>
+            'CompanyDetails' => '<h6><strong>' . $nomesend . ',</strong></h6>
 			<address>' . $this->config->item('address') . '<br>' . $this->config->item('address2') . '</address>
              ' . $this->lang->line('Phone') . ' : ' . $this->config->item('phone') . '<br>  ' . $this->lang->line('Email') . ' : ' . $this->config->item('email'),
             'DueDate' => dateformat($idate),

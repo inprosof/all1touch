@@ -100,7 +100,7 @@
 								<thead>
 									<tr>
 										<th>Enc./Orç.</th>
-										<th>Refª Cliente</th>
+										<th>Refª Fornecedor</th>
 										<th>Moeda</th>
 									</tr>
 									</thead>
@@ -117,10 +117,11 @@
 						<div id="invoice-customer-details" class="row pt-2">
 							<div class="col-md-6 col-sm-12 text-xs-center text-md-left">
 								<ul class="px-0 list-unstyled">
-									<li class="text-bold-800"><li>Código: <?php echo $invoice['csd']?></li><a href="<?php echo base_url('customers/view?id=' . $invoice['cid']) ?>"><strong
+									<li class="text-bold-800"><li>Código: <?php echo $invoice['csd']?></li><a href="<?php echo base_url('supplier/view?id=' . $invoice['cid']);
+									?>"><strong
 											   class="invoice_a"><?php echo $invoice['name'] . '</strong></a></li><li>' . $invoice['company'] . '</li><li>' . $invoice['address'] . '</li><li>' . $invoice['city'] . ',' . $invoice['country'] . '</li><li>' . $this->lang->line('Phone') . ': ' . $invoice['phone'] . '</li><li>' . $this->lang->line('Email') . ': ' . $invoice['email'] . '</li>';
 										if (CUSTOM) {
-											$c_custom_fields = $this->custom->view_fields_data($invoice['cid'], 1, 1);
+											$c_custom_fields = $this->custom->view_fields_data($invoice['cid'], 4, 1);
 											foreach ($c_custom_fields as $row) {
 											if ($row['f_type'] == 'text') {
 												echo '  <li>' . $row['name'] . ': ' . $row['data'].'</li>';

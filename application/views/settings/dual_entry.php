@@ -51,30 +51,26 @@
 
                             <div class="col-sm-6">
                                 <select name="dual_inv" class="form-control">
-                                    <option value="<?php echo $discship['key2'] ?>">*--Do not change--*</option>
+                                    <option value="<?php echo $discship['key2']; ?>"><?php if($discship['key2'] == ''){ echo 'Escolha uma Opção';} else {echo '-- Conta Seleccionada --';} ?></option>
                                     <?php foreach ($acclist as $row) {
                                         echo '<option value="' . $row['id'] . '">' . $row['holder'] . ' / ' . $row['acn'] . '</option>';
                                     }
                                     ?>
                                 </select>
-
                             </div>
                         </div>
 						
 						<div class="form-group row">
-
                             <label class="col-sm-2 col-form-label"
                                    for="dual_pursupl"><?php echo 'Faturas Fornecedores ' . $this->lang->line('Account'). ' '.$this->lang->line('Default') ?></label>
-
                             <div class="col-sm-6">
                                 <select name="dual_pursupl" class="form-control">
-                                    <option value="<?php echo $discship['other'] ?>">*--Do not change--*</option>
+									<option value="<?php echo $discship['other']; ?>"><?php if($discship['other'] == '') echo 'Escolha uma Opção'; else echo '-- Conta Seleccionada --'; ?></option>
                                     <?php foreach ($acclist as $row) {
                                         echo '<option value="' . $row['id'] . '">' . $row['holder'] . ' / ' . $row['acn'] . '</option>';
                                     }
                                     ?>
                                 </select>
-
                             </div>
                         </div>
 						
@@ -84,13 +80,12 @@
 
                             <div class="col-sm-6">
                                 <select name="dual_pur" class="form-control">
-                                    <option value="<?php echo $discship['url'] ?>">*--Do not change--*</option>
+									<option value="<?php echo $discship['url']; ?>"><?php if($discship['url'] == '') echo 'Escolha uma Opção'; else echo '-- Conta Seleccionada --'; ?></option>
                                     <?php foreach ($acclist as $row) {
                                         echo '<option value="' . $row['id'] . '">' . $row['holder'] . ' / ' . $row['acn'] . '</option>';
                                     }
                                     ?>
                                 </select>
-
                             </div>
                         </div>
                         <div class="form-group row">

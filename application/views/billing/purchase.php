@@ -62,7 +62,7 @@
                         </div>
                         <div class="col-md-6 col-sm-12 text-xs-center text-md-right mt-2">
                             <h2><?php echo $this->lang->line('Purchase Order') ?></h2>
-                            <p class="pb-1"> <?php echo prefix(2) . $invoice['tid'] . '</p>
+                            <p class="pb-1"> <?php echo $invoice['irs_type_n'] . $invoice['tid'] . '</p>
                             <p class="pb-1">' . $this->lang->line('Reference') . ':' . $invoice['refer'] . '</p>'; ?>
                             <ul class="px-0 list-unstyled">
                                 <li><?php echo $this->lang->line('Gross Amount') ?></li>

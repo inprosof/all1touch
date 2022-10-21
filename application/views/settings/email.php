@@ -106,19 +106,6 @@
                                value="<?php echo $email['password'] ?>">
                     </div>
                 </div>
-
-                <div class="form-group row">
-
-                    <label class="col-sm-2 col-form-label" for="sender">Sender Email</label>
-
-                    <div class="col-sm-6">
-                        <input type="text" placeholder="email"
-                               class="form-control mb-3  required" name="sender"
-                               value="<?php echo $email['sender'] ?>">
-                    </div>
-                </div>
-
-
                 <div class="form-group row">
 
                     <label class="col-sm-2 col-form-label"></label>

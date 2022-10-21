@@ -30,7 +30,7 @@ class Communication_model extends CI_Model
     public function send_email($mailto, $mailtotitle, $subject, $message, $attachmenttrue = false, $attachment = '')
     {
         $this->load->library('ultimatemailer');
-        $this->db->select('host,port,auth,auth_type,username,password,sender');
+        $this->db->select('host,port,auth,auth_type,username,password');
         $this->db->from('geopos_smtp');
         $query = $this->db->get();
         $smtpresult = $query->row_array();
@@ -40,16 +40,33 @@ class Communication_model extends CI_Model
         $auth_type = $smtpresult['auth_type'];
         $username = $smtpresult['username'];;
         $password = $smtpresult['password'];
-        $mailfrom = $smtpresult['sender'];
-        $mailfromtilte = $this->config->item('ctitle');
+		
+		$mailfromtilte = '';
+		$mailfrom = '';
+		
+		$this->db->select("emailo_remet, email_app");
+		$this->db->from('geopos_system_permiss');
+		if($this->aauth->get_user()->loc > 0){
+			$this->db->where('loc', $this->aauth->get_user()->loc);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$mailfromtilte = $vals['emailo_remet'];
+		if($mailfromtilte == '')
+		{
+			$mailfromtilte = $this->config->item('ctitle');
+		}
+		$mailfrom = $vals['email_app'];
         $this->ultimatemailer->load($host, $port, $auth, $auth_type, $username, $password, $mailfrom, $mailfromtilte, $mailto, $mailtotitle, $subject, $message, $attachmenttrue, $attachment);
 
     }
 
-    public function send_corn_email($mailto, $mailtotitle, $subject, $message, $attachmenttrue = false, $attachment = '')
+    public function send_corn_email($mailto, $mailtotitle, $subject, $message, $attachmenttrue = false, $attachment = '', $locid = 0)
     {
         $this->load->library('ultimatemailer');
-        $this->db->select('host,port,auth,auth_type,username,password,sender');
+        $this->db->select('host,port,auth,auth_type,username,password');
         $this->db->from('geopos_smtp');
         $query = $this->db->get();
         $smtpresult = $query->row_array();
@@ -57,18 +74,40 @@ class Communication_model extends CI_Model
         $port = $smtpresult['port'];
         $auth = $smtpresult['auth'];
         $auth_type = $smtpresult['auth_type'];
-        $username = $smtpresult['username'];;
+        $username = $smtpresult['username'];
         $password = $smtpresult['password'];
-        $mailfrom = $smtpresult['sender'];
-        $mailfromtilte = $this->config->item('ctitle');
-        return $this->ultimatemailer->corn_mail($host, $port, $auth, $auth_type, $username, $password, $mailfrom, $mailfromtilte, $mailto, $mailtotitle, $subject, $message, $attachmenttrue, $attachment);
-
+		
+		$mailfromtilte = '';
+		$mailfrom = '';
+		$this->db->select("emailo_remet, email_app");
+		$this->db->from('geopos_system_permiss');
+		
+		if ($locid > 0) {
+			$this->db->where('loc', $locid);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$mailfromtilte = $vals['emailo_remet'];
+		$mailfrom = $vals['email_app'];
+		
+		if($mailfromtilte == '')
+		{
+			$mailfromtilte = $this->config->item('ctitle');
+		}
+		if($mailfrom == ''){
+			return true;
+		}else{
+			return $this->ultimatemailer->corn_mail($host, $port, $auth, $auth_type, $username, $password, $mailfrom, $mailfromtilte, $mailto, $mailtotitle, $subject, $message, $attachmenttrue, $attachment);
+		}
     }
 
     public function group_email($recipients, $subject, $message, $attachmenttrue, $attachment,$m=true)
     {
         $this->load->library('ultimatemailer');
-        $this->db->select('host,port,auth,auth_type,username,password,sender');
+        $this->db->select('host,port,auth,auth_type,username,password');
         $this->db->from('geopos_smtp');
         $query = $this->db->get();
         $smtpresult = $query->row_array();
@@ -78,9 +117,30 @@ class Communication_model extends CI_Model
         $auth_type = $smtpresult['auth_type'];
         $username = $smtpresult['username'];;
         $password = $smtpresult['password'];
-        $mailfrom = $smtpresult['sender'];
-        $mailfromtilte = $this->config->item('ctitle');
-        return $this->ultimatemailer->group_load($host, $port, $auth, $auth_type, $username, $password, $mailfrom, $mailfromtilte, $recipients, $subject, $message, $attachmenttrue, $attachment,$m);
-
+		
+		$mailfromtilte = '';
+		$mailfrom = '';
+		
+		$this->db->select("emailo_remet, email_app");
+		$this->db->from('geopos_system_permiss');
+		if($this->aauth->get_user()->loc > 0){
+			$this->db->where('loc', $this->aauth->get_user()->loc);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$mailfromtilte = $vals['emailo_remet'];
+		if($mailfromtilte == '')
+		{
+			$mailfromtilte = $this->config->item('ctitle');
+		}
+		$mailfrom = $vals['email_app'];
+		
+		if($mailfrom == ''){
+			return 1;
+		}else{
+			return $this->ultimatemailer->group_load($host, $port, $auth, $auth_type, $username, $password, $mailfrom, $mailfromtilte, $recipients, $subject, $message, $attachmenttrue, $attachment,$m);
+		}
     }
 }

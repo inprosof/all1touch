@@ -85,10 +85,16 @@
                                                    data-validation="required" placeholder="Postbox">
                                             <span class="glyphicon glyphicon-user form-control-feedback"></span>
                                         </div>
+										<div class="col mb-2">
+                                            <input type="text" name="taxid" class="form-control"
+                                                   data-validation="required" placeholder="Contribuinte">
+                                            <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                                        </div>
+										
 
                                             <div class="col mb-2">
                                             <button type="submit" name="submit"
-                                                    class="btn btn-primary btn-block btn-flat btn-color"><?php echo $this->lang->line('Register') ?>
+                                                    class="btn btn-primary btn-block btn-flat btn-color">Registar Agora
                                             </button>
                                         </div>
 
@@ -102,19 +108,30 @@
                                         $r = 0;
                                         foreach ($custom_fields as $row) {
                                             if ($row['f_type'] == 'text') { ?>
-
-
                                                 <div class="col-sm-6">
                                                     <input type="text" placeholder="<?= $row['placeholder'] ?>"
                                                            class="form-control margin-bottom b_input <?= $row['other'] ?>"
                                                            name="custom[<?= $row['id'] ?>]">
                                                 </div>
+                                                <?php
+                                            }else if ($row['f_type'] == 'check') { ?>
+                                                <div class="col-sm-6">
+													<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" 
+													name="custom[<?php echo $row['id'] ?>]">
+                                                </div>
+                                                <?php
+                                            }else if ($row['f_type'] == 'textarea') { ?>
+                                                <div class="col-sm-6">
+                                                    <textarea placeholder="<?php echo $row['placeholder'] ?>"
+														   class="summernote <?php echo $row['other'] ?>"
+														   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
+                                                </div>
 
 
                                                 <?php
-                                                $r++;
-                                                if ($r % 2 == 0) echo '</div><div class="form-group row">';
                                             }
+											$r++;
+                                            if ($r % 2 == 0) echo '</div><div class="form-group row">';
                                         }
                                         echo '</div>';
                                     }
@@ -134,7 +151,7 @@
 
                                 </form>
                                 <br>
-                                <span class="float-xs-right"><a href="<?php echo base_url('user/login'); ?>" class="">I already have a membership</a></span>
+                                <span class="float-xs-right"><a href="<?php echo base_url('user/login'); ?>" class="">Eu já tenho uma Conta</a></span>
                             </div>
                         </div>
 

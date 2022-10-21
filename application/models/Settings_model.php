@@ -22,19 +22,65 @@ class Settings_model extends CI_Model
 {
     public function company_details($id)
     {
-		$this->db->select('geopos_system.*, geopos_system.cname as name_comp, geopos_countrys.name as country_name, geopos_countrys.name as namecountry');
+		$this->db->select("geopos_system.*, geopos_system.cname as name_comp, geopos_countrys.name as country_name, geopos_countrys.name as namecountry,
+		CASE WHEN ".WARHOUSE." = '0' THEN 'Todos' ELSE geopos_warehouse.title END AS namewar, ".WARHOUSE." as war");
 		$this->db->from('geopos_system');
 		$this->db->join('geopos_countrys', 'geopos_system.country = geopos_countrys.prefix', 'left');
-        
+        $this->db->join('geopos_warehouse', 'geopos_warehouse.id = '.WARHOUSE, 'left');
+		$this->db->join('geopos_irs_typ_doc', 'geopos_irs_typ_doc.id = '.DOCDEFAULT, 'left');
         $query = $this->db->get();
         return $query->row_array();
+    }	
+	
+	public function online_pay_settings_main()
+    {
+        $this->db->select("geopos_system.*, 
+								case when ".POSACCOUNT." = '0' then 0 else co.id end as ac_id_o,
+								case when ".DOCSFACCOUNT." = '0' then 0 else cf.id end as ac_id_f,
+								case when ".DOCSACCOUNT." = '0' then 0 else cd.id end as ac_id_d, 
+								cd.holder as ac_name_d, cd.acn as ac_num_d,
+		cf.holder as ac_name_f, cf.acn as ac_num_f,CASE WHEN ".DOCDEFAULT." = 0 THEN 'Fatura' ELSE geopos_irs_typ_doc.description END AS nametipdoc, ".DOCDEFAULT." as doc_default, 
+		".EMPS." as emps, ".POSV." as posv, ".PAC." as pac, ".DUALENTRY." as dual_entry");
+        $this->db->from('geopos_system');
+		$this->db->join('geopos_irs_typ_doc', 'geopos_irs_typ_doc.id = '.DOCDEFAULT, 'left');
+        $this->db->join('geopos_accounts as co', POSACCOUNT.' = co.id', 'left');
+		$this->db->join('geopos_accounts as cd', DOCSACCOUNT.' = cd.id', 'left');
+		$this->db->join('geopos_accounts as cf', DOCSFACCOUNT.' = cf.id', 'left');
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+	
+	public function online_pay_settings($id)
+    {
+        $this->db->select("geopos_locations.*, co.id as ac_id_o, co.holder as ac_name_o, co.acn as ac_num_o, cd.id as ac_id_d, cd.holder as ac_name_d, cd.acn as ac_num_d,
+		cf.id as ac_id_f, cf.holder as ac_name_f, cf.acn as ac_num_f,
+		CASE WHEN geopos_locations.doc_default = 0 THEN 'Fatura' ELSE geopos_irs_typ_doc.description END AS nametipdoc");
+        $this->db->from('geopos_locations');
+        $this->db->where('geopos_locations.id', $id);
+		$this->db->join('geopos_irs_typ_doc', 'geopos_irs_typ_doc.id = geopos_locations.doc_default', 'left');
+        $this->db->join('geopos_accounts as co', 'geopos_locations.acount_o = co.id', 'left');
+		$this->db->join('geopos_accounts as cd', 'geopos_locations.acount_d = cd.id', 'left');
+		$this->db->join('geopos_accounts as cf', 'geopos_locations.acount_f = cf.id', 'left');
+        $query = $this->db->get();
+        return $query->row_array();
+
+    }
+	
+	
+	public function permissions_loc($id)
+    {
+        $this->db->select("geopos_system_permiss.*");
+        $this->db->from('geopos_system_permiss');
+        $this->db->where('geopos_system_permiss.loc', $id);
+        $query = $this->db->get();
+        return $query->row_array();
+
     }
 	
 	public function company_details2($id)
     {
         if($this->aauth->get_user()->loc)
 		{
-			
 			$this->db->select('geopos_locations.*, geopos_locations.cname as name_comp, geopos_countrys.name as country_name, geopos_countrys.name as namecountry');
 			$this->db->from('geopos_locations');
 			$this->db->join('geopos_countrys', 'geopos_locations.country = geopos_countrys.prefix', 'left');
@@ -80,16 +126,12 @@ class Settings_model extends CI_Model
         $this->db->where('id', $id);
         if ($this->db->update('geopos_system')) {
 			$this->aauth->applog("[Company Update] Dados Atualizados", $this->aauth->get_user()->username);
-            echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED')));
-                if ($data_share != BDATA) {
-					$config_file_path = APPPATH . "config/constants.php";
-					$config_file = file_get_contents($config_file_path);
-					$config_file = str_replace("('BDATA', '".BDATA."')", "('BDATA', '$data_share')", $config_file);
-					file_put_contents($config_file_path, $config_file);
-				}
-        } else {
-            echo json_encode(array('status' => 'Error', 'message' =>
-                $this->lang->line('ERROR')));
+			if ($data_share != BDATA) {
+				$config_file_path = APPPATH . "config/constants.php";
+				$config_file = file_get_contents($config_file_path);
+				$config_file = str_replace("('BDATA', '".BDATA."')", "('BDATA', '$data_share')", $config_file);
+				file_put_contents($config_file_path, $config_file);
+			}
         }
     }
 
@@ -179,7 +221,7 @@ class Settings_model extends CI_Model
         return $query->row_array();
     }
 
-    public function update_smtp($host, $port, $auth, $auth_type, $username, $password, $sender)
+    public function update_smtp($host, $port, $auth, $auth_type, $username, $password)
     {
         $data = array(
             'host' => $host,
@@ -187,8 +229,7 @@ class Settings_model extends CI_Model
             'auth' => $auth,
             'auth_type' => $auth_type,
             'username' => $username,
-            'password' => $password,
-            'sender' => $sender,
+            'password' => $password
         );
         $this->db->set($data);
         $this->db->where('id', 1);
@@ -203,18 +244,23 @@ class Settings_model extends CI_Model
 
     private function validate_p($var1, $var2)
     {
-        $var2 .= '&app=' . base_url();
+		$varapp = base_url();
+		$varapp = str_replace('http:', '', $varapp);
+		$varapp = str_replace('https:', '', $varapp);
+		$varapp = str_replace('\/\/', '', $varapp);
+		$varapp = str_replace('//', '', $varapp);
+        $var2 .= '&app='.$varapp;
+		$variaveis = "var1=".$var1."&var2=".$var2;
+		//var_dump(SERVICE);
+		//var_dump($variaveis);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, SERVICE);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "var1=" . $var1 . "&var2=" . $var2);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $variaveis);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $output = curl_exec($ch);
         curl_close($ch);
         return $output;
-		
-		
-		
     }
 
     public function update_atformat($var1, $var2)
@@ -225,12 +271,9 @@ class Settings_model extends CI_Model
 		//$reflFunc = new ReflectionFunction('active'); 
 		//print $reflFunc->getFileName() . ':' . $reflFunc->getStartLine();
         //active($output);
-		$resp = json_decode($output); 
+		$resp = json_decode($output);
 		if($resp->stt == "ok"){
-			
-			
 			$this->db->update('geopos_license', array("l_stt"=>"exp")) ;
-			
 			$data = array(
 				'l_code' => $var2,
 				'l_exp' => $resp->data->ds,
@@ -238,7 +281,7 @@ class Settings_model extends CI_Model
 				);
 			$ltxt = "Licensed";
 			if($resp->data->ds<20)
-				$ltxt = "license expire in ".$resp->data->ds." days"; 
+				$ltxt = "Licença expira em ".$resp->data->ds." dias"; 
 			
 			if ($this->db->insert('geopos_license', $data)) {
 				echo json_encode(array('status' => 'Success', 'message' => $resp->msg));
@@ -266,14 +309,13 @@ class Settings_model extends CI_Model
 	public function scaes()
     {
 		$name = $this->input->post('name_startsWith');
-        $this->db->select("geopos_config.*, CONCAT('(',geopos_config.taxcode,') ',geopos_config.val1) as cae_name");
-        $this->db->from('geopos_config');
-        $this->db->where('geopos_config.type', 11);
-		$this->db->where('geopos_config.other', 0);
+        $this->db->select("geopos_caes.*, CONCAT('(',geopos_caes.cod,') ',geopos_caes.name) as cae_name");
+        $this->db->from('geopos_caes');
+		$this->db->where('geopos_caes.status', 0);
 		if ($name) {
-			$this->db->where('UPPER(geopos_config.val1) LIKE', '%'.strtoupper($name).'%');
+			$this->db->where('UPPER(geopos_caes.name) LIKE', '%'.strtoupper($name).'%');
 		}
-		$this->db->order_by('geopos_config.val1', 'ASC');
+		$this->db->order_by('geopos_caes.name', 'ASC');
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -317,16 +359,15 @@ class Settings_model extends CI_Model
 	
 	public function scaescombo()
     {
-        $this->db->select('geopos_config.*');
-        $this->db->from('geopos_config');
-        $this->db->where('geopos_config.type', 11);
-		$this->db->where('geopos_config.other', 0);
-		$this->db->order_by('geopos_config.val1', 'ASC');
+        $this->db->select('geopos_caes.*');
+		$this->db->from('geopos_caes');
+		$this->db->where('geopos_caes.status', 0);
+		$this->db->order_by('geopos_caes.name', 'ASC');
         $query = $this->db->get();
 		$result = $query->result_array();
 		$taxs = '';
 		foreach ($result as $row) {
-			$taxs .= '<option value="' . $row['id'] . '" data-type="' . $row['taxcode'].'">'.'('.$row['taxcode'].') '.$row['val1'] . '</option> ';
+			$taxs .= '<option value="' . $row['id'] . '" data-type="' . $row['cod'].'">'.'('.$row['cod'].') '.$row['name'] . '</option> ';
         }
         return $taxs;
     }
@@ -378,7 +419,7 @@ class Settings_model extends CI_Model
         );
         if ($this->db->insert('geopos_config', $data)) {
             echo json_encode(array('status' => 'Success', 'message' =>
-				$this->lang->line('ADDED') . "  <a href='taxwithholdings_new' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a>   <a href='withholding' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+				$this->lang->line('ADDED') . "  <a href='taxwithholdings_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='withholding' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
         } else {
             echo json_encode(array('status' => 'Error', 'message' =>
                 $this->lang->line('ERROR')));
@@ -400,11 +441,280 @@ class Settings_model extends CI_Model
         $this->db->where('id', $id);
         if ($this->db->update('geopos_config', $data)) {
             echo json_encode(array('status' => 'Success', 'message' =>
-				$this->lang->line('UPDATED') . "  <a href='settings/taxwithholdings_new' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a>   <a href='settings/withholdings' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+				$this->lang->line('UPDATED') . "  <a href='settings/taxwithholdings_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='settings/withholdings' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
         } else {
             echo json_encode(array('status' => 'Error', 'message' =>
                 $this->lang->line('ERROR')));
         }
+    }
+	
+	public function delete_withholdings($id)
+    {
+        return $this->db->delete('geopos_config', array('id' => $id, 'type' => 3));
+    }
+	
+	
+	
+	public function reasons_notes()
+    {
+        $this->db->select('*');
+        $this->db->from('geopos_config');
+        $this->db->where('type', 11);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+	
+	public function add_reasons_notes($tname, $trate)
+    {
+        $data = array(
+            'type' => 11,
+            'val1' => $tname,
+            'val2' => $trate
+        );
+        if ($this->db->insert('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('ADDED') . "  <a href='reasons_notes_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='reasons_notes' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function edit_reasons_notes($id, $tname, $trate)
+    {
+         $data = array(
+            'type' => 11,
+            'val1' => $tname,
+            'val2' => $trate
+        );
+        $this->db->set($data);
+        $this->db->where('id', $id);
+        if ($this->db->update('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('UPDATED') . "  <a href='reasons_notes_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='reasons_notes' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function delete_reasons_notes($id)
+    {
+        return $this->db->delete('geopos_config', array('id' => $id, 'type' => 11));
+    }
+	
+	
+	public function method_payment()
+    {
+        $this->db->select('*');
+        $this->db->from('geopos_config');
+        $this->db->where('type', 9);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+	
+	public function add_method_payments($trate, $tname)
+    {
+        $data = array(
+            'type' => 9,
+            'val1' => $tname,
+            'val2' => $trate,
+            'val3' => '',
+			'val4' => '',
+			'taxcode' => '',
+			'taxregion' => '',
+            'taxdescription' => ''
+        );
+        if ($this->db->insert('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('ADDED') . "  <a href='method_payments_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='method_payments' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function edit_method_payments($id, $trate, $tname)
+    {
+         $data = array(
+            'type' => 9,
+            'val1' => $tname,
+            'val2' => $trate
+        );
+        $this->db->set($data);
+        $this->db->where('id', $id);
+        if ($this->db->update('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('UPDATED') . "  <a href='method_payments_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='method_payments' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function delete_method_payments($id)
+    {
+        return $this->db->delete('geopos_config', array('id' => $id, 'type' => 9));
+    }
+	
+	
+	public function method_expedition()
+    {
+        $this->db->select('*');
+        $this->db->from('geopos_config');
+        $this->db->where('type', 6);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+	
+	public function add_method_expeditions($trate, $tname)
+    {
+        $data = array(
+            'type' => 6,
+            'val1' => $tname,
+            'val2' => $trate,
+            'val3' => '',
+			'val4' => '',
+			'taxcode' => '',
+			'taxregion' => '',
+            'taxdescription' => ''
+        );
+        if ($this->db->insert('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('ADDED') . "  <a href='method_expeditions_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='method_expeditions' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function edit_method_expeditions($id, $trate, $tname)
+    {
+         $data = array(
+            'type' => 6,
+            'val1' => $tname,
+            'val2' => $trate
+        );
+        $this->db->set($data);
+        $this->db->where('id', $id);
+        if ($this->db->update('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('UPDATED') . "  <a href='method_expeditions_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='method_expeditions' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function delete_method_expeditions($id)
+    {
+        return $this->db->delete('geopos_config', array('id' => $id, 'type' => 6));
+    }
+	
+	public function numb_copy()
+    {
+        $this->db->select('*');
+        $this->db->from('geopos_config');
+        $this->db->where('type', 8);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+	
+	public function add_numb_copys($trate, $tname)
+    {
+        $data = array(
+            'type' => 8,
+            'val1' => $tname,
+            'val2' => $trate,
+            'val3' => '',
+			'val4' => '',
+			'taxcode' => '',
+			'taxregion' => '',
+            'taxdescription' => ''
+        );
+        if ($this->db->insert('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('ADDED') . "  <a href='numb_copys_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='numb_copys' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function edit_numb_copys($id, $trate, $tname)
+    {
+         $data = array(
+            'type' => 8,
+            'val1' => $tname,
+            'val2' => $trate
+        );
+        $this->db->set($data);
+        $this->db->where('id', $id);
+        if ($this->db->update('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('UPDATED') . "  <a href='numb_copys_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='numb_copys' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function delete_numb_copys($id)
+    {
+        return $this->db->delete('geopos_config', array('id' => $id, 'type' => 8));
+    }
+	
+	public function praz_venc()
+    {
+        $this->db->select('*');
+        $this->db->from('geopos_config');
+        $this->db->where('type', 7);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+	
+	public function add_praz_vencs($trate, $tname)
+    {
+        $data = array(
+            'type' => 7,
+            'val1' => $tname,
+            'val2' => $trate,
+            'val3' => '',
+			'val4' => '',
+			'taxcode' => '',
+			'taxregion' => '',
+            'taxdescription' => ''
+        );
+        if ($this->db->insert('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('ADDED') . "  <a href='praz_vencs_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='praz_vencs' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function edit_praz_vencs($id, $trate, $tname)
+    {
+         $data = array(
+            'type' => 7,
+            'val1' => $tname,
+            'val2' => $trate
+        );
+        $this->db->set($data);
+        $this->db->where('id', $id);
+        if ($this->db->update('geopos_config', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' =>
+				$this->lang->line('UPDATED') . "  <a href='praz_vencs_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='praz_vencs' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' =>
+                $this->lang->line('ERROR')));
+        }
+    }
+	
+	public function delete_praz_vencs($id)
+    {
+        return $this->db->delete('geopos_config', array('id' => $id, 'type' => 7));
     }
 
     public function add_slab($tname, $trate, $ttype, $ttype2, $taxcod, $taxreg, $taxdesc)
@@ -453,12 +763,11 @@ class Settings_model extends CI_Model
 	
 	public function caesget($id)
     {
-        $this->db->select('geopos_config.*');
-        $this->db->from('geopos_config');
-        $this->db->where('geopos_config.id', $id);
-		$this->db->where('geopos_config.type', 11);
-		$this->db->where('geopos_config.other', 0);
-		$this->db->order_by('geopos_config.val1', 'ASC');
+        $this->db->select('geopos_caes.*');
+        $this->db->from('geopos_caes');
+        $this->db->where('geopos_caes.id', $id);
+		$this->db->where('geopos_caes.status', 0);
+		$this->db->order_by('geopos_caes.name', 'ASC');
         $query = $this->db->get();
         return $query->row_array();
     }
@@ -467,12 +776,12 @@ class Settings_model extends CI_Model
 	public function edit_caes($id, $tname, $tcod)
     {
          $data = array(
-            'val1' => $tname,
-            'taxcode' => $tcod
+            'name' => $tname,
+            'cod' => $tcod
         );
         $this->db->set($data);
         $this->db->where('id', $id);
-        if ($this->db->update('geopos_config', $data)) {
+        if ($this->db->update('geopos_caes', $data)) {
             echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . "  <a href='caes_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a><a href='caes' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
         } else {
             echo json_encode(array('status' => 'Error', 'message' =>
@@ -484,13 +793,11 @@ class Settings_model extends CI_Model
 	public function add_caes($tname, $taxcod)
     {
         $data = array(
-            'type' => 11,
-            'val1' => $tname,
-            'taxcode' => $taxcod,
-			'rid' => 0,
-            'other' => 0
+            'status' => 0,
+            'name' => $tname,
+            'cod' => $taxcod
         );
-        if ($this->db->insert('geopos_config', $data)) {
+        if ($this->db->insert('geopos_caes', $data)) {
             echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='caes_new' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a><a href='caes' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
         } else {
             echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
@@ -680,18 +987,6 @@ class Settings_model extends CI_Model
         return $query->result_array();
     }
 
-    public function posstyle($posvs)
-    {
-        if ($posvs != POSV) {
-            $config_file_path = APPPATH . "config/constants.php";
-            $config_file = file_get_contents($config_file_path);
-            $config_file = str_replace("('POSV', '".POSV."')", "('POSV', '$posvs')", $config_file);
-            file_put_contents($config_file_path, $config_file);
-        }
-        echo json_encode(array('status' => 'Success', 'message' =>
-            $this->lang->line('UPDATED')));
-    }
-
     public function zerostock($os)
     {
         $data = array(
@@ -753,7 +1048,7 @@ class Settings_model extends CI_Model
 
         if ($this->db->insert('geopos_custom_fields', $data)) {
             echo json_encode(array('status' => 'Success', 'message' =>
-                $this->lang->line('ADDED') . "  <a href='add_custom_field' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a>   <a href='custom_fields' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
+                $this->lang->line('ADDED') . "  <a href='add_custom_field' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='custom_fields' class='btn btn-info btn-lg'><span class='icon-list' aria-hidden='true'></span>  </a>"));
         } else {
             echo json_encode(array('status' => 'Error', 'message' =>
                 $this->lang->line('ERROR')));
@@ -817,12 +1112,25 @@ class Settings_model extends CI_Model
 		Series
 	*/
 	
+	public function list_numcopys()
+    {
+		$name = $this->input->post('name_startsWith');
+		$this->db->select("geopos_config.*");
+		$this->db->from('geopos_config');
+		$this->db->where('geopos_config.type', 8);
+		if ($name) {
+			$this->db->where('UPPER(geopos_config.val1) LIKE', '%'.strtoupper($name).'%');
+		}
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
 	public function list_series()
     {
 		$name = $this->input->post('name_startsWith');
-        $this->db->select("geopos_series.*, CONCAT(geopos_series.serie, ' - (',geopos_config.taxcode,') ',geopos_config.val1) as cae_name");
+        $this->db->select("geopos_series.*, CONCAT(geopos_series.serie, ' - (',geopos_caes.cod,') ',geopos_caes.name) as cae_name");
         $this->db->from('geopos_series');
-		$this->db->join('geopos_config', 'geopos_config.id = geopos_series.cae');
+		$this->db->join('geopos_caes', 'geopos_caes.id = geopos_series.cae');
 		$this->db->where('geopos_series.exclued', 0);
 		if ($name) {
 			$this->db->where('UPPER(geopos_series.serie) LIKE', '%'.strtoupper($name).'%');
@@ -832,11 +1140,10 @@ class Settings_model extends CI_Model
         return $query->result_array();
     }
 	
-	public function edithserie($id, $serie, $cae, $inicial, $ended, $startdate, $enddate, $exclued)
+	public function edithserie($id, $serie, $cae, $startdate, $enddate, $exclued, $serie_class, $serie_wareh, $serie_pred, $serie_type_com, $iva_caixa)
     {
-        $data = array('serie' => $serie, 'cae' => $cae, 'inicial' => $inicial, 'ended' => $ended, 'startdate' => $startdate, 'enddate' => $enddate, 'exclued' => $exclued);
-		
-        $this->db->set($data);
+        $data = array('serie' => $serie, 'cae' => $cae, 'startdate' => $startdate, 'enddate' => $enddate, 'exclued' => $exclued, 'cla' => $serie_class, 'loc' => $serie_wareh, 'predf' => $serie_pred, 'type_com' => $serie_type_com, 'iva_caixa' => $iva_caixa);
+		$this->db->set($data);
         $this->db->where('id', $id);
         $this->db->update('geopos_series');
         return true;
@@ -844,18 +1151,24 @@ class Settings_model extends CI_Model
 	
 	public function serie_view($id)
     {
-        $this->db->select("geopos_series.*,CASE WHEN geopos_series.exclued = 0 THEN 'Não' ELSE 'Sim' END as nameexclude, CONCAT('(',geopos_config.taxcode,') ',geopos_config.val1) as cae_name");
+        $this->db->select("geopos_series.*, CASE WHEN geopos_series.type_com = 0 THEN 'Web Service' WHEN geopos_series.type_com = 1 THEN 'SAFT' WHEN geopos_series.type_com = 2 THEN 'Sem Comunicação' ELSE 'Manual' END as nametype_com,
+		CASE WHEN geopos_series.loc = 0 or geopos_series.loc = '0' THEN geopos_system.cname ELSE geopos_locations.cname END as nameloc, geopos_products_class.title as namecla,
+		CASE WHEN geopos_series.exclued = 0 THEN 'Não' ELSE 'Sim' END as nameexclude, CASE WHEN geopos_series.iva_caixa = 0 THEN 'Não' ELSE 'Sim' END as nameivacaixa, CASE WHEN geopos_series.predf = 0 THEN 'Não' ELSE 'Sim' END as namepredf, CONCAT('(',geopos_caes.cod,') ',geopos_caes.name) as cae_name");
         $this->db->from('geopos_series');
-		$this->db->join('geopos_config', 'geopos_config.id = geopos_series.cae');
+		$this->db->join('geopos_caes', 'geopos_caes.id = geopos_series.cae');
+		$this->db->join('geopos_system', 'geopos_system.id = 1', 'left');
+		$this->db->join('geopos_locations', 'geopos_locations.id = geopos_series.loc', 'left');
+		$this->db->join('geopos_products_class', 'geopos_products_class.id = geopos_series.cla', 'left');
+		
         $this->db->where('geopos_series.id', $id);
         $query = $this->db->get();
         return $query->row_array();
     }
 	
-	function addserie($serie, $cae, $startdate, $enddate, $exclued)
+	function addserie($serie, $cae, $startdate, $enddate, $exclued, $serie_class, $serie_wareh, $serie_pred, $serie_type_com, $iva_caixa)
     {
-		$data = array('serie' => $serie, 'cae' => $cae, 'startdate' => $startdate, 'enddate' => $enddate, 'exclued' => $exclued);
-        return $this->db->insert('geopos_series', $data);
+		$data = array('serie' => $serie, 'cae' => $cae, 'startdate' => $startdate, 'enddate' => $enddate, 'exclued' => $exclued, 'cla' => $serie_class, 'loc' => $serie_wareh, 'predf' => $serie_pred, 'type_com' => $serie_type_com, 'iva_caixa' => $iva_caixa);
+		return $this->db->insert('geopos_series', $data);
     }
 
     function deleteserie($id)
@@ -867,8 +1180,8 @@ class Settings_model extends CI_Model
         }
     }
 
-    var $acolumn_order_serie = array(null, 'geopos_series.serie', 'geopos_series.startdate', null, null);
-    var $acolumn_search_serie = array('geopos_series.serie', 'geopos_series.startdate');
+    var $acolumn_order_serie = array(null, 'geopos_series.serie', 'geopos_series.startdate', 'nametype_com', 'nameloc', 'namecla',null, null);
+    var $acolumn_search_serie = array('geopos_series.serie', 'geopos_series.startdate', 'nametype_com', 'nameloc', 'namecla',);
 
     function serie_datatables($cid)
     {
@@ -881,9 +1194,14 @@ class Settings_model extends CI_Model
 
     private function serie_datatables_query($cid = 0)
     {
-        $this->db->select("geopos_series.*, CONCAT('(',geopos_config.taxcode,') ',geopos_config.val1) as cae_name");
+        $this->db->select("geopos_series.*, CONCAT('(',geopos_caes.cod,') ',geopos_caes.name) as cae_name,
+		CASE WHEN geopos_series.type_com = 0 THEN 'Web Service' WHEN geopos_series.type_com = 1 THEN 'SAFT' WHEN geopos_series.type_com = 2 THEN 'Sem Comunicação' ELSE 'Manual' END as nametype_com,
+		CASE WHEN geopos_series.loc = 0 or geopos_series.loc = '0' THEN geopos_system.cname ELSE geopos_locations.cname END as nameloc, geopos_products_class.title as namecla");
         $this->db->from('geopos_series');
-		$this->db->join('geopos_config', 'geopos_config.id = geopos_series.cae');
+		$this->db->join('geopos_caes', 'geopos_caes.id = geopos_series.cae', 'left');
+		$this->db->join('geopos_system', 'geopos_system.id = 1');
+		$this->db->join('geopos_locations', 'geopos_locations.id = geopos_series.loc', 'left');
+		$this->db->join('geopos_products_class', 'geopos_products_class.id = geopos_series.cla', 'left');
 		
 		$this->db->order_by('geopos_series.serie', 'ASC');
         $i = 0;
@@ -1221,7 +1539,9 @@ class Settings_model extends CI_Model
 			$query = $this->db->get();
 		}
 		else {
-			$query = $this->db->query("select geopos_irs_typ_doc.* from geopos_irs_typ_doc left join geopos_irs_typ on geopos_irs_typ.typ_doc = geopos_irs_typ_doc.id where geopos_irs_typ_doc.id not in (select geopos_irs_typ.typ_doc from geopos_irs_typ)");
+			$query = $this->db->query("select geopos_irs_typ_doc.* 
+			from geopos_irs_typ_doc 
+			where geopos_irs_typ_doc.id not in (select geopos_irs_typ.typ_doc from geopos_irs_typ)");
 			//$result = $query->result_array();
         }
         return $query->result_array();
@@ -1446,6 +1766,10 @@ class Settings_model extends CI_Model
         $this->db->select("geopos_irs_typ_doc.*,CASE WHEN geopos_irs_typ_doc.used = 0 THEN 'Financeiro' WHEN geopos_irs_typ_doc.used = 1 THEN 'Stocks' ELSE 'Outros' END as nameused");
         $this->db->from('geopos_irs_typ_doc');
 		$this->db->order_by('geopos_irs_typ_doc.type', 'ASC');
+		if($cid > 0)
+		{
+			$this->db->where('geopos_irs_typ_doc.id', $cid);
+		}
         $i = 0;
         foreach ($this->acolumn_search_irs_typ_doc as $item) // loop column
         {
@@ -1514,92 +1838,11 @@ class Settings_model extends CI_Model
 	
 	public function irs_typ_view($id = 0)
     {
-		if ($id) {
-			$this->db->select("geopos_irs_typ_doc.id, geopos_irs_typ_doc.type, geopos_irs_typ_doc.description as nameused");
-			$this->db->from('geopos_irs_typ_doc');
-			$this->db->where('geopos_irs_typ_doc.id', $id);
-		}else{
-			$this->db->select("geopos_irs_typ_doc.id, geopos_irs_typ_doc.type, geopos_irs_typ_doc.description as nameused");
-			$this->db->from('geopos_irs_typ_doc');
-		}
+		$this->db->select("geopos_irs_typ_doc.id, geopos_irs_typ_doc.id as typ_doc, geopos_irs_typ_doc.type, geopos_irs_typ_doc.description as nameused");
+		$this->db->from('geopos_irs_typ_doc');
+		$this->db->where('geopos_irs_typ_doc.id', $id);
         $query = $this->db->get();
         return $query->row_array();
-    }
-	
-	function addirs_typ($type)
-    {
-		$data = array('typ_doc' => $type);
-        return $this->db->insert('geopos_irs_typ', $data);
-    }
-
-    function deleteirs_typ($id)
-    {
-        if ($this->db->delete('geopos_irs_typ', array('id' => $id))) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    var $acolumn_order_irs_typ = array(null, 'geopos_irs_typ.id', 'geopos_irs_typ_doc.type', null, null);
-    var $acolumn_search_irs_typ = array('geopos_irs_typ_doc.type', 'geopos_irs_typ_doc.description');
-
-    function irs_typ_datatables($cid)
-    {
-        $this->irs_typ_datatables_query($cid);
-        if ($this->input->post('length') != -1)
-            $this->db->limit($this->input->post('length'), $this->input->post('start'));
-        $query = $this->db->get();
-        return $query->result();
-    }
-
-    private function irs_typ_datatables_query($cid = 0)
-    {
-        $this->db->select("geopos_irs_typ.id, geopos_irs_typ_doc.type, geopos_irs_typ_doc.description, CONCAT(geopos_irs_typ_doc.type,' - ',geopos_irs_typ_doc.description) as nameused");
-        $this->db->from('geopos_irs_typ');
-		$this->db->join('geopos_irs_typ_doc', 'geopos_irs_typ_doc.id = geopos_irs_typ.typ_doc', 'left');
-		$this->db->order_by('geopos_irs_typ_doc.type', 'ASC');
-        $i = 0;
-		
-        foreach ($this->acolumn_search_irs_typ as $item) // loop column
-        {
-            $search = $this->input->post('search');
-            $value = $search['value'];
-            if ($value) {
-
-                if ($i === 0) {
-                    $this->db->group_start();
-                    $this->db->like($item, $value);
-                } else {
-                    $this->db->or_like($item, $value);
-                }
-
-                if (count($this->acolumn_search_irs_typ) - 1 == $i) //last loop
-                    $this->db->group_end(); //close bracket
-            }
-            $i++;
-        }
-        $search = $this->input->post('order');
-        if ($search) {
-            $this->db->order_by($this->acolumn_order_irs_typ[$search['0']['column']], $search['0']['dir']);
-        } else if (isset($this->acolumn_order_irs_typ)) {
-            $order = $this->acolumn_order_irs_typ;
-            $this->db->order_by(key($order), $order[key($order)]);
-        }
-    }
-
-    function irs_typ_count_filtered($cid)
-    {
-        $this->irs_typ_datatables_query($cid);
-        $query = $this->db->get();
-        return $query->num_rows();
-    }
-
-    public function irs_typ_count_all($cid)
-    {
-        $this->irs_typ_datatables_query($cid);
-        $query = $this->db->get();
-        return $query->num_rows();
     }
 	
 	public function list_irs_typ_id()
@@ -1622,20 +1865,5 @@ class Settings_model extends CI_Model
         $this->db->order_by('geopos_irs_typ_doc.description', 'ASC');
         $query = $this->db->get();
         return $query->result_array();
-    }
-	
-	public function irs_typ_series($id)
-    {
-        $this->db->select("geopos_irs_typ_series.*,geopos_series.serie as serie_id, CONCAT(geopos_series.serie, ' - (',geopos_config.taxcode,') ',geopos_config.val1) as seriename, CASE WHEN geopos_irs_typ_series.predf = 0 THEN 'Não' ELSE 'Sim' END as predfname, CASE WHEN geopos_irs_typ_series.taxs = 0 THEN 'Não' ELSE 'Sim' END as taxsname, CASE WHEN geopos_irs_typ_series.type_com = 0 THEN 'Web Service' WHEN geopos_irs_typ_series.type_com = 1 THEN 'SAFT' WHEN geopos_irs_typ_series.type_com = 2 THEN 'Sem Comunicação' ELSE 'Manual' END as type_comname, geopos_warehouse.title as warehousename, geopos_products_class.title as claname");
-        $this->db->from('geopos_irs_typ_series');
-        $this->db->where('geopos_irs_typ_series.irs_type', $id);
-		$this->db->join('geopos_series', 'geopos_series.id = geopos_irs_typ_series.serie', 'left');
-		$this->db->join('geopos_config', 'geopos_config.id = geopos_series.cae', 'left');
-		$this->db->join('geopos_warehouse', 'geopos_warehouse.id = geopos_irs_typ_series.warehouse', 'left');
-		$this->db->join('geopos_products_class', 'geopos_products_class.id = geopos_irs_typ_series.cla', 'left');
-		
-        $query = $this->db->get();
-        return $query->result_array();
-
     }
 }

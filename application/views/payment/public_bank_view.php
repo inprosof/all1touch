@@ -5,7 +5,7 @@
         <div class="card card-block">
             <div class="card-body">
                 <?php echo '<h4>' . $this->config->item('ctitle') . '</h4>
-                        <h5>Payable Accounts</h5>     <hr>';
+                        <h5>Contas Disponíveis para Tranferências</h5>     <hr>';
                 foreach ($accounts as $account) { ?>
                     <div class="card">
                         <div class="card-block">
@@ -20,14 +20,21 @@
                                     </div>
 
                                 </div>
-                                <div class="col-12">
-
+								<div class="col-12">
                                     <div class="stat">
-                                        <div class="name"> <?php echo $this->lang->line('Name') ?>:</div>
-                                        <div class="value"> <?php echo $account['name'] ?></div>
+                                        <div class="name"> Moeda:</div>
+                                        <div class="value"> <?php echo $account['currency_code'] ?></div>
                                         <hr>
                                     </div>
 
+                                </div>
+								
+                                <div class="col-12">
+                                    <div class="stat">
+                                        <div class="name"> <?php echo $this->lang->line('Name') ?>:</div>
+                                        <div class="value"> <?php echo $account['holder'] ?></div>
+                                        <hr>
+                                    </div>
                                 </div>
 
                                 <div class="col-12">
@@ -37,17 +44,14 @@
                                         <div class="value"> <?php echo $account['code'] ?></div>
                                         <hr>
                                     </div>
-
                                 </div>
 
                                 <div class="col-12">
-
                                     <div class="stat">
                                         <div class="name"> Bank:</div>
-                                        <div class="value"> <?php echo $account['note'] ?></div>
+                                        <div class="value"> <?php echo $account['name'] ?></div>
                                         <hr>
                                     </div>
-
                                 </div>
 
                                 <div class="col-12">
@@ -61,10 +65,9 @@
                                 </div>
 
                                 <div class="col-12">
-
                                     <div class="stat">
                                         <div class="name"> <?php echo $this->lang->line('Address') ?>:</div>
-                                        <div class="value"> <?php echo $account['address'] ?></div>
+                                        <div class="value"> <?php echo $account['adress'] ?></div>
                                         <hr>
                                     </div>
 

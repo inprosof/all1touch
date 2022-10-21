@@ -33,7 +33,7 @@ class Stockreturn extends CI_Controller
     }
 	
     //create invoice
-    public function create()
+    public function create($relation = 0, $typrelation = 0)
     {
         if (!$this->aauth->premission(2)) {
             exit($this->lang->line('translate19'));
@@ -46,23 +46,75 @@ class Stockreturn extends CI_Controller
         $data['taxlist'] = $this->common->taxlist($this->config->item('tax'));
         $this->load->model('customers_model', 'customers');
         $data['customergrouplist'] = $this->customers->group_list();
-        $data['emp'] = $this->plugins->universal_api(69);
-        if ($data['emp']['key1']) {
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$this->load->library("Transport");
+		$typrelation = $this->input->post('typrelation');
+		$relationid = $this->input->post('relationid');
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
+        ////////////////////////Relação entre Permissões//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
             $this->load->model('employee_model', 'employee');
             $data['employee'] = $this->employee->list_employee();
         }
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+		
 		$type = $this->input->get('ty');
+		$data['tiprelated'] = 0;
+		if($type > 0)
+		{
+			$data['tiprelated'] = 18;
+		}else{
+			$data['tiprelated'] = 6;
+		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['typrelation'] = $typrelation;
+		$data['relationid'] = $relation;
+		
+		if($relation > 0)
+		{
+			if($typrelation == 0){
+				$data['tiprelated'] = 1;
+			}
+			$this->load->library("Related");
+			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
+			$data['csd_name'] = $data['docs_origem']['name'];
+			$data['csd_tax'] = $data['docs_origem']['taxid'];
+			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
+		}else{
+			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
+			$data['csd_tax'] = "999999990";
+			$data['csd_id'] = "99999999";
+			$data['docs_origem'] = [];
+			$data['products'] = [];
+		}
+		
 		$typename = "";
 		if($type == 1 || $type == '1')
 		{
-			$typename = "Retorno Stock Clientes ";
-			if(count($this->settings->billingterms(6)) == 0)
-			{
-				exit('Deve Inserir pelo menos um Termo para o Tipo '.$typename.'. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
-													class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
-			}
-			$data['terms'] = $this->settings->billingterms(6);
-		}else{
 			$typename = "Retorno Stock Fornecedores ";
 			if(count($this->settings->billingterms(18)) == 0)
 			{
@@ -70,6 +122,14 @@ class Stockreturn extends CI_Controller
 													class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 			}
 			$data['terms'] = $this->settings->billingterms(18);
+		}else{
+			$typename = "Retorno Stock Clientes ";
+			if(count($this->settings->billingterms(6)) == 0)
+			{
+				exit('Deve Inserir pelo menos um Termo para o Tipo '.$typename.'. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
+													class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
+			}
+			$data['terms'] = $this->settings->billingterms(6);
 		}
 		$data['type_return'] = $type;
 		$data['return']['type'] = $typename;
@@ -88,15 +148,14 @@ class Stockreturn extends CI_Controller
 		$numget = 0;
 		if($type == 1)
 		{
-			$this->li_a = 'crm';
-			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(18);
-			$data['seriesinvoiceselect'] = $this->common->default_series(18);
-		}else{
 			$this->li_a = 'suppliers';
+			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(18);
+		}else{
+			$this->li_a = 'crm';
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(6);
-			$data['seriesinvoiceselect'] = $this->common->default_series(6);
 		}
 		
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
 		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
 		{
 			$data['locations'] = $this->settings->company_details(1);
@@ -106,8 +165,7 @@ class Stockreturn extends CI_Controller
 		$data['taxdetails'] = $this->common->taxdetail();
 		if($data['seriesinvoiceselect'] == NULL)
 		{
-			exit('Deve Inserir pelo menos uma Série no Tipo '.$typename.'. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
-												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
+			exit('Ainda não definiu nenhuma série para esta Localização. <a class="match-width match-height"  href="'.base_url().'settings/series"><i class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
 			if($type == 1)
 			{
@@ -123,11 +181,11 @@ class Stockreturn extends CI_Controller
 			$this->load->view('fixed/header', $head);
 			if($type == 1)
 			{
-				$this->load->view('stockreturn/c_newinvoice', $data);
-			}else{
 				$this->load->view('stockreturn/newinvoice', $data);
+			}else{
+				$this->load->view('stockreturn/c_newinvoice', $data);
+				
 			}
-			
 			$this->load->view('fixed/footer');
 		}
     }
@@ -391,9 +449,9 @@ class Stockreturn extends CI_Controller
         $data['employee'] = $this->stockreturn->employee($data['invoice']['eid']);
         if (($data['invoice']['i_class'] != 2 && $this->aauth->premission(2)) or ($data['invoice']['i_class'] == 2 && $this->aauth->premission(1))) {
             if ($ty < 2) {
-                $data['general'] = array('title' => $this->lang->line('Stock Return'), 'person' => $this->lang->line('Supplier'), 'prefix' => prefix(4), 't_type' => 0);
+                $data['general'] = array('title' => $this->lang->line('Stock Return'), 'person' => $this->lang->line('Supplier'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 0);
             } else {
-                $data['general'] = array('title' => $this->lang->line('Credit Note'), 'person' => $this->lang->line('Customer'), 'prefix' => prefix(4), 't_type' => 0);
+                $data['general'] = array('title' => $this->lang->line('Credit Note'), 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 0);
             }
 			
 			$token = $this->input->get('token');
@@ -739,19 +797,26 @@ class Stockreturn extends CI_Controller
                     $status = 'Accepted';
                     $paid_amount = $amount;
                 }
-                $dual = $this->custom->api_config(65);
-                if ($dual['key1']) {
-
+				$this->load->model('settings_model', 'settings');
+				$discship = [];
+				if($this->aauth->get_user()->loc == 0)
+				{
+					$discship = $this->settings->online_pay_settings_main();
+				}else{
+					$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+				}
+				$dual = $discship;
+                if($dual['dual_entry']>0){
                     $this->db->select('holder');
                     $this->db->from('geopos_accounts');
-                    $this->db->where('id', $dual['url']);
+                    $this->db->where('id', $dual['ac_id_d']);
                     $query = $this->db->get();
                     $account = $query->row_array();
 
                     $data['debit'] = 0;
                     $data['credit'] = $amount;
                     $data['type'] = 'Income';
-                    $data['acid'] = $dual['url'];
+                    $data['acid'] = $dual['ac_id_d'];
                     $data['account'] = $account['holder'];
                     $data['note'] = 'Credit ' . $data['note'];
 
@@ -759,7 +824,7 @@ class Stockreturn extends CI_Controller
 
                     //account update
                     $this->db->set('lastbal', "lastbal+$amount", FALSE);
-                    $this->db->where('id', $dual['url']);
+                    $this->db->where('id', $dual['ac_id_d']);
                     $this->db->update('geopos_accounts');
                 }
             } else {

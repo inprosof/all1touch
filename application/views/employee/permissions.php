@@ -35,11 +35,10 @@
                             <th><?php echo $this->lang->line('Inventory Manager') ?></th>
                             <th><?php echo $this->lang->line('Sales Person') ?></th>
                             <th><?php echo $this->lang->line('Sales Manager') ?></th>
-                            <th><?php echo $this->lang->line('Business Manager') ?></th>
-                            <th><?php echo $this->lang->line('Business Owner') ?></th>
                             <th><?php echo $this->lang->line('Project Manager') ?></th>
-
-
+							<th>Vendedor Externo</th>
+							<th><?php echo $this->lang->line('Business Manager') ?></th>
+							<th><?php echo $this->lang->line('Business Owner') ?></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -50,8 +49,8 @@
                             $module = $row['module'];
 
                             echo "<tr>
-                    <td>$i</td>
-                    <td>$module</td>"; ?>
+								<td>$i</td>
+								<td>$module</td>"; ?>
 
                             <td><input type="checkbox" name="r_<?php echo $i ?>_1"
                                        class="m-1" <?php if ($row['r_1']) echo 'checked="checked"' ?>></td>
@@ -59,15 +58,16 @@
                                        class="m-1" <?php if ($row['r_2']) echo 'checked="checked"' ?>></td>
                             <td><input type="checkbox" name="r_<?php echo $i ?>_3"
                                        class="m-1" <?php if ($row['r_3']) echo 'checked="checked"' ?>></td>
+							<td><input type="checkbox" name="r_<?php echo $i ?>_6"
+                                       class="m-1" <?php if ($row['r_6']) echo 'checked="checked"' ?>></td>
+							<td><input type="checkbox" name="r_<?php echo $i ?>_8"
+                                       class="m-1" <?php if ($row['r_8']) echo 'checked="checked"' ?>></td>
                             <td><input type="checkbox" name="r_<?php echo $i ?>_4"
                                        class="m-1" <?php if ($row['r_4']) echo 'checked="checked"' ?>></td>
                             <td><input type="checkbox" name="r_<?php echo $i ?>_5"
                                        class="m-1" <?php if ($row['r_5']) echo 'checked="checked"' ?>></td>
-                            <td><input type="checkbox" name="r_<?php echo $i ?>_6"
-                                       class="m-1" <?php if ($row['r_6']) echo 'checked="checked"' ?>></td>
                             <?php
-                            echo "
-                    </tr>";
+                            echo "</tr>";
                             //  $i++;
                         }
                         ?>
@@ -79,9 +79,10 @@
                             <th><?php echo $this->lang->line('Inventory Manager') ?></th>
                             <th><?php echo $this->lang->line('Sales Person') ?></th>
                             <th><?php echo $this->lang->line('Sales Manager') ?></th>
-                            <th><?php echo $this->lang->line('Business Manager') ?></th>
-                            <th><?php echo $this->lang->line('Business Owner') ?></th>
                             <th><?php echo $this->lang->line('Project Manager') ?></th>
+							<th>Vendedor Externo</th>
+							<th><?php echo $this->lang->line('Business Manager') ?></th>
+							<th><?php echo $this->lang->line('Business Owner') ?></th>
 
                         </tr>
                         </tfoot>

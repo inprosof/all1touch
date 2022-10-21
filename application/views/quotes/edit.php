@@ -12,10 +12,10 @@
                             <div id="customerpanel" class="inner-cmp-pnl">
 								<input type="hidden" name="iddoc" value="<?php echo $invoice['iddoc'] ?>">
 								<input type="hidden" name="vers" value="<?php echo $invoice['version'] ?>">
-								<input type="hidden" value="<?php echo $invoice['loc_adress']; ?>" name="compa_adr" id="compa_adr">
-								<input type="hidden" value="<?php echo $invoice['loc_postbox']; ?>" name="compa_post" id="compa_post">
-								<input type="hidden" value="<?php echo $invoice['loc_city']; ?>" name="compa_city" id="compa_city">
-								<input type="hidden" value="<?php echo $invoice['loc_country']; ?>" name="compa_country" id="compa_country">
+								<input type="hidden" value="<?php echo $locations['address']; ?>" name="compa_adr" id="compa_adr">
+								<input type="hidden" value="<?php echo $locations['postbox']; ?>" name="compa_post" id="compa_post">
+								<input type="hidden" value="<?php echo $locations['city']; ?>" name="compa_city" id="compa_city">
+								<input type="hidden" value="<?php echo $locations['country']; ?>" data-serie="<?php echo $locations['namecountry']; ?>" name="compa_country" id="compa_country">
 								<div class="form-group row">
 									<div class="fcol-sm-12">
 										<h3 class="title">
@@ -40,6 +40,8 @@
 									<div class="clientinfo">
 										<?php echo $this->lang->line('Client Details'); ?>
 										<hr>
+										<input type="hidden" name="typrelation" id="typrelation" value="<?php echo $typrelation?>" />
+										<input type="hidden" name="relationid" id="relationid" value="<?php echo $relationid?>" />
 										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $invoice['csd']; ?>">
 										<div id="customer_name"><strong><?php echo $invoice['name']; ?></strong></div>
 									</div>
@@ -425,6 +427,47 @@
 							}
 							?>
                     </div>
+					<?php 
+						if (is_array(@$relation)) {?>
+						<hr>
+						<div id="accordionWrapar" role="tablist" aria-multiselectable="true">
+							<div id="headingr" class="card-header">
+								<a data-toggle="collapse" data-parent="#accordionWrapar" href="#accordionr"
+								   aria-expanded="false" aria-controls="accordionr"
+								   class="card-title lead collapsed">
+									<i class="fa fa-plus-circle"></i>Documentos relacionados
+								</a>
+							</div>
+							<div id="accordionr" role="tabpanel" aria-labelledby="headingr"
+								 class="card-collapse collapse" aria-expanded="false">
+								<div class="card-body">
+									<hr>
+									<table class="table-responsive">
+										<thead>
+											<tr>
+												<th>Série</th>
+												<th>Nº</th>
+												<th>Data Emissão</th>
+												<th>Cliente</th>
+											</tr>
+										</thead>
+										<tbody>
+											<?php 
+												foreach ($relation as $row) {
+													echo '<tr>';
+													echo "<td>".$row['serie_name']."</td>";
+													echo "<td>".$row['type'].'/'.$row['tid_doc']."</td>";
+													echo "<td>".$row['invoicedate']."</td>";
+													echo "<td>".$row['name']."</td>";
+													echo '</tr>';
+												}
+											?>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					<?php }?>
 					<hr>
 					<div id="accordionWrapa1" role="tablist" aria-multiselectable="true">
 						<div id="heading2" class="card-header">
@@ -435,7 +478,7 @@
 							</a>
 						</div>
 						<div id="accordion2" role="tabpanel" aria-labelledby="heading2"
-							 class="card-collapse <?php if ($invoice['exp_date'] != null && $invoice['exp_date'] != '') echo 'collapse' ?>" aria-expanded="false">
+							 class="card-collapse <?php if ($invoice['exp_date'] == null || $invoice['exp_date'] == '') echo 'collapse' ?>" aria-expanded="false">
 							<div class="card-body">
 								<table class="table-responsive">
 								<tbody>
@@ -912,14 +955,45 @@
         let selectedCategoryType = $(this).find('option:selected').data('type');
 		$('#autos_se').prop('selectedIndex', -1);
 		$("#autos_se").val('');
-		$("#autos_se").val('');
 		$("#expedival").val(selectedCategoryType);
+		console.log(selectedCategoryType);
         if(selectedCategoryType == 'exp3'){
 			$("#autos_se").attr({ disabled: false});
+			$('.ajaddauto').removeClass('hidden');
         }else{
 			$("#autos_se").attr({ disabled: true});
+			$('.ajaddauto').addClass('hidden');
 		}
+		if(!$('.associate').hasClass('hidden'))
+		{
+			$('.associate').addClass('hidden');
+		}
+		$("#matricula_aut").val('');
+		$("#designacao_aut").val('');
+		$("#copy_autos").val('');
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
     });
+	
+	$('select[name="autos_se"]').change(function (){
+		$("#matricula_aut").val('');
+		$("#designacao_aut").val('');
+		$("#copy_autos").val('');
+		if(!$('.associate').hasClass('hidden'))
+		{
+			$('.associate').addClass('hidden');
+		}
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
+	});
+	
+	$("#copy_autos").change(function () {
+		if ($(this).prop("checked") == true) {
+			$('#val_save_bd').val('1');
+		} else {
+			$('#val_save_bd').val('0');
+		}
+	});
 	
 	
 	$("#copy_date").change(function () {
@@ -1007,8 +1081,10 @@
 		$("#matricula_aut").val('');
 		$("#designacao_aut").val('');
 		$("#copy_autos").val('');
-		$("#copy_autos").attr("checked", false);
-		
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
+		$('#autos_se').prop('selectedIndex', -1);
+		$("#autos_se").val('');
 		if($('.associate').hasClass('hidden'))
 		{
 			$('.associate').removeClass('hidden');
@@ -1052,40 +1128,7 @@
 			   date.getFullYear()                          // Get full year
 			].join('-');                                   // Glue the pieces together
 		}
-	}
-	
-    $("#invoi_type").on('change', function () {
-        $("#invoi_serie").val('').trigger('change');
-        var tips = $('#invoi_type').val();
-		var el = $("#invoi_type option:selected").attr('data-serie');
-		
-		$("#invoi_type_val").val(el);
-        $("#invoi_serie").select2({
-            ajax: {
-                url: baseurl + 'settings/sub_series?id=' + tips,
-                dataType: 'json',
-                type: 'POST',
-                quietMillis: 50,
-                data: function (product) {
-                    return {
-                        product: product,
-                        '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.seriename,
-                                value: item.serie_id,
-								id: item.serie_id
-                            }
-                        })
-                    };
-                },
-            }
-        });
-    });	
+	};
 </script>
 <script type="text/javascript"> $('.editdate').datepicker({
         autoHide: true,

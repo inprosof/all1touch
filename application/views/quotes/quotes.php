@@ -1,8 +1,8 @@
 <div class="content-body">
     <div class="card">
         <div class="card-header">
-            <h4 class="card-title"><?php echo $this->lang->line('Quotes') ?> <a
-                        href="<?php echo base_url('quote/create') ?>"
+            <h4 class="card-title">Gestão de <?php echo $this->lang->line('Quotes') ?> <a
+                        href="<?php echo base_url('quote/create_typ?typ=3') ?>"
                         class="btn btn-primary btn-sm rounded">
                     <?php echo $this->lang->line('Add new') ?></a></h4>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
@@ -42,12 +42,15 @@
                 <table id="quotes" class="table table-striped table-bordered zero-configuration">
                     <thead>
                     <tr>
+                        <th>Série</th>
                         <th>Nº</th>
-                        <th>Serie</th>
-						<th>Orçamento</th>
+						<th>Data Emissão</th>
                         <th>Cliente</th>
-                        <th>Data Emissão</th>
-                        <th><?php echo $this->lang->line('Total') ?></th>
+                        <th>Contribuinte</th>
+						<th>Ilíquido</th>
+						<th>Impostos</th>
+						<th>Total Liq.</th>
+						<th>Conciliado</th>
                         <th class="no-sort"><?php echo $this->lang->line('Status') ?></th>
                         <th class="no-sort"><?php echo $this->lang->line('Settings') ?></th>
                     </tr>
@@ -57,12 +60,15 @@
 
                     <tfoot>
                     <tr>
+                        <th>Série</th>
                         <th>Nº</th>
-                        <th>Serie</th>
-						<th>Nota</th>
+						<th>Data Emissão</th>
                         <th>Cliente</th>
-                        <th>Data Emissão</th>
-                        <th><?php echo $this->lang->line('Total') ?></th>
+                        <th>Contribuinte</th>
+						<th>Ilíquido</th>
+						<th>Impostos</th>
+						<th>Total Liq.</th>
+						<th>Conciliado</th>
                         <th class="no-sort"><?php echo $this->lang->line('Status') ?></th>
                         <th class="no-sort"><?php echo $this->lang->line('Settings') ?></th>
                     </tr>
@@ -74,21 +80,52 @@
 
     </div>
 </div>
+<div id="delete_model2" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Apagar Documento</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+				<label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
+					<strong>Atenção:</strong> Esta ferramenta permite-lhe remover este documento por estar ainda em estado Rascunho.</strong>
+				</label>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="object-id2" value="">
+				<input type="hidden" id="object-tid2" value="">
+				<input type="hidden" id="object-tdraft2" value="0">
+                <input type="hidden" id="action-url2" value="quote/delete_i">
+                <button type="button" data-dismiss="modal" class="btn btn-primary"
+                        id="delete-confirm2"><?php echo $this->lang->line('Delete') ?></button>
+                <button type="button" data-dismiss="modal"
+                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="delete_model" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
 
-                <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
+                <h4 class="modal-title">Anular Documento</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                <p><?php echo $this->lang->line('delete this quote') ?></p>
+				<label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
+					<strong>Atenção:</strong> Esta ferramenta permite-lhe colocar um documento em estado anulado, caso cumpra as condições impostas pela Autoridade Tributária.<strong>Ao efetuar esta operação, irá ficar associado e responsabilizado pela operação perante as autoridades competentes.</strong>
+				</label>
+                <p>Caso já tenha comunicado à Autoridade Tributária o ficheiro SAF-T(PT) referente ao mês do documento que estiver a anular, terá que o voltar a exportar e submeter no eFatura.</p>
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="object-id" value="">
+				<input type="hidden" id="object-tid" value="">
+				<input type="hidden" id="object-tdraft" value="1">
                 <input type="hidden" id="action-url" value="quote/delete_i">
+				<textarea class="summernote" name="justification_cancel" id="justification_cancel" rows="1"></textarea></div>
                 <button type="button" data-dismiss="modal" class="btn btn-primary"
                         id="delete-confirm"><?php echo $this->lang->line('Delete') ?></button>
                 <button type="button" data-dismiss="modal"
@@ -97,6 +134,183 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="choise_type_convert" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Converter documento</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+				<input type="hidden" id="convert-id" name="convert-id" value="">
+				<input type="hidden" id="convert-type" name="convert-type" value="">
+				<input type="hidden" id="convert-ext" name="convert-ext" value="0">
+				<select class="form-control b_input required" id="object-id-doc-convert-type" name="object-id-doc-convert-type">
+					<option data-url="customers_notes/convert">Nota de Débito</option>
+					<option data-url="customers_notes/convert">Nota de Crédito</option>
+					<option data-url="receipts/convert">Recibo</option>
+				</select>
+            </div>
+            <div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn btn-primary" id="convert-confirm">Converter Agora</button>
+                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="choise_docs_related" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Documentos relacionados</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+            </div>
+			
+			<div class="modal-body">
+                <h6>O documento <?php echo $invoice['irs_type_n'].' '.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'] ?> teve origem nos documentos abaixo (Está conciliado com)</h6>
+				<div class="row">
+					<table class="table table-striped">
+						<?php if(is_array($docs_origem)) {
+							$reicoun = count($docs_origem);
+							if($reicoun > 0){
+								echo "<thead>
+									<tr>
+										<th>Documento</th>
+										<th>Série/Nº</th>
+										<th>Data Emissão</th>
+										<th>NIF/NIC</th>
+										<th>Ilíquido</th>
+										<th>Impostos</th>
+										<th>Total Liq.</th>
+										<th>".$this->lang->line('Settings')."</th>
+									</tr>
+								</thead>
+								<tbody id='activity'>";
+								foreach ($docs_origem as $row) {
+									$tiiid = $row['id'];
+									echo '<tr>';
+									echo "<td><strong>".$row['tipo']."</strong></td>";
+									echo "<td>".$row['serie_name'].'/'.$row['tid']."</td>";
+									echo "<td>".$row['invoicedate']."</td>";
+									echo "<td>".$row['tax_id']."</td>";
+									echo "<td>".amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc)."</td>";
+									echo "<td>".amountExchange($row['tax'], 0, $this->aauth->get_user()->loc)."</td>";
+									echo "<td>".amountExchange($row['total'], 0, $this->aauth->get_user()->loc)."</td>";
+									if($row['type_related'] == "0" || $row['type_related'] == "2"){
+										if($row['draft'] == "0"){
+											echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+										}else{
+											echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+										}
+									}else if($row['type_related'] == "1"){
+										echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+									}else if($row['type_related'] == "3"){
+										echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+									}
+									echo '</tr>';
+								}
+								echo "</tbody>";
+							}else
+							{
+								echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que tivesse origem neste documento!</td><tr></tbody>';
+							}
+							
+						}else {
+							echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que tivesse origem neste documento!</td><tr></tbody>';
+						}?>
+					</table>
+				</div>
+				<h6>O documento <?php echo $invoice['irs_type_n'].' '.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'] ?> deu origem aos documentos abaixo (Foi conciliado com)</h6>
+				<div class="row">
+					<table class="table table-striped">
+						<?php if(is_array($docs_deu_origem)) {
+							$reicoun2 = count($docs_deu_origem);
+							if($reicoun2 > 0){
+								echo "<thead>
+									<tr>
+										<th>Documento</th>
+										<th>Série/Nº</th>
+										<th>Data Emissão</th>
+										<th>NIF/NIC</th>
+										<th>Ilíquido</th>
+										<th>Impostos</th>
+										<th>Total Liq.</th>
+										<th>".$this->lang->line('Settings')."</th>
+									</tr>
+								</thead>
+								<tbody>";
+								foreach ($docs_deu_origem as $row) {
+									$tiiide = $row['id'];
+									echo '<tr>';
+									echo "<td><strong>".$row['tipo']."</strong></td>";
+									echo "<td>".$row['serie_name'].'/'.$row['tid']."</td>";
+									echo "<td>".$row['invoicedate']."</td>";
+									echo "<td>".$row['tax_id']."</td>";
+									echo "<td>".amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc)."</td>";
+									echo "<td>".amountExchange($row['tax'], 0, $this->aauth->get_user()->loc)."</td>";
+									echo "<td>".amountExchange($row['total'], 0, $this->aauth->get_user()->loc)."</td>";
+									if($row['type_related'] == "0" || $row['type_related'] == "2"){
+										if($row['draft'] == "0"){
+											echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+										}else{
+											echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=1").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+										}
+									}else if($row['type_related'] == "1"){
+										echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+									}else if($row['type_related'] == "3"){
+										echo '<td><a href="'.base_url("quote/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("quote/printquote?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+									}
+									
+									echo '</tr>';
+								}
+								echo "</tbody>";
+							}else{
+								echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr></tbody>';
+							}
+						}else {
+							echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr></tbody>';
+						}?>
+					</table>
+				</div>
+            </div>
+            <div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+			</div>
+		</div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('.summernote').summernote({
+            height: 50,
+            tooltip:false,
+            toolbar: [
+                // [groupName, [list of button]]
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['fullscreen', ['fullscreen']],
+                ['codeview', ['codeview']]
+            ]
+        });
+    });
+
+</script>
 <script type="text/javascript">
     $(document).ready(function () {
         draw_data();
@@ -110,7 +324,7 @@
                 <?php datatable_lang();?>
                 'order': [],
                 'ajax': {
-                    'url': "<?php echo site_url('quote/ajax_list')?>",
+                    'url': "<?php echo site_url('quote/ajax_list?ty=0')?>",
                     'type': 'POST',
                     'data': {
                         '<?=$this->security->get_csrf_token_name()?>': crsf_hash,
@@ -118,6 +332,11 @@
                         end_date: end_date
                     }
                 },
+				'rowCallback': function ( row, data, cell) {
+					if(data.status == 'canceled'){
+						$(row).css('background-color', ' rgba(255, 0, 39, 0.22)');
+					}
+				},
                 'columnDefs': [
                     {
                         'targets': [0],

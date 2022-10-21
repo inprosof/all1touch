@@ -134,8 +134,6 @@ class Ultimatemailer
         } else {
             return true;
         }
-
-
     }
 
     function group_load($host, $port, $auth,$auth_type, $username, $password, $mailfrom, $mailfromtilte, $recipients, $subject, $message, $attachmenttrue, $attachment,$flag=true)

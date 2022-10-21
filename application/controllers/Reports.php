@@ -330,7 +330,6 @@ class Reports extends CI_Controller
     }
 
     public function taxstatement()
-
     {
         $this->load->model('transactions_model');
         $data['accounts'] = $this->transactions_model->acc_list();
@@ -345,10 +344,7 @@ class Reports extends CI_Controller
     }
 
     public function taxviewstatement()
-
     {
-
-
         $trans_type = $this->input->post('ty');
         $sdate = datefordatabase($this->input->post('sdate'));
         $edate = datefordatabase($this->input->post('edate'));
@@ -368,22 +364,52 @@ class Reports extends CI_Controller
 
     public function taxviewstatements_load()
     {
-
-
         $trans_type = $this->input->post('ty');
         $sdate = datefordatabase($this->input->post('sd'));
         $edate = datefordatabase($this->input->post('ed'));
         $lid = $this->input->post('loc');
 
         if ($trans_type == 'Sales') {
-            $where = " WHERE (DATE(geopos_invoices.invoicedate) BETWEEN '$sdate' AND '$edate' )";
+            $where = " WHERE (DATE(geopos_invoices.invoicedate) BETWEEN '$sdate' AND '$edate') AND geopos_invoices.ext = 0";
+            if ($lid > 0) 
+				$where .= " AND (geopos_invoices.loc=$lid)";
+            $query = $this->db->query("SELECT geopos_invoices.id as invoic_id, geopos_invoices.tid AS invoice_number, geopos_invoices.csd as invo_csd, geopos_customers.taxid AS VAT_Number,geopos_series.serie AS serie_name, geopos_series.atc AS atc_serie, geopos_irs_typ_doc.type AS irs_type_s,geopos_invoices.tid AS invoice_number,geopos_invoices.total AS amount,geopos_invoices.tax AS tax,geopos_customers.name AS customer_name,geopos_customers.company AS Company_Name,geopos_invoices.invoicedate AS date 
+			FROM geopos_invoices 
+			LEFT JOIN geopos_irs_typ_doc ON geopos_invoices.irs_type = geopos_irs_typ_doc.id
+			LEFT JOIN geopos_series ON geopos_invoices.serie = geopos_series.id
+			LEFT JOIN geopos_customers ON geopos_invoices.csd=geopos_customers.id" . $where);
+        }else if ($trans_type == 'Sales2') {
+            $where = " WHERE (DATE(geopos_invoices.invoicedate) BETWEEN '$sdate' AND '$edate' ) AND geopos_invoices.ext = 1";
+			if ($lid > 0) 
+				$where .= " AND (geopos_invoices.loc=$lid)";
+            $query = $this->db->query("SELECT geopos_invoices.id as invoic_id, geopos_invoices.tid AS invoice_number, geopos_invoices.csd as invo_csd, geopos_supplier.taxid AS VAT_Number,geopos_series.serie AS serie_name, geopos_series.atc AS atc_serie, geopos_irs_typ_doc.type AS irs_type_s,geopos_invoices.tid AS invoice_number,geopos_invoices.total AS amount,geopos_invoices.tax AS tax,geopos_supplier.name AS customer_name,geopos_supplier.company AS Company_Name,geopos_invoices.invoicedate AS date 
+			FROM geopos_invoices 
+			LEFT JOIN geopos_irs_typ_doc ON geopos_invoices.irs_type = geopos_irs_typ_doc.id
+			LEFT JOIN geopos_series ON geopos_invoices.serie = geopos_series.id
+			LEFT JOIN geopos_supplier ON geopos_invoices.csd=geopos_supplier.id" . $where);
+        }else if ($trans_type == 'Purchase') {
+			$where = " WHERE (DATE(geopos_purchase.invoicedate) BETWEEN '$sdate' AND '$edate') AND geopos_purchase.ext = 0";
             if ($lid > 0) $where .= " AND (geopos_invoices.loc=$lid)";
-            $query = $this->db->query("SELECT geopos_customers.taxid AS VAT_Number,geopos_invoices.tid AS invoice_number,geopos_invoices.total AS amount,geopos_invoices.tax AS tax,geopos_customers.name AS customer_name,geopos_customers.company AS Company_Name,geopos_invoices.invoicedate AS date FROM geopos_invoices LEFT JOIN geopos_customers ON geopos_invoices.csd=geopos_customers.id" . $where);
-        } else {
-
-            $where = " WHERE (DATE(geopos_purchase.invoicedate) BETWEEN '$sdate' AND '$edate') ";
+            $query = $this->db->query("SELECT geopos_purchase.id as invoic_id, geopos_purchase.tid AS invoice_number, geopos_purchase.csd as invo_csd, geopos_customers.taxid AS VAT_Number,geopos_series.serie AS serie_name, geopos_series.atc AS atc_serie, geopos_irs_typ_doc.type AS irs_type_s,geopos_purchase.tid AS invoice_number,geopos_purchase.total AS amount,geopos_purchase.tax AS tax,geopos_customers.name AS customer_name,geopos_customers.company AS Company_Name,geopos_purchase.invoicedate AS date 
+			FROM geopos_purchase 
+			LEFT JOIN geopos_irs_typ_doc ON geopos_purchase.irs_type = geopos_irs_typ_doc.id
+			LEFT JOIN geopos_series ON geopos_purchase.serie = geopos_series.id
+			LEFT JOIN geopos_customers ON geopos_purchase.csd=geopos_customers.id" . $where);
+		}else {
+            $where = " WHERE (DATE(geopos_purchase.invoicedate) BETWEEN '$sdate' AND '$edate') AND geopos_purchase.ext = 1";
             if ($lid > 0) $where .= " AND (geopos_invoices.loc=$lid)";
-            $query = $this->db->query("SELECT geopos_supplier.taxid AS VAT_Number,geopos_purchase.tid AS invoice_number,geopos_purchase.total AS amount,geopos_purchase.tax AS tax,geopos_supplier.name AS customer_name,geopos_supplier.company AS Company_Name,geopos_purchase.invoicedate AS date FROM geopos_purchase LEFT JOIN geopos_supplier ON geopos_purchase.csd=geopos_supplier.id" . $where);
+            $query = $this->db->query("SELECT geopos_purchase.id as invoic_id, geopos_supplier.taxid AS VAT_Number,geopos_series.serie AS serie_name, 
+			geopos_series.atc AS atc_serie, 
+			geopos_irs_typ_doc.type AS irs_type_s,
+			geopos_purchase.tid AS invoice_number,
+			geopos_purchase.total AS amount,
+			geopos_purchase.tax AS tax,
+			geopos_purchase.csd as invo_csd,
+			geopos_supplier.name AS customer_name,geopos_supplier.company AS Company_Name,geopos_purchase.invoicedate AS date 
+			FROM geopos_purchase 
+			LEFT JOIN geopos_irs_typ_doc ON geopos_purchase.irs_type = geopos_irs_typ_doc.id
+			LEFT JOIN geopos_series ON geopos_purchase.serie = geopos_series.id
+			LEFT JOIN geopos_supplier ON geopos_purchase.csd=geopos_supplier.id" . $where);
         }
 
 
@@ -394,10 +420,24 @@ class Reports extends CI_Controller
 
         foreach ($query->result_array() as $row) {
             $balance += $row['tax'];
-            echo '<tr><td>' . $row['invoice_number'] . '</td><td>' . $row['customer_name'] . '</td><td>' . $row['VAT_Number'] . '</td><td>' . amountExchange($row['amount'], 0, $this->aauth->get_user()->loc) . '</td><td>' . amountExchange($row['tax'], 0, $this->aauth->get_user()->loc) . '</td><td>' . amountExchange($balance, 0, $this->aauth->get_user()->loc) . '</td></tr>';
+			$vamosimp = '<tr>';
+			if($trans_type == 'Sales')
+			{
+				$vamosimp .= '<td><a href="' . base_url("invoices/view?id=".$row['invoic_id']) . '">'.$row['serie_name'].' '. $row['irs_type_s'].'/' . $row['invoice_number']. '</a></td>';
+				$vamosimp .= '<td><a href="' . base_url("customers/view?id=".$row['invo_csd']) . '">'.$row['customer_name']. '</a></td>';
+			}else if($trans_type == 'Sales2'){
+				$vamosimp .= '<td><a href="' . base_url("invoices_supli/view?id=".$row['invoic_id']) . '">'.$row['serie_name'].' '. $row['irs_type_s'].'/' . $row['invoice_number']. '</a></td>';
+				$vamosimp .= '<td><a href="' . base_url("supplier/view?id=".$row['invo_csd']) . '">'.$row['customer_name']. '</a></td>';
+			}else if($trans_type == 'Purchase'){
+				$vamosimp .= '<td><a href="' . base_url("purchase/view?id=".$row['invoic_id'].'&ty=0') . '">'.$row['serie_name'].' '. $row['irs_type_s'].'/' . $row['invoice_number']. '</a></td>';
+				$vamosimp .= '<td><a href="' . base_url("customers/view?id=".$row['invo_csd']) . '">'.$row['customer_name']. '</a></td>';
+			}else{
+				$vamosimp .= '<td><a href="' . base_url("purchase/view?id=".$row['invoic_id'].'&ty=1') . '">'.$row['serie_name'].' '. $row['irs_type_s'].'/' . $row['invoice_number']. '</a></td>';
+				$vamosimp .= '<td><a href="' . base_url("supplier/view?id=".$row['invo_csd']) . '">'.$row['customer_name']. '</a></td>';
+			}
+			
+            echo $vamosimp.'<td>' . $row['VAT_Number'] . '</td><td>' . amountExchange($row['amount'], 0, $this->aauth->get_user()->loc) . '</td><td>' . amountExchange($row['tax'], 0, $this->aauth->get_user()->loc) . '</td><td>' . amountExchange($balance, 0, $this->aauth->get_user()->loc) . '</td></tr>';
         }
-
-
     }
 
     // profit section
@@ -501,7 +541,6 @@ class Reports extends CI_Controller
 
     // products section
     public function products()
-
     {
         $head['title'] = "Products Statement";
         $head['usernm'] = $this->aauth->get_user()->username;
@@ -509,7 +548,7 @@ class Reports extends CI_Controller
         $this->load->model('locations_model');
         $this->load->model('categories_model');
         $data['locations'] = $this->locations_model->locations_list();
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
         $data['income'] = $this->reports->productsstatement();
         $this->load->view('reports/products', $data);
         $this->load->view('fixed/footer');

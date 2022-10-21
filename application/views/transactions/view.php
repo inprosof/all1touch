@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="col-md-6 text-right">
-                    <p>' . $this->lang->line('Date') . ' : ' . dateformat($trans['date']) . '</p><p>' . $this->lang->line('Transaction') . ' ID : ' . prefix(5) . $trans['id'] . '</p>
+                    <p>' . $this->lang->line('Date') . ' : ' . dateformat($trans['date']) . '</p><p>' . $this->lang->line('Transaction') . ' ID : TRANS' . $trans['id'] . '</p>
 					<p>Código: ' . $trans['cod_cat'] . '</p>
 					<p>' . $this->lang->line('Category') . ' : ' . $trans['name_cat'] . '</p>
             </div><div class="col-md-12 "><hr>

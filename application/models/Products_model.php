@@ -52,11 +52,9 @@ class Products_model extends CI_Model
 		$this->db->select('geopos_products.*,geopos_product_cat.title AS c_title,geopos_warehouse.title');
         $this->db->from($this->table);
         $this->db->join('geopos_warehouse', 'geopos_warehouse.id = geopos_products.warehouse');
-		
+		$this->db->join('geopos_product_cat', 'geopos_product_cat.id = geopos_products.pcat');
 		if ($forn) {
-			$this->db->join('geopos_product_cat', 'geopos_product_cat.id = geopos_products.pcat');
 			$this->db->join('geopos_products_suppliers', 'geopos_products_suppliers.p_id = geopos_products.pid');
-			
 			if ($this->aauth->get_user()->loc) {
 				$this->db->group_start();
 				$this->db->where('geopos_warehouse.loc', $this->aauth->get_user()->loc);
@@ -67,7 +65,6 @@ class Products_model extends CI_Model
 			}
 			$this->db->where('geopos_products_suppliers.t_id', $forn);
 		}else if ($sub) {
-            $this->db->join('geopos_product_cat', 'geopos_product_cat.id = geopos_products.sub_id');
             if ($this->input->post('group') != 'yes') 
 				$this->db->where('geopos_products.merge', 0);
             if ($this->aauth->get_user()->loc) {
@@ -79,18 +76,18 @@ class Products_model extends CI_Model
             } elseif (!BDATA) {
                 $this->db->where('geopos_warehouse.loc', 0);
             }
-            $this->db->where("geopos_products.sub_id=$id");
+            $this->db->where("geopos_product_cat.rel_id=$sub");
         } else {
-            $this->db->join('geopos_product_cat', 'geopos_product_cat.id = geopos_products.pcat');
             if ($w) {
-                if ($id > 0) {
-                    $this->db->where("geopos_warehouse.id = $id");
+                if ($w > 0) {
+                    $this->db->where("geopos_warehouse.id = $w");
                     // $this->db->where('geopos_products.sub_id', 0);
                 }
                 if ($this->aauth->get_user()->loc) {
                     $this->db->group_start();
                     $this->db->where('geopos_warehouse.loc', $this->aauth->get_user()->loc);
-                    if (BDATA) $this->db->or_where('geopos_warehouse.loc', 0);
+                    if (BDATA) 
+						$this->db->or_where('geopos_warehouse.loc', 0);
                     $this->db->group_end();
                 } elseif (!BDATA) {
                     $this->db->where('geopos_warehouse.loc', 0);
@@ -101,15 +98,16 @@ class Products_model extends CI_Model
                 if ($this->aauth->get_user()->loc) {
                     $this->db->group_start();
                     $this->db->where('geopos_warehouse.loc', $this->aauth->get_user()->loc);
-                    if (BDATA) $this->db->or_where('geopos_warehouse.loc', 0);
+                    if (BDATA) 
+						$this->db->or_where('geopos_warehouse.loc', 0);
                     $this->db->group_end();
                 } elseif (!BDATA) {
                     $this->db->where('geopos_warehouse.loc', 0);
                 }
-
+				
                 if ($id > 0) {
-                    $this->db->where("geopos_product_cat.id = $id");
-                    $this->db->where('geopos_products.sub_id', 0);
+                    $this->db->where("geopos_products.pcat = $id");
+                    $this->db->where('geopos_product_cat.c_type', 0);
                 }
             }
         }
@@ -149,15 +147,15 @@ class Products_model extends CI_Model
         if ($forn > 0) {
             $this->_get_datatables_query('', '', '', $forn);
         }else if ($id > 0) {
+            $this->_get_datatables_query($id, $w, '', '');
+        }else if ($sub > 0) {
             $this->_get_datatables_query($id, $w, $sub, '');
         } else {
             $this->_get_datatables_query();
         }
 
         if ($this->input->post('length') != -1)
-
             $this->db->limit($this->input->post('length'), $this->input->post('start'));
-
         $query = $this->db->get();
 
         return $query->result();
@@ -167,15 +165,10 @@ class Products_model extends CI_Model
 
 
     function count_filtered($id, $w = '', $sub = '')
-
     {
-
         if ($id > 0) {
-
             $this->_get_datatables_query($id, $w, $sub);
-
         } else {
-
             $this->_get_datatables_query();
         }
         $query = $this->db->get();
@@ -218,12 +211,21 @@ class Products_model extends CI_Model
 		return $query->result_array();
     }
 
+	public function getlastref()
+	{
+		$query = $this->db->query("select case when geopos_products.pid IS NULL THEN '0000000001' ELSE geopos_products.product_code END as product_code
+		from geopos_products
+		inner join (select max(pid) as maxref from geopos_products) as pp on geopos_products.pid = pp.maxref");
+        return $query->row_array();
+	}
 
-    public function addnew($catid, $warehouse, $product_name, $product_code, $product_price, $factoryprice, $taxrate, $disrate, $product_qty, $product_qty_alert, $product_desc, $image, $unit, $barcode, $v_type, $v_stock, $v_alert, $wdate, $code_type, $w_type = '', $w_stock = '', $w_alert = '', $sub_cat = '', $b_id = '', $serial = '', $pclas, $taxlist, $supplielist)
+    public function addnew($catid, $warehouse, $product_name, $product_code, $product_price, $factoryprice, $taxrate, $disrate, $product_qty, $product_qty_alert, $product_desc, $image, $unit, $barcode, $v_type, $v_stock, $v_alert, $wdate, $code_type, $w_type = '', $w_stock = '', $w_alert = '', $sub_cat = '', $b_id = '', $serial = '', $pclas, $taxlist, $supplielist,$tem_stock, $fav_pos, $coust_unit)
     {
         $ware_valid = $this->valid_warehouse($warehouse);
-        if (!$sub_cat) $sub_cat = 0;
-        if (!$b_id) $b_id = 0;
+        if (!$sub_cat) 
+			$sub_cat = 0;
+        if (!$b_id) 
+			$b_id = 0;
         $datetime1 = new DateTime(date('Y-m-d'));
         $datetime2 = new DateTime($wdate);
         $difference = $datetime1->diff($datetime2);
@@ -233,11 +235,8 @@ class Products_model extends CI_Model
         }
 		
         if ($this->aauth->get_user()->loc) {
-
             if ($ware_valid['loc'] == $this->aauth->get_user()->loc OR $ware_valid['loc'] == '0' OR $warehouse == 0) {
-
                 if (strlen($barcode) > 5 AND is_numeric($barcode)) {
-
                     $data = array(
                         'pcat' => $catid,
                         'warehouse' => $warehouse,
@@ -257,6 +256,9 @@ class Products_model extends CI_Model
                         'code_type' => $code_type,
                         'sub_id' => $sub_cat,
                         'b_id' => $b_id,
+						'tem_stock' => $tem_stock,
+						'fav_pos' => $fav_pos,
+						'coust_unit' => $coust_unit,
 						'p_cla' => $pclas
                     );
                 } else {
@@ -280,6 +282,9 @@ class Products_model extends CI_Model
                         'code_type' => 'EAN13',
                         'sub_id' => $sub_cat,
                         'b_id' => $b_id,
+						'tem_stock' => $tem_stock,
+						'fav_pos' => $fav_pos,
+						'coust_unit' => $coust_unit,
 						'p_cla' => $pclas
                     );
                 }
@@ -370,7 +375,6 @@ class Products_model extends CI_Model
                 }
 
                 if ($w_type) {
-
                     foreach ($w_type as $key => $value) {
                         if ($w_type[$key] && numberClean($w_stock[$key]) > 0.00 && $w_type[$key] != $warehouse) {
                             $data['product_name'] = $product_name;
@@ -412,6 +416,9 @@ class Products_model extends CI_Model
                     'code_type' => $code_type,
                     'sub_id' => $sub_cat,
                     'b_id' => $b_id,
+					'tem_stock' => $tem_stock,
+					'fav_pos' => $fav_pos,
+					'coust_unit' => $coust_unit,
 					'p_cla' => $pclas
                 );
             } else {
@@ -435,6 +442,9 @@ class Products_model extends CI_Model
                     'code_type' => 'EAN13',
                     'sub_id' => $sub_cat,
                     'b_id' => $b_id,
+					'tem_stock' => $tem_stock,
+					'fav_pos' => $fav_pos,
+					'coust_unit' => $coust_unit,
 					'p_cla' => $pclas
                 );
             }
@@ -443,6 +453,7 @@ class Products_model extends CI_Model
 
             if ($this->db->insert('geopos_products', $data)) {
                 $pid = $this->db->insert_id();
+				$this->custom->save_fields_data($pid, 5);
                 $this->movers(1, $pid, $product_qty, 0, 'Stock Initialized');
                 $this->aauth->applog("[New Product] -$product_name  -Qty-$product_qty ID " . $pid, $this->aauth->get_user()->username);
                 echo json_encode(array('status' => 'Success', 'message' =>
@@ -548,7 +559,7 @@ class Products_model extends CI_Model
 
 
 
-    public function edit($pid, $catid, $warehouse, $product_name, $product_code, $product_price, $factoryprice, $taxrate, $disrate, $product_qty, $product_qty_alert, $product_desc, $image, $unit, $barcode, $code_type, $sub_cat = '', $b_id = '', $vari = null, $serial = null, $pclas, $taxlist, $supplielist)
+    public function edit($pid, $catid, $warehouse, $product_name, $product_code, $product_price, $factoryprice, $taxrate, $disrate, $product_qty, $product_qty_alert, $product_desc, $image, $unit, $barcode, $code_type, $sub_cat = '', $b_id = '', $vari = null, $serial = null, $pclas, $taxlist, $supplielist, $tem_stock, $fav_pos)
     {
         $this->db->select('qty');
         $this->db->from('geopos_products');
@@ -558,56 +569,37 @@ class Products_model extends CI_Model
         $ware_valid = $this->valid_warehouse($warehouse);
         $this->db->trans_start();
         if ($this->aauth->get_user()->loc) {
-
             if ($ware_valid['loc'] == $this->aauth->get_user()->loc OR $ware_valid['loc'] == '0' OR $warehouse == 0) {
-
                 $data = array(
-
                     'pcat' => $catid,
-
                     'warehouse' => $warehouse,
-
                     'product_name' => $product_name,
-
                     'product_code' => $product_code,
-
                     'product_price' => $product_price,
-
                     'fproduct_price' => $factoryprice,
-
                     'taxrate' => $taxrate,
-
                     'disrate' => $disrate,
-
                     'qty' => $product_qty,
-
                     'product_des' => $product_desc,
-
                     'alert' => $product_qty_alert,
-
                     'unit' => $unit,
-
                     'image' => $image,
-
                     'barcode' => $barcode,
-
                     'code_type' => $code_type,
-
                     'sub_id' => $sub_cat,
-
                     'b_id' => $b_id,
-
+					'tem_stock' => $tem_stock,
+					'fav_pos' => $fav_pos,
 					'p_cla' => $pclas
-
                 );
                 $this->db->set($data);
                 $this->db->where('pid', $pid);
                 if ($this->db->update('geopos_products')) {
+					$this->custom->edit_save_fields_data($pid, 5);
                     if ($r_n['qty'] != $product_qty) {
                         $m_product_qty = $product_qty - $r_n['qty'];
                         $this->movers(1, $pid, $m_product_qty, 0, 'Stock Changes');
                     }
-
                     $this->aauth->applog("[Update Product] -$product_name  -Qty-$product_qty ID " . $pid, $this->aauth->get_user()->username);
                     echo json_encode(array('status' => 'Success', 'message' =>
                         $this->lang->line('UPDATED') . " <a href='" . base_url('products/edit?id=' . $pid) . "' class='btn btn-blue btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a> <a href='" . base_url('products') . "' class='btn btn-grey-blue btn-lg'><span class='fa fa-list-alt' aria-hidden='true'></span>  </a>"));
@@ -615,72 +607,49 @@ class Products_model extends CI_Model
                     echo json_encode(array('status' => 'Error', 'message' =>
                         $this->lang->line('ERROR')));
                 }
-
             } else {
 
                 echo json_encode(array('status' => 'Error', 'message' =>
                     $this->lang->line('ERROR')));
             }
-
         } else {
 
             $data = array(
-
                 'pcat' => $catid,
-
                 'warehouse' => $warehouse,
-
                 'product_name' => $product_name,
-
                 'product_code' => $product_code,
-
                 'product_price' => $product_price,
-
                 'fproduct_price' => $factoryprice,
-
                 'taxrate' => $taxrate,
-
                 'disrate' => $disrate,
-
                 'qty' => $product_qty,
-
                 'product_des' => $product_desc,
-
                 'alert' => $product_qty_alert,
-
                 'unit' => $unit,
-
                 'image' => $image,
-
                 'barcode' => $barcode,
-
                 'code_type' => $code_type,
-
                 'sub_id' => $sub_cat,
-
                 'b_id' => $b_id,
-
+				'tem_stock' => $tem_stock,
+				'fav_pos' => $fav_pos,
 				'p_cla' => $pclas
-
             );
 
             $this->db->set($data);
             $this->db->where('pid', $pid);
             if ($this->db->update('geopos_products')) {
+				$this->custom->edit_save_fields_data($pid, 5);
                 if ($r_n['qty'] != $product_qty) {
                     $m_product_qty = $product_qty - $r_n['qty'];
                     $this->movers(1, $pid, $m_product_qty, 0, 'Stock Changes');
                 }
                 $this->aauth->applog("[Update Product] -$product_name  -Qty-$product_qty ID " . $pid, $this->aauth->get_user()->username);
-
-                echo json_encode(array('status' => 'Success', 'message' =>
-
-                    $this->lang->line('UPDATED') . " <a href='" . base_url('products/edit?id=' . $pid) . "' class='btn btn-blue btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a> <a href='" . base_url('products') . "' class='btn btn-grey-blue btn-lg'><span class='fa fa-list-alt' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . " <a href='" . base_url('products/edit?id=' . $pid) . "' class='btn btn-blue btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a> <a href='" . base_url('products') . "' class='btn btn-grey-blue btn-lg'><span class='fa fa-list-alt' aria-hidden='true'></span>  </a>"));
 
             } else {
-                echo json_encode(array('status' => 'Error', 'message' =>
-
-                    $this->lang->line('ERROR')));
+                echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }
         }
 		
@@ -723,33 +692,23 @@ class Products_model extends CI_Model
 		{
 			$this->db->insert_batch('geopos_products_suppliers', $datasuppl);
 		}
-		
 		if(count($datatax) > 0)
 		{
 			$this->db->insert_batch('geopos_products_taxs', $datatax);
 		}
-		
         if (isset($serial['old'])) {
             $serial_group = array();
-
             foreach ($serial['old'] as $key => $value) {
-
-                if($value) $serial_group[] = array('product_id' => $pid, 'serial' => $value);
-
+                if($value) 
+					$serial_group[] = array('product_id' => $pid, 'serial' => $value);
             }
-
             $this->db->insert_batch('geopos_product_serials', $serial_group);
-
         }
 
-                if (isset($serial['new'])) {
-
+        if (isset($serial['new'])) {
             $serial_group = array();
-
             foreach ($serial['new'] as $key => $value) {
-
                  if($value)  $serial_group[] = array('product_id' => $pid, 'serial' => $value,'status'=>0);
-
             }
             $this->db->insert_batch('geopos_product_serials', $serial_group);
         }
@@ -761,124 +720,64 @@ class Products_model extends CI_Model
         $w_stock = @$vari['w_stock'];
         $w_alert = @$vari['w_alert'];
         if (isset($v_type)) {
-
             foreach ($v_type as $key => $value) {
-
                 if ($v_type[$key] && numberClean($v_stock[$key]) > 0.00) {
-
                     $this->db->select('u.id,u.name,u2.name AS variation');
-
                     $this->db->join('geopos_units u2', 'u.rid = u2.id', 'left');
-
                     $this->db->where('u.id', $v_type[$key]);
-
                     $query = $this->db->get('geopos_units u');
-
                     $r_n = $query->row_array();
-
                     $data['product_name'] = $product_name . '-' . $r_n['variation'] . '-' . $r_n['name'];
-
                     $data['qty'] = numberClean($v_stock[$key]);
-
                     $data['alert'] = numberClean($v_alert[$key]);
-
                     $data['merge'] = 1;
-
                     $data['sub'] = $pid;
-
                     $data['vb'] = $v_type[$key];
-
                     $this->db->insert('geopos_products', $data);
-
                     $pidv = $this->db->insert_id();
-
                     $this->movers(1, $pidv, $data['qty'], 0, 'Stock Initialized');
-
                     $this->aauth->applog("[New Product] -$product_name  -Qty-$product_qty ID " . $pid, $this->aauth->get_user()->username);
-
                 }
-
             }
-
         }
-
         if (isset($w_type)) {
-
             foreach ($w_type as $key => $value) {
-
                 if ($w_type[$key] && numberClean($w_stock[$key]) > 0.00 && $w_type[$key] != $warehouse) {
-
                     $data['product_name'] = $product_name;
-
                     $data['warehouse'] = $w_type[$key];
-
                     $data['qty'] = numberClean($w_stock[$key]);
-
                     $data['alert'] = numberClean($w_alert[$key]);
-
                     $data['merge'] = 2;
-
                     $data['sub'] = $pid;
-
                     $data['vb'] = $w_type[$key];
-
                     $this->db->insert('geopos_products', $data);
-
                     $pidv = $this->db->insert_id();
-
                     $this->movers(1, $pidv, $data['qty'], 0, 'Stock Initialized');
-
                     $this->aauth->applog("[New Product] -$product_name  -Qty-$product_qty ID " . $pid, $this->aauth->get_user()->username);
-
                 }
-
             }
-
         }
-
         $this->db->trans_complete();
-
-
-
     }
 
 
 
     public function prd_stats()
-
     {
-
-
-
         $whr = '';
-
         if ($this->aauth->get_user()->loc) {
-
             $whr = ' LEFT JOIN  geopos_warehouse on geopos_warehouse.id = geopos_products.warehouse WHERE geopos_warehouse.loc=' . $this->aauth->get_user()->loc;
-
             if (BDATA) $whr = ' LEFT JOIN  geopos_warehouse on geopos_warehouse.id = geopos_products.warehouse WHERE geopos_warehouse.loc=0 OR geopos_warehouse.loc=' . $this->aauth->get_user()->loc;
-
         } elseif (!BDATA) {
-
             $whr = ' LEFT JOIN  geopos_warehouse on geopos_warehouse.id = geopos_products.warehouse WHERE geopos_warehouse.loc=0';
-
         }
-
         $query = $this->db->query("SELECT
-
-COUNT(IF( geopos_products.qty > 0, geopos_products.qty, NULL)) AS instock,
-
-COUNT(IF( geopos_products.qty <= 0, geopos_products.qty, NULL)) AS outofstock,
-
-COUNT(geopos_products.qty) AS total
-
-FROM geopos_products $whr");
-
+		COUNT(IF( geopos_products.qty > 0, geopos_products.qty, NULL)) AS instock,
+		COUNT(IF( geopos_products.qty <= 0, geopos_products.qty, NULL)) AS outofstock,
+		COUNT(geopos_products.qty) AS total
+		FROM geopos_products $whr");
         echo json_encode($query->result_array());
-
     }
-
-
 
     public function products_list($id, $term = '')
 
@@ -1383,143 +1282,69 @@ FROM geopos_products $whr");
                     $this->db->group_end(); //close bracket
 
             }
-
             $i++;
-
         }
-
         $search = $this->input->post('order');
-
         if ($search) {
-
             $this->db->order_by($this->classcolumn_order[$search['0']['column']], $search['0']['dir']);
-
         } else if (isset($this->order)) {
-
             $order = $this->order;
-
             $this->db->order_by(key($order), $order[key($order)]);
-
         }
-
     }
-
-
 
     function class_datatables()
-
     {
-
         $this->_class_datatables_query();
-
         if ($this->input->post('length') != -1)
-
             $this->db->limit($this->input->post('length'), $this->input->post('start'));
-
         $query = $this->db->get();
-
         return $query->result();
-
     }
-
-
 
     function class_count_filtered()
-
     {
-
         $this->_class_datatables_query();
-
         $query = $this->db->get();
-
         return $query->num_rows();
-
     }
-
 
 
     public function class_count_all()
-
     {
-
         $this->_class_datatables_query();
-
         $query = $this->db->get();
-
         return $query->num_rows();
-
     }
-
-
-
 
 
     function addclassesmod($title)
-
     {
-
         $data = array('title' => $title);
-
         return $this->db->insert('geopos_products_class', $data);
-
-
-
     }
-
-
 
     public function class_v($id)
-
     {
-
         $this->db->select('*');
-
         $this->db->from('geopos_products_class');
-
         $this->db->where('id', $id);
-
         $query = $this->db->get();
-
         return $query->row_array();
-
     }
 
-	
-
-	
-
 	public function editclass($id, $title)
-
     {
-
         $data = array(
-
             'title' => $title
-
         );
-
-
-
         $data = array('title' => $title);
-
-
-
-
-
         $this->db->set($data);
-
         $this->db->where('id', $id);
-
-
-
         if ($this->db->update('geopos_products_class')) {
-
             return true;
-
         } else {
-
             return false;
-
         }
     }
 
@@ -1528,6 +1353,19 @@ FROM geopos_products $whr");
     function deleteclass($id)
     {
         return $this->db->delete('geopos_products_class', array('id' => $id));
+    }
+	
+	
+	public function proclassesprodutos()
+    {
+		$name = $this->input->post('name_startsWith');
+        $this->db->select('*');
+        $this->db->from('geopos_product_cat_type');
+		if ($name) {
+			$this->db->where('UPPER(geopos_product_cat_type.title) LIKE', '%'.strtoupper($name).'%');
+		}
+        $query = $this->db->get();
+        return $query->result_array();
     }
 
 	public function proclasses()

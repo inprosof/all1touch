@@ -89,9 +89,8 @@ class Productcategory extends CI_Controller
 		if (!$this->aauth->premission(26) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
         }
-        $data['cat'] = $this->products_cat->category_list();
+        $data['cat'] = $this->products_cat->category_list_completa();
         $this->load->model('locations_model');
-        $data['locations'] = $this->locations_model->locations_list2();
         $head['title'] = "Add Product Category";
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
@@ -104,13 +103,20 @@ class Productcategory extends CI_Controller
 		if (!$this->aauth->premission(26) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
         }
-        $data['cat'] = $this->products_cat->category_list();
-        $this->load->model('locations_model');
-        $data['locations'] = $this->locations_model->locations_list2();
+		
+		$catid = $this->input->get('id');
+		if($catid != '' && $catid != null){
+			$this->db->select('*');
+			$this->db->from('geopos_product_cat');
+			$this->db->where('id', $catid);
+			$query = $this->db->get();
+			$data['catpai'] = $query->row_array();
+		}		
+        $data['cat'] = $this->products_cat->category_list_completa();
         $head['title'] = "Add Product Category";
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
-        $this->load->view('products/category_add_sub', $data);
+        $this->load->view('products/category_add', $data);
         $this->load->view('fixed/footer');
     }
 
@@ -138,7 +144,7 @@ class Productcategory extends CI_Controller
         } else {
             $this->load->model('locations_model');
             $data['locations'] = $this->locations_model->locations_list2();
-            $data['cat'] = $this->products_cat->category_list();
+            $data['cat'] = $this->products_cat->category_list_completa();
             $head['title'] = "Add Product Warehouse";
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
@@ -152,10 +158,21 @@ class Productcategory extends CI_Controller
 		$this->load->library("form_validation");
         $cat_name = $this->input->post('product_catname');
         $cat_desc = $this->input->post('product_catdesc');
-        $cat_type = $this->input->post('cat_type');
-        $cat_rel = $this->input->post('cat_rel');
-		$cat_cod = $this->input->post('product_catcod');
+		$cat_rel = $this->input->post('cat_rel');
+		$image = $this->input->post('image');
+		$vis_pos = 0;
+		if(filter_has_var(INPUT_POST,'vis_pos')) {
+			$vis_pos = 1;
+		}else{
+			$vis_pos = 0;
+		}
 		
+		$fav_pos = 0;
+		if(filter_has_var(INPUT_POST,'fav_pos')) {
+			$fav_pos = 1;
+		}else{
+			$fav_pos = 0;
+		}
 		$rules = array(
             array(
                 'field' => 'product_catname',
@@ -168,19 +185,13 @@ class Productcategory extends CI_Controller
                 'label' => 'Descrição',
                 'rules' => 'required',
 				'errors' => array('required' => 'Por favor preencha o Campo %s.')
-            ),
-            array(
-                'field' => 'cat_rel',
-                'label' => 'Categoria',
-                'rules' => 'required',
-				'errors' => array('required' => 'Por favor preencha o Campo %s.')
             )
         );
 		
-		$this->form_validation->set_rules($rules);
+		$this->form_validation->set_rules($rules);		
 		if ($this->form_validation->run())
 		{
-			$this->products_cat->addnew($cat_name, $cat_desc, $cat_type, $cat_rel, $cat_cod);
+			$this->products_cat->addnew($cat_name, $cat_desc, $cat_rel, $image, $vis_pos, $fav_pos);
 		}else{
 			echo json_encode(array('status' => 'Dados de Formulário', 'message' => $this->form_validation->error_string()));
 		}
@@ -210,7 +221,7 @@ class Productcategory extends CI_Controller
 		$id = intval($this->input->post('deleteid'));
 		if ($id) {
 
-			$query = $this->db->query("DELETE geopos_movers FROM geopos_movers LEFT JOIN geopos_products ON  geopos_movers.rid1=geopos_products.pid LEFT JOIN geopos_product_cat ON  geopos_products.sub_id=geopos_product_cat.id WHERE geopos_product_cat.id='$id' AND  geopos_movers.d_type='1'");
+			$query = $this->db->query("DELETE geopos_movers FROM geopos_movers LEFT JOIN geopos_products ON  geopos_movers.rid1=geopos_products.pid LEFT JOIN geopos_product_cat ON geopos_products.pcat=geopos_product_cat.id WHERE geopos_product_cat.id='$id' AND  geopos_movers.d_type='1'");
 
 			$this->db->delete('geopos_products', array('sub_id' => $id));
 			$this->db->delete('geopos_product_cat', array('id' => $id));
@@ -242,13 +253,13 @@ class Productcategory extends CI_Controller
             exit($this->lang->line('translate19'));
         }
         $catid = $this->input->get('id');
-        $this->db->select('*');
+        $this->db->select("geopos_product_cat.*, case when geopos_product_cat.rel_id = 0 then 'Sem Pai Definido' else pai.title end as painame");
         $this->db->from('geopos_product_cat');
-        $this->db->where('id', $catid);
+		$this->db->join('geopos_product_cat as pai', 'geopos_product_cat.rel_id = pai.id', 'left');
+        $this->db->where('geopos_product_cat.id', $catid);
         $query = $this->db->get();
         $data['productcat'] = $query->row_array();
-        $data['cat'] = $this->products_cat->category_list();
-
+        $data['cat'] = $this->products_cat->category_list_completa();
         $head['title'] = "Edit Product Category";
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
@@ -275,8 +286,6 @@ class Productcategory extends CI_Controller
                     exit();
                 }
             }
-
-
             if ($cat_name) {
 
                 $this->products_cat->editwarehouse($cid, $cat_name, $cat_desc, $lid);
@@ -302,14 +311,40 @@ class Productcategory extends CI_Controller
     public function editcat()
     {
         $cid = $this->input->post('catid');
-		$cat_cod = $this->input->post('product_catcod',true);
         $product_cat_name = $this->input->post('product_cat_name',true);
         $product_cat_desc = $this->input->post('product_cat_desc');
-        $cat_type = $this->input->post('cat_type', true);
         $cat_rel = $this->input->post('cat_rel', true);
-        $old_cat_type = $this->input->post('old_cat_type', true);
+        $image = $this->input->post('image');
+		$vis_pos = 0;
+		if(filter_has_var(INPUT_POST,'vis_pos')) {
+			$vis_pos = 1;
+		}else{
+			$vis_pos = 0;
+		}
+		
+		$fav_pos = 0;
+		if(filter_has_var(INPUT_POST,'fav_pos')) {
+			$fav_pos = 1;
+		}else{
+			$fav_pos = 0;
+		}
+		
+		$rules = array(
+            array(
+                'field' => 'product_catname',
+                'label' => 'Sub Nome da Categoria',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor preencha o Campo %s.')
+            ),
+            array(
+                'field' => 'product_catdesc',
+                'label' => 'Descrição',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor preencha o Campo %s.')
+            )
+        );
         if ($cid) {
-            $this->products_cat->edit($cid, $product_cat_name, $product_cat_desc, $cat_type, $cat_rel, $old_cat_type, $cat_cod);
+            $this->products_cat->edit($cid, $product_cat_name, $product_cat_desc, $cat_rel, $image, $vis_pos, $fav_pos);
         }
     }
 
@@ -322,9 +357,7 @@ class Productcategory extends CI_Controller
         $s_date = datefordatabase($this->input->post('s_date'));
         $e_date = datefordatabase($this->input->post('e_date'));
         $sub_date = $this->input->post('sub');
-        $filter = 'pcat';
-        if ($sub_date) $filter = 'sub_id';
-
+		$filter = 'pcat';
         if ($pid && $r_type) {
             $qj = '';
             $wr = '';
@@ -337,12 +370,23 @@ class Productcategory extends CI_Controller
 
             switch ($r_type) {
                 case 1 :
-                    $query = $this->db->query("SELECT geopos_invoices.tid,geopos_invoice_items.qty,geopos_invoice_items.price,geopos_invoices.invoicedate FROM geopos_invoice_items LEFT JOIN geopos_invoices ON geopos_invoices.id=geopos_invoice_items.tid LEFT JOIN geopos_products ON geopos_products.pid=geopos_invoice_items.pid  LEFT JOIN geopos_product_cat ON geopos_product_cat.id=geopos_products.$filter  $qj WHERE geopos_invoices.status!='canceled' AND (DATE(geopos_invoices.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date')) AND geopos_products.$filter='$pid' $wr");
+                    $query = $this->db->query("SELECT CONCAT(geopos_irs_typ_doc.type, ' ',geopos_series.serie, '/', geopos_invoices.tid) as tid,geopos_invoice_items.qty, geopos_invoice_items.price,CONCAT(geopos_invoices.invoicedate, ' - ', geopos_invoice_items.product) as invoicedate 
+					FROM geopos_invoice_items 
+					LEFT JOIN geopos_invoices ON geopos_invoices.id=geopos_invoice_items.tid 
+					LEFT JOIN geopos_products ON geopos_products.pid=geopos_invoice_items.pcat 
+					LEFT JOIN geopos_irs_typ_doc ON geopos_invoices.irs_type = geopos_irs_typ_doc.id 
+					LEFT JOIN geopos_series ON geopos_series.id = geopos_invoices.serie $qj WHERE geopos_invoices.status!='canceled' AND (DATE(geopos_invoices.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date')) AND geopos_products.$filter='$pid' $wr");
                     $result = $query->result_array();
                     break;
 
                 case 2 :
-                    $query = $this->db->query("SELECT geopos_purchase.tid,geopos_purchase_items.qty,geopos_purchase_items.price,geopos_purchase.invoicedate FROM geopos_purchase_items LEFT JOIN geopos_purchase ON geopos_purchase.id=geopos_purchase_items.tid LEFT JOIN geopos_products ON geopos_products.pid=geopos_purchase_items.pid  LEFT JOIN geopos_product_cat ON geopos_product_cat.id=geopos_products.$filter  WHERE geopos_purchase.status!='canceled' AND (DATE(geopos_purchase.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date')) AND geopos_products.$filter='$pid' ");
+                    $query = $this->db->query("SELECT CONCAT(geopos_irs_typ_doc.type, ' ',geopos_series.serie, '/', geopos_purchase.tid) as tid,geopos_purchase_items.qty, geopos_purchase_items.price,CONCAT(geopos_purchase.invoicedate, ' - ', geopos_purchase_items.product) as invoicedate
+					FROM geopos_purchase_items 
+					LEFT JOIN geopos_purchase ON geopos_purchase.id=geopos_purchase_items.tid 
+					LEFT JOIN geopos_products ON geopos_products.pid=geopos_purchase_items.pid 
+					LEFT JOIN geopos_product_cat ON geopos_product_cat.id=geopos_products.pcat 
+					LEFT JOIN geopos_irs_typ_doc ON geopos_purchase.irs_type = geopos_irs_typ_doc.id 
+					LEFT JOIN geopos_series ON geopos_series.id = geopos_purchase.serie WHERE geopos_purchase.status!='canceled' AND (DATE(geopos_purchase.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date')) AND geopos_products.$filter='$pid' ");
                     $result = $query->result_array();
                     break;
 

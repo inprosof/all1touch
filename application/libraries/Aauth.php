@@ -362,17 +362,17 @@ class Aauth
 					 
 			if($remain	<0 ){ 
 				
-				redirect("Activate/activate2?er=t");				
+				redirect("Activate/activate?er=t");				
 				exit;
 			}else{
 				
 				$ltxt = "Licensed";
 				if($remain<20)
-					$ltxt = "license expire in ".$remain." days"; 		
+					$ltxt = "A liçenca Expira em ".$remain." dias"; 		
 				$this->CI->session->set_userdata('license_t', $ltxt);
 			}			
 		}else{
-			redirect("Activate/activate2?er=t");				
+			redirect("Activate/activate?er=t");				
 			exit;
 		}	 
 	} 

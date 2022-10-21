@@ -21,6 +21,7 @@ use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
 use PayPal\Api\PaymentExecution;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class Billing extends CI_Controller
 {
@@ -33,7 +34,11 @@ class Billing extends CI_Controller
         $this->load->model('billing_model', 'billing');
         $this->load->library("Aauth");
         $this->load->library("Custom");
-
+		if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(128)) {
+            $this->limited = '';
+        } else {
+			$this->limited = $this->aauth->get_user()->id;
+        }
     }
 	
 	public function viewsupli()
@@ -50,23 +55,18 @@ class Billing extends CI_Controller
         if (hash_equals($token, $validtoken)) {
 
             $this->load->model('accounts_model');
-
-
             $data['id'] = $tid;
             $data['token'] = $token;
-
             $data['invoice'] = $this->invociessupli->invoice_details($tid, '', false);
             $data['acclist'] = $this->accounts_model->accountslist(false . $data['invoice']['loc']);
             $data['online_pay'] = $this->billing->online_pay_settings();
             $data['products'] = $this->invociessupli->invoice_products($tid);
             $data['activity'] = $this->invociessupli->invoice_transactions($tid);
             $data['attach'] = $this->invociessupli->attach($tid);
-            if (CUSTOM) $data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+            if (CUSTOM) 
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
             $data['gateway'] = $this->billing->gateway_list('Yes');
-
-
             $data['employee'] = $this->invociessupli->employee($data['invoice']['eid']);
-
             $head['usernm'] = '';
             $head['title'] = "Invoice " . $data['invoice']['tid'];
             $this->load->view('billing/header', $head);
@@ -128,6 +128,38 @@ class Billing extends CI_Controller
             $data['attach'] = $this->quote->attach($tid);
             $data['employee'] = $this->quote->employee($data['invoice']['eid']);
             $head['title'] = "Orçamento Nº" . $data['invoice']['tid'];
+            $head['usernm'] = '';
+            $this->load->view('billing/header', $head);
+            $this->load->view('billing/quoteview', $data);
+            $this->load->view('billing/footer');
+        }
+
+    }
+	
+	public function docinview()
+    {
+        if (!$this->input->get()) {
+            exit();
+        }
+        $tid = intval($this->input->get('id'));
+		$ty = intval($this->input->get('ty'));
+        $token = $this->input->get('token');
+        $validtoken = hash_hmac('ripemd160', 'q' . $tid, $this->config->item('encryption_key'));
+        if (hash_equals($token, $validtoken)) {
+            $this->load->model('docs_intern_model', 'docs');
+			$this->load->library("Common");
+            $tid = intval($this->input->get('id'));
+            $data['id'] = $tid;
+            $data['token'] = $token;
+            $data['invoice'] = $this->docs->docs_details($tid);
+			$data['products'] = $this->docs->docs_products($tid);
+            $data['attach'] = $this->docs->attach($tid);
+            $data['employee'] = $this->docs->employee($data['invoice']['eid']);
+			if($data['invoice']['ext'] == 0){
+				$head['title'] = "Documento Interno Nº" . $data['invoice']['tid'];
+			}else{
+				$head['title'] = "Documento Interno Fornecedor Nº" . $data['invoice']['tid'];
+			}
             $head['usernm'] = '';
             $this->load->view('billing/header', $head);
             $this->load->view('billing/quoteview', $data);
@@ -395,19 +427,15 @@ class Billing extends CI_Controller
 			$codQRD .= 'S:'.$campfim.'*';
 			
 			$qrCode = new QrCode($codQRD);
-			$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			
+			$writer = new PngWriter();
+			$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			ini_set('memory_limit', '64M');
 		
             $data['round_off'] = $this->custom->api_config(4);
-            if ($data['invoice']['i_class'] == 1) {
-                $pref = prefix(7);
-            } elseif ($data['invoice']['i_class'] > 1) {
-                $pref = prefix(3);
-            } else {
-                $pref = $this->config->item('prefix');
-            }
+			$pref = $data['invoice']['irs_type_n'];
             $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Supplier'), 'prefix' => $pref, 't_type' => 0);
-			
-            ini_set('memory_limit', '64M');
 			
 			$data['Tipodoc'] = "Original";
 			$data2 = $data;
@@ -440,16 +468,18 @@ class Billing extends CI_Controller
             exit();
         }
         $tid = intval($this->input->get('id'));
+		$type = intval($this->input->get('type'));
         $token = $this->input->get('token');
         $validtoken = hash_hmac('ripemd160', $tid, $this->config->item('encryption_key'));
         if (hash_equals($token, $validtoken)) {
             $data['id'] = $tid;
 			$data['qrc'] = 'pos_' . date('Y_m_d_H_i_s') . '_.png';
 			
-			if($type == 0){
-				$data['title'] = $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'];
+			if($type == 0 || $type == ''){
+				
 				$data['typeinvoice'] = 'Invoice';
 				$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
+				$data['title'] = $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'];
 				$data['products'] = $this->invocies->invoice_products($tid);
 				$data['activity'] = $this->invocies->invoice_transactions($tid);
 				if($data['invoice']['status'] == 'canceled')
@@ -457,17 +487,18 @@ class Billing extends CI_Controller
 					$data['ImageBackGround'] = 'assets/images/anulada.png';
 				}
 			}else{
-				$data['title'] = 'Rascunho '.$data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'];
 				$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
+				$data['title'] = 'Rascunho '.$data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'];
 				$data['products'] = $this->invocies->invoice_products2($tid);
 				$data['activity'] = $this->invocies->invoice_transactions2($tid);
 				$data['typeinvoice'] = 'Rascunho';
 				$data['ImageBackGround'] = 'assets/images/rascunho.png';
 			}
             $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
+			$data['c_custom_fields'] = [];
             if (CUSTOM) {
                 $data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
-                $data['i_custom_fields'] = $this->custom->view_fields_data($tid, 2, 1);
+                //$data['i_custom_fields'] = $this->custom->view_fields_data($tid, 2, 1);
             }
 			
 			$data['invoice']['type'] = $this->lang->line('Invoice');
@@ -634,19 +665,15 @@ class Billing extends CI_Controller
 			$codQRD .= 'S:'.$campfim.'*';
 			
 			$qrCode = new QrCode($codQRD);
-			$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			
+			$writer = new PngWriter();
+			$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			ini_set('memory_limit', '64M');
 		
             $data['round_off'] = $this->custom->api_config(4);
-            if ($data['invoice']['i_class'] == 1) {
-                $pref = prefix(7);
-            } elseif ($data['invoice']['i_class'] > 1) {
-                $pref = prefix(3);
-            } else {
-                $pref = $this->config->item('prefix');
-            }
+            $pref = $data['invoice']['irs_type_n'];
             $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Customer'), 'prefix' => $pref, 't_type' => 0);
-			
-            ini_set('memory_limit', '64M');
 			
 			$data['Tipodoc'] = "Original";
 			$data2 = $data;
@@ -692,7 +719,7 @@ class Billing extends CI_Controller
             $data['products'] = $this->quote->quote_products($tid);
             $data['employee'] = $this->quote->employee($data['invoice']['eid']);
             $data['round_off'] = $this->custom->api_config(4);
-            $data['general'] = array('title' => $this->lang->line('Quote'), 'person' => $this->lang->line('Customer'), 'prefix' => prefix(1), 't_type' => 1);
+            $data['general'] = array('title' => $this->lang->line('Quote'), 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 1);
 			$data['invoice']['type'] = $this->lang->line('Quote');
 			
 			if($data['invoice']['status'] == 'draft'){
@@ -860,9 +887,12 @@ class Billing extends CI_Controller
 			$codQRD .= 'S:'.$campfim.'*';
 			
 			$qrCode = new QrCode($codQRD);
-			$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
 			
+			$writer = new PngWriter();
+			$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
 			ini_set('memory_limit', '64M');
+			
 			$data['Tipodoc'] = "Original";
 			$data2 = $data;
 			$data2['Tipodoc'] = "Duplicado";
@@ -905,7 +935,8 @@ class Billing extends CI_Controller
             $data['products'] = $this->purchase->purchase_products($tid);
             $data['employee'] = $this->purchase->employee($data['invoice']['eid']);
             $data['round_off'] = $this->custom->api_config(4);
-            $data['general'] = array('title' => $this->lang->line('Purchase Order'), 'person' => $this->lang->line('Supplier'), 'prefix' => prefix(2), 't_type' => 0);
+
+            $data['general'] = array('title' => $this->lang->line('Purchase Order'), 'person' => $this->lang->line('Supplier'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 0);
             ini_set('memory_limit', '64M');
 			
 			$data['Tipodoc'] = "Original";
@@ -1063,9 +1094,11 @@ class Billing extends CI_Controller
 			$codQRD .= 'S:'.$campfim.'*';
 			
 			$qrCode = new QrCode($codQRD);
-			$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
 			
-            ini_set('memory_limit', '64M');
+			$writer = new PngWriter();
+			$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			ini_set('memory_limit', '64M');
 			$data['Tipodoc'] = "Original";
 			$data2 = $data;
 			$data2['Tipodoc'] = "Duplicado";
@@ -1111,14 +1144,14 @@ class Billing extends CI_Controller
 
             if ($ty < 2) {
                 if ($data['invoice']['i_class'] == 1) {
-                    $data['general'] = array('title' => $this->lang->line('Stock Return'), 'person' => $this->lang->line('Customer'), 'prefix' => prefix(4), 't_type' => 0);
+                    $data['general'] = array('title' => $this->lang->line('Stock Return'), 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 0);
 					$data['invoice']['type'] = $this->lang->line('Stock Return');
                 } else {
-                    $data['general'] = array('title' => $this->lang->line('Stock Return'), 'person' => $this->lang->line('Supplier'), 'prefix' => prefix(4), 't_type' => 0);
+                    $data['general'] = array('title' => $this->lang->line('Stock Return'), 'person' => $this->lang->line('Supplier'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 0);
 					$data['invoice']['type'] = $this->lang->line('Stock Return');
                 }
             } else {
-                $data['general'] = array('title' => $this->lang->line('Credit Note'), 'person' => $this->lang->line('Customer'), 'prefix' => prefix(4), 't_type' => 0);
+                $data['general'] = array('title' => $this->lang->line('Credit Note'), 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 0);
 				$data['invoice']['type'] = $this->lang->line('Credit Note');
             }
 
@@ -1277,10 +1310,13 @@ class Billing extends CI_Controller
 			$codQRD .= 'S:'.$campfim.'*';
 			
 			$qrCode = new QrCode($codQRD);
-			$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			
+			$writer = new PngWriter();
+			$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+			ini_set('memory_limit', '64M');
 			
 			$data['Tipodoc'] = "Original";
-            ini_set('memory_limit', '64M');
 			
             if ($data['invoice']['taxstatus'] == 'cgst' || $data['invoice']['taxstatus'] == 'igst') {
                 $html = $this->load->view('print_files/invoice-a4-gst_v' . INVV, $data, true);
@@ -1606,8 +1642,6 @@ class Billing extends CI_Controller
 
     private function securepay($cardNumber, $nmonth, $nyear, $cardCVC, $amount, $tid, $gateway_data)
     {
-
-
         $gateway = \Omnipay\Omnipay::create('SecurePay_SecureXML');
         $gateway->setMerchantId($gateway_data['key1']);
         $gateway->setTransactionPassword($gateway_data['key2']);
@@ -1636,8 +1670,6 @@ class Billing extends CI_Controller
 
     private function twocheckout($auth_token, $amount, $tid, $gateway_data, $customer)
     {
-
-
         $gateway = Omnipay::create('TwoCheckoutPlus_Token');
         $gateway->setAccountNumber($gateway_data['extra']);
         $gateway->setTestMode($gateway_data['dev_mode']);
@@ -1711,7 +1743,7 @@ class Billing extends CI_Controller
     {
         $online_pay = $this->billing->online_pay_settings();
         if ($online_pay['bank'] == 1) {
-            $data['accounts'] = $this->billing->bank_accounts('Yes');
+            $data['accounts'] = $this->billing->bank_accounts('Yes','Yes');
             $this->load->view('billing/header');
             $this->load->view('payment/public_bank_view', $data);
             $this->load->view('billing/footer');

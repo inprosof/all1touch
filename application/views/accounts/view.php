@@ -59,7 +59,6 @@
                         <hr>
                     </div>
                     <div class="col-sm-6 stat-col">
-
                         <div class="stat">
                             <div class="name"> <?php echo $this->lang->line('Note') ?></div>
                             <div class="value"> <?php echo $account['code'] ?></div>
@@ -68,11 +67,9 @@
                         <hr>
                     </div>
                     <div class="col-sm-6 stat-col">
-
                         <div class="stat">
                             <div class="name"> <?php echo $this->lang->line('Type') ?></div>
-                            <div class="value"><?php if($account['Basic']) echo $this->lang->line('Default'); else echo $this->lang->line($account['account_type']); ?></div>
-
+                            <div class="value"><?php if($account['account_type'] == 'Basic') echo $this->lang->line('Default'); else echo $this->lang->line($account['account_type']); ?></div>
                         </div>
                         <hr>
                     </div>

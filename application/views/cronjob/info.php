@@ -148,7 +148,7 @@
                     aria-expanded="false" aria-controls="accordion3c"
                     class="btn btn-default card-title font-size-large  collapsed blue"><i
                         class="fa fa-plus-circle"></i>
-                <?php echo $this->lang->line('translate12') ?></a>
+                <?php echo 'Alerta de Baixo Stock ou Falta de Stock'?></a>
 
             <div id="a6" role="tabpanel"
                  class="card-collapse collapse">

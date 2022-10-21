@@ -109,7 +109,7 @@
                     </div>
                     <div class="col-md-6 col-sm-12 text-xs-center text-md-right">
                         <h2><?php echo $type_i ?></h2>
-                        <p class="pb-1"> <?php echo prefix(4) . $invoice['tid'] . '</p>
+                        <p class="pb-1"> <?php echo $invoice['irs_type_n'] . $invoice['tid'] . '</p>
                             <p class="pb-1">Reference:' . $invoice['refer'] . '</p>'; ?>
                         <ul class="px-0 list-unstyled">
                             <li><?php echo $this->lang->line('Gross Amount') ?></li>

@@ -31,7 +31,7 @@ class Employee extends CI_Controller
         if (!$this->aauth->premission(98) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
             exit($this->lang->line('translate19'));
         }
-								 
+		$this->load->library("Custom");
         $this->li_a = 'emp';
 
     }
@@ -549,8 +549,7 @@ class Employee extends CI_Controller
 		$data['countrys'] = $this->common->countrys();
         $data['dept'] = $this->employee->department_list($this->aauth->get_user()->loc, $this->aauth->get_user()->loc);
         $data['typeIRS'] = $this->employee->list_type_irs();
-
-  
+		$data['custom_fields'] = $this->custom->add_fields(6);
         $this->load->view('fixed/header', $head);
         $this->load->view('employee/add', $data);
         $this->load->view('fixed/footer');
@@ -568,12 +567,6 @@ class Employee extends CI_Controller
         if ($this->input->post('roleid')) {
             $roleid = $this->input->post('roleid');
         }
-
-						  
-													   
-									  
-			 
-		 
 
         $location = $this->input->post('location', true);
         $name = $this->input->post('name', true);
@@ -597,12 +590,17 @@ class Employee extends CI_Controller
         $account_bank = $this->input->post('account_bank');
 		$number_children = $this->input->post('number_children');
 		$productivity = $this->input->post('productivity');
-		
+		$mess_ativos = 0;
+		if(filter_has_var(INPUT_POST,'mess_ativos')) {
+			$mess_ativos = 1;
+		}else{
+			$mess_ativos = 0;
+		}
         $a = $this->aauth->create_user($email, $password, $username);
         if ((string)$this->aauth->get_user($a)->id != $this->aauth->get_user()->id) {
             $nuid = (string)$this->aauth->get_user($a)->id;
             if ($nuid > 0) {
-                $this->employee->add_employee($nuid, (string)$this->aauth->get_user($a)->username, $name, $roleid, $phone, $address, $city, $region, $country, $postbox, $location,$basic_salary,$subsidy_meal,$medical_allowance,$commission, $department, $irs, $niss,$type_employee,$type_irs,$married,$account_bank, $number_children, $productivity);
+                $this->employee->add_employee($nuid, (string)$this->aauth->get_user($a)->username, $name, $roleid, $phone, $address, $city, $region, $country, $postbox, $location,$basic_salary,$subsidy_meal,$medical_allowance,$commission, $department, $irs, $niss,$type_employee,$type_irs,$married,$account_bank, $number_children, $productivity, $mess_ativos);
             }
         } else {
             echo json_encode(array('status' => 'Error', 'message' => 'There has been an error, please try again.'));
@@ -734,12 +732,9 @@ class Employee extends CI_Controller
 			exit($this->lang->line('translate19'));
 		}
         $uid = intval($this->input->post('deleteid'));
-
         $nuid = intval($this->aauth->get_user()->id);
-
         if ($nuid == $uid) {
-            echo json_encode(array('status' => 'Error', 'message' => 'You can not disable yourself!'));
-												  
+            echo json_encode(array('status' => 'Error', 'message' => 'You can not disable yourself!'));								  
         } else {
 
             $this->db->select('banned');
@@ -752,11 +747,7 @@ class Employee extends CI_Controller
             } else {
                 $this->aauth->unban_user($uid);
             }
-
             echo json_encode(array('status' => 'Success', 'message' => 'User Profile updated successfully!'));
-													   
-
-
         }
     }
 
@@ -766,22 +757,12 @@ class Employee extends CI_Controller
 			exit($this->lang->line('translate19'));
 		}
         $uid = intval($this->input->post('deleteid'));
-
         $nuid = intval($this->aauth->get_user()->id);
-
         if ($nuid == $uid) {
-            echo json_encode(array('status' => 'Error', 'message' => 'You can not disable yourself!'));
-												  
+            echo json_encode(array('status' => 'Error', 'message' => 'You can not disable yourself!'));								  
         } else {
-
-
             $a = $this->aauth->unban_user($uid);
             echo json_encode(array('status' => 'Success', 'message' => 'User Profile disabled successfully!'));
-
-																	  
-														
-
-
         }
     }
 	
@@ -790,7 +771,7 @@ class Employee extends CI_Controller
         if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
 			exit($this->lang->line('translate19'));
 		}
-        $uid = intval($this->input->post('empid'));
+        $uid = intval($this->input->post('deleteid'));
         if ($uid) {
 			$this->db->delete('geopos_salary_process', array('id' => $uid));
             echo json_encode(array('status' => 'Success', 'message' => 'Processamento de Salário Removido. Por favor faça refresh na Página!'));
@@ -802,10 +783,7 @@ class Employee extends CI_Controller
 
     function delete_user()
     {
-		if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
-											   
-		 
-									  
+		if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){						  
 			exit($this->lang->line('translate19'));
 		}
         $uid = intval($this->input->post('empid'));
@@ -828,28 +806,19 @@ class Employee extends CI_Controller
         $eid = $this->input->post('eid');
         if ($this->employee->money_details($eid)) {
             $details = $this->employee->money_details($eid);
-
             echo json_encode(array('status' => 'Success', 'message' =>
                 '<br> Total Income: ' . amountExchange($details['credit'], 0, $this->aauth->get_user()->loc) . '<br> Total Expenses: ' . amountExchange($details['debit'], 0, $this->aauth->get_user()->loc)));
-
         }
-
-
     }
 
     public function calc_sales()
     {
         $eid = $this->input->post('eid');
-
         if ($this->employee->sales_details($eid)) {
             $details = $this->employee->sales_details($eid);
-
             echo json_encode(array('status' => 'Success', 'message' =>
                 'Total de Vendas (Total Pago):  ' . amountExchange($details['total'], 0, $this->aauth->get_user()->loc)));
-
         }
-
-
     }
 
     public function update()
@@ -891,20 +860,22 @@ class Employee extends CI_Controller
 			$number_children = $this->input->post('number_children');
 			$productivity = $this->input->post('productivity');
 			
-            $this->employee->update_employee($eid, $name, $phone, $phonealt, $address, $city, $region, $country, $postbox, $location, $basic_salary,$subsidy_meal, $medical_allowance,$department, $commission, $roleid, $irs, $niss,$type_employee,$type_irs,$married,$account_bank,$number_children,$productivity);
+			$mess_ativos = 0;
+			if(filter_has_var(INPUT_POST,'mess_ativos')) {
+				$mess_ativos = 1;
+			}else{
+				$mess_ativos = 0;
+			}
+            $this->employee->update_employee($eid, $name, $phone, $phonealt, $address, $city, $region, $country, $postbox, $location, $basic_salary,$subsidy_meal, $medical_allowance,$department, $commission, $roleid, $irs, $niss,$type_employee,$type_irs,$married,$account_bank,$number_children,$productivity,$mess_ativos);
 
         } else {
-													   
-								 
-					 
-					  
             $head['usernm'] = $this->aauth->get_user($id)->username;
             $head['title'] = $head['usernm'] . ' Profile';
-
 			$data['locations'] = $this->locations->locations_list2();
             $data['user'] = $this->employee->employee_details($id);
 			$this->load->library("Common");
 			$data['countrys'] = $this->common->countrys();
+			$data['custom_fields'] = $this->custom->view_edit_fields($id, 6);
 			$data['dept'] = $this->employee->department_list($this->aauth->get_user()->loc, $this->aauth->get_user()->loc);
             $data['eid'] = intval($id);
             $this->load->view('fixed/header', $head);
@@ -1026,7 +997,6 @@ class Employee extends CI_Controller
             $name4 = 'r_' . $i . '_4';
             $name5 = 'r_' . $i . '_5';
             $name6 = 'r_' . $i . '_6';
-            $name7 = 'r_' . $i . '_7';
             $name8 = 'r_' . $i . '_8';
             $val1 = 0;
             $val2 = 0;
@@ -1042,9 +1012,9 @@ class Employee extends CI_Controller
             if ($this->input->post($name4)) $val4 = 1;
             if ($this->input->post($name5)) $val5 = 1;
             if ($this->input->post($name6)) $val6 = 1;
-            if ($this->input->post($name7)) $val7 = 1;
+            if ($this->input->post($name8)) $val8 = 1;
             if ($this->aauth->get_user()->roleid == 5 && $i == 9) $val5 = 1;
-            $data = array('r_1' => $val1, 'r_2' => $val2, 'r_3' => $val3, 'r_4' => $val4, 'r_5' => $val5, 'r_6' => $val6, 'r_7' => $val7);
+            $data = array('r_1' => $val1, 'r_2' => $val2, 'r_3' => $val3, 'r_4' => $val4, 'r_5' => $val5, 'r_6' => $val6, 'r_8' => $val8);
             $this->db->set($data);
             $this->db->where('id', $i);
             $this->db->update('geopos_premissions');
@@ -1274,7 +1244,7 @@ class Employee extends CI_Controller
 
 
             if ($this->employee->adddepartment($this->aauth->get_user()->loc, $name)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='adddep' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a> <a href='departments' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='adddep' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='departments' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }
@@ -1300,7 +1270,7 @@ class Employee extends CI_Controller
             $id = $this->input->post('did');
 
             if ($this->employee->editdepartment($id, $this->aauth->get_user()->loc, $name)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='adddep' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a> <a href='departments' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='adddep' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='departments' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }
@@ -1323,7 +1293,16 @@ class Employee extends CI_Controller
         }
 		$this->load->library("Common");
         $this->load->library("Custom");
-        $data['dual'] = $this->custom->api_config(65);
+		$this->load->model('settings_model', 'settings');
+		$discship = [];
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+        $data['permissions'] = $discship;
         $this->load->model('transactions_model', 'transactions');
         $data['cat'] = $this->transactions->categories();
         $data['accounts'] = $this->transactions->acc_list();
@@ -1338,16 +1317,14 @@ class Employee extends CI_Controller
 
     public function emp_search()
     {
-
         $name = $this->input->get('keyword', true);
-
-
-        $whr = '';
+        $whr = "geopos_employees.system = 0 AND ";
         if ($this->aauth->get_user()->loc) {
-            $whr = ' (geopos_users.loc=' . $this->aauth->get_user()->loc . ') AND ';
+            $whr .= ' (geopos_users.loc=' . $this->aauth->get_user()->loc . ') AND ';
         }
         if ($name) {
-            $query = $this->db->query("SELECT geopos_employees.* ,geopos_users.email FROM geopos_employees  LEFT JOIN geopos_users ON geopos_users.id=geopos_employees.id  WHERE $whr (UPPER(geopos_employees.name)  LIKE '%" . strtoupper($name) . "%' OR UPPER(geopos_employees.phone)  LIKE '" . strtoupper($name) . "%') LIMIT 6");
+			$queryvem = "SELECT geopos_employees.* ,geopos_users.email FROM geopos_employees  LEFT JOIN geopos_users ON geopos_users.id=geopos_employees.id  WHERE $whr (UPPER(geopos_employees.name)  LIKE '%" . strtoupper($name) . "%' OR UPPER(geopos_employees.phone)  LIKE '" . strtoupper($name) . "%') LIMIT 6";
+			$query = $this->db->query($queryvem);
             $result = $query->result_array();
             echo '<ol>';
             $i = 1;
@@ -1363,11 +1340,8 @@ class Employee extends CI_Controller
 
     public function payroll()
     {
-
         $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = 'Employee Payroll Transactions';
-
-
         $this->load->view('fixed/header', $head);
         $this->load->view('employee/payroll');
         $this->load->view('fixed/footer');
@@ -1404,7 +1378,7 @@ class Employee extends CI_Controller
             $row[] = amountExchange($prd->credit, 0, $this->aauth->get_user()->loc);
             $row[] = $prd->account;
             $row[] = $prd->payer;
-            $row[] = $prd->method;
+            $row[] = $prd->methodname;
             $row[] = '<a href="' . base_url() . 'transactions/view?id=' . $pid . '" class="btn btn-primary btn-xs"><span class="fa fa-eye"></span> View</a> <a  href="#" data-object-id="' . $pid . '" class="btn btn-danger btn-xs delete-object"><span class="fa fa-trash"></span></a> ';
             $data[] = $row;
         }
@@ -1518,7 +1492,7 @@ class Employee extends CI_Controller
 			$emp = $this->input->post('employee');
 			
             if ($this->employee->edithfault($id, $emp, $adate, $edate, $justified, $note)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='fault' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a> <a href='faults' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='fault' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='faults' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }

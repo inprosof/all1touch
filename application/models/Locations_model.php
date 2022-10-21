@@ -55,8 +55,10 @@ class Locations_model extends CI_Model
 
     public function view($id)
     {
-		$this->db->select("geopos_locations.*, CASE WHEN geopos_locations.ware = 0 THEN 'Todos' ELSE geopos_warehouse.title END AS namewar, CASE WHEN geopos_locations.doc_default = 0 THEN 'Fatura' ELSE geopos_irs_typ_doc.description END AS nametipdoc");
+		$this->db->select("geopos_locations.*, geopos_countrys.name as country_name, geopos_countrys.name as namecountry, 
+		CASE WHEN geopos_locations.ware = 0 THEN 'Todos' ELSE geopos_warehouse.title END AS namewar");
         $this->db->from('geopos_locations');
+		$this->db->join('geopos_countrys', 'geopos_locations.country = geopos_countrys.prefix', 'left');
 		$this->db->join('geopos_warehouse', 'geopos_warehouse.id = geopos_locations.ware', 'left');
 		$this->db->join('geopos_irs_typ_doc', 'geopos_irs_typ_doc.id = geopos_locations.doc_default', 'left');
         $this->db->where('geopos_locations.id', $id);
@@ -65,7 +67,7 @@ class Locations_model extends CI_Model
         return $result;
     }
 
-    public function create($name, $address, $city, $region, $country, $postbox, $phone, $email, $taxid, $image, $cur_id, $ac_id, $wid, $typ_do_id, $rent_ab, $zon_fis)
+    public function create($name, $address, $city, $region, $country, $postbox, $phone, $email, $taxid, $image, $cur_id, $ac_id, $acd_id, $acf_id, $wid, $typ_do_id, $rent_ab, $zon_fis)
     {
         $data = array(
             'cname' => $name,
@@ -78,25 +80,75 @@ class Locations_model extends CI_Model
             'email' => $email,
             'taxid' => $taxid,
             'logo' => $image,
-            'ext' => $ac_id,
+            'acount_o' => $ac_id,
+			'acount_d' => $acd_id,
+			'acount_f' => $acf_id,
             'cur' => $cur_id,
 			'doc_default' => $typ_do_id,
             'ware' => $wid,
 			'rent_ab' => $rent_ab,
-			'zon_fis' => $zon_fis
+			'zon_fis' => $zon_fis,
+			'dual_entry' => 0,
+			'posv' => 1,
+			'emps' => 0,
+			'pac' => 0
         );
-
-        if ($this->db->insert('geopos_locations', $data)) {
-            echo json_encode(array('status' => 'Success', 'message' =>
-                $this->lang->line('ADDED')));
-        } else {
-            echo json_encode(array('status' => 'Error', 'message' =>
-                $this->lang->line('ERROR')));
-        }
-
+		return $this->db->insert('geopos_locations', $data);
     }
+	
+	
+	public function createpermissions($loc, $name, $email)
+    {
+		$data = array(
+            'loc' => $loc,
+            'grafics' => 1,
+            'products_inactiv_show' => 0,
+            'clients_inactiv_show' => 0,
+            'docs_email' => 0,
+            'docs_del_email' => 0,
+            'trans_email' => 0,
+            'trans_del_email' => 0,
+            'email_stock' => '',
+            'email_app' => $email,
+			'emailo_remet' => $name,
+			'stock_min' => 0,
+			'stock_sem' => 0
+        );
+		return $this->db->insert('geopos_system_permiss', $data);
+	}
+	
+	public function editpermissions1($loc, $grafics, $products_inactiv_show, $clients_inactiv_show)
+    {
+		$data = array(
+            'grafics' => $grafics,
+            'products_inactiv_show' => $products_inactiv_show,
+            'clients_inactiv_show' => $clients_inactiv_show
+        );
+		$this->db->set($data);
+        $this->db->where('loc', $loc);
+		return $this->db->update('geopos_system_permiss');
+	}
+	
+	public function editpermissions2($loc, $docs_email, $docs_del_email, $trans_email, $trans_del_email, $email_stock, $email_app, $emailo_remet, $stock_min, $stock_sem)
+    {
+		$data = array(
+            'docs_email' => $docs_email,
+            'docs_del_email' => $docs_del_email,
+            'trans_email' => $trans_email,
+            'trans_del_email' => $trans_del_email,
+            'email_stock' => $email_stock,
+            'email_app' => $email_app,
+			'emailo_remet' => $emailo_remet,
+			'stock_min' => $stock_min,
+			'stock_sem' => $stock_sem
+        );
+		$this->db->set($data);
+        $this->db->where('loc', $loc);
+		return $this->db->update('geopos_system_permiss');
+	}
+	
 
-    public function edit($id, $name, $address, $city, $region, $country, $postbox, $phone, $email, $taxid, $image, $cur_id, $ac_id, $wid, $typ_do_id, $rent_ab, $zon_fis)
+    public function edit($id, $name, $address, $city, $region, $country, $postbox, $phone, $email, $taxid, $image, $cur_id, $ac_id, $acd_id, $acf_id, $wid, $typ_do_id, $rent_ab, $zon_fis, $dual_entry, $posv, $emps, $pac)
     {
         $data = array(
             'cname' => $name,
@@ -109,25 +161,40 @@ class Locations_model extends CI_Model
             'email' => $email,
             'taxid' => $taxid,
             'logo' => $image,
-            'ext' => $ac_id,
+            'acount_o' => $ac_id,
+			'acount_d' => $acd_id,
+			'acount_f' => $acf_id,
             'cur' => $cur_id,
 			'doc_default' => $typ_do_id,
             'ware' => $wid,
 			'rent_ab' => $rent_ab,
-			'zon_fis' => $zon_fis
+			'zon_fis' => $zon_fis,
+			'dual_entry' => $dual_entry,
+			'posv' => $posv,
+			'emps' => $emps,
+			'pac' => $pac
         );
-
         $this->db->set($data);
         $this->db->where('id', $id);
-
-        if ($this->db->update('geopos_locations')) {
-            echo json_encode(array('status' => 'Success', 'message' =>
-                $this->lang->line('UPDATED')));
-        } else {
-            echo json_encode(array('status' => 'Error', 'message' =>
-                $this->lang->line('ERROR')));
-        }
-
+		return $this->db->update('geopos_locations');
+    }
+	
+	 public function edit2($id, $ac_id, $acd_id, $acf_id, $wid, $typ_do_id, $dual_entry, $posv, $emps, $pac)
+    {
+        $data = array(
+            'acount_o' => $ac_id,
+			'acount_d' => $acd_id,
+			'acount_f' => $acf_id,
+			'doc_default' => $typ_do_id,
+            'ware' => $wid,
+			'dual_entry' => $dual_entry,
+			'posv' => $posv,
+			'emps' => $emps,
+			'pac' => $pac
+        );
+        $this->db->set($data);
+        $this->db->where('id', $id);
+		return $this->db->update('geopos_locations');
     }
 
     public function currencies()
@@ -164,10 +231,15 @@ class Locations_model extends CI_Model
 
     public function online_pay_settings($id)
     {
-        $this->db->select('geopos_locations.ext, geopos_accounts.id,geopos_accounts.holder,geopos_accounts.acn');
+        $this->db->select("geopos_locations.*, co.id as ac_id_o, co.holder as ac_name_o, co.acn as ac_num_o, cd.id as ac_id_d, cd.holder as ac_name_d, cd.acn as ac_num_d,
+		cf.id as ac_id_f, cf.holder as ac_name_f, cf.acn as ac_num_f,
+		CASE WHEN geopos_locations.doc_default = 0 THEN 'Fatura' ELSE geopos_irs_typ_doc.description END AS nametipdoc");
         $this->db->from('geopos_locations');
         $this->db->where('geopos_locations.id', $id);
-        $this->db->join('geopos_accounts', 'geopos_locations.ext = geopos_accounts.id', 'left');
+		$this->db->join('geopos_irs_typ_doc', 'geopos_irs_typ_doc.id = geopos_locations.doc_default', 'left');
+        $this->db->join('geopos_accounts as co', 'geopos_locations.acount_o = co.id', 'left');
+		$this->db->join('geopos_accounts as cd', 'geopos_locations.acount_d = cd.id', 'left');
+		$this->db->join('geopos_accounts as cf', 'geopos_locations.acount_f = cf.id', 'left');
         $query = $this->db->get();
         return $query->row_array();
 

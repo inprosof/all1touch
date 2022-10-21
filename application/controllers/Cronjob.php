@@ -72,50 +72,99 @@ class Cronjob extends CI_Controller
         echo "---------------Cron job for asset management -------\n";
         if ($cornkey == $this->input->get('token')) {
             echo "---------------Process Started -------------------------\n";
-            $username = $this->aauth->get_user()->username;
-            $userid = $this->aauth->get_user()->id;
+            $userid = 2;
             $assets = $this->employee->get_all_assets();
+			$employees = $this->employee->list_employee();
 
             foreach ($assets as $asset) {
-                if ($asset['insurance_date'] && $asset['inspection_date']) {
-                    $ins = strtotime($asset['insurance_date']);
-                    $inp = strtotime($asset['inspection_date']);
-                    $current = strtotime("now");
+				$current = strtotime("now");
+				$receiver = $asset['employee_id'];
+				
+				if($receiver == 0 || $receiver == null)
+				{
+					foreach ($employees as $empll) {
+						$idrul = $empll['id'];
+						if($empll['mess_cron'] == 1){
+							if ($asset['insurance_date'] != null && $asset['insurance_date'] != "") {
+								$ins = strtotime($asset['insurance_date']);
+								$ins_left = round(((($ins - $current)/24)/60)/60);
+								
+								if ($ins_left == 14 || $ins_left == 4) {
+									$subject = 'Lembrete: Data do Seguro do Ativo';
+									$message = '<p>Data do Seguro de '.$asset['assest_name'].': '.date_format(new DateTime($asset['insurance_date']), 'd-m-Y').' Faltam '.$ins_left.' dias</p>' ;
+									$data = array(
+										'sender_id' => $userid,
+										'receiver_id' => $idrul,
+										'title' => $subject,
+										'message' => $message,
+										'date_sent' => date('Y-m-d H:i:s')
+									);
+									$this->pms_model->send_alert($data);
+								}
+							}
+							
+							if ($asset['inspection_date'] != null && $asset['inspection_date'] != "") {
+								$inp = strtotime($asset['inspection_date']);
+								$inp_left = round(((($inp - $current)/24)/60)/60);
+								if ($inp_left == 14 || $inp_left == 4) {
+									$subject = 'Lembrete: Data da Inspeção do Ativo';
+									$message = '<p>Data da Inspeção do '.$asset['assest_name'].': '.date_format(new DateTime($asset['inspection_date']), 'd-m-Y').' Faltam '.$inp_left.' dias</p>' ;
+									$receiver = $asset['employee_id'];
 
-                    $ins_left = round(((($ins - $current)/24)/60)/60);
-                    $inp_left = round(((($inp - $current)/24)/60)/60);
+									$data = array(
+										'sender_id' => $userid,
+										'receiver_id' => $idrul,
+										'title' => $subject,
+										'message' => $message,
+										'date_sent' => date('Y-m-d H:i:s')
+									);
+									$this->pms_model->send_alert($data);
+								}
+							}
+						}
+					}
+					
+				}else{
+					if ($asset['insurance_date'] != null && $asset['insurance_date'] != "") {
+						$ins = strtotime($asset['insurance_date']);
+						$ins_left = round(((($ins - $current)/24)/60)/60);
+						
+						if ($ins_left == 14 || $ins_left == 4) {
+							$subject = 'Lembrete: Data do Seguro do Ativo';
+							$message = '<p>Data do Seguro de '.$asset['assest_name'].': '.date_format(new DateTime($asset['insurance_date']), 'd-m-Y').' Faltam '.$ins_left.' dias</p>' ;
+							$data = array(
+								'sender_id' => $userid,
+								'receiver_id' => $receiver,
+								'title' => $subject,
+								'message' => $message,
+								'date_sent' => date('Y-m-d H:i:s')
+							);
 
-                    if ($ins_left == 14) {
-                        $subject = 'Reminder: Insurance date of asset';
-                        $message = '<p>Insurance date of '.$asset['assest_name'].' : '.date_format(new DateTime($asset['insurance_date']), 'd-m-Y').'</p>' ;
-                        $receiver = $asset['employee_id'];
+							$this->pms_model->send_alert($data);
+						}
+					}
+					
+					if ($asset['inspection_date'] != null && $asset['inspection_date'] != "") {
+						$inp = strtotime($asset['inspection_date']);
+						$inp_left = round(((($inp - $current)/24)/60)/60);
+						if ($inp_left == 14 || $inp_left == 4) {
+							$subject = 'Lembrete: Data da Inspeção do Ativo';
+							$message = '<p>Data da Inspeção do '.$asset['assest_name'].': '.date_format(new DateTime($asset['inspection_date']), 'd-m-Y').' Faltam '.$inp_left.' dias</p>' ;
+							$receiver = $asset['employee_id'];
 
-                        $data = array(
-                            'sender_id' => $userid,
-                            'receiver_id' => $receiver,
-                            'title' => $subject,
-                            'message' => $message,
-                            'date_sent' => date('Y-m-d H:i:s')
-                        );
-
-                        $this->pms_model->send_alert($data);
-                    }
-
-                    if ($inp_left == 14) {
-                        $subject = 'Reminder: Inspection date of asset';
-                        $message = '<p>Inspection date of '.$asset['assest_name'].' : '.date_format(new DateTime($asset['inspection_date']), 'd-m-Y').'</p>' ;
-                        $receiver = $asset['employee_id'];
-
-                        $data = array(
-                            'sender_id' => $userid,
-                            'receiver_id' => $receiver,
-                            'title' => $subject,
-                            'message' => $message,
-                            'date_sent' => date('Y-m-d H:i:s')
-                        );
-                        $this->pms_model->send_alert($data);
-                    }
-                }
+							$data = array(
+								'sender_id' => $userid,
+								'receiver_id' => $receiver,
+								'title' => $subject,
+								'message' => $message,
+								'date_sent' => date('Y-m-d H:i:s')
+							);
+							$this->pms_model->send_alert($data);
+						}
+					}
+					
+				}
+				
             }
             echo "---------------Message sent! -------------------------\n";
         } else {
@@ -142,8 +191,16 @@ class Cronjob extends CI_Controller
                 $validtoken = hash_hmac('ripemd160', $invoice['id'], $this->config->item('encryption_key'));
                 $link = base_url('billing/view?id=' . $invoice['id'] . '&token=' . $validtoken);
                 $loc = location($invoice['loc']);
+				
+				$this->db->select("emailo_remet");
+				$this->db->from('geopos_system_permiss');
+				$this->db->where('loc', $invoice['loc']);
+				$query = $this->db->get();
+				$vals = $query->row_array();
+				$mailfromtilte = $vals->emailo_remet;
+				
                 $data = array(
-                    'Company' => $loc['cname'],
+                    'Company' => $mailfromtilte,
                     'BillNumber' => $invoice['tid']
                 );
                 $subject = $this->parser->parse_string($template['key1'], $data, TRUE);
@@ -274,12 +331,118 @@ class Cronjob extends CI_Controller
         echo "---------------Cron job for product stock alert-------\n";
         if ($cornkey == $this->input->get('token')) {
             echo "---------------Process Started -------------------------\n";
-            $subject = 'Stock Alert ' . date('Y-m-d H:i:s');
-            if ($this->communication->send_corn_email($this->config->item('email'), $this->config->item('cname'), $subject, $this->cronjob->stock())) {
-                echo "-------------- Email Sent! -------------------------\n";
-            } else {
-                echo "---------------. Error! -------------------------\n";
-            }
+            $subject = 'Alerta de Stock Falta' . date('Y-m-d H:i:s');
+			$this->db->select("emailo_remet, email_stock");
+			$this->db->from('geopos_system_permiss');
+			$this->db->where('stock_min', 1);
+			$this->db->where('loc', 0);
+			$query = $this->db->get();
+			$vals = $query->row_array();
+			$mailfromtilte = $vals['emailo_remet'];
+			$mailfrom = $vals['email_stock'];
+			if($mailfrom != ''){
+				if ($this->communication->send_corn_email($mailfrom, $mailfromtilte, $subject, $this->cronjob->stock(0), 0)) {
+					echo "-------------- Email Sent! -------------------------\n";
+				} else {
+					echo "---------------. Error! -------------------------\n";
+				}
+			}
+			
+			$this->db->select("emailo_remet, email_stock");
+			$this->db->from('geopos_system_permiss');
+			$this->db->where('stock_sem', 1);
+			$this->db->where('loc', 0);
+			$query = $this->db->get();
+			$vals = $query->row_array();
+			$mailfromtilte = $vals['emailo_remet'];
+			$mailfrom = $vals['email_stock'];
+			$subject = 'Alerta de Stock Esgotado' . date('Y-m-d H:i:s');
+			if($mailfrom != ''){
+				if ($this->communication->send_corn_email($mailfrom, $mailfromtilte, $subject, $this->cronjob->stock_sold_off(0), 0)) {
+					echo "-------------- Email Sent! -------------------------\n";
+				} else {
+					echo "---------------. Error! -------------------------\n";
+				}
+			}
+			
+			$this->db->select('geopos_locations.id, geopos_system_permiss.emailo_remet, geopos_system_permiss.email_stock');
+			$this->db->from('geopos_locations');
+			$this->db->join('geopos_system_permiss', 'geopos_system_permiss.loc=geopos_locations.id', 'left');
+			$this->db->where('geopos_system_permiss.stock_min', 1);			
+			$query = $this->db->get();
+			$locs = $query->result_array();
+            foreach ($locs as $envioemails) {
+				if($envioemails['email_stock'] != ''){
+					if ($this->communication->send_corn_email($envioemails['email_stock'], $envioemails['emailo_remet'], $subject, $this->cronjob->stock($envioemails['id']), $envioemails['id'])) {
+						echo "-------------- Email Sent! -------------------------\n";
+					} else {
+						echo "---------------. Error! -------------------------\n";
+					}
+				}
+			}
+			
+			$this->db->select('geopos_locations.id, geopos_system_permiss.emailo_remet, geopos_system_permiss.email_stock');
+			$this->db->from('geopos_locations');
+			$this->db->join('geopos_system_permiss', 'geopos_system_permiss.loc=geopos_locations.id', 'left');
+			$this->db->where('geopos_system_permiss.stock_sem', 1);			
+			$query = $this->db->get();
+			$locs = $query->result_array();
+            foreach ($locs as $envioemails) {
+				if($envioemails['email_stock'] != ''){
+					if ($this->communication->send_corn_email($envioemails['email_stock'], $envioemails['emailo_remet'], $subject, $this->cronjob->stock_sold_off($envioemails['id']), $envioemails['id'])) {
+						echo "-------------- Email Sent! -------------------------\n";
+					} else {
+						echo "---------------. Error! -------------------------\n";
+					}
+				}
+			}
+        } else {
+            echo "---------------Error! Invalid Token! -------------------------\n";
+        }
+    }
+	
+	
+	public function expiry_alert()
+    {
+        $corn = $this->cronjob->config();
+        $this->load->model('communication_model', 'communication');
+        $cornkey = $corn['cornkey'];
+        echo "---------------Cron job for product expiry alert-------\n";
+        if ($cornkey == $this->input->get('token')) {
+
+            echo "---------------Process Started -------------------------\n";
+            $subject = 'Alerta de Artigo Expirado ' . date('Y-m-d H:i:s');
+			
+			$this->db->select("emailo_remet, email_stock");
+			$this->db->from('geopos_system_permiss');
+			$this->db->where('loc', 0);
+			$query = $this->db->get();
+			$vals = $query->row_array();
+			$mailfromtilte = $vals['emailo_remet'];
+			$mailfrom = $vals['email_stock'];
+			if($mailfrom != ''){
+				if ($this->communication->send_corn_email($envioemails['email_stock'], $envioemails['emailo_remet'], $subject, $this->cronjob->expiry(0), 0)) {
+					echo "-------------- Email Sent! -------------------------\n";
+				} else {
+					echo "---------------. Error! -------------------------\n";
+				}
+			}
+			
+			$this->db->select('geopos_locations.id, geopos_system_permiss.emailo_remet, geopos_system_permiss.email_stock');
+			$this->db->from('geopos_locations');
+			$this->db->join('geopos_system_permiss', 'geopos_system_permiss.loc=geopos_locations.id', 'left');		
+			$query = $this->db->get();
+			$locs = $query->result_array();
+			
+            foreach ($locs as $envioemails) {
+				if($envioemails['email_stock'] != ''){
+					if ($this->communication->send_corn_email($envioemails['email_stock'], $envioemails['emailo_remet'], $subject, $this->cronjob->expiry($envioemails['id']), $envioemails['id'])) {
+						echo "-------------- Email Sent! -------------------------\n";
+					} else {
+						echo "---------------. Error! -------------------------\n";
+					}
+				}
+			}
         } else {
             echo "---------------Error! Invalid Token! -------------------------\n";
         }
@@ -318,27 +481,6 @@ class Cronjob extends CI_Controller
             echo "---------------Error! Invalid Token! -------------------------\n";
         }
     }
-
-    public function expiry_alert()
-    {
-        $corn = $this->cronjob->config();
-        $this->load->model('communication_model', 'communication');
-        $cornkey = $corn['cornkey'];
-        echo "---------------Cron job for product expiry alert-------\n";
-        if ($cornkey == $this->input->get('token')) {
-
-            echo "---------------Process Started -------------------------\n";
-            $subject = 'Expiry Alert ' . date('Y-m-d H:i:s');
-            if ($this->communication->send_corn_email($this->config->item('email'), $this->config->item('cname'), $subject, $this->cronjob->expiry())) {
-                echo "-------------- Email Sent! -------------------------\n";
-            } else {
-                echo "---------------. Error! -------------------------\n";
-            }
-        } else {
-            echo "---------------Error! Invalid Token! -------------------------\n";
-        }
-    }
-
 
     function anniversary_mail()
     {

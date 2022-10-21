@@ -142,7 +142,7 @@
                 </div>
                 <hr>
 
-                <?php if ($emp['key1']) { ?>
+                <?php if ($configs['emps'] == 1) { ?>
                     <div class="col">
                         <div class="form-group form-group-sm text-g">
                             <label for="employee"><?php echo $this->lang->line('Employee') ?></label>

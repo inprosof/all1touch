@@ -24,6 +24,7 @@
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
 						<th><?php echo $this->lang->line('Type') ?></th>
+						<th>Total</th>
 						<th><?php echo $this->lang->line('Qty') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
                     </tr>
@@ -35,6 +36,7 @@
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
 						<th><?php echo $this->lang->line('Type') ?></th>
+						<th>Total</th>
                         <th><?php echo $this->lang->line('Qty') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
                     </tr>
@@ -72,7 +74,7 @@
 					extend: 'excelHtml5',
 					footer: true,
 					exportOptions: {
-						columns: [2, 3, 4]
+						columns: [2, 3, 4, 5]
 					}
 				}
 			],

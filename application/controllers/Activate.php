@@ -22,10 +22,7 @@ class Activate extends CI_Controller
 
         $this->load->library("Aauth");
         $this->load->model('settings_model', 'settings');
-
-
     }
-	
 	
 	public function activate()
     {
@@ -44,8 +41,4 @@ class Activate extends CI_Controller
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	
-	
 }

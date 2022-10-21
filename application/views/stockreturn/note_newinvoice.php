@@ -186,7 +186,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 							
 							<?php 
 								$cvalue = 0;
-								if($products != null)
+								if(!empty($products))
 								{
 									$functionNum = "'".$cvalue."'";
 									$sub_t = 0;
@@ -284,9 +284,9 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 									<strong>Total Iliquido</strong>
                                 </td>
                                 <td align="left" colspan="2"><span class="currenty lightMode">
-									<input type="hidden" name="subttlform_val" id="subttlform_val" value="<?php if($invoice != null) echo $invoice['subtotal']; else echo '0.00' ?>">
+									<input type="hidden" name="subttlform_val" id="subttlform_val" value="<?php if(!empty($invoice)) echo $invoice['subtotal']; else echo '0.00' ?>">
 									<?php echo $this->config->item('currency'); ?></span>
-                                    <span id="subttlform_in" name="subttlform_in" class="lightMode"><?php if($invoice != null) echo $invoice['subtotal']; else echo '0.00' ?></span></td>
+                                    <span id="subttlform_in" name="subttlform_in" class="lightMode"><?php if(!empty($invoice)) echo $invoice['subtotal']; else echo '0.00' ?></span></td>
                             </tr>
                             <tr class="sub_c" style="display: table-row;">
                                 <td colspan="6" class="reverse_align">
@@ -296,15 +296,15 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                         if (isset($_GET['project'])) {
                                             echo '<input type="hidden" value="' . intval($_GET['project']) . '" name="prjid">';
                                         } ?></span>
-                                    <span id="discs" class="lightMode"><?php if($invoice != null) echo $invoice['discount']; else echo '0.00' ?></span></td>
-									<input type="hidden" name="discs_come" id="discs_come" value="<?php if($invoice != null) echo $invoice['discount']; else echo '0.00' ?>">
+                                    <span id="discs" class="lightMode"><?php if(!empty($invoice)) echo $invoice['discount']; else echo '0.00' ?></span></td>
+									<input type="hidden" name="discs_come" id="discs_come" value="<?php if(!empty($invoice)) echo $invoice['discount']; else echo '0.00' ?>">
                             </tr>
 							<tr class="sub_c" style="display: table-row;">
 								<td colspan="5" class="reverse_align"></td>
 								<td align="left" colspan="3">
 									<table id="last-item-row-taxs">
 										<?php
-											if($invoice != null)
+											if(!empty($invoice))
 											{
 												echo '<thead><tr class="item_header bg-gradient-directional-blue white"><th width="70%" class="text-center">Impostos</th><th width="30%" class="text-center">Valor</th></tr></thead>';
 												for($r = 0; $r < count($arrtudo); $r++)
@@ -323,8 +323,8 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                 <td colspan="6" class="reverse_align">
                                     <strong>Total do documento</strong></td>
                                 <td align="left" colspan="2"><span class="currenty lightMode"><?php echo $this->config->item('currency'); ?></span>
-                                    <span id="discs_tot" class="lightMode"><?php if($invoice != null) echo $invoice['total_discount_tax']; else echo '0.00' ?></span>
-									<input type="hidden" value="<?php if($invoice != null) echo $invoice['total_discount_tax']; else echo '0.00' ?>" name="discs_tot_val" id="discs_tot_val"></td>
+                                    <span id="discs_tot" class="lightMode"><?php if(!empty($invoice)) echo $invoice['total_discount_tax']; else echo '0.00' ?></span>
+									<input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['total_discount_tax']; else echo '0.00' ?>" name="discs_tot_val" id="discs_tot_val"></td>
                             </tr>
                             <tr class="sub_c" style="display: table-row;">
                                 <td colspan="6" class="reverse_align">
@@ -334,7 +334,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                                                     placeholder="Value"
                                                                     name="shipping" id="shipping" autocomplete="off"
                                                                     onkeyup="billUpyogInv()" value="<?php 
-																	if($invoice != null){ 
+																	if(!empty($invoice)){ 
 																		if($invoice['ship_tax_type'] == 'excl'){
 																			$invoice['shipping'] = $invoice['shipping'] - $invoice['ship_tax'];
 																		}
@@ -348,7 +348,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 																		echo '0.00' ?>" value="<?php echo amountFormat_general($this->common->disc_status()['ship_rate']); 
 																	}?>" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
                                     (<?php echo $this->config->item('currency'); ?>
-                                    <span id="ship_final"><?php if($invoice != null) echo $invoice['ship_tax']; else echo '0.00'; ?></span> )
+                                    <span id="ship_final"><?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo '0.00'; ?></span> )
                                 </td>
                             </tr>
                             <tr class="sub_c" style="display: table-row;">
@@ -359,7 +359,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                                                     class="form-control form-control discVal"
                                                                     onkeypress="return isNumber(event)"
                                                                     placeholder="Value"
-                                                                    name="disc_val" id="disc_val" autocomplete="off" value="<?php if($invoice != null) echo $invoice['discount_rate']; else echo '0.00'; ?>"
+                                                                    name="disc_val" id="disc_val" autocomplete="off" value="<?php if(!empty($invoice)) echo $invoice['discount_rate']; else echo '0.00'; ?>"
                                                                     onkeyup="billUpyogInv()" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
                                 </td>
                             </tr>
@@ -381,7 +381,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                     <select name="mcurrency"
                                             class="selectpicker form-control">
 										<?php 
-											if($invoice != null)
+											if(!empty($invoice))
 												echo '<option value="' . $invoice['multi'] . '">Do not change</option>';
 											else
 												echo '<option value="0">Default</option>';
@@ -397,7 +397,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                                 class="currenty lightMode"><?php echo $this->config->item('currency'); ?></span>)</strong>
                                 </td>
                                 <td align="left" colspan="2"><input type="text" name="totalpay" class="form-control"
-                                                                    id="invoiceyoghtml" readonly="" value="<?php if($invoice != null) echo edit_amountExchange_s($invoice['total'], $invoice['multi'], $this->aauth->get_user()->loc); else echo '0.00'; ?>">
+                                                                    id="invoiceyoghtml" readonly="" value="<?php if(!empty($invoice)) echo edit_amountExchange_s($invoice['total'], $invoice['multi'], $this->aauth->get_user()->loc); else echo '0.00'; ?>">
 
                                 </td>
                             </tr>
@@ -457,13 +457,13 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 					<input type="hidden" value="<?php echo $cvalue?>" name="counter" id="ganakpay">
                     <input type="hidden" value="<?php echo currency($this->aauth->get_user()->loc); ?>" name="currency">
                     <input type="hidden" value="<?php echo $taxdetails['handle']; ?>" name="taxformat" id="tax_format">
-					<input type="hidden" name="taxas_tota" id="taxas_tota" value="<?php if($invoice != null) echo $invoice['tax']; else '0.00';?>">
-					<input type="hidden" name="tota_items" id="tota_items" value="<?php if($invoice != null) echo $invoice['items']; else '0.00';?>">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['tax_status']; echo $taxdetails['format'];?>" name="tax_handle" id="tax_status">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['format_discount']; else echo $this->common->disc_status()['disc_format'];?>" name="discountFormat" id="discount_format">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['ship_tax']; else echo amountFormat_general($this->common->disc_status()['ship_rate']);?>" name="ship_rate" id="ship_rate">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['ship_tax_type']; else echo $this->common->disc_status()['ship_tax'];?>" name="ship_taxtype" id="ship_taxtype">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['ship_tax']; else echo '0.00';?>" name="ship_tax" id="ship_tax">
+					<input type="hidden" name="taxas_tota" id="taxas_tota" value="<?php if(!empty($invoice)) echo $invoice['tax']; else '0.00';?>">
+					<input type="hidden" name="tota_items" id="tota_items" value="<?php if(!empty($invoice)) echo $invoice['items']; else '0.00';?>">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['tax_status']; echo $taxdetails['format'];?>" name="tax_handle" id="tax_status">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['format_discount']; else echo $this->common->disc_status()['disc_format'];?>" name="discountFormat" id="discount_format">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo amountFormat_general($this->common->disc_status()['ship_rate']);?>" name="ship_rate" id="ship_rate">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax_type']; else echo $this->common->disc_status()['ship_tax'];?>" name="ship_taxtype" id="ship_taxtype">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo '0.00';?>" name="ship_tax" id="ship_tax">
                 </form>
             </div>
 
@@ -754,37 +754,4 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 		$("#account_set").val(accountaaa);
 		$("#account_set_id").val(tips);
 	});
-	
-    $("#invoi_type").on('change', function () {
-        $("#invoi_serie").val('').trigger('change');
-        var tips = $('#invoi_type').val();
-		var el = $("#invoi_type option:selected").attr('data-serie');
-		
-		$("#invoi_type_val").val(el);
-        $("#invoi_serie").select2({
-            ajax: {
-                url: baseurl + 'settings/sub_series?id=' + tips,
-                dataType: 'json',
-                type: 'POST',
-                quietMillis: 50,
-                data: function (product) {
-                    return {
-                        product: product,
-                        '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.seriename,
-                                value: item.serie_id,
-								id: item.serie_id
-                            }
-                        })
-                    };
-                },
-            }
-        });
-    });	
 </script>

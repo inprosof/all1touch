@@ -80,8 +80,8 @@
                 <ul class="nav navbar-nav">
                     <li class="nav-item hidden-sm-down"><a class="nav-link nav-menu-main menu-toggle hidden-xs"><i
                                     class="icon-menu5"> </i></a></li>
-                    <li class="nav-item hidden-sm-down"><a href="#" class="nav-link nav-link-expand"><i
-                                    class="icon icon-expand2"></i></a></li>
+                    <li class="nav-item hidden-sm-down">
+					<a class="nav-link nav-link-expand" data-toggle="modal" data-target="#shortFullScreen"><i class="icon icon-expand2"></i></a></li>
 
                 </ul>
                 <ul class="nav navbar-nav float-xs-right">

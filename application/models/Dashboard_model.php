@@ -52,12 +52,13 @@ class Dashboard_model extends CI_Model
     {
 		$this->db->select('id');
         $this->db->from('geopos_invoices');
-		$this->db->where('i_class', 0);
-		$this->db->where('ext', 0);
+		$this->db->where('geopos_invoices.i_class', 0);
+		$this->db->where('geopos_invoices.ext', 0);
+		$this->db->join('geopos_warehouse', 'geopos_warehouse.id = geopos_invoices.loc', 'left');
 		if ($this->aauth->get_user()->loc) {
-            $this->db->where('loc', $this->aauth->get_user()->loc);
+            $this->db->where('geopos_warehouse.loc', $this->aauth->get_user()->loc);
         } elseif (!BDATA) {
-            $this->db->where('loc', 0);
+            $this->db->where('geopos_warehouse.loc', 0);
         }
 		return $this->db->count_all_results();
 	}	
@@ -66,12 +67,13 @@ class Dashboard_model extends CI_Model
     {
 		$this->db->select('id');
         $this->db->from('geopos_invoices');
-		$this->db->where('i_class', 1);
-		$this->db->where('ext', 0);
+		$this->db->where('geopos_invoices.i_class', 1);
+		$this->db->where('geopos_invoices.ext', 0);
+		$this->db->join('geopos_warehouse', 'geopos_warehouse.id = geopos_invoices.loc', 'left');
 		if ($this->aauth->get_user()->loc) {
-            $this->db->where('loc', $this->aauth->get_user()->loc);
+            $this->db->where('geopos_warehouse.loc', $this->aauth->get_user()->loc);
         } elseif (!BDATA) {
-            $this->db->where('loc', 0);
+            $this->db->where('geopos_warehouse.loc', 0);
         }
 		return $this->db->count_all_results();
 	}
@@ -80,6 +82,13 @@ class Dashboard_model extends CI_Model
     {
 		$this->db->select('id');
         $this->db->from('geopos_employees');
+		$this->db->where('geopos_employees.system', 0);
+		$this->db->join('geopos_users', 'geopos_users.username = geopos_employees.username', 'left');
+		if ($this->aauth->get_user()->loc) {
+            $this->db->where('geopos_users.loc', $this->aauth->get_user()->loc);
+        } elseif (!BDATA) {
+            $this->db->where('geopos_users.loc', 0);
+        }
 		return $this->db->count_all_results();
 	}
 	
@@ -87,6 +96,11 @@ class Dashboard_model extends CI_Model
     {
 		$this->db->select('id');
         $this->db->from('geopos_supplier');
+		if ($this->aauth->get_user()->loc) {
+            $this->db->where('geopos_supplier.loc', $this->aauth->get_user()->loc);
+        } elseif (!BDATA) {
+            $this->db->where('geopos_supplier.loc', 0);
+        }
 		return $this->db->count_all_results();
 	}
 	
@@ -94,20 +108,26 @@ class Dashboard_model extends CI_Model
     {
 		$this->db->select('id');
         $this->db->from('geopos_projects');
+
+		if ($this->aauth->get_user()->loc) {
+            $this->db->where('geopos_projects.loc', $this->aauth->get_user()->loc);
+        } elseif (!BDATA) {
+            $this->db->where('geopos_projects.loc', 0);
+        }
 		return $this->db->count_all_results();
 	}
 	
 	public function get_ativ_saft()
 	{
 		if ($this->aauth->get_user()->loc) {
-			$query1 = "select CASE WHEN taxcode IS NULL THEN '0' WHEN taxcode = '' THEN '0' ELSE taxcode END AS data_saft_docs,
-								CASE WHEN taxregion IS NULL THEN '0' WHEN taxregion = '' THEN '0' ELSE taxregion END AS data_saft_transporte
-								from geopos_config where type=4 and other = ".$this->aauth->get_user()->loc."";
+			$query1 = "select CASE WHEN docs IS NULL THEN '0' WHEN docs = '' THEN '0' WHEN docs = '0' THEN '0' ELSE docs_date END AS data_saft_docs,
+								CASE WHEN guides IS NULL THEN '0' WHEN guides = '' THEN '0' WHEN guides = '0' THEN '0' ELSE guides_date END AS data_saft_transporte
+								from geopos_saft_autentications where loc = ".$this->aauth->get_user()->loc."";
 			
 		}else{
-			$query1 = "select CASE WHEN taxcode IS NULL THEN '0' WHEN taxcode = '' THEN '0' ELSE taxcode END AS data_saft_docs,
-								CASE WHEN taxregion IS NULL THEN '0' WHEN taxregion = '' THEN '0' ELSE taxregion END AS data_saft_transporte
-								from geopos_config where type=4 and other = 0";
+			$query1 = "select CASE WHEN docs IS NULL THEN '0' WHEN docs = '' THEN '0' WHEN docs = '0' THEN '0' ELSE docs_date END AS data_saft_docs,
+								CASE WHEN guides IS NULL THEN '0' WHEN guides = '' THEN '0' WHEN guides = '0' THEN '0' ELSE guides_date END AS data_saft_transporte
+								from geopos_saft_autentications where loc=0";
 		}
 		$query = $this->db->query($query1);
 		$result =$query->row_array();
@@ -121,11 +141,11 @@ class Dashboard_model extends CI_Model
 	public function get_caixa_activ()
 	{
 		if ($this->aauth->get_user()->loc) {
-			$query1 = "select CASE WHEN taxcode IS NULL THEN '0' WHEN taxcode = '' THEN '0' ELSE taxcode END AS data_activ_caixa_iva
-								from geopos_config where type=5 and other = ".$this->aauth->get_user()->loc."";
+			$query1 = "select CASE WHEN caixa_vat4 IS NULL THEN '0' WHEN caixa_vat4 = '' THEN '0' ELSE caixa_date END AS data_activ_caixa_iva
+								from geopos_saft_autentications where loc= ".$this->aauth->get_user()->loc."";
 		}else{
-			$query1 = "select CASE WHEN taxcode IS NULL THEN '0' WHEN taxcode = '' THEN '0' ELSE taxcode END AS data_activ_caixa_iva
-								from geopos_config where type=5 and other = 0";
+			$query1 = "select CASE WHEN caixa_vat4 IS NULL THEN '0' WHEN caixa_vat4 = '' THEN '0' ELSE caixa_date END AS data_activ_caixa_iva
+								from geopos_saft_autentications where loc=0";
 		}
 		$query = $this->db->query($query1);
 		$result =$query->row_array();
@@ -140,67 +160,65 @@ class Dashboard_model extends CI_Model
 		$query1 = "";
 		if ($this->aauth->get_user()->loc) {
 			$query1 = "select acc.n_accounts, 
-					caes.n_cae, empp.n_emp_email, empp.n_emp_nif, empp.n_emp_registration, empp.n_emp_conservator, empp.n_emp_logo, empp.n_emp_phone,
-					negoc.n_negocio_email, negoc.n_negocio_nif, negoc.n_negocio_conta, negoc.n_negocio_armazaem, negoc.n_negocio_logo, negoc.n_negocio_phone,
-					series.n_series, typ_series.n_typ_series, cronss.n_cron_num, emails.n_email_host, emails.n_email_username, emails.n_email_password, emails.n_email_sender, warehouses.n_warehouse 
-					from(select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_accounts from geopos_accounts) as acc
-					inner join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_cae from geopos_config where type=11) as caes on 1=1
-					inner join (select CASE WHEN email IS NULL THEN '0' WHEN email = '' THEN '0' ELSE email END AS n_emp_email,
-										CASE WHEN taxid IS NULL THEN '0' WHEN taxid = '' THEN '0' ELSE taxid END AS n_emp_nif,
-										CASE WHEN registration IS NULL THEN '0' WHEN registration = '' THEN '0' ELSE registration END AS n_emp_registration,
-										CASE WHEN conservator IS NULL THEN '0' WHEN conservator = '' THEN '0' ELSE conservator END AS n_emp_conservator,
-										CASE WHEN logo IS NULL THEN '0' WHEN logo = '' THEN '0' ELSE logo END AS n_emp_logo,
-										CASE WHEN phone IS NULL THEN '0' WHEN phone = '+351900000000' THEN '0' ELSE phone END AS n_emp_phone from geopos_system) as empp on 1=1
-					left join (select CASE WHEN geopos_locations.email IS NULL THEN '0' WHEN geopos_locations.email = '' THEN '0' ELSE geopos_locations.email END AS n_negocio_email,
-										CASE WHEN geopos_locations.taxid IS NULL THEN '0' WHEN geopos_locations.taxid = '' THEN '0' ELSE geopos_locations.taxid END AS n_negocio_nif,
-										CASE WHEN geopos_locations.ext IS NULL THEN '0' WHEN geopos_locations.ext = '' THEN '0' ELSE geopos_locations.ext END AS n_negocio_conta,
-										CASE WHEN geopos_locations.ware IS NULL THEN '0' WHEN geopos_locations.ware = '' THEN '0' ELSE geopos_locations.ware END AS n_negocio_armazaem,
-										CASE WHEN geopos_locations.logo IS NULL THEN '0' WHEN geopos_locations.logo = '' THEN '0' ELSE geopos_locations.logo END AS n_negocio_logo,
-										CASE WHEN geopos_locations.phone IS NULL THEN '0' WHEN geopos_locations.phone = '+351900000000' THEN '0' ELSE geopos_locations.phone END AS n_negocio_phone 
-										from geopos_locations 
-										left join geopos_warehouse on geopos_warehouse.loc = geopos_locations.id
-										where geopos_warehouse.loc = ".$this->aauth->get_user()->loc.") as negoc on 1=1
-					inner join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_series from geopos_series) as series on 1=1
-					inner join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_typ_series from geopos_irs_typ_series) as typ_series on 1=1
-					inner join (select CASE WHEN key1 = '0' THEN '0' ELSE key1 END AS n_cron_num from univarsal_api where id = 55) as cronss on 1=1
-					inner join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_warehouse from geopos_warehouse where geopos_warehouse.loc = ".$this->aauth->get_user()->loc.") as warehouses on 1=1
-					inner join (select CASE WHEN geopos_smtp.host IS NULL THEN '0' WHEN geopos_smtp.host = 'inserirhost' THEN '0' ELSE geopos_smtp.host END AS n_email_host,
+					caes.n_cae, negoc.n_emp_email, negoc.n_emp_nif, negoc.n_emp_conta_d, negoc.n_emp_conta_o, negoc.n_emp_conta_f, negoc.n_emp_armazem, empp.n_emp_registration, empp.n_emp_conservator, negoc.n_emp_logo, negoc.n_emp_phone,
+					series.n_series, cronss.n_cron_num, emails.n_email_host, emails.n_email_username, emails.n_email_password, warehouses.n_warehouse,
+					permiss.n_grafics, permiss.n_email_app,permiss.n_emailo_remet,permiss.n_email_stock
+					from(select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_accounts from geopos_accounts where loc = ".$this->aauth->get_user()->loc.") as acc
+					left join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_cae from geopos_caes) as caes on 1=1
+					left join (select CASE WHEN email_app IS NULL or email_app = '' THEN '0' ELSE email_app END AS n_email_app,
+										CASE WHEN emailo_remet IS NULL or emailo_remet = '' THEN '0' ELSE emailo_remet END AS n_emailo_remet,
+										CASE WHEN email_stock IS NULL or email_stock = '' THEN '0' ELSE email_stock END AS n_email_stock,grafics AS n_grafics from geopos_system_permiss where loc = ".$this->aauth->get_user()->loc.") as permiss on 1=1
+					left join (select CASE WHEN registration IS NULL THEN 0 WHEN registration = '' THEN '0' ELSE registration END AS n_emp_registration,
+										CASE WHEN conservator IS NULL THEN 0 WHEN conservator = '' THEN '0' ELSE conservator END AS n_emp_conservator from geopos_system) as empp on 1=1
+					left join (select CASE WHEN geopos_locations.email IS NULL THEN 0 WHEN geopos_locations.email = '' THEN '0' ELSE geopos_locations.email END AS n_emp_email,
+										CASE WHEN geopos_locations.taxid IS NULL THEN 0 WHEN geopos_locations.taxid = '' THEN '0' ELSE geopos_locations.taxid END AS n_emp_nif,
+										CASE WHEN geopos_locations.ware IS NULL THEN 0 WHEN geopos_locations.ware = '' THEN '0' ELSE geopos_locations.ware END AS n_emp_armazem,
+										CASE WHEN geopos_locations.acount_o IS NULL THEN 0 WHEN geopos_locations.acount_o = '' THEN 0 ELSE geopos_locations.acount_o END AS n_emp_conta_d,
+										CASE WHEN geopos_locations.acount_d IS NULL THEN 0 WHEN geopos_locations.acount_d = '' THEN 0 ELSE geopos_locations.acount_d END AS n_emp_conta_o,
+										CASE WHEN geopos_locations.acount_f IS NULL THEN 0 WHEN geopos_locations.acount_f = '' THEN 0 ELSE geopos_locations.acount_f END AS n_emp_conta_f,
+										CASE WHEN geopos_locations.logo IS NULL THEN 0 WHEN geopos_locations.logo = '' THEN '0' ELSE geopos_locations.logo END AS n_emp_logo,
+										CASE WHEN geopos_locations.phone IS NULL THEN 0 WHEN geopos_locations.phone = '+351900000000' THEN 0 ELSE geopos_locations.phone END AS n_emp_phone 
+										from geopos_locations where geopos_locations.id = ".$this->aauth->get_user()->loc.") as negoc on 1=1
+					left join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_series from geopos_series where loc = ".$this->aauth->get_user()->loc.") as series on 1=1
+					left join (select CASE WHEN key1 = '0' THEN '0' ELSE key1 END AS n_cron_num from univarsal_api where id = 55) as cronss on 1=1
+					left join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_warehouse from geopos_warehouse where geopos_warehouse.loc = ".$this->aauth->get_user()->loc.") as warehouses on 1=1
+					left join (select CASE WHEN geopos_smtp.host IS NULL THEN '0' WHEN geopos_smtp.host = 'inserirhost' THEN '0' ELSE geopos_smtp.host END AS n_email_host,
 										CASE WHEN geopos_smtp.username IS NULL THEN '0' WHEN geopos_smtp.username = 'inserirutilizador' THEN '0' ELSE geopos_smtp.username END AS n_email_username,
-										CASE WHEN geopos_smtp.password IS NULL THEN '0' WHEN geopos_smtp.password = 'inserirsenha' THEN '0' ELSE geopos_smtp.password END AS n_email_password,
-										CASE WHEN geopos_smtp.sender IS NULL THEN '0' WHEN geopos_smtp.sender = 'inseriroseuemail' THEN '0' ELSE geopos_smtp.sender END AS n_email_sender from geopos_smtp) as emails on 1=1";
+										CASE WHEN geopos_smtp.password IS NULL THEN '0' WHEN geopos_smtp.password = 'inserirsenha' THEN '0' ELSE geopos_smtp.password END AS n_email_password from geopos_smtp) as emails on 1=1";
 		}else{
 			$query1 = "select acc.n_accounts, 
-					caes.n_cae, empp.n_emp_email, empp.n_emp_nif, empp.n_emp_registration, empp.n_emp_conservator, empp.n_emp_logo, empp.n_emp_phone,
-					negoc.n_negocio_email, negoc.n_negocio_nif, negoc.n_negocio_conta, negoc.n_negocio_armazaem, negoc.n_negocio_logo, negoc.n_negocio_phone,
-					series.n_series, typ_series.n_typ_series, cronss.n_cron_num, emails.n_email_host, emails.n_email_username, emails.n_email_password, emails.n_email_sender, warehouses.n_warehouse
-					from(select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_accounts from geopos_accounts) as acc
-					inner join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_cae from geopos_config where type=11) as caes on 1=1
-					inner join (select CASE WHEN email IS NULL THEN '0' WHEN email = '' THEN '0' ELSE email END AS n_emp_email,
+					caes.n_cae, empp.n_emp_email, empp.n_emp_nif, empp.n_emp_conta_d, empp.n_emp_conta_o, empp.n_emp_conta_f, empp.n_emp_armazem, empp.n_emp_registration, empp.n_emp_conservator, empp.n_emp_logo, empp.n_emp_phone,
+					series.n_series, cronss.n_cron_num, emails.n_email_host, emails.n_email_username, emails.n_email_password, warehouses.n_warehouse,
+					permiss.n_grafics, permiss.n_email_app,permiss.n_emailo_remet,permiss.n_email_stock
+					from(select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_accounts from geopos_accounts where loc = 0) as acc
+					left join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_cae from geopos_caes) as caes on 1=1
+					left join (select CASE WHEN email_app IS NULL or email_app = '' THEN '0' ELSE email_app END AS n_email_app,
+										CASE WHEN emailo_remet IS NULL or emailo_remet = '' THEN '0' ELSE emailo_remet END AS n_emailo_remet,
+										CASE WHEN email_stock IS NULL or email_stock = '' THEN '0' ELSE email_stock END AS n_email_stock,grafics AS n_grafics from geopos_system_permiss where loc = 0) as permiss on 1=1
+					left join (select CASE WHEN email IS NULL THEN '0' WHEN email = '' THEN '0' ELSE email END AS n_emp_email,
 										CASE WHEN taxid IS NULL THEN '0' WHEN taxid = '' THEN '0' ELSE taxid END AS n_emp_nif,
+										'".DOCSACCOUNT."' as n_emp_conta_d,
+										'".POSACCOUNT."' as n_emp_conta_o,
+										'".DOCSFACCOUNT."' as n_emp_conta_f,
+										'1' as n_emp_armazem,
 										CASE WHEN registration IS NULL THEN '0' WHEN registration = '' THEN '0' ELSE registration END AS n_emp_registration,
 										CASE WHEN conservator IS NULL THEN '0' WHEN conservator = '' THEN '0' ELSE conservator END AS n_emp_conservator,
 										CASE WHEN logo IS NULL THEN '0' WHEN logo = '' THEN '0' ELSE logo END AS n_emp_logo,
 										CASE WHEN phone IS NULL THEN '0' WHEN phone = '+351900000000' THEN '0' ELSE phone END AS n_emp_phone from geopos_system) as empp on 1=1
-					left join (select CASE WHEN geopos_locations.email IS NULL THEN '0' WHEN geopos_locations.email = '' THEN '0' ELSE geopos_locations.email END AS n_negocio_email,
-										CASE WHEN geopos_locations.taxid IS NULL THEN '0' WHEN geopos_locations.taxid = '' THEN '0' ELSE geopos_locations.taxid END AS n_negocio_nif,
-										CASE WHEN geopos_locations.ext IS NULL THEN '0' WHEN geopos_locations.ext = '' THEN '0' ELSE geopos_locations.ext END AS n_negocio_conta,
-										CASE WHEN geopos_locations.ware IS NULL THEN '0' WHEN geopos_locations.ware = '' THEN '0' ELSE geopos_locations.ware END AS n_negocio_armazaem,
-										CASE WHEN geopos_locations.logo IS NULL THEN '0' WHEN geopos_locations.logo = '' THEN '0' ELSE geopos_locations.logo END AS n_negocio_logo,
-										CASE WHEN geopos_locations.phone IS NULL THEN '0' WHEN geopos_locations.phone = '+351900000000' THEN '0' ELSE geopos_locations.phone END AS n_negocio_phone 
-										from geopos_locations 
-										left join geopos_warehouse on geopos_warehouse.loc = geopos_locations.id
-										where geopos_locations.id = 1) as negoc on 1=1
-					inner join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_warehouse from geopos_warehouse where geopos_warehouse.loc = 0) as warehouses on 1=1
-					inner join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_series from geopos_series) as series on 1=1
-					inner join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_typ_series from geopos_irs_typ_series) as typ_series on 1=1
-					inner join (select CASE WHEN key1 = '0' THEN '0' ELSE key1 END AS n_cron_num from univarsal_api where id = 55) as cronss on 1=1
-					inner join (select CASE WHEN geopos_smtp.host IS NULL THEN '0' WHEN geopos_smtp.host = 'inserirhost' THEN '0' ELSE geopos_smtp.host END AS n_email_host,
+					left join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_warehouse from geopos_warehouse where geopos_warehouse.loc = 0) as warehouses on 1=1
+					left join (select CASE WHEN count(id) IS NULL THEN '0' ELSE count(id) END AS n_series from geopos_series where loc = 0) as series on 1=1
+					left join (select CASE WHEN key1 = '0' THEN '0' ELSE key1 END AS n_cron_num from univarsal_api where id = 55) as cronss on 1=1
+					left join (select CASE WHEN geopos_smtp.host IS NULL THEN '0' WHEN geopos_smtp.host = 'inserirhost' THEN '0' ELSE geopos_smtp.host END AS n_email_host,
 										CASE WHEN geopos_smtp.username IS NULL THEN '0' WHEN geopos_smtp.username = 'inserirutilizador' THEN '0' ELSE geopos_smtp.username END AS n_email_username,
-										CASE WHEN geopos_smtp.password IS NULL THEN '0' WHEN geopos_smtp.password = 'inserirsenha' THEN '0' ELSE geopos_smtp.password END AS n_email_password,
-										CASE WHEN geopos_smtp.sender IS NULL THEN '0' WHEN geopos_smtp.sender = 'inseriroseuemail' THEN '0' ELSE geopos_smtp.sender END AS n_email_sender from geopos_smtp) as emails on 1=1";
+										CASE WHEN geopos_smtp.password IS NULL THEN '0' WHEN geopos_smtp.password = 'inserirsenha' THEN '0' ELSE geopos_smtp.password END AS n_email_password from geopos_smtp) as emails on 1=1";
 			
 		}
+		
+		//var_dump($query1);
+		//exit();
 		$query = $this->db->query($query1);
+		//var_dump($this->db->error());
+		//exit();
         return $query->row_array();
 	}
 	
@@ -256,13 +274,12 @@ class Dashboard_model extends CI_Model
 
     public function stock()
     {
-        $whr = '';
-                if ($this->aauth->get_user()->loc) {
-         $whr = ' AND (geopos_warehouse.loc=' . $this->aauth->get_user()->loc . ')';
+        $whr = ' AND geopos_products.alert > 0';
+        if ($this->aauth->get_user()->loc) {
+			$whr .= ' AND (geopos_warehouse.loc=' . $this->aauth->get_user()->loc . ')';
         } elseif (!BDATA) {
-         $whr = ' AND (geopos_warehouse.loc=0)';
+			$whr .= ' AND (geopos_warehouse.loc=0)';
         }
-		
         $query = $this->db->query("SELECT geopos_products.*,geopos_warehouse.title FROM geopos_products LEFT JOIN geopos_warehouse ON geopos_products.warehouse=geopos_warehouse.id  WHERE (geopos_products.qty<=geopos_products.alert) $whr ORDER BY geopos_products.product_name ASC LIMIT 10");
         return $query->result_array();
     }

@@ -18,8 +18,6 @@
                 <div class="message"></div>
             </div>
             <div class="card-body">
-
-
                 <div class="row">
                     <div class="col-md-4 border-right border-right-grey">
 						<div class="ibox-content mt-2">
@@ -153,8 +151,7 @@
 
 
 					<div class="row">
-						<div class="col mb-1"><label
-									for="shortnote"><?php echo $this->lang->line('Name') ?></label>
+						<div class="col mb-1"><label for="shortnote"><?php echo $this->lang->line('Name') ?></label>
 							<input type="text" class="form-control"
 								   name="suppliername" value="<?php echo $details['name'] ?>"></div>
 					</div>
@@ -171,9 +168,9 @@
 							<textarea name="text" class="summernote" id="contents" title="Contents"></textarea>
 						</div>
 					</div>
-
-					<input type="hidden" class="form-control"
-						   id="cid" name="tid" value="<?php echo $details['id'] ?>">
+					
+					<input type="hidden" class="form-control" id="tsupp" name="tsupp" value="<?php if($_GET['t']) echo $_GET['t']; else ''; ?>">
+					<input type="hidden" class="form-control" id="cid" name="tid" value="<?php echo $details['id'] ?>">
 					<input type="hidden" id="action-url" value="communication/send_general_s">
 
 
@@ -190,7 +187,8 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
-
+		var reit = $('#tsupp').val();
+		
         var table = $('#invoices').DataTable({
             "processing": true,
             "serverSide": true,
@@ -200,7 +198,7 @@
             "ajax": {
                 "url": "<?php echo site_url('supplier/invoice_list')?>",
                 "type": "POST",
-                "data": {'cid':<?php echo $_GET['id'] ?>, 'typ':<?php if($_GET['t']) echo '1' ?>, '<?=$this->security->get_csrf_token_name()?>': crsf_hash}
+                "data": {'cid':<?php echo $_GET['id'] ?>, 'typ':reit, '<?php echo $this->security->get_csrf_token_name()?>': crsf_hash}
             },
             "columnDefs": [
                 {

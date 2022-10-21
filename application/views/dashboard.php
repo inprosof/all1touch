@@ -121,7 +121,7 @@
         </div>
     </div>
 </div>
-<div class="row match-height" <?php if(count($recent_buy) == 0) echo 'style="display:none"'?>>
+<div class="row match-height" <?php if(count($recent_buy) == 0 || $get_all_info_done['n_grafics'] == 0) echo 'style="display:none"'?>>
     <div class="col-xl-8 col-lg-12">
         <div class="card">
             <div class="card-header">
@@ -222,39 +222,15 @@
     <div class="col-xl-4 col-lg-12">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title"><?php echo $this->lang->line('Recent Buyers') ?></h4>
-                <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
-                <div class="heading-elements">
-                    <ul class="list-inline mb-0">
-                        <li><a data-action="reload"><i class="ft-rotate-cw"></i></a></li>
-                    </ul>
-                </div>
+                <div class="header-block">
+                    <h4 class="title">
+                        <?php echo $this->lang->line('income_vs_expenses') ?>
+                    </h4></div>
             </div>
-            <div class="card-content px-1">
-                <div id="recent-buyers" class="media-list height-450  mt-1 position-relative">
-                    <?php
-                    if (isset($recent_buy[0]['csd'])) {
-                        foreach ($recent_buy as $item) {
-
-                            echo '       <a href="' . base_url('customers/view?id=' . $item['csd']) . '" class="media border-0">
-                        <div class="media-left pr-1">
-                            <span class="avatar avatar-md avatar-online"><img class="media-object rounded-circle" src="' . base_url() . 'userfiles/customers/thumbnail/' . $item['picture'] . '">
-                            <i></i>
-                            </span>
-                        </div>
-                        <div class="media-body w-100">
-                            <h6 class="list-group-item-heading">' . $item['name'] . ' <span class="font-medium-4 float-right pt-1">' . amountExchange($item['total'], 0, $this->aauth->get_user()->loc) . '</span></h6>
-                            <p class="list-group-item-text mb-0"><span class="badge  st-' . $item['status'] . '">' . $this->lang->line(ucwords($item['status'])) . '</span></p>
-                        </div>
-                    </a>';
-
-                        }
-                    } elseif ($recent_buy == 'sql') {
-                        echo ' <div class="media-body w-100">  <h5 class="list-group-item-heading bg-danger white">Critical SQL Strict Mode Error: </h5>Please Disable Strict SQL Mode for in database  settings.</div>';
-                    }
-
-                    ?>
-
+            <div class="card-body">
+                <div id="salesbreakdown" class="card mt-2"
+                     data-exclude="xs,sm,lg">
+                    <div class="dashboard-sales-breakdown-chart" id="dashboard-sales-breakdown-chart"></div>
 
                 </div>
                 <br>
@@ -275,14 +251,6 @@
 					<?php 
 						$erros="";
 						$percenta = 100;
-						if($get_all_info_done['n_accounts'] == '0')
-						{
-							$percenta -= 30;
-							$erros .= ' - Adicione pelo menos uma conta ao seu negócio! <a class="match-width match-height" 
-										href="'.base_url().'accounts"><i 
-												class="ft-chevron-right"></i> Click aqui para o Fazer.
-										</a><br>';
-						}
 						
 						if($get_all_info_done['n_cae'] == '0')
 						{
@@ -291,6 +259,24 @@
 								   href="'.base_url().'settings/caes"><i
 											class="ft-chevron-right">Click aqui para o Fazer.</i> 
 								</a><br>';
+						}
+						
+						if($get_all_info_done['n_series'] == '0')
+						{
+							$percenta -= 10;
+							$erros .= ' - Adicione pelos menos uma série! Para usar nos seus documentos! <a class="match-width match-height"
+								   href="'.base_url().'settings/series"><i
+											class="ft-chevron-right">Click aqui para o Fazer.</i> 
+								</a><br>';
+						}
+						
+						if($get_all_info_done['n_accounts'] == '0')
+						{
+							$percenta -= 20;
+							$erros .= ' - Adicione pelo menos uma conta ao seu negócio! <a class="match-width match-height" 
+										href="'.base_url().'accounts"><i 
+												class="ft-chevron-right"></i> Click aqui para o Fazer.
+										</a><br>';
 						}
 						
 						if($get_all_info_done['n_warehouse'] == '0')
@@ -302,27 +288,209 @@
 								</a><br>';
 						}
 						
-						if($get_all_info_done['n_emp_email'] == '0')
-						{
-							$percenta -= 2;
-							$erros .= ' - Altere o Campo Email nas informações do negócio! <a class="match-width match-height"
-								   href="'.base_url().'settings/company"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
-						if($get_all_info_done['n_emp_nif'] == '0')
-						{
-							$percenta -= 2;
-							$erros .= ' - Altere o Campo NIF nas informações do negócio! <a class="match-width match-height"
-								   href="'.base_url().'settings/company"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
+						if($this->aauth->get_user()->loc == 0){
+							if($get_all_info_done['n_emp_email'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Campo Email nas informações da Empresa! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=1"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_nif'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Campo NIF nas informações da Empresa! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=1"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_logo'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Logótipo nas informações da Empresa! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=1"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_phone'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Campo Telefone nas informações da Empresa! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=1"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emailo_remet'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Adicione um Nome do Remetente para Notificações da Aplicação aos Clientes! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=6"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_email_app'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Adicione um email para Notificações da Aplicação aos Clientes! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=6"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_email_stock'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Adicione um email para Notificações da Aplicação Relativo ao Stock! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=7"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_armazem'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Campo Armazém por Defeito da Empresa! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=77"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_conta_d'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Insira uma Conta para os Documentos da Empresa! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=77"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_conta_o'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Insira uma Conta para as Vendas Online da Empresa! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=77"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_conta_f'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Insira uma Conta para os Documentos de Fornecedores da Empresa! <a class="match-width match-height"
+									   href="'.base_url().'settings/company?id=77"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+						}else{
+							if($get_all_info_done['n_emp_email'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Campo Email da sua localização para as informações correspondentes! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=1"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_nif'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Campo NIF da sua localização para as informações correspondentes! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=1"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_logo'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Logótipo da sua localização para as informações correspondentes! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=1"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_phone'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Campo Telefone da sua localização para as informações correspondentes! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=1"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emailo_remet'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Adicione um Nome do Remetente para Notificações da Aplicação aos Clientes! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=6"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_email_app'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Adicione um email para Notificações da Aplicação aos Clientes! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=6"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_email_stock'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Adicione um email para Notificações da Aplicação Relativo ao Stock! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=7"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_armazem'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Altere o Campo Armazém por Defeito na localização! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=77"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							if($get_all_info_done['n_emp_conta_d'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Insira uma Conta para os Documentos na localização! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=77"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_conta_o'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Insira uma Conta para as Vendas Online na localização! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=77"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
+							if($get_all_info_done['n_emp_conta_f'] == '0')
+							{
+								$percenta -= 2;
+								$erros .= ' - Insira uma Conta para os Documentos de Fornecedores na localização! <a class="match-width match-height"
+									   href="'.base_url().'locations?id='.$this->aauth->get_user()->loc.'&param=77"><i
+												class="ft-chevron-right">Click aqui para o Fazer.</i> 
+									</a><br>';
+							}
+							
 						}
 						
 						if($get_all_info_done['n_emp_registration'] == '0')
 						{
-							$percenta -= 2;
+							$percenta -= 5;
 							$erros .= ' - Altere o Campo Matrícula Comercial nas informações do negócio! <a class="match-width match-height"
 								   href="'.base_url().'settings/company"><i
 											class="ft-chevron-right">Click aqui para o Fazer.</i> 
@@ -331,114 +499,16 @@
 						
 						if($get_all_info_done['n_emp_conservator'] == '0')
 						{
-							$percenta -= 2;
+							$percenta -= 5;
 							$erros .= ' - Altere o Campo Registo da Conservatórtia nas informações do negócio! <a class="match-width match-height"
 								   href="'.base_url().'settings/company"><i
 											class="ft-chevron-right">Click aqui para o Fazer.</i> 
 								</a><br>';
 						}
 						
-						if($get_all_info_done['n_emp_logo'] == '0')
-						{
-							$percenta -= 1;
-							$erros .= ' - Altere o Logótipo nas informações do negócio! <a class="match-width match-height"
-								   href="'.base_url().'settings/company"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
-						if($get_all_info_done['n_emp_phone'] == '0')
-						{
-							$percenta -= 1;
-							$erros .= ' - Altere o Campo Telefone nas informações do negócio! <a class="match-width match-height"
-								   href="'.base_url().'settings/company"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
-						if($get_all_info_done['n_negocio_email'] == '0')
-						{
-							$percenta -= 2;
-							$erros .= ' - Altere o Campo Email na localização para as informações correspondentes! <a class="match-width match-height"
-								   href="'.base_url().'locations"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
-						if($get_all_info_done['n_negocio_nif'] == '0')
-						{
-							$percenta -= 2;
-							$erros .= ' - Altere o Campo NIF na localização para as informações correspondentes! <a class="match-width match-height"
-								   href="'.base_url().'locations"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
-						if($get_all_info_done['n_negocio_conta'] == '0')
-						{
-							$percenta -= 2;
-							$erros .= ' - Altere o Campo Conta por Defeito na localização para as informações correspondentes! <a class="match-width match-height"
-								   href="'.base_url().'locations"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
-						if($get_all_info_done['n_negocio_armazaem'] == '0')
-						{
-							$percenta -= 2;
-							$erros .= ' - Altere o Campo Armazém por Defeito na localização para as informações correspondentes! <a class="match-width match-height"
-								   href="'.base_url().'locations"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
-						if($get_all_info_done['n_negocio_logo'] == '0')
-						{
-							$percenta -= 1;
-							$erros .= ' - Altere o Logótipo na localização para as informações correspondentes! <a class="match-width match-height"
-								   href="'.base_url().'locations"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
-						if($get_all_info_done['n_negocio_phone'] == '0')
-						{
-							$percenta -= 1;
-							$erros .= ' - Altere o Campo Telefone na localização para as informações correspondentes! <a class="match-width match-height"
-								   href="'.base_url().'locations"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
-						
-						if($get_all_info_done['n_series'] == '0')
-						{
-							$percenta -= 5;
-							$erros .= ' - Adicione pelos menos uma série! Para usar nos seus documentos! <a class="match-width match-height"
-								   href="'.base_url().'settings/series"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						if($get_all_info_done['n_typ_series'] == '0')
-						{
-							$percenta -= 5;
-							$erros .= ' - Adicione a série e insira as configurações para cada tipo de Documento! <a class="match-width match-height"
-								   href="'.base_url().'settings/irs_typs"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						if($get_all_info_done['n_cron_num'] == '0')
-						{
-							$percenta -= 2;
-							$erros .= ' - Atualizar Cron Token Para gerenciar todas as tarefas! <a class="match-width match-height"
-								   href="'.base_url().'settings/generate"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
-						
 						if($get_all_info_done['n_email_host'] == '0')
 						{
-							$percenta -= 2;
+							$percenta -= 4;
 							$erros .= ' - Altere o Campo Host para Configurar o Servidor de Email! <a class="match-width match-height"
 								   href="'.base_url().'settings/email"><i
 											class="ft-chevron-right">Click aqui para o Fazer.</i> 
@@ -460,14 +530,7 @@
 											class="ft-chevron-right">Click aqui para o Fazer.</i> 
 								</a><br>';
 						}
-						if($get_all_info_done['n_email_sender'] == '0')
-						{
-							$percenta -= 2;
-							$erros .= ' - Altere o Campo Email de Envio para Configurar o Servidor de Email! <a class="match-width match-height"
-								   href="'.base_url().'settings/email"><i
-											class="ft-chevron-right">Click aqui para o Fazer.</i> 
-								</a><br>';
-						}
+						
 						
 						if($erros != "")
 						{
@@ -552,7 +615,11 @@
 					<?php 
 					if($get_ativ_saft['data_saft_docs'] == '0' || $get_ativ_saft['data_saft_docs'] == 0)
 					{
-						echo '<li>Ligação ativa: Não <a class="match-width match-height" href="'.base_url().'export/tax_authority"><i class="ft-chevron-right"></i>Ativar </a>';
+						if($this->aauth->get_user()->loc == 0){
+							echo '<li>Ligação ativa: Não <a class="match-width match-height" href="'.base_url().'settings/company?id=4"><i class="ft-chevron-right"></i>Ativar </a>';
+						}else{
+							echo '<li>Ligação ativa: Não <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=4"><i class="ft-chevron-right"></i>Ativar </a>';
+						}
 					}else{
 						echo "<li>Ligação ativa: Sim (Desde ".$get_ativ_saft['data_saft_docs'].")";
 					}
@@ -562,7 +629,11 @@
 					
 					if($get_ativ_saft['data_saft_transporte'] == '0' || $get_ativ_saft['data_saft_transporte'] == 0)
 					{
-						echo '<li>Ligação ativa: Não <a class="match-width match-height" href="'.base_url().'export/tax_authority"><i class="ft-chevron-right"></i>Ativar </a>';
+						if($this->aauth->get_user()->loc == 0){
+							echo '<li>Ligação ativa: Não <a class="match-width match-height" href="'.base_url().'settings/company?id=4"><i class="ft-chevron-right"></i>Ativar </a>';
+						}else{
+							echo '<li>Ligação ativa: Não <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=4"><i class="ft-chevron-right"></i>Ativar </a>';
+						}
 					}else{
 						echo "<li>Ligação ativa: Sim (Desde ".$get_ativ_saft['data_saft_transporte'].")";
 					}
@@ -571,14 +642,22 @@
 					<?php 
 					if($get_caixa_activ['data_activ_caixa_iva'] == '0' || $get_caixa_activ['data_activ_caixa_iva'] == 0)
 					{
-						echo '<li>Ligação ativa: Não <a class="match-width match-height" href="'.base_url().'export/tax_authority"><i class="ft-chevron-right"></i>Ativar </a>';
+						if($this->aauth->get_user()->loc == 0){
+							echo '<li>Ligação ativa: Não <a class="match-width match-height" href="'.base_url().'settings/company?id=44"><i class="ft-chevron-right"></i>Ativar </a>';
+						}else{
+							echo '<li>Ligação ativa: Não <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=44"><i class="ft-chevron-right"></i>Ativar </a>';
+						}
+						
 					}else{
 						echo "<li>Ligação ativa: Sim (Desde ".$get_caixa_activ['data_activ_caixa_iva'].")";
 					}
 					?></li>
 					<h5><strong>Ligações de Interesse</strong></h5>
-					<li><a class="match-width match-height" href="<?php echo base_url(); ?>export/tax_authority">
+					<li><a class="match-width match-height" href="<?php echo base_url(); ?>saft/atconfigs?id=1">
 						<i class="ft-chevron-right"></i>Exportar SAF-T(PT)
+					</a></li>
+					<li><a class="match-width match-height" href="<?php echo base_url(); ?>saft/atconfigs?id=2">
+						<i class="ft-chevron-right"></i>Exportar Inventário Existências
 					</a></li>
 					<li><a class="match-width match-height" href="<?php echo base_url(); ?>reports/accountstatement">
 						<i class="ft-chevron-right"></i>Extratos de Contas
@@ -656,18 +735,40 @@
         </div>
     </div>
     <div class="col-xl-4 col-lg-12">
-        <div class="card">
-
+		<div class="card">
             <div class="card-header">
-                <div class="header-block">
-                    <h4 class="title">
-                        <?php echo $this->lang->line('income_vs_expenses') ?>
-                    </h4></div>
+                <h4 class="card-title"><?php echo $this->lang->line('Recent Buyers') ?></h4>
+                <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+                <div class="heading-elements">
+                    <ul class="list-inline mb-0">
+                        <li><a data-action="reload"><i class="ft-rotate-cw"></i></a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="card-body">
-                <div id="salesbreakdown" class="card mt-2"
-                     data-exclude="xs,sm,lg">
-                    <div class="dashboard-sales-breakdown-chart" id="dashboard-sales-breakdown-chart"></div>
+            <div class="card-content px-1">
+                <div id="recent-buyers" class="media-list height-450  mt-1 position-relative">
+                    <?php
+                    if (isset($recent_buy[0]['csd'])) {
+                        foreach ($recent_buy as $item) {
+                            echo '       <a href="' . base_url('customers/view?id=' . $item['csd']) . '" class="media border-0">
+                        <div class="media-left pr-1">
+                            <span class="avatar avatar-md avatar-online"><img class="media-object rounded-circle" src="' . base_url() . 'userfiles/customers/thumbnail/' . $item['picture'] . '">
+                            <i></i>
+                            </span>
+                        </div>
+                        <div class="media-body w-100">
+                            <h6 class="list-group-item-heading">' . $item['name'] . ' <span class="font-medium-4 float-right pt-1">' . amountExchange($item['total'], 0, $this->aauth->get_user()->loc) . '</span></h6>
+                            <p class="list-group-item-text mb-0"><span class="badge  st-' . $item['status'] . '">' . $this->lang->line(ucwords($item['status'])) . '</span></p>
+                        </div>
+                    </a>';
+
+                        }
+                    } elseif ($recent_buy == 'sql') {
+                        echo ' <div class="media-body w-100">  <h5 class="list-group-item-heading bg-danger white">Critical SQL Strict Mode Error: </h5>Please Disable Strict SQL Mode for in database  settings.</div>';
+                    }
+
+                    ?>
+
 
                 </div>
                 <br>

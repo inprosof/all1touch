@@ -194,7 +194,7 @@
                     </tr>
                     <tr>
                         <td><?php echo $this->lang->line('Proforma Invoice') ?>&nbsp;</td>
-                        <td><?php echo prefix(3) . '_P#' . $invoice['tid'] ?></td>
+                        <td><?php echo $invoice['irs_type_n'] . '_P#' . $invoice['tid'] ?></td>
                     </tr>
                     <tr>
                         <td><?php echo $this->lang->line('Invoice Date') ?></td>

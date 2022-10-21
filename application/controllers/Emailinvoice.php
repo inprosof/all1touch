@@ -31,7 +31,6 @@ class Emailinvoice extends CI_Controller
 
     public function template()
     {
-
         $id = $this->input->post('invoiceid');
         $ttype = $this->input->post('ttype');
         $itype = $this->input->post('itype');
@@ -91,21 +90,39 @@ class Emailinvoice extends CI_Controller
                 $invoice['multi'] = 0;
                 break;
         }
-
-
+		
+		$mailfromtilte = '';
+		$mailfrom = '';
+		
+		$this->db->select("emailo_remet, email_app");
+		$this->db->from('geopos_system_permiss');
+		if($this->aauth->get_user()->loc > 0){
+			$this->db->where('loc', $this->aauth->get_user()->loc);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$mailfromtilte = $vals['emailo_remet'];
+		if($mailfromtilte == '')
+		{
+			$mailfromtilte = $this->config->item('ctitle');
+		}
+		$mailfrom = $vals['email_app'];
+		
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'BillNumber' => $invoice['tid']
         );
         $subject = $this->parser->parse_string($template['key1'], $data, TRUE);
 
 
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'BillNumber' => $invoice['tid'],
             'URL' => "<a href='$link'>$link</a>",
             'Name' => $invoice['name'],
-            'CompanyDetails' => '<h6><strong>' . $this->config->item('ctitle') . ',</strong></h6>
+            'CompanyDetails' => '<h6><strong>' . $mailfromtilte . ',</strong></h6>
 <address>' . $this->config->item('address') . '<br>' . $this->config->item('address2') . '</address>
              ' . $this->lang->line('Phone') . ' : ' . $this->config->item('phone') . '<br>  ' . $this->lang->line('Email') . ' : ' . $this->config->item('email'),
             'DueDate' => dateformat($invoice['invoiceduedate']),

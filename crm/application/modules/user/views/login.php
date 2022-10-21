@@ -51,12 +51,12 @@
 
                                    
                                     <button type="submit" class="btn btn-primary btn-lg btn-block"><i
-                                                class="icon-unlock2"></i> Login
+                                                class="icon-unlock2"></i> Autenticação
                                     </button>
-                                </form> <?php    if ($this->common->front_end()->register) {
-        ?> <br> <div class="row"><span class="col-xs-7"><a
+                                </form> 
+									<?php if ($this->common->front_end()->register) {?> <br> <div class="row"><span class="col-xs-7"><a
                                                     href="<?php echo base_url('user/registration'); ?>" class="card-link">
-                                               <?php echo $this->lang->line('Register')  ?></a></span><span class="col-xs-5"><a
+                                               Criar Novo Utilizador</a></span><span class="col-xs-5"><a
                                                     href="<?php echo base_url('user/forgot'); ?>" class="card-link">
                                           <?php echo $this->lang->line('forgot_password')  ?>?</a></span></div>
                                 <?php } ?>

@@ -1,3 +1,6 @@
+<?php 
+$wid = $this->input->get('id');
+?>
 <div class="content-body">
     <div class="card">
         <div class="card-header">
@@ -5,9 +8,7 @@
                         href="<?php echo base_url('products/add') ?>"
                         class="btn btn-primary btn-sm rounded">
                     <?php echo $this->lang->line('Add new') ?>
-                </a> <a
-                        href="<?php echo base_url('productcategory/add_sub') ?>"
-                        class="btn btn-blue btn-sm rounded">
+                </a> <a href="<?php echo base_url('productcategory/add_sub?id='.$wid) ?>" class="btn btn-blue btn-sm rounded">
                     <?php echo $this->lang->line('Add new') . ' - ' . $this->lang->line('Sub') . ' ' . $this->lang->line('Category') ?>
                 </a>
             </h5>

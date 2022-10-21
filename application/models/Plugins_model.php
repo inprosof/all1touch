@@ -92,8 +92,10 @@ class Plugins_model extends CI_Model
                     $this->lang->line('UPDATED')));
             }
         } else {
-            echo json_encode(array('status' => 'Error', 'message' =>
-                $this->lang->line('ERROR')));
+            if ($m) {
+                echo json_encode(array('status' => 'Error', 'message' =>
+                    $this->lang->line('ERROR')));
+            }
         }
 
     }
@@ -107,7 +109,7 @@ class Plugins_model extends CI_Model
         if(isset($url)) $data['url']=$url;
         if(isset($method)) $data['method']=$method;
         if(isset($other)) $data['other']=$other;
-         if(isset($enable)) $data['active']=$enable;
+        if(isset($enable)) $data['active']=$enable;
 
         $this->db->set($data);
         $this->db->where('id', $id);

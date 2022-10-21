@@ -40,7 +40,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <h4>Personal Information:</h4>
+                                    <h4>Informação Pessoal:</h4>
 
 
                                     <hr>
@@ -60,21 +60,21 @@
 
 
                                     <hr>
-                                    <h5>Change Password:</h5>
+                                    <h5>Alterar Senha:</h5>
                                     <div class="form-group has-feedback">
-                                        <label for="exampleInputEmail1">Current Password:</label>
+                                        <label for="exampleInputEmail1">Senha Atual:</label>
                                         <input id="pass11" class="form-control" pattern=".{6,}" type="password"
                                                placeholder="********" name="currentpassword" title="6-14 characters">
                                         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                                     </div>
                                     <div class="form-group has-feedback">
-                                        <label for="exampleInputEmail1">New Password:</label>
+                                        <label for="exampleInputEmail1">Nova Senha:</label>
                                         <input type="password" class="form-control" placeholder="New Password"
                                                name="password">
                                         <span class="glyphicon glyphicon-pencil form-control-feedback"></span>
                                     </div>
                                     <div class="form-group has-feedback">
-                                        <label for="exampleInputEmail1">Confirm New Password:</label>
+                                        <label for="exampleInputEmail1">Confirmar Nova Senha:</label>
                                         <input type="password" class="form-control" placeholder="Confirm New Password"
                                                name="confirmPassword">
                                         <span class="glyphicon glyphicon-pencil form-control-feedback"></span>
@@ -86,7 +86,7 @@
                                         <input type="hidden" name="user_type"
                                                value="<?php echo isset($user_data[0]->user_type) ? $user_data[0]->user_type : ''; ?>">
                                         <button name="submit1" type="button" id="profileSubmit"
-                                                class="btn btn-success btn-md wdt-bg">Save
+                                                class="btn btn-success btn-md wdt-bg">Guardar
                                         </button>
                                         <!-- <div class=" pull-right">
                                         </div> -->

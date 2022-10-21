@@ -14,7 +14,7 @@
             <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>"
                    value="<?php echo $this->security->get_csrf_hash(); ?>">
             <input type="hidden" id="core"
-                   value="Activate/activate2"> 
+                   value="Activate/activate"> 
             <div class="card-body">
 
                 <h5><?php echo $this->lang->line('name_soft') ?></h5>
