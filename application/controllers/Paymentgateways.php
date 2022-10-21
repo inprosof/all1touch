@@ -86,7 +86,16 @@ class Paymentgateways extends CI_Controller
 			$this->aauth->applog("[Configurações de negócios->Configurações de Pagamento] Dados Atualizados", $this->aauth->get_user()->username);
         } else {
 			$this->load->model('accounts_model');
-            $data['current'] = $this->plugins->universal_api(69);
+			
+			$this->load->model('settings_model', 'settings');
+			$discship = [];
+			if($this->aauth->get_user()->loc == 0)
+			{
+				$discship = $this->settings->online_pay_settings_main();
+			}else{
+				$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+			}
+            $data['current'] = $discship;
             $data['online_pay'] = $this->billing->online_pay_settings();
 			$data['acclist'] = $this->accounts_model->accountslist();
             $this->load->view('fixed/header');
@@ -156,19 +165,6 @@ class Paymentgateways extends CI_Controller
             $this->load->view('payment/bank-edit', $data);
             $this->load->view('fixed/footer');
 
-        }
-
-    }
-
-
-    public function delete_bank_ac()
-    {
-        $id = $this->input->post('deleteid');
-        if ($id) {
-            $this->db->delete('geopos_bank_ac', array('id' => $id));
-            echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('DELETED')));
-        } else {
-            echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
         }
     }
 

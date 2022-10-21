@@ -16,7 +16,7 @@
                 </tr>
                 <tr>
                     <td><?php echo $this->lang->line('Note') ?></td>
-                    <td><?php echo prefix(4) . $invoice['tid'] ?></td>
+                    <td><?php echo $invoice['irs_type_n']) . $invoice['tid'] ?></td>
                 </tr>
                 <tr>
                     <td><?php echo $this->lang->line('Date') ?></td>

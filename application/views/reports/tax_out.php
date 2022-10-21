@@ -15,24 +15,18 @@
             <table class="table table-striped" cellspacing="0" width="100%">
                 <thead>
                 <tr>
-                    <?php if ($filter[2] == 'Sales') { ?>
+                    <?php if ($filter[2] == 'Sales' || $filter[2] == 'Purchase') { ?>
                         <th><?php echo $this->lang->line('Invoice') ?></th>
                         <th><?php echo $this->lang->line('Customer') ?></th>
-                        <th>TAX ID</th>
+                        <th>NIF</th>
                     <?php } else { ?>
-
-                        <th>Receipt</th>
+                        <th><?php echo $this->lang->line('Invoice') ?></th>
                         <th><?php echo $this->lang->line('Supplier') ?></th>
-                        <th></th>
+                       <th>NIF</th>
                     <?php } ?>
-
-
                     <th><?php echo $this->lang->line('Amount') ?></th>
-
-                    <th>TAX Amount</th>
-
+                    <th>IVA</th>
                     <th><?php echo $this->lang->line('Balance') ?></th>
-
                 </tr>
                 </thead>
                 <tbody id="entries">

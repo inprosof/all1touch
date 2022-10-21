@@ -27,7 +27,7 @@
 
 				<div class="col-sm-6">
 					<input type="text" placeholder="Cae Cod"
-						   class="form-control margin-bottom  required" value="<?php echo $caes['taxcode'] ?>" name="tcod">
+						   class="form-control margin-bottom  required" value="<?php echo $caes['cod'] ?>" name="tcod">
 				</div>
 			</div>
 			
@@ -38,7 +38,7 @@
 
 				<div class="col-sm-6">
 					<input type="text" placeholder="Cae Name"
-						   class="form-control margin-bottom  required" value="<?php echo $caes['val1'] ?>" name="tname">
+						   class="form-control margin-bottom  required" value="<?php echo $caes['name'] ?>" name="tname">
 				</div>
 			</div>
 

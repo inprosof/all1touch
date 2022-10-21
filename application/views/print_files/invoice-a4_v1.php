@@ -279,7 +279,6 @@
 				   <?php 
 					   if ($invoice['notes'])
 							echo '<hr><br>'.$this->lang->line('Note') . ': <br><h6>' . $invoice['notes'] . '</h6><hr>';
-						echo '<h6>Processado por Programa Certificado nº '.$loc2['certification'].'</h6>';
 						?>
 				</td>
 				<?php if (@$invoice['name_s']) { ?>
@@ -447,16 +446,35 @@
 				<td class="myco2" rowspan="<?php echo $sub_t_col ?>"><br>
 					<p><?php 
 							$tipsel = $this->lang->line(ucwords($invoice['status']));
-							if ($invoice['status'] == 'Rascunho')
+							$tipsel = ucwords($invoice['status']);
+							if ($invoice['status'] == 'Rascunho' || $invoice['status'] == 'draft')
 							{
 								$tipsel = 'Rascunho';
 							}else if($invoice['irs_type_n'] == 'Guia de Remessa' || $invoice['irs_type_n'] == 'Guia de Transporte')
 							{
 								$tipsel = 'Processada';
+							}else if($invoice['status'] == 'pending')
+							{
+								$tipsel = 'Pendente';
+							}else if($invoice['status'] == 'accepted')
+							{
+								$tipsel = 'Aceite';
+							}else if($invoice['status'] == 'rejected')
+							{
+								$tipsel = 'Rejeitado';
+							}else if($invoice['status'] == 'customer_approved')
+							{
+								$tipsel = 'Aprovado pelo Cliente';
+							}else if($invoice['status'] == 'ended')
+							{
+								$tipsel = 'Finalizado';
+							}else if($invoice['status'] == 'canceled')
+							{
+								$tipsel = 'Cancelado';
 							}
 							
 							echo '' . $this->lang->line('Status') . ': <strong>' .$tipsel.'</strong></p>';
-							if(!$invoice['propdue_name'] && $invoice['irs_type_n'] != 'Guia de Remessa' && $invoice['irs_type_n'] != 'Guia de Transporte')
+							if($invoice['irs_type_n'] != 'Guia de Remessa' && $invoice['irs_type_n'] != 'Guia de Transporte')
 							{
 								echo '<hr><small>' . valorPorExtenso($invoice['total']) . '</small><hr>';
 								echo '<br><p style="font-size: 22px;"><strong>Valor a Pagar: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
@@ -480,9 +498,9 @@
 								
 								if($invoice['irs_type_n'] == 'Guia de Remessa' || $invoice['irs_type_n'] == 'Guia de Transporte')
 								{
-									echo '<br><p style="font-size: 22px;"><strong>Guia Valor: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
+									echo '<br><p style="font-size: 18px;"><strong>Guia Valor: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
 								}else{
-									echo '<br><p style="font-size: 22px;"><strong>Orçamento Valor: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
+									echo '<br><p style="font-size: 18px;"><strong>Orçamento Valor: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
 								}
 							}
 							if ($general['t_type'] == 1) {
@@ -490,7 +508,7 @@
 							}
 						?></p>
 				</td>
-				<td><strong><?php echo $this->lang->line('Summary') ?>:</strong></td>
+				<td colspan="2"><strong><?php echo $this->lang->line('Summary') ?>:</strong></td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr class="f_summary">

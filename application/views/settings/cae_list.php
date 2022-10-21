@@ -27,7 +27,7 @@
 					$ii=1;
 					foreach ($caes as $row) {
 						$cid = $row['id'];
-						echo "<tr><td>".$ii."</td><td>" . $row['val1'] . "</td><td>" . $row['taxcode'] . "</td>
+						echo "<tr><td>".$ii."</td><td>" . $row['name'] . "</td><td>" . $row['cod'] . "</td>
 						<td><a href='" . base_url("settings/caes_edit?id=$cid") . "' class='btn btn-warning btn-sm'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;<a href='#' data-object-id='" . $cid . "' class='btn btn-danger btn-sm delete-object' title='Delete'><i class='fa fa-trash'></i></a></td></tr>";
 						$ii++;
 					}

@@ -20,11 +20,7 @@
         </div>
         <div class="card-body">
             <form method="post" id="data_form">
-
-
                 <input type="hidden" name="act" value="add_product">
-
-
                 <div class="form-group row">
                     <div class="col-sm-6">
                         <label class="col-form-label"  for="product_name"><?php echo $this->lang->line('Asset Name') ?>*</label>
@@ -35,19 +31,14 @@
                         <select name="product_cat" id="product_cat" class="form-control required">
 							<option value=""><?php echo $this->lang->line('Please Select Category') ?></option>
 								<?php
-								foreach ($cats as $row) {
-									$cid = $row['id'];
-									$title = $row['title'];
-									$type = $row['type'];
-									echo "<option value='$cid' data-type='$type'>$title</option>";
-								}
+									echo $cats;
 								?>
                         </select>
                     </div>
                     <div class="col-sm-6">
-                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Warehouse') ?>*</label>
+                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Warehouse') ?></label>
                         <select name="product_warehouse" class="form-control required">
-                            <option value=""><?php echo $this->lang->line('Close') ?></option>
+                           <option value="0"><?php echo 'Todos';?></option>
                             <?php
                             foreach ($warehouse as $row) {
                                 $cid = $row['id'];
@@ -64,18 +55,16 @@
                                onkeypress="return isNumber(event)">
                     </div>
                     <div class="col-sm-12">
-                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Assign to') ?>*</label>
+                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Assign to') ?></label>
                         <select name="employee_id" class="form-control required">
-                            <option value="">--Please Select employee--</option>
-                            <?php foreach ($employees as $employee) : ?>
-                                <?php
-                                $eid = $employee['id'];
-                                $name = $employee['name'];
-                                ?>
-                                <option value="<?php echo $eid ?>" >
-                                    <?php echo $name ?>
-                                </option>
-                            <?php endforeach; ?>
+							<option value="0"><?php echo 'Empresa';?></option>
+							<?php
+								foreach ($employees as $employee) {
+									$eid = $employee['id'];
+									$name = $employee['name'];
+									echo "<option value='$eid'>$name</option>";
+								}
+								?>
                         </select>
                     </div>
                 </div>
@@ -93,20 +82,41 @@
                                value="">
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Description') ?></label>
-                        <textarea placeholder="Description"
-                                  class="form-control margin-bottom" name="product_desc"
-                        ></textarea>
+				<div class="col-sm-12">
+					<label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Description') ?>*</label>
+					<textarea placeholder="Description"
+							  class="form-control margin-bottom" name="product_desc"
+					></textarea>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label"><?php echo $this->lang->line('Image') ?></label>
+                    <div class="col-sm-6">
+                        <div id="progress" class="progress">
+                            <div class="progress-bar progress-bar-success"></div>
+                        </div>
+                        <!-- The container for the uploaded files -->
+                        <table id="files" class="files"></table>
+                        <br>
+                        <span class="btn btn-success fileinput-button">
+							<i class="glyphicon glyphicon-plus"></i>
+							<span>Select files...</span>
+							<!-- The file input field used as target for the file upload widget -->
+							<input id="fileupload" type="file" name="files[]">
+						</span>
+                        <br>
+                        <pre>Allowed: gif, jpeg, png (Use light small weight images for fast loading - 200x200)</pre>
+                        <br>
+                        <!-- The global progress bar -->
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-sm-4">
                         <input type="submit" id="submit-data" class="btn btn-lg btn-blue margin-bottom"
                                value="<?php echo $this->lang->line('Add New Asset') ?>" data-loading-text="Adding...">
                         <input type="hidden" value="assests/addasset" id="action-url">
                     </div>
                 </div>
-
+				<input type="hidden" name="image" id="image" value="default.png">
             </form>
         </div>
     </div>
@@ -134,7 +144,7 @@
     $(function () {
         'use strict';
         // Change this to the location of your server-side upload handler:
-        var url = '<?php echo base_url() ?>products/file_handling';
+        var url = '<?php echo base_url() ?>assests/file_handling';
         $('#fileupload').fileupload({
             url: url,
             dataType: 'json',
@@ -142,7 +152,7 @@
             done: function (e, data) {
                 var img = 'default.png';
                 $.each(data.result.files, function (index, file) {
-                    $('#files').html('<tr><td><a data-url="<?php echo base_url() ?>products/file_handling?op=delete&name=' + file.name + '" class="aj_delete"><i class="btn-danger btn-sm icon-trash-a"></i> ' + file.name + ' </a><img style="max-height:200px;" src="<?php echo base_url() ?>userfiles/product/' + file.name + '"></td></tr>');
+                    $('#files').html('<tr><td><a data-url="<?php echo base_url() ?>assests/file_handling?op=delete&name=' + file.name + '" class="aj_delete"><i class="btn-danger btn-sm icon-trash-a"></i> ' + file.name + ' </a><img style="max-height:200px;" src="<?php echo base_url() ?>userfiles/assets/' + file.name + '"></td></tr>');
                     img = file.name;
                 });
 
@@ -182,54 +192,21 @@
     $(document).on('click', ".tr_clone_add", function (e) {
         e.preventDefault();
         var n_row = $('#v_var').find('tbody').find("tr:last").clone();
-
         $('#v_var').find('tbody').find("tr:last").after(n_row);
-
     });
+	
     $(document).on('click', ".tr_clone_add_w", function (e) {
         e.preventDefault();
         var n_row = $('#w_var').find('tbody').find("tr:last").clone();
 
         $('#w_var').find('tbody').find("tr:last").after(n_row);
-
     });
-
+	
     $(document).on('click', ".tr_delete", function (e) {
         e.preventDefault();
         $(this).closest('tr').remove();
     });
-
-
-    $("#sub_cat").select2();
-    $("#product_cat").on('change', function () {
-        $("#sub_cat").val('').trigger('change');
-        var tips = $('#product_cat').val();
-        $("#sub_cat").select2({
-
-            ajax: {
-                url: baseurl + 'products/sub_cat?id=' + tips,
-                dataType: 'json',
-                type: 'POST',
-                quietMillis: 50,
-                data: function (product) {
-                    return {
-                        product: product,
-                        '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.title,
-                                id: item.id
-                            }
-                        })
-                    };
-                },
-            }
-        });
-    });
+	
     $(document).on('click', ".v_delete_serial", function (e) {
         e.preventDefault();
         $(this).closest('div .serial').remove();

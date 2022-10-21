@@ -31,11 +31,12 @@ class Employee_model extends CI_Model
             $this->db->group_start();
             $this->db->where('geopos_users.loc', $this->aauth->get_user()->loc);
 			$this->db->where('geopos_users.system', 0);
-			$this->db->where('geopos_employees.system', 0);
-            if (BDATA) $this->db->or_where('loc', 0);
+            if (BDATA) 
+				$this->db->or_where('loc', 0);
             $this->db->group_end();
         }
-		
+		$this->db->where('geopos_employees.system', 0);
+		$this->db->where('geopos_users.banned', 0);
         $this->db->order_by('geopos_users.roleid', 'DESC');
         $query = $this->db->get();
         return $query->result_array();
@@ -51,6 +52,7 @@ class Employee_model extends CI_Model
         $this->db->join('geopos_users', 'geopos_employees.id = geopos_users.id', 'left');
 		$this->db->where('geopos_users.system', 0);
 		$this->db->where('geopos_employees.system', 0);
+		$this->db->where('geopos_users.banned', 0);
         $this->db->order_by('geopos_users.roleid', 'DESC');
         $query = $this->db->get();
         return $query->result_array();
@@ -81,7 +83,7 @@ class Employee_model extends CI_Model
         return $query->result_array();
     }
 
-    public function update_employee($id, $name, $phone, $phonealt, $address, $city, $region, $country, $postbox, $location, $basic_salary = 0,$subsidy_meal=0,$medical_allowance,$department = -1, $commission = 0, $roleid = false, $irs, $niss,$type_employee,$type_irs,$married,$account_bank,$number_children,$productivity)
+    public function update_employee($id, $name, $phone, $phonealt, $address, $city, $region, $country, $postbox, $location, $basic_salary = 0,$subsidy_meal=0,$medical_allowance,$department = -1, $commission = 0, $roleid = false, $irs, $niss,$type_employee,$type_irs,$married,$account_bank,$number_children,$productivity,$mess_ativos)
     {
         $this->db->select('roleid');
         $this->db->from('geopos_users');
@@ -109,7 +111,8 @@ class Employee_model extends CI_Model
 			'number_children' => $number_children,
 			'productivity' => $productivity,
             'account_bank' => $account_bank,
-            'type_employee' => $type_employee
+            'type_employee' => $type_employee,
+			'mess_ativos' => $mess_ativos
         );
         if ($department > -1) {
             $data = array(
@@ -133,7 +136,8 @@ class Employee_model extends CI_Model
 				'number_children' => $number_children,
 				'productivity' => $productivity,
                 'account_bank' => $account_bank,
-                'type_employee' => $type_employee
+                'type_employee' => $type_employee,
+				'mess_ativos' => $mess_ativos
             );
         }
 
@@ -144,7 +148,8 @@ class Employee_model extends CI_Model
 
         if ($this->db->update('geopos_employees')) {
 			$this->custom->edit_save_fields_data($id, 6);
-            if ($roleid && $role['roleid'] != 5) {
+            //if ($roleid && $role['roleid'] != 5) {
+			if ($roleid) {
                 $this->db->set('loc', $location);
                 $this->db->set('roleid', $roleid);
                 $this->db->where('id', $id);
@@ -348,11 +353,8 @@ class Employee_model extends CI_Model
 
     private function _get_datatables_query()
     {
-
         $this->db->from('geopos_transactions');
-
         $this->db->where('eid', $this->eid);
-
 
         $i = 0;
 
@@ -408,7 +410,7 @@ class Employee_model extends CI_Model
         return $this->db->count_all_results();
     }
 
-    public function add_employee($id, $username, $name, $roleid, $phone, $address, $city, $region, $country, $postbox, $location, $basic_salary = 0,$subsidy_meal=0,$medical_allowance,$commission = 0, $department = 0, $irs, $niss,$type_employee,$type_irs,$married, $account_bank, $number_children, $productivity)
+    public function add_employee($id, $username, $name, $roleid, $phone, $address, $city, $region, $country, $postbox, $location, $basic_salary = 0,$subsidy_meal=0,$medical_allowance,$commission = 0, $department = 0, $irs, $niss,$type_employee,$type_irs,$married, $account_bank, $number_children, $productivity, $mess_ativos)
     {
         $data = array(
             'id' => $id,
@@ -433,7 +435,8 @@ class Employee_model extends CI_Model
             'type_employee' => $type_employee,
 			'number_children' => $number_children,
 			'productivity' => $productivity,
-			'system' => 0
+			'system' => 0,
+			'mess_ativos' => $mess_ativos
         );
 
         if ($this->db->insert('geopos_employees', $data)) {
@@ -727,7 +730,9 @@ class Employee_model extends CI_Model
 
     private function _pay_get_datatables_query($eid)
     {
+		$this->db->select('geopos_transactions.*, geopos_config.val1 as methodname');
         $this->db->from('geopos_transactions');
+		$this->db->join('geopos_config', 'geopos_transactions.method=geopos_config.id', 'left');		
         if ($this->aauth->get_user()->loc) {
             $this->db->where('loc', $this->aauth->get_user()->loc);
         }

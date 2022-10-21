@@ -17,6 +17,7 @@ require_once APPPATH . 'third_party/qrcode/vendor/autoload.php';
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\Printer;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class Invoices_supli extends CI_Controller
 {
@@ -56,11 +57,6 @@ class Invoices_supli extends CI_Controller
 		$this->load->model('locations_model', 'locations');
         $this->load->library("Common");
 		$this->load->model('settings_model', 'settings');
-        $data['emp'] = $this->plugins->universal_api(69);
-        if ($data['emp']['key1']) {
-            $this->load->model('employee_model', 'employee');
-            $data['employee'] = $this->employee->list_employee();
-        }
         $data['custom_fields_c'] = $this->custom->add_fields(1);
 		$data['csd_name'] = "Fornecedor";
 		$data['csd_tax'] = "";
@@ -73,6 +69,31 @@ class Invoices_supli extends CI_Controller
 			$data['csd_tax'] = $csdorder['taxid'];
 			$data['csd_id'] = $csdorder['id'];
 		}
+		
+		////////////////////////Relação entre Permissões//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+		
 		$data['order'] = $order;
         $data['exchange'] = $this->plugins->universal_api(5);
 		$data['company'] = $this->settings->company_details(1);
@@ -92,13 +113,13 @@ class Invoices_supli extends CI_Controller
 		$data['taxsiva'] = $this->settings->slabscombo();		
 		$data['typesinvoices'] = "";
 		$data['typesinvoicesdefault'] = $this->common->default_typ_doc(16);
-		$data['seriesinvoiceselect'] = $this->common->default_series(16);
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
 		if($data['seriesinvoiceselect'] == NULL)
 		{
 			exit('Deve Inserir pelo menos uma Série no Tipo Fatura Fornecedor. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
-			$seri_did_df = $this->common->default_series_id(16);
+			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
 			$numget = $this->common->lastdoc(16,$seri_did_df);
 			$data['lastinvoice'] = $numget;
 			$head['title'] = 'Novo Documento';
@@ -195,7 +216,7 @@ class Invoices_supli extends CI_Controller
     public function action($typ = 0, $idgu = 0)
     {
 		$this->load->model('accounts_model');
-		$this->load->model('customers_model', 'customers');
+		$this->load->model('supplier_model', 'supplier');
         $currency = $this->input->post('mcurrency');
 		if($currency == null || $currency="" || $currency="0"){
 			$currencyCOde = $this->accounts_model->getCurrency();
@@ -204,7 +225,7 @@ class Invoices_supli extends CI_Controller
 		$order_id = $this->input->post('order_id');
 		$customer_id = ((integer)$this->input->post('customer_id'));
 		$invocieencorc = $this->input->post('invocieencorc');
-		$customer_info = $this->customers->recipientinfo($customer_id);
+		$customer_info = $this->supplier->recipientinfo($customer_id);
         $customer_name = $customer_info['name'];
 		$customer_tax = $this->input->post('customer_tax');
         $invoicedate = $this->input->post('invoicedate', true);
@@ -246,13 +267,19 @@ class Invoices_supli extends CI_Controller
             exit;
 		}
 
-        $this->load->model('plugins_model', 'plugins');
-        $empl_e = $this->plugins->universal_api(69);
-        if ($empl_e['key1']) {
+        $this->load->model('settings_model', 'settings');
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$emp = 0;
+		if ($discship['emps'] == 1) {
             $emp = $this->input->post('employee');
-        } else {
-            $emp = $this->aauth->get_user()->id;
-        }
+        }else{
+			$emp = $this->aauth->get_user()->id;
+		}
 		
         $transok = true;
         $st_c = 0;
@@ -860,22 +887,54 @@ class Invoices_supli extends CI_Controller
 		$codQRD .= 'S:'.$campfim.'*';
 		
 		$qrCode = new QrCode($codQRD);
-		$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		
+		$writer = new PngWriter();
+		$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		ini_set('memory_limit', '64M');
 		
 		$data['Tipodoc'] = "Original";
 		$data2 = $data;
 		$data2['Tipodoc'] = "Duplicado";
+		$data3 = $data;
+		$data3['Tipodoc'] = "Triplicado";
+		$data4 = $data;
+		$data4['Tipodoc'] = "Quadruplicado";
 		
-		
-        $html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
+		$html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
 		$html2 = $this->load->view('print_files/invoice-a4_v' . INVV, $data2, true);
-        //PDF Rendering
-        $this->load->library('pdf');
+		$html3 = $this->load->view('print_files/invoice-a4_v' . INVV, $data3, true);
+		$html4 = $this->load->view('print_files/invoice-a4_v' . INVV, $data4, true);
+		
+		$this->load->library('pdf');
         $pdf = $this->pdf->load_split(array('margin_top' => 10));
-        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">{PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
-		$pdf->WriteHTML($html);
-		$pdf->AddPage();
-		$pdf->WriteHTML($html2);
+		$loc2 = location(0);
+        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
+		if($data['invoice']['numcop'] == 'copy1')
+		{
+			$pdf->WriteHTML($html);
+		}else if($data['invoice']['numcop'] == 'copy2')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+		}else if($data['invoice']['numcop'] == 'copy3')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+		}else if($data['invoice']['numcop'] == 'copy4')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html4);
+		}
 		
         $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
         if ($this->input->get('d')) {
@@ -1061,9 +1120,29 @@ class Invoices_supli extends CI_Controller
         $this->load->library('parser');
         $this->load->model('templates_model', 'templates');
         $template = $this->templates->template_info(6);
-
+		
+		$mailfromtilte = '';
+		$mailfrom = '';
+		
+		$this->db->select("emailo_remet, email_app");
+		$this->db->from('geopos_system_permiss');
+		$this->db->where('docs_email', 1);
+		if($this->aauth->get_user()->loc > 0){
+			$this->db->where('loc', $this->aauth->get_user()->loc);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$mailfromtilte = $vals['emailo_remet'];
+		if($mailfromtilte == '')
+		{
+			$mailfromtilte = $this->config->item('ctitle');
+		}
+		$mailfrom = $vals['email_app'];
+		
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'BillNumber' => $invocieno2
         );
         $subject = $this->parser->parse_string($template['key1'], $data, TRUE);
@@ -1072,10 +1151,10 @@ class Invoices_supli extends CI_Controller
 
 
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'BillNumber' => $invocieno2,
             'URL' => "<a href='$link'>$link</a>",
-            'CompanyDetails' => '<h6><strong>' . $this->config->item('ctitle') . ',</strong></h6>
+            'CompanyDetails' => '<h6><strong>' . $mailfromtilte . ',</strong></h6>
 <address>' . $this->config->item('address') . '<br>' . $this->config->item('address2') . '</address>
              ' . $this->lang->line('Phone') . ' : ' . $this->config->item('phone') . '<br>  ' . $this->lang->line('Email') . ' : ' . $this->config->item('email'),
             'DueDate' => dateformat($idate),

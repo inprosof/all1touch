@@ -589,7 +589,7 @@
                                name="type" id="type" value="0">
                         <button type="button" class="btn btn-default"
                                 data-dismiss="modal"><?php echo $this->lang->line('Close') ?></button>
-						<a class="btn btn-primary" href="<?php echo base_url('invoices/nt_convert?qo=' . $invoice['iid'] . '&token=' . $validtoken); ?>"><?php echo $this->lang->line('Yes') ?></a>
+						<a class="btn btn-primary" href="<?php echo base_url('invoices/convert?id=' . $invoice['iid'] . '&typ=7&ext=1&token=' . $validtoken); ?>"><?php echo $this->lang->line('Yes') ?></a>
                     </div>
                 </form>
             </div>

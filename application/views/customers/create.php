@@ -36,12 +36,12 @@
                                 </li>
                                   <li class="nav-item">
                                     <a class="nav-link" id="base-tab3" data-toggle="tab" aria-controls="tab3"
-                                       href="#tab4" role="tab"
+                                       href="#tab3" role="tab"
                                        aria-selected="false"><?php echo $this->lang->line('CustomFields') ?></a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="base-tab3" data-toggle="tab" aria-controls="tab3"
-                                       href="#tab3" role="tab"
+                                    <a class="nav-link" id="base-tab4" data-toggle="tab" aria-controls="tab4"
+                                       href="#tab4" role="tab"
                                        aria-selected="false"><?php echo $this->lang->line('Other') . ' ' . $this->lang->line('Settings') ?></a>
                                 </li>
 
@@ -254,7 +254,7 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
                                         <div class="col-sm-8">
                                             <input type="text" placeholder="city"
                                                    class="form-control margin-bottom b_input" name="city_s"
-                                                   id="mcustomer_city_s" value="<?php echo $viesCT['city'] ?>">
+                                                   id="mcustomer_city_s">
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -265,7 +265,7 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
                                         <div class="col-sm-8">
                                             <input type="text" placeholder="Region"
                                                    class="form-control margin-bottom b_input" name="region_s"
-                                                   id="region_s" value="<?php echo $viesCT['region'] ?>">
+                                                   id="region_s">
                                         </div>
                                     </div>
 									<div class="form-group row">
@@ -290,11 +290,48 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
                                         <div class="col-sm-6">
                                             <input type="text" placeholder="PostBox"
                                                    class="form-control margin-bottom b_input" name="postbox_s"
-                                                   id="postbox_s" value="<?php echo $viesCT['postbox'] ?>">
+                                                   id="postbox_s">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
+								<div class="tab-pane show" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
+                                 <?php
+									foreach ($custom_fields as $row) {
+										if ($row['f_type'] == 'text') { ?>
+											<div class="form-group row">
+												<label class="col-sm-10 col-form-label"
+													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+												<div class="col-sm-8">
+													<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+														   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+														   name="custom[<?php echo $row['id'] ?>]">
+												</div>
+											</div>
+										<?php }else if ($row['f_type'] == 'check') { ?>
+											<div class="form-group row">
+												<label class="col-sm-10 col-form-label"
+													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+												<div class="custom-control custom-checkbox">
+													<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
+													<label class="custom-control-label"
+													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+												</div>
+											</div>
+										<?php }else if ($row['f_type'] == 'textarea') { ?>
+											<div class="form-group row">
+												<label class="col-sm-10 col-form-label"
+													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+												<div class="col-sm-8">
+													<textarea placeholder="<?php echo $row['placeholder'] ?>"
+														   class="summernote <?php echo $row['other'] ?>"
+														   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
+												</div>
+											</div>
+										<?php }
+									}
+									?>
+                                </div>
+                                <div class="tab-pane" id="tab4" role="tabpanel" aria-labelledby="base-tab4">
                                     <div class="form-group row"><label class="col-sm-2 col-form-label"
                                                                        for="Discount"><?php echo $this->lang->line('Discount') ?> </label>
                                         <div class="col-sm-6">
@@ -302,6 +339,7 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
                                                    class="form-control margin-bottom b_input" name="discount">
                                         </div>
                                     </div>
+									
                                     <div class="form-group row">
 
                                         <label class="col-sm-2 col-form-label"
@@ -312,16 +350,6 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
                                                    class="form-control margin-bottom b_input" name="docid">
                                         </div>
                                     </div>
-                                    <div class="form-group row"><label class="col-sm-2 col-form-label"
-                                                                       for="c_field"><?php echo $this->lang->line('Extra') ?> </label>
-                                        <div class="col-sm-6">
-                                            <input type="text" placeholder="Custom Field"
-                                                   class="form-control margin-bottom b_input" name="c_field">
-                                        </div>
-                                    </div>
-
-
-
                                     <div class="form-group row">
 
                                         <label class="col-sm-2 col-form-label"
@@ -385,43 +413,7 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
 
 
                                 </div>
-                                <div class="tab-pane show" id="tab4" role="tabpanel" aria-labelledby="base-tab4">
-                                 <?php
-									foreach ($custom_fields as $row) {
-										if ($row['f_type'] == 'text') { ?>
-											<div class="form-group row">
-												<label class="col-sm-10 col-form-label"
-													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
-												<div class="col-sm-8">
-													<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
-														   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
-														   name="custom[<?php echo $row['id'] ?>]">
-												</div>
-											</div>
-										<?php }else if ($row['f_type'] == 'check') { ?>
-											<div class="form-group row">
-												<label class="col-sm-10 col-form-label"
-													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
-												<div class="custom-control custom-checkbox">
-													<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
-													<label class="custom-control-label"
-													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
-												</div>
-											</div>
-										<?php }else if ($row['f_type'] == 'textarea') { ?>
-											<div class="form-group row">
-												<label class="col-sm-10 col-form-label"
-													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
-												<div class="col-sm-8">
-													<textarea placeholder="<?php echo $row['placeholder'] ?>"
-														   class="summernote <?php echo $row['other'] ?>"
-														   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
-												</div>
-											</div>
-										<?php }
-									}
-									?>
-                                </div>
+                                
                                 <div id="mybutton">
                                     <input type="submit" id="submit-data"
                                            class="btn btn-lg btn btn-primary margin-bottom round float-xs-right mr-2"

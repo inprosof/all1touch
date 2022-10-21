@@ -2,18 +2,22 @@
 $due = false;
 if ($this->input->get('due')) {
     $due = true;
-} ?>
+}
+$inac = false;
+if ($this->input->get('inac')) {
+    $inac = true;
+}
+ ?>
 <div class="content-body">
     <div class="card">
         <div class="card-header">
-            <h4 class="card-title"><a href="<?php echo base_url('customers') ?>" class="mr-5">
-                    <?php echo $this->lang->line('Clients') ?></a> <a
-                        href="<?php echo base_url('customers/create') ?>"
-                        class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(37) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
-                    <?php echo $this->lang->line('Add new') ?></a> <a
-                        href="<?php echo base_url('customers?due=true') ?>"
-                        class="btn btn-danger btn-sm rounded" <?php if($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
-                    <?php echo $this->lang->line('Clients') ?> Com <?php echo $this->lang->line('Invoices') ?> <?php echo $this->lang->line('Due') ?></a></h4>
+            <h4 class="card-title"><a href="<?php echo base_url('customers') ?>" class="mr-5"> <?php echo $this->lang->line('Clients') ?></a></h4>
+			<a href="<?php echo base_url('customers/create') ?>" class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(37) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+				<?php echo $this->lang->line('Add new') ?></a> 
+			<a href="<?php echo base_url('customers?due=true') ?>" class="btn btn-danger btn-sm rounded" <?php if($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+				<?php echo $this->lang->line('Clients') ?> Com <?php echo $this->lang->line('Invoices') ?> <?php echo $this->lang->line('Due') ?></a>
+			<a href="<?php echo base_url('customers?inac=true') ?>" class="btn btn-success btn-sm rounded" <?php if($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                    <?php echo $this->lang->line('Clients') ?> Inactivos</a>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -215,7 +219,7 @@ if ($this->input->get('due')) {
             'ajax': {
                 'url': "<?php echo site_url('customers/load_list')?>",
                 'type': 'POST',
-                'data': {'<?=$this->security->get_csrf_token_name()?>': crsf_hash <?php if ($due) echo ",'due':true" ?> }
+                'data': {'<?=$this->security->get_csrf_token_name()?>': crsf_hash <?php if ($due) echo ",'due':true" ?> <?php if ($inac) echo ",'inac':true" ?> }
             },
             'columnDefs': [
                 {
@@ -244,7 +248,7 @@ if ($this->input->get('due')) {
             jQuery.ajax({
                 url: "<?php echo site_url('customers/delete_i')?>",
                 type: 'POST',
-                data: $("input[name='cust[]']:checked").serialize() + '&<?php echo $this->security->get_csrf_token_name() ?>=' + crsf_hash + '<?php if ($due) echo "&due=true" ?>',
+                data: $("input[name='cust[]']:checked").serialize() + '&<?php echo $this->security->get_csrf_token_name() ?>=' + crsf_hash + '<?php if ($due) echo "&due=true" ?>' + '<?php if ($inac) echo "&inac=true" ?>',
                   dataType: 'json',
                 success: function (data) {
                     $("input[name='cust[]']:checked").closest('tr').remove();

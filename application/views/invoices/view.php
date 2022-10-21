@@ -95,13 +95,6 @@
                             </div>
 							<a href="<?php echo base_url('billing/view?id=' . $invoice['iid'] . '&token=' . $validtoken); ?>" class="btn btn-blue-grey mb-1"><i
 										class="fa fa-globe"></i><?php echo $this->lang->line('Preview')?></a>
-										
-							<!--<a href="#pop_model" data-toggle="modal" data-remote="false"
-							   class="btn btn-large btn-cyan mb-1" title="Change Status"
-							<?php /*if ($this->aauth->get_user()->roleid < 5 && ($invoice['status'] == 'paid' || $invoice['status'] == 'canceled')) echo 'disabled' ?>><span class="fa fa-retweet"></span> <?php echo $this->lang->line('Change Status') ?></a>
-							<a href="#cancel-bill" class="btn btn-danger mb-1" id="cancel-bill" <?php if ($this->aauth->get_user()->roleid < 5 || $invoice['status'] == 'paid' || $invoice['status'] == 'canceled') echo 'hidden' ?>><i
-										class="fa fa-minus-circle"> </i> <?php echo $this->lang->line('Cancel')*/ ?>
-							</a>-->
 							<div class="btn-group ">
 								<button type="button" class="btn btn-primary mb-1 btn-min-width dropdown-toggle"
 										data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
@@ -216,9 +209,12 @@
 
 							</div>
 							<div class="offset-md-3 col-md-3 col-sm-12 text-xs-center text-md-left">
-								<?php echo '<p><span class="text-muted">' . $this->lang->line('Invoice Date') . '  :</span> ' . dateformat($invoice['invoicedate']) . '</p> <p><span class="text-muted">' . $this->lang->line('Due Date') . ' :</span> ' . dateformat($invoice['invoiceduedate']) . '</p>  <p><span class="text-muted">' . $this->lang->line('Terms') . ' :</span> ' . $invoice['termtit'] . '</p><p><span class="text-muted">Série :</span> ' . $invoice['serie_name'] . '</p>';
-								?>
+								<?php echo '<p><span class="text-muted">' . $this->lang->line('Invoice Date') . '  :</span> ' . dateformat($invoice['invoicedate']) . '</p> <p><span class="text-muted">' . $this->lang->line('Due Date') . ' :</span> ' . dateformat($invoice['invoiceduedate']) . '</p>  <p><span class="text-muted">' . $this->lang->line('Terms') . ' :</span> ' . $invoice['termtit'] . '</p><p><span class="text-muted">Série :</span> ' . $invoice['serie_name'] . '</p>';?>
+								<?php if ($invoice['status'] == 'canceled') {?>
+									<p style="background-color:rgba(255, 0, 39, 0.22)"><strong class="pb-1"> Documento Anulado</strong></p>
+									<p style="background-color:rgba(255, 0, 39, 0.22)"><strong class="pb-1">Observações:</strong><?php echo $invoice['justification_cancel'];}?></p>
 							</div>
+							
 						</div>
 						<!--/ Invoice Customer Details -->
 
@@ -427,6 +423,56 @@
 										<?php }
 										} echo '</div>';
 									}?>
+							<?php 
+							if($invoice['expedition'] != null && $invoice['expedition'] != "") {?>
+								<div id="invoice-footer"><p class="lead">Entrega e Transporte:</p>
+									<table class="table table-striped">
+										<thead>
+										<tr>
+											<th>Expedição</th>
+											<th>Viatura</th>
+											<th>Data / Hora Início do Transporte</th>
+											<th>Local da Carga</th>
+											<th>Local da Descarga</th>
+										</tr>
+										</thead>
+										<tbody id="activity">
+										<?php 
+										echo '<tr>';
+										echo '<td>';
+										echo $invoice['exp_mat']; 
+										echo '</td>';
+										echo '<td>';
+										if($invoice['autoid'] == 0)
+										{
+											echo $invoice['expd_name'];
+										}else{
+											echo '<a href="'.base_url('assests/edit?id=' . $invoice['autoid']).'">'.$invoice['autoid_name'].'</a>';
+										}
+										echo '</td>';
+										echo '<td>'.$invoice['exp_date'].'</td>';
+										echo '<td>'.$invoice['charge_address'].'<br>'.$invoice['charge_postbox'].'<br>'.$invoice['charge_city'].'<br>'.$invoice['charge_country_name'].'<br>'.'</td>';
+										echo '<td>'.$invoice['discharge_address'].'<br>'.$invoice['discharge_postbox'].'<br>'.$invoice['discharge_city'].'<br>'.$invoice['discharge_country_name'].'<br>'.'</td>';
+										
+										echo '<tr>';
+										echo '<td colspan="5">'.$invoice['notes'].'</td>';
+										echo '</tr>';
+										?>
+
+										</tbody>
+									</table>
+
+									<div class="row">
+
+										<div class="col-md-7 col-sm-12">
+											<h6><?php echo $this->lang->line('Terms & Condition') ?></h6>
+											<?php echo '<br>'.$invoice['terms']; ?>
+										</div>
+
+									</div>
+
+								</div>	
+						<?php }?>
 						<div id="invoice-footer"><p class="lead"><?php echo $this->lang->line('Credit Transactions') ?>:</p>
 							<table class="table table-striped">
 								<thead>
@@ -458,9 +504,8 @@
 							<div class="row">
 
 								<div class="col-md-7 col-sm-12">
-
 									<h6><?php echo $this->lang->line('Terms & Condition') ?></h6>
-									<p> <?php echo '<strong>' . $invoice['termtit'] . '</strong><br>' . $invoice['terms'];?></p>
+									<p> <?php echo '<br>' . $invoice['terms'];?></p>
 								</div>
 
 							</div>
@@ -473,29 +518,114 @@
 						<h6>O documento <?php echo $invoice['irs_type_n'].' '.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'] ?> teve origem nos documentos abaixo (Está conciliado com)</h6>
 						<div class="row">
 							<table class="table table-striped">
-								<thead>
-								</thead>
-								<tbody id="activity">
 								<?php if(is_array($docs_origem)) {
-									//echo '<tr><td></td></tr>';
+									$reicoun = count($docs_origem);
+									if($reicoun > 0){
+										echo "<thead>
+											<tr>
+												<th>Documento</th>
+												<th>Série/Nº</th>
+												<th>Data Emissão</th>
+												<th>NIF/NIC</th>
+												<th>Ilíquido</th>
+												<th>Impostos</th>
+												<th>Total Liq.</th>
+												<th>".$this->lang->line('Settings')."</th>
+											</tr>
+										</thead>
+										<tbody id='activity'>";
+										foreach ($docs_origem as $row) {
+											$tiiid = $row['id'];
+											echo '<tr>';
+											echo "<td><strong>".$row['tipo']."</strong></td>";
+											echo "<td>".$row['serie_name'].'/'.$row['tid']."</td>";
+											echo "<td>".$row['invoicedate']."</td>";
+											echo "<td>".$row['tax_id']."</td>";
+											echo "<td>".amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc)."</td>";
+											echo "<td>".amountExchange($row['tax'], 0, $this->aauth->get_user()->loc)."</td>";
+											echo "<td>".amountExchange($row['total'], 0, $this->aauth->get_user()->loc)."</td>";
+											if($row['type_related'] == "0" || $row['type_related'] == "2"){
+												if($row['draft'] == "0"){
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}else{
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}
+											}else if($row['type_related'] == "1"){
+												echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+											}else if($row['type_related'] == "3"){
+												echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+											}
+											echo '</tr>';
+										}
+										echo "</tbody>";
+									}else
+									{
+										echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que tivesse origem neste documento!</td><tr></tbody>';
+									}
+									
 								}else {
-									echo '<tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr>';
+									echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que tivesse origem neste documento!</td><tr></tbody>';
 								}?>
-								</tbody>
 							</table>
 						</div>
 						<h6>O documento <?php echo $invoice['irs_type_n'].' '.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'] ?> deu origem aos documentos abaixo (Foi conciliado com)</h6>
 						<div class="row">
 							<table class="table table-striped">
-								<thead>
-								</thead>
-								<tbody id="activity">
-								<?php if(is_array($docs_origem)) {
-									//echo '<tr><td></td></tr>';
+								<?php if(is_array($docs_deu_origem)) {
+									$reicoun2 = count($docs_deu_origem);
+									if($reicoun2 > 0){
+										echo "<thead>
+											<tr>
+												<th>Documento</th>
+												<th>Série/Nº</th>
+												<th>Data Emissão</th>
+												<th>NIF/NIC</th>
+												<th>Ilíquido</th>
+												<th>Impostos</th>
+												<th>Total Liq.</th>
+												<th>".$this->lang->line('Settings')."</th>
+											</tr>
+										</thead>
+										<tbody>";
+										foreach ($docs_deu_origem as $row) {
+											$tiiide = $row['id'];
+											echo '<tr>';
+											echo "<td><strong>".$row['tipo']."</strong></td>";
+											echo "<td>".$row['serie_name'].'/'.$row['tid']."</td>";
+											echo "<td>".$row['invoicedate']."</td>";
+											echo "<td>".$row['tax_id']."</td>";
+											echo "<td>".amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc)."</td>";
+											echo "<td>".amountExchange($row['tax'], 0, $this->aauth->get_user()->loc)."</td>";
+											echo "<td>".amountExchange($row['total'], 0, $this->aauth->get_user()->loc)."</td>";
+											if($row['type_related'] == "0" || $row['type_related'] == "2"){
+												if($row['draft'] == "0"){
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}else{
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=1").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}
+											}else if($row['type_related'] == "1"){
+												echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+											}else if($row['type_related'] == "3"){
+												echo '<td><a href="'.base_url("quote/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("quote/printquote?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+											}
+											
+											echo '</tr>';
+										}
+										echo "</tbody>";
+									}else{
+										echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr></tbody>';
+									}
 								}else {
-									echo '<tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr>';
+									echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr></tbody>';
 								}?>
-								</tbody>
 							</table>
 						</div>
 						<hr>
@@ -723,8 +853,6 @@
             </form>
         </div>
     </div>
-</div>
-</div>
 </div>
 
 <!-- Modal HTML -->

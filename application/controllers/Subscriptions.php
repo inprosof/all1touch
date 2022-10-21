@@ -17,6 +17,7 @@ require_once APPPATH . 'third_party/qrcode/vendor/autoload.php';
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\Printer;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class Subscriptions extends CI_Controller
 {
@@ -28,7 +29,7 @@ class Subscriptions extends CI_Controller
         if (!$this->aauth->is_loggedin()) {
             redirect('/user/', 'refresh');
         }
-        if (!$this->aauth->premission(1)) {
+        if (!$this->aauth->premission(10) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
         }
         if ($this->aauth->get_user()->roleid == 2) {
@@ -40,9 +41,26 @@ class Subscriptions extends CI_Controller
         $this->li_a = 'sales';
     }
 	
+	////////////////////////Funcões Get convert//////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+	public function duplicate()
+	{
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$this->create($tid, $typ);
+	}
+	
+	
+	public function convert()
+	{
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$this->create($tid, $typ);
+	}
 	
 	//create invoice
-    public function create()
+    public function create($relation = 0, $typrelation = 0)
     {
 		$this->load->model('locations_model', 'locations');
 		$this->load->model('accounts_model');
@@ -50,40 +68,86 @@ class Subscriptions extends CI_Controller
 		$this->load->model('customers_model', 'customers');
         $this->load->model('plugins_model', 'plugins');
 		$this->load->model('settings_model', 'settings');
-        $data['emp'] = $this->plugins->universal_api(69);
-        if ($data['emp']['key1']) {
-            $this->load->model('employee_model', 'employee');
-            $data['employee'] = $this->employee->list_employee();
-        }
-        $data['custom_fields_c'] = $this->custom->add_fields(1);
-		$projectget = $this->input->get('project');
-		
-		$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
-		$data['csd_tax'] = "999999990";
-		$data['csd_id'] = "99999999";
-		
-		if($projectget != "")
+        $data['custom_fields_c'] = $this->custom->add_fields(1);		
+		$projectget = $this->input->get('project');		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['typrelation'] = $typrelation;
+		$data['relationid'] = $relation;
+		$data['tiprelated'] = 0;
+		if($relation > 0)
+		{
+			if($typrelation == 0){
+				$data['tiprelated'] = 1;
+			}
+			$this->load->library("Related");
+			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
+			$data['csd_name'] = $data['docs_origem']['name'];
+			$data['csd_tax'] = $data['docs_origem']['taxid'];
+			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
+		}else if($projectget != "")
 		{
 			$csdproject = $this->customers->detailsFromProject($projectget);
 			$data['csd_name'] = $csdproject['name'];
 			$data['csd_tax'] = $csdproject['taxid'];
 			$data['csd_id'] = $csdproject['id'];
+			$data['docs_origem'] = [];
+			$data['products'] = [];
+		}else{
+			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
+			$data['csd_tax'] = "999999990";
+			$data['csd_id'] = "99999999";
+			$data['docs_origem'] = [];
+			$data['products'] = [];
 		}
-		$discship = $this->plugins->universal_api(65);
 		
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
 		if($this->aauth->get_user()->loc == 0)
 		{
-			$data['accounts'] = $this->locations->accountslist();
-			$data['accountid'] = $discship['key2'];
-			$data['accountname'] = "Conta Por Defeito";
+			$discship = $this->settings->online_pay_settings_main();
 		}else{
-			$accountin = $this->accounts_model->details($discship['key2'],false);
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		if($discship['ac_id_d'] == 0 && $discship['pac'] == 0)
+		{
+			if($this->aauth->get_user()->loc == 0)
+			{
+				exit('Defina a conta Por defeito para os Documentos na Empresa! <a class="match-width match-height" href="'.base_url().'settings/company?id=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}else{
+				exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}
+		}else{
+			if($discship['ac_id_d'] == 0)
+			{
+				if($this->aauth->get_user()->loc){
+					exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+				}
+			}
+			$accountin = $this->accounts_model->details($discship['ac_id_d'],false);
 			$accountincome = ((integer)$accountin['id']);
 			$accountincomename = $accountin['holder'];
 			$data['accountid'] = $accountincome;
 			$data['accountname'] = $accountincomename;
 		}
-        
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+        $data['accounts'] = $this->locations->accountslist();
         $data['exchange'] = $this->plugins->universal_api(5);
 		$data['company'] = $this->settings->company_details(1);
         $data['customergrouplist'] = $this->customers->group_list();
@@ -103,13 +167,12 @@ class Subscriptions extends CI_Controller
 		$data['typesinvoices'] = $this->settings->list_irs_typ_id();
 		
 		$data['typesinvoicesdefault'] = $this->common->default_typ_doc(15);
-		$data['seriesinvoiceselect'] = $this->common->default_series(15);
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
 		if($data['seriesinvoiceselect'] == NULL)
 		{
-			exit('Deve Inserir pelo menos uma Série no Tipo Avença. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
-												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
+			exit('Ainda não definiu nenhuma série para esta Localização. <a class="match-width match-height"  href="'.base_url().'settings/series"><i class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
-			$seri_did_df = $this->common->default_series_id(15);
+			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
 			$numget = $this->common->lastdoc(15,$seri_did_df);
 			$data['lastinvoice'] = $numget;
 			$head['title'] = 'Novo Documento';
@@ -150,7 +213,7 @@ class Subscriptions extends CI_Controller
 			$data['products'] = $this->invocies->items_with_product($tid);
 		}else{
 			$head['title'] = "Alterar Rascunho #$tid";
-			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
+			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited,0);
 			$data['products'] = $this->invocies->items_with_product2($tid);
 			$data['typeinvoice'] = 'Rascunho';
 		}
@@ -257,13 +320,19 @@ class Subscriptions extends CI_Controller
             exit;
 		}
 
-        $this->load->model('plugins_model', 'plugins');
-        $empl_e = $this->plugins->universal_api(69);
-        if ($empl_e['key1']) {
+        $this->load->model('settings_model', 'settings');
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$emp = 0;
+		if ($discship['emps'] == 1) {
             $emp = $this->input->post('employee');
-        } else {
-            $emp = $this->aauth->get_user()->id;
-        }
+        }else{
+			$emp = $this->aauth->get_user()->id;
+		}
 		
         $transok = true;
         $st_c = 0;
@@ -575,7 +644,7 @@ class Subscriptions extends CI_Controller
 						'discount' => $product_discount[$key],
 						'subtotal' => $product_subtotal[$key],
 						'totaltax' => $ptotal_tax[$key],
-						'i_class' => 1,
+						'i_class' => 2,
 						'totaldiscount' => $ptotal_disc[$key],
 						'product_des' => $product_des[$key],
 						'unit' => $product_unit[$key],
@@ -664,7 +733,7 @@ class Subscriptions extends CI_Controller
 						'discount' => $product_discount[$key],
 						'subtotal' => $product_subtotal[$key],
 						'totaltax' => $ptotal_tax[$key],
-						'i_class' => 1,
+						'i_class' => 2,
 						'totaldiscount' => $ptotal_disc[$key],
 						'product_des' => $product_des[$key],
 						'unit' => $product_unit[$key],
@@ -714,8 +783,18 @@ class Subscriptions extends CI_Controller
         $no = $this->input->post('start');
         foreach ($list as $invoices) {
             $no++;
+			$width = 0;
+			if($invoices->pamnt == 0 || $invoices->pamnt == null || $invoices->pamnt == "" || $invoices->total == 0 || $invoices->total == null || $invoices->total == "")
+			{
+				$width = round(0*100,2);
+			}else
+			{
+				$width = round(($invoices->pamnt/$invoices->total)*100,2);
+			}
+			
             $row = array();
-            $row[] = $invoices->serie_name;
+			$row['status'] = $invoices->status;
+			$row[] = $invoices->serie_name;
             $row[] = '<a href="' . base_url("subscriptions/view?id=$invoices->id&ty=0") . '">'.$invoices->type. $invoices->tid . '</a>';
 			$row[] = dateformat($invoices->invoicedate);
             $row[] = $invoices->name;
@@ -723,12 +802,23 @@ class Subscriptions extends CI_Controller
 			$row[] = amountExchange($invoices->subtotal, 0, $this->aauth->get_user()->loc);
 			$row[] = amountExchange($invoices->tax, 0, $this->aauth->get_user()->loc);
 			$row[] = amountExchange($invoices->total, 0, $this->aauth->get_user()->loc);
-            $row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span>';
+			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='$invoices->pamnt' aria-valuemin='0' aria-valuemax='$invoices->total' style='width:$width%;'>$width%</div></div>";
+            $row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span><br>'.$invoices->loc_cname;
             $row[] = '<span class="st-sub' . $invoices->i_class . '">' . $this->lang->line('Sub_' . $invoices->i_class) . '</span>';
-            if($invoices->status == 'canceled'){
-				$row[] = '<a href="' . base_url("subscriptions/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("subscriptions/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+			if($invoices->status == 'canceled'){
+				$option = '<a href="' . base_url("subscriptions/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("subscriptions/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option .= '<a id="choise_type_duplicate_but" name="choise_type_duplicate_but" data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>';
+				$row[] = $option;
 			}else{
-				$row[] = '<a href="' . base_url("subscriptions/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("subscriptions/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> <a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" data-object-draft="1" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				$option = '<a href="' . base_url("subscriptions/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("subscriptions/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option .= '<a id="choise_type_convert_but" name="choise_type_convert_but" data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>&nbsp;';
+				$option .= '<a id="choise_type_duplicate_but" name="choise_type_duplicate_but" data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+				$option .= '<a id="choise_docs_relateds_but" name="choise_docs_relateds_but" data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+				
+				if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
+					$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				}
+				$row[] = $option;
 			}
 			$data[] = $row;
         }
@@ -751,8 +841,13 @@ class Subscriptions extends CI_Controller
 			$row[] = amountExchange($drafts->tax, 0, $this->aauth->get_user()->loc);
 			$row[] = amountExchange($drafts->total, 0, $this->aauth->get_user()->loc);
 			$row[] = '<span class="st-sub3 badge">Rascunho</span>';
+			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='$drafts->pamnt' aria-valuemin='0' aria-valuemax='$drafts->total' style='width:$width%;'>$width%</div></div>";
 			$row[] = '<span class="st-sub3 badge">Rascunho</span>';
-            $row[] = '<a href="' . base_url("subscriptions/view?id=$drafts->id&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("subscriptions/printinvoice?id=$drafts->id&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> <a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" data-object-draft="0" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+            $option = '<a href="' . base_url("subscriptions/view?id=$drafts->id&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("subscriptions/printinvoice?id=$drafts->id&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+			if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
+				$option .= '<a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" class="btn btn-danger btn-sm delete-object2"><span class="fa fa-trash"></span></a>';
+			}
+			$row[] = $option;
 			$data[] = $row;
         }
 		
@@ -1001,22 +1096,54 @@ class Subscriptions extends CI_Controller
 		$codQRD .= 'S:'.$campfim.'*';
 		
 		$qrCode = new QrCode($codQRD);
-		$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		
+		$writer = new PngWriter();
+		$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		ini_set('memory_limit', '64M');
 		
 		$data['Tipodoc'] = "Original";
 		$data2 = $data;
 		$data2['Tipodoc'] = "Duplicado";
+		$data3 = $data;
+		$data3['Tipodoc'] = "Triplicado";
+		$data4 = $data;
+		$data4['Tipodoc'] = "Quadruplicado";
 		
-		
-        $html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
+		$html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
 		$html2 = $this->load->view('print_files/invoice-a4_v' . INVV, $data2, true);
-        //PDF Rendering
-        $this->load->library('pdf');
+		$html3 = $this->load->view('print_files/invoice-a4_v' . INVV, $data3, true);
+		$html4 = $this->load->view('print_files/invoice-a4_v' . INVV, $data4, true);
+		
+		$this->load->library('pdf');
         $pdf = $this->pdf->load_split(array('margin_top' => 10));
-        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">{PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
-		$pdf->WriteHTML($html);
-		$pdf->AddPage();
-		$pdf->WriteHTML($html2);
+		$loc2 = location(0);
+        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
+		if($data['invoice']['numcop'] == 'copy1')
+		{
+			$pdf->WriteHTML($html);
+		}else if($data['invoice']['numcop'] == 'copy2')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+		}else if($data['invoice']['numcop'] == 'copy3')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+		}else if($data['invoice']['numcop'] == 'copy4')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html4);
+		}
 		
         $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
         if ($this->input->get('d')) {

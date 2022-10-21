@@ -8,7 +8,7 @@
                     <?php echo $this->lang->line('Add new') . ' ' . $this->lang->line('Category') </a> */?>
 				<a href="<?php echo base_url('productcategory/add_sub') ?>"
                         class="btn btn-blue btn-sm rounded">
-                    <?php echo $this->lang->line('Add new') . ' - ' . $this->lang->line('Sub') . ' ' . $this->lang->line('Category') ?>
+                    <?php echo $this->lang->line('Add new') . ' - ' . $this->lang->line('Category') ?>
                 </a>
             </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>

@@ -60,6 +60,11 @@
 										   href="#tab4" role="tab"
 										   aria-selected="false"><?php echo $this->lang->line('CustomFields') ?></a>
 									</li>
+									<li class="nav-item">
+										<a class="nav-link" id="base-tab5" data-toggle="tab" aria-controls="tab5"
+										   href="#tab5" role="tab"
+										   aria-selected="false">Permissões Extra</a>
+									</li>
 								</ul>
 								<div class="tab-content px-1 pt-1">
 									<div class="tab-pane active show" id="tab1" role="tabpanel" aria-labelledby="base-tab1">
@@ -207,10 +212,11 @@
 												for="name"><?php echo $this->lang->line('Type Employee') ?></label>
 
 											<div class="col-sm-5">
-												<select name="type_employee" class="form-control margin-bottom">
-													<option value=""><?php echo $this->lang->line('Do not change') ?></option>
+												<select id="type_employee" name="type_employee" class="form-control margin-bottom">
+													<option value="<?php echo $user['type_employee'] ?>"><?php echo $this->lang->line('Do not change') ?></option>
 													<option value="0"><?php echo $this->lang->line('Temporary') ?></option>
 													<option value="1"><?php echo $this->lang->line('Full') ?></option>
+													<option value="2">Vendedor</option>
 												</select>
 											</div>
 										</div>
@@ -248,14 +254,20 @@
 													   for="roleid"><?php echo $this->lang->line('UserRole') ?></label>
 
 												<div class="col-sm-5">
-													<select name="roleid" class="form-control margin-bottom" <? if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
+													<select name="roleid" class="form-control margin-bottom" <? if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo 'disabled' ?>>
 														<option value="<?php echo $user['roleid'] ?>">--<?php echo user_role($user['roleid']) ?>--</option>
-														<option value="5"><?php echo $this->lang->line('Business Owner') ?></option>
+														<?php 
+														if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7)
+														{
+														  echo '<option value="5">'.$this->lang->line('Business Owner').'</option>';
+														}
+														?>
 														<option value="4"><?php echo $this->lang->line('Business Manager') ?></option>
+														<option value="8">Vendedor Externo</option>
+														<option value="6"><?php echo $this->lang->line('Project Manager') ?></option>
 														<option value="3"><?php echo $this->lang->line('Sales Manager') ?></option>
 														<option value="2"><?php echo $this->lang->line('Sales Person') ?></option>
 														<option value="1"><?php echo $this->lang->line('Inventory Manager') ?></option>
-														<option value="-1"><?php echo $this->lang->line('Project Manager') ?></option>
 													</select>
 												</div>
 											</div>
@@ -390,6 +402,12 @@
 											<?php }
 										}
 										?>
+									</div>
+									<div class="tab-pane show" id="tab5" role="tabpanel" aria-labelledby="base-tab5">
+										<div class="custom-control custom-checkbox">
+											<input type="checkbox" class="custom-control-input" name="mess_ativos" id="mess_ativos" value="<?php echo $user['mess_ativos'] ?>" <?php if ($user['mess_ativos'] == 1) echo 'checked="checked"' ?>>
+											<label class="custom-control-label" for="mess_ativos"><?php echo "Mensagens Ativos" ?></label>
+										</div>
 									</div>
 									<div class="form-group row">
 										<label class="col-sm-2 col-form-label"></label>

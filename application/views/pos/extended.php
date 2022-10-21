@@ -39,16 +39,15 @@
                 <table id="invoices_rp" class="table table-striped table-bordered  dataex-res-constructor">
                     <thead>
                     <tr>
-                     <th><?php echo $this->lang->line('No') ?></th>
-                        <th> #</th>
-                        <th><?php echo $this->lang->line('Customer') ?></th>
-                        <th><?php echo $this->lang->line('Product Name') ?></th>
-                        <th><?php echo $this->lang->line('Qty') ?></th>
-                        <th><?php echo $this->lang->line('Qty') ?></th>
-                        <th><?php echo $this->lang->line('Amount') ?></th>
-                        <th><?php echo $this->lang->line('Discount') ?></th>
-                          <th><?php echo $this->lang->line('Tax') ?></th>
-
+						<th>Série</th>
+                        <th>Nº</th>
+						<th>Data Emissão</th>
+                        <th>Cliente</th>
+                        <th>Contribuinte</th>
+						<th>Qtd</th>
+						<th>Ilíquido</th>
+						<th>Impostos</th>
+						<th>Total Liq.</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -56,15 +55,15 @@
 
                     <tfoot>
                     <tr>
-                         <th><?php echo $this->lang->line('No') ?></th>
-                        <th> #</th>
-                        <th><?php echo $this->lang->line('Customer') ?></th>
-                        <th><?php echo $this->lang->line('Date') ?></th>
-                        <th><?php echo $this->lang->line('Description') ?></th>
-                        <th><?php echo $this->lang->line('Qty') ?></th>
-                        <th><?php echo $this->lang->line('Amount') ?></th>
-                        <th><?php echo $this->lang->line('Discount') ?></th>
-                           <th><?php echo $this->lang->line('Tax') ?></th>
+                        <th>Série</th>
+                        <th>Nº</th>
+						<th>Data Emissão</th>
+                        <th>Cliente</th>
+                        <th>Contribuinte</th>
+						<th>Qtd</th>
+						<th>Ilíquido</th>
+						<th>Impostos</th>
+						<th>Total Liq.</th>
                     </tr>
                     </tfoot>
                 </table>

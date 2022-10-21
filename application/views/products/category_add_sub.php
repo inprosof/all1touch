@@ -38,12 +38,7 @@
                         <select name="cat_rel" id="cat_rel" class="form-control  required">
 							<option value=""><?php echo $this->lang->line('Please Select') ?></option>
                             <?php
-                            foreach ($cat as $row) {
-                                $cid = $row['id'];
-								$ccod = $row['cod'];
-                                $title = $row['title'];
-                                echo "<option value='$cid' data-serie=".$ccod.">$title</option>";
-                            }
+                            echo $cat;
                             ?>
                         </select>
                     </div>

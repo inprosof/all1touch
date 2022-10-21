@@ -15,7 +15,7 @@
                 </tr>
                 <tr>
                     <td><?php echo $this->lang->line('Quote') ?></td>
-                    <td><?php echo prefix(1) . $invoice['tid'] ?></td>
+                    <td><?php echo $invoice['irs_type_n'] . $invoice['tid'] ?></td>
                 </tr>
                 <tr>
                     <td><?php echo $this->lang->line('Quote Date') ?></td>

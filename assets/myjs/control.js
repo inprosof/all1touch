@@ -1,7 +1,10 @@
 
 function selectCustomer(cid, contrr, pgui1, cname, cadd1, cadd2, ph, email, discount = 0, cli_tax) {
-	console.log('ID: '+cid+'-Cont: '+contrr);
     $('#customer_id').val(cid);
+	if(cli_tax == null || cli_tax == '')
+	{
+		cli_tax = '999999990';
+	}
 	$('#customer_tax').val(cli_tax);
     $('#custom_discount').val(discount);
     $('#customer_name').html('<strong>' + cname + '</strong>');
@@ -165,7 +168,6 @@ $(document).ready(function () {
                 $("#customer-box").css("background", "#FFF url(" + baseurl + "assets/custom/load-ring.gif) no-repeat 165px");
             },
             success: function (data) {
-
                 $("#pos_item").html(data);
 
             }
@@ -288,7 +290,7 @@ $(document).on('click', "#thermal_p", function (e) {
 });
 
 $(document).on('click', "#thermal_server", function (e) {
-    var ptid = $(this).attr('data-ptid');
+    /*var ptid = $(this).attr('data-ptid');
     var url = $(this).attr('data-url');
     e.preventDefault();
     $.ajax({
@@ -300,7 +302,7 @@ $(document).on('click', "#thermal_server", function (e) {
             $("#thermal_a .message").html('Success');
             $("html, body").animate({scrollTop: $('#thermal_a').offset().bottom}, 1000);
         }
-    });
+    });*/
 
 });
 
@@ -728,42 +730,48 @@ $(document).on('click', ".check", function (e) {
         }
     });
 });
+
 //universal list item delete from table
 $(document).on('click', ".delete-object", function (e) {
     e.preventDefault();
     $('#object-id').val($(this).attr('data-object-id'));
-	$('#object-tid').val($(this).attr('data-object-tid'));	
-	$('#object-tdraft').val($(this).attr('data-object-draft'));
-	
-	console.log('TID APAGA: '+$(this).attr('data-object-draft'));
+	$('#object-tid').val($(this).attr('data-object-tid'));
     $(this).closest('tr').attr('id', $(this).attr('data-object-id'));
 	$(this).closest('tr').attr('tid', $(this).attr('data-object-tid'));
-	$(this).closest('tr').attr('draft', $(this).attr('data-object-draft'));
     $('#delete_model').modal({backdrop: 'static', keyboard: false});
 
 });
 $(document).on('click', ".delete-object2", function (e) {
     e.preventDefault();
-    $('#object-id2').val($(this).attr('data-object-id'));
+	$('#object-id2').val($(this).attr('data-object-id'));
+	$('#object-tid2').val($(this).attr('data-object-tid'));	
     $(this).closest('tr').attr('id', $(this).attr('data-object-id'));
+	$(this).closest('tr').attr('tid', $(this).attr('data-object-tid'));
     $('#delete_model2').modal({backdrop: 'static', keyboard: false});
 
 });
 $("#delete-confirm").on("click", function () {
-	console.log('TID APAGA 2: '+$('#object-tdraft').val());
-    var o_data = 'deleteid=' + $('#object-id').val()+'&'+'deletetid=' + $('#object-tid').val()+'&'+'draft=' + $('#object-tdraft').val();
+	if($('#justification_cancel').val() == '')
+	{
+		alert('Por favor Inserir uma Justificação.');
+		return;
+	}
+	var o_data = 'deleteid=' + $('#object-id').val()+'&'+'deletetid=' + $('#object-tid').val()+'&'+'draft=' + $('#object-tdraft').val()+'&'+'justification=' + $('#justification_cancel').val();
     var action_url = $('#delete_model #action-url').val();
     $('#' + $('#object-id').val()).remove();
+	$('#' + $('#object-id').val()).remove();
+	$('#' + $('#object-id').val()).remove();
     removeObject(o_data, action_url);
 });
+
 $("#delete-confirm2").on("click", function () {
-    var o_data = 'deleteid=' + $('#object-id2').val();
+	var o_data = 'deleteid=' + $('#object-id2').val()+'&'+'deletetid=' + $('#object-tid2').val()+'&'+'draft=' + $('#object-tdraft2').val();
     var action_url = $('#delete_model2 #action-url2').val();
     $('#' + $('#object-id2').val()).remove();
+	$('#' + $('#object-tid2').val()).remove();
+	$('#' + $('#object-tdraft2').val()).remove();
     removeObject(o_data, action_url);
 });
-
-
 
 function removeObject(action, action_url) {
     if ($("#notify").length == 0) {
@@ -802,21 +810,58 @@ $("#submit-data").on("click", function (e) {
     addObject(o_data, action_url);
     setTimeout(function(){  $("#submit-data").show(); }, 1000);
 });
+$("#submit-data1").on("click", function (e) {
+    e.preventDefault();
+	$(this).hide();
+    var o_data = $("#data_form1").serialize();
+    var action_url = $('#action-url1').val();
+	console.log('Url: '+action_url);
+    addObject(o_data, action_url);
+	setTimeout(function(){  $("#submit-data1").show(); }, 1000);
+});
 $("#submit-data2").on("click", function (e) {
     e.preventDefault();
 	$(this).hide();
     var o_data = $("#data_form2").serialize();
     var action_url = $('#action-url2').val();
     addObject(o_data, action_url);
+	setTimeout(function(){  $("#submit-data2").show(); }, 1000);
 });
 
 $("#submit-data3").on("click", function (e) {
     e.preventDefault();
 	$(this).hide();
-    var o_data = $("#data_form").serialize();
-    var action_url = $('#action-url2').val();
+    var o_data = $("#data_form3").serialize();
+    var action_url = $('#action-url3').val();
     addObject(o_data, action_url);
 	setTimeout(function(){  $("#submit-data3").show(); }, 1000);
+});
+
+$("#submit-data4").on("click", function (e) {
+    e.preventDefault();
+	$(this).hide();
+    var o_data = $("#data_form4").serialize();
+    var action_url = $('#action-url4').val();
+    addObject(o_data, action_url);
+	setTimeout(function(){  $("#submit-data4").show(); }, 1000);
+});
+
+$("#submit-data5").on("click", function (e) {
+    e.preventDefault();
+	$(this).hide();
+    var o_data = $("#data_form5").serialize();
+    var action_url = $('#action-url5').val();
+    addObject(o_data, action_url);
+	setTimeout(function(){  $("#submit-data5").show(); }, 1000);
+});
+
+$("#submit-data6").on("click", function (e) {
+    e.preventDefault();
+	$(this).hide();
+    var o_data = $("#data_form6").serialize();
+    var action_url = $('#action-url6').val();
+    addObject(o_data, action_url);
+	setTimeout(function(){  $("#submit-data6").show(); }, 1000);
 });
 
 function addObject(action, action_url) {
@@ -1147,5 +1192,268 @@ $(document).on('click', ".apply_coupon", function (e) {
         }
 
     });
-
 });
+
+
+//////Todas as funções para Relações///////////////
+////////////////////////////////////////////////////
+$(document).on('click', ".related-object", function (e) {
+    e.preventDefault();
+	$('#relations-id').val($(this).attr('data-object-id'));
+	$('#relations-type_n').val($(this).attr('data-object-type_n'));
+	
+    $('#titulo_relationt').text('O documento '+$(this).attr('data-object-type_n')+' '+$(this).attr('data-object-type_s')+' '+$(this).attr('data-object-serie')+'/'+$(this).attr('data-object-tid')+' teve origem nos documentos abaixo (Está conciliado com)');
+	$('#titulo_relationd').text('O documento '+$(this).attr('data-object-type_n')+' '+$(this).attr('data-object-type_s')+' '+$(this).attr('data-object-serie')+'/'+$(this).attr('data-object-tid')+' deu origem aos documentos abaixo (Foi conciliado com)');
+	
+	var table = document.getElementById("relationsdview");
+		table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
+		draw_data_relation('relationsdview', $(this).attr('data-object-id'), 0, '', 0,0,-1,'Não existe nenhum documento que desse origem a este documento!');
+		
+	var table = document.getElementById("relationstview");
+		table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
+		draw_data_relation('relationstview', 0, $(this).attr('data-object-id'), '', 0,0,-1,'Não existe nenhum documento que tenha origem neste documento!');
+});
+
+
+$("#convert-choise_type_convert_but").on("click", function (e) {
+    e.preventDefault();
+    $('#convert-id').val($(this).attr('data-object-id'));
+	$('#convert-type').val($(this).attr('data-object-type_n'));
+	
+	var table = document.getElementById("convertersview");
+		table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
+		draw_data_relation('convertersview', $(this).attr('data-object-id'), 0, '', 0,0,1,'Este documento ainda não foi convertido');
+});
+
+$("#convert-confirm").on("click", function (e) {
+	e.preventDefault();
+	var action_url = $('#doc-convert-type option:selected').attr('data-url');
+	var o_data = 'id=' + $('#convert-id').val()+'&'+'typ=' + $('#convert-type').val()+'&'+'typdoc=' + $('#doc-convert-type').val()+'&'+'ext=' + $('#convert-ext').val();
+	
+	window.open(baseurl+action_url+'?'+o_data, '_self');
+});
+
+$("#choise_type_convert_but").on("click", function (e) {
+	e.preventDefault();
+	$("#convert-id").val($(this).attr('data-object-id'));
+	$("#convert-type").val($(this).attr('data-object-type'));
+	$("#convert-ext").val($(this).attr('data-object-ext'));
+	console.log('Val1: '+$("#convert-id").val());
+	console.log('Val2: '+$("#convert-type").val());
+	console.log('Val3: '+$("#convert-ext").val());
+});
+
+
+$(document).on('click', ".duplicate-object", function (e) {
+    e.preventDefault();
+	$('#duplicate-id').val($(this).attr('data-object-id'));
+	$('#duplicate-type').val($(this).attr('data-object-type'));
+});
+
+
+$("#duplicate-confirm").on("click", function (e) {
+	e.preventDefault();
+	var action_url = $('#duplicate-type option:selected').attr('data-url');
+	var o_data = 'id=' + $('#duplicate-id').val()+'&'+'typ=' + $('#duplicate-type').val()+'&'+'ext=' + $('#duplicate-ext').val();
+	window.open(baseurl+action_url+'?'+o_data, '_self');
+});
+
+$("#choise_type_duplicate_but").on("click", function (e) {
+	e.preventDefault();
+	$("#duplicate-id").val($(this).attr('data-object-id'));
+	$("#duplicate-ext").val($(this).attr('data-object-ext'));
+});
+
+
+$("#choise_docs_relateds_but").on("click", function (e) {
+	e.preventDefault();
+	$("#relations-id").val($(this).attr('data-object-id'));
+	$("#relations-type").val($(this).attr('data-object-type'));
+	$("#relations-ext").val($(this).attr('data-object-ext'));
+});
+
+
+$('#choise_docs_related_but').click(function (e) {
+	e.preventDefault();
+	$('#choise-doc-type').prop('selectedIndex', 0);
+	$("#startdaterel").val('');
+	$("#enddaterel").val('');
+	$("#searchdoc").val('');
+	
+	var table = document.getElementById("relationssearch");
+	table.innerHTML = '<thead><tr><th>Não há informação para apresentar.</th></tr></thead><tbody></tbody>';
+	
+	$('#relationssearch').DataTable().destroy();
+	
+	var table = document.getElementById("relationssearch");
+	table.innerHTML = '<thead><tr><th>Não há informação para apresentar.</th></tr></thead><tbody></tbody>';
+	
+	$('#choise_docs_related').modal();
+	$('#choise_docs_related').modal({ keyboard: false });
+	$('#choise_docs_related').modal('show');
+});
+
+
+$('#searchdocbut').click(function (e) {
+	e.preventDefault();
+	var start_date = $('#startdaterel').val();
+	var end_date = $('#enddaterel').val();
+	var searchdoc = $('#searchdoc').val();
+	var el = $("#choise-doc-type option:selected").val();
+	
+	if (el == -1)
+	{
+		alert("Selecione um Tipo pelo menos.");
+	}else{
+		var table = document.getElementById("relationssearch");
+		table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
+		draw_data_relation('relationssearch',start_date, end_date, searchdoc, el,0,0,'Não há informação para apresentar.');
+	}
+});
+
+function draw_data_relation(idtable = '', start_date = '', end_date = '', search = '', el = '', ext = 0, tip = 0, mensagem='') {
+	$('#'+idtable).DataTable({
+		'processing': true,
+		'destroy': true,
+		'searching': false,
+		'serverSide': true,
+		'stateSave': true,
+		'responsive': true,
+		'ajax': {
+			'url': baseurl +"receipts/get_relations_search",
+			'type': 'POST',
+			'data': {
+				//$this->security->get_csrf_token_name(): crsf_hash,
+				start_date: start_date,
+				end_date: end_date,
+				search: search,
+				typ: el,
+				ext: ext,
+				tipolo:tip
+			}
+		},
+		"initComplete": function(settings, json) {
+			var table = document.getElementById(idtable);
+			if(json.data != null){
+				if(json.data.length <= 0){
+					table.innerHTML = '<thead><tr><th>'+mensagem+'</th></tr></thead><tbody></tbody>';
+				}
+			}else{
+				table.innerHTML = '<thead><tr><th>'+mensagem+'</th></tr></thead><tbody></tbody>';
+			}
+		},
+		'order': [1, 'asc'],
+		'columnDefs': [
+			{
+				'targets': [0],
+				'orderable': false,
+			},
+		],
+		dom: 'Blfrtip',
+		buttons: [
+			{
+				extend: 'excelHtml5',
+				footer: true,
+				exportOptions: {
+					columns: [2, 3, 4]
+				}
+			}
+		]
+	});
+};
+
+$(document).on('click', "#pass_selected", function (e) {
+		e.preventDefault();
+		var tableRelation = document.getElementById("relationsdocs");
+		tableRelation.innerHTML = '<thead><tr><th width="20%">Série</th><th width="10%">Nº</th><th width="15%">Data Emissão</th><th width="15%">Cliente</th><th width="20%">Total Liq.</th><th width="20%">Valor Conciliado</th></tr></thead><tbody>';
+		seriaa = $("input[name='relatsel_']:checked").serialize();
+		if(seriaa == ''){
+			alert("Selecione pelo menos um Documento.");
+		}else{
+			var valdocrela = 0;
+			var valapagar = parseFloat($('#invoiceyoghtml').val());
+			var strArrayfirst = seriaa.split("relatsel_=");
+			for (var iqq = 1; iqq < strArrayfirst.length; iqq++ ) {
+				var idvar = '';
+				var idtyp = '';
+				var idext = '';
+				var idcla = '';
+				var strArrayVars = strArrayfirst[iqq].split("%26");
+				for (var trq = 0; trq < strArrayVars.length; trq++ ) {
+					if(trq == 0)
+					{
+						idvar = strArrayVars[trq].replaceAll("id%3D", "");
+					}else if(trq == 1)
+					{
+						idtyp = strArrayVars[trq].replaceAll("typ%3D", "");
+					}else if(trq == 2)
+					{
+						idext = strArrayVars[trq].replaceAll("ext%3D", "");
+					}else if(trq == 3)
+					{
+						idcla = strArrayVars[trq].replaceAll("i_class%3D", "");
+					}
+					
+					idvar = idvar.replaceAll("&", "");
+					idtyp = idtyp.replaceAll("&", "");
+					idext = idext.replaceAll("&", "");
+					idcla = idcla.replaceAll("&", "");
+				}
+				
+				var variable = strArrayfirst[iqq].replaceAll("%26", "&");
+				variable = strArrayfirst[iqq].replaceAll("%3D", ":");
+				$.ajax({
+					type: "GET",
+					url: baseurl + 'receipts/get_id_relations_select',
+					data: {
+						//$this->security->get_csrf_token_name(): crsf_hash,
+						id: idvar,
+						typ: idtyp,
+						ext: idext,
+						i_class: idcla
+					},
+					beforeSend: function () {
+						$("#customer-box").css("background", "#FFF url(" + baseurl + "assets/custom/load-ring.gif) no-repeat 165px");
+					},
+					success: function (data) {
+						var obj = JSON.parse(data);
+						var valparconsiliar = 0;
+						var tiiid = obj['iddoc'];
+						var addrow = '<tr class="last-item-row-related sub_related"><input type="hidden" value="'+obj['id']+'" name="idtyprelation[]" id="idtyprelation-'+valdocrela+'"><input type="hidden" value="'+obj['type_related']+'" name="typrelation[]" id="typrelation-'+valdocrela+'"><td><strong>'+obj['serie_name']+'</strong></td>';
+						if(obj['type_related'] == "0" || obj['type_related'] == "2"){
+							if(obj['draft'] == "0"){
+								addrow += '<td><a href="'+baseurl+'invoices/view?id='+obj['iddoc']+'&ty=0" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'+obj['type']+'/'+obj['tid']+'</a><a href="'+baseurl+'invoices/printinvoice?id='+obj['iddoc']+'&ty=0&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+							}else{
+								addrow += '<td><a href="'+baseurl+'invoices/view?id='+obj['iddoc']+'&ty=1" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'+obj['type']+'/'+obj['tid']+'</a><a href="'+baseurl+'invoices/printinvoice?id='+obj['iddoc']+'&ty=1&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+							}
+							valparconsiliar = parseFloat(obj['pamnt']);
+						}else if(obj['type_related'] == "1"){
+							addrow += '<td><a href="'+baseurl+'invoices/view?id='+obj['iddoc']+'&ty=0" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'+obj['type']+'/'+obj['tid']+'</a><a href="'+baseurl+'invoices/printinvoice?id='+obj['iddoc']+'&ty=0&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+							valparconsiliar = parseFloat(obj['pamnt']);
+						}else if(obj['type_related'] == "3"){
+							addrow += '<td><a href="'+baseurl+'quote/view?id='+obj['iddoc']+'&ty=0" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'+obj['type']+'/'+obj['tid']+'</a><a href="'+baseurl+'quote/printquote?id='+obj['iddoc']+'&ty=0&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+							valparconsiliar = 0;
+						}else if(obj['type_related'] == "4"){
+							addrow += '<td><a href="'+baseurl+'guides/view?id='+obj['iddoc']+'&ty=1" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'+obj['type']+'/'+obj['tid']+'</a><a href="'+baseurl+'guides/printguide?id='+obj['iddoc']+'&ty=1&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+							valparconsiliar = 0;
+						}else if(obj['type_related'] == "5"){
+							addrow += '<td><a href="'+baseurl+'guides/view?id='+obj['iddoc']+'&ty=2" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'+obj['type']+'/'+obj['tid']+'</a><a href="'+baseurl+'guides/printguide?id='+obj['iddoc']+'&ty=2&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+							valparconsiliar = 0;
+						}else if(obj['type_related'] == "6"){
+							addrow += '<td><a href="'+baseurl+'purchase/view?id='+obj['iddoc']+'&ty=1" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'+obj['type']+'/'+obj['tid']+'</a><a href="'+baseurl+'purchase/printinvoice?id='+obj['iddoc']+'&ty=1&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+							valparconsiliar = parseFloat(obj['pamnt']);
+						}
+						addrow += '<td>'+obj['invoicedate']+'</td><td>'+obj['taxid']+'</td><td><input type="text" disabled readonly value="'+obj['total_discount_tax']+'" id="val_tot_rel-'+valdocrela+'"></td><td><input type="text" disabled readonly value="'+valparconsiliar+'" id="val_tot_rel_con-'+valdocrela+'"></td></tr>';
+						
+						valapagar = valapagar+(parseFloat(obj['total_discount_tax']) - valparconsiliar);
+						valdocrela++;
+						tableRelation.innerHTML += addrow;
+						$('#invoiceyoghtml').val(parseFloat(valapagar).toFixed(2));
+					}
+				});
+			}
+			tableRelation.innerHTML += '<tbody>';
+			$('#relationsdocs').removeClass('hidden');
+			$('#choise_docs_related').modal('hide');
+		}	
+	});

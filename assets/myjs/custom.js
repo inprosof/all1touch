@@ -4,6 +4,7 @@ var bill_tax = $('#bill_tax').val();
 var bill_supplier = $('#bill_supplier').val();
 var bill_serie = $('#bill_serie').val();
 var bill_activ = $('#bill_activ').val();
+var bill_copys = $('#bill_copys').val();
 var bill_wareh = $('#bill_wareh').val();
 var d_csrf = crsf_token + '=' + crsf_hash;
 
@@ -284,7 +285,7 @@ $('#addproduct').on('click', function () {
     $('#ganak').val(nxt);
     var functionNum = "'" + cvalue + "'";		
 	
-    var data = '<tr><td><input type="text" class="form-control" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' + cvalue + '"></td><td><div class="input-group"><input type="text" class="form-control req amnt" name="product_qty[]" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" value="1"  inputmode="numeric"><span id="product_uni-' + cvalue + '" name="product_uni[]" class="lightMode"></span></div></td><input type="hidden" id="alert-' + cvalue + '" value=""  name="alert[]"> </td> <td><input type="text" class="form-control req prc" name="product_price[]" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" inputmode="numeric"></td><td><input type="text" class="form-control discount" name="product_discount[]" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"></td> <td><div class="input-group"><input type="text" disabled class="col-form-label text-center" id="texttaxa-' + cvalue + '" value="0%"><a title="Alterar" hidden class="btn btn-blue btn-sm butedittax" name="butedittax[]" id="butedittax-'+cvalue+'"><span class="fa fa-edit" aria-hidden="false"></span></a></div></td><td><span class="currenty">' + currency + '</span> <strong><span class=\'ttlText\' id="result-' + cvalue + '">0</span></strong></td><td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeProd" title="Remove" > <i class="fa fa-minus-square"></i></button><input type="hidden" name="taxacomo[]" id="taxacomo-' + cvalue + '" value=""><input type="hidden" name="taxavals[]" id="taxavals-' + cvalue + '" value=""><input type="hidden" name="taxaname[]" id="taxaname-' + cvalue + '" value=""><input type="hidden" name="taxaperc[]" id="taxaperc-' + cvalue + '" value=""><input type="hidden" name="taxacod[]" id="taxacod-' + cvalue + '" value=""><input type="hidden" name="taxaid[]" id="taxaid-' + cvalue + '" value=""><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot" name="total[]" id="total-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="0"><input type="hidden" name="unit[]" id="unit-' + cvalue + '" value=""><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value=""><input type="hidden" name="serial[]" id="serial-' + cvalue + '" value=""> </td></tr><tr><td colspan="8" class="pdIn2"><textarea class="form-control" id="product_description-' + cvalue + '" name="product_description[]" placeholder="Enter Product description" autocomplete="off"></textarea><br></td></tr>';
+    var data = '<tr><td><div id="accordionDocs' + cvalue + '" role="tablist" aria-multiselectable="true"><div id="obs_inv" class="class="input-group"><input type="text" class="form-control" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' + cvalue + '"><a data-toggle="collapse" data-parent="#accordionDocs' + cvalue + '" href="#obs_accor_inv' + cvalue + '" aria-expanded="false" aria-controls="obs_accor_inv' + cvalue + '" class="card-title lead collapsed"> <i class="fa fa-plus-circle"></i></a></div></div></td><td><div class="input-group"><input type="text" class="form-control req amnt" name="product_qty[]" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" value="1"  inputmode="numeric"><span id="product_uni-' + cvalue + '" name="product_uni[]" class="lightMode"></span></div></td><input type="hidden" id="alert-' + cvalue + '" value=""  name="alert[]"> <input type="hidden" id="verif_typ-' + cvalue + '" value=""  name="verif_typ[]"></td> <td><input type="text" class="form-control req prc" name="product_price[]" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" inputmode="numeric"></td><td><input type="text" class="form-control discount" name="product_discount[]" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"></td> <td><div class="input-group"><input type="text" disabled class="col-form-label text-center" id="texttaxa-' + cvalue + '" value="0%"><a title="Alterar" hidden class="btn btn-blue btn-sm butedittax" name="butedittax[]" id="butedittax-'+cvalue+'"><span class="fa fa-edit" aria-hidden="false"></span></a></div></td><td><span class="currenty">' + currency + '</span> <strong><span class=\'ttlText\' id="result-' + cvalue + '">0</span></strong></td><td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeProd" title="Remove" > <i class="fa fa-minus-square"></i></button><input type="hidden" name="taxacomo[]" id="taxacomo-' + cvalue + '" value=""><input type="hidden" name="taxavals[]" id="taxavals-' + cvalue + '" value=""><input type="hidden" name="taxaname[]" id="taxaname-' + cvalue + '" value=""><input type="hidden" name="taxaperc[]" id="taxaperc-' + cvalue + '" value=""><input type="hidden" name="taxacod[]" id="taxacod-' + cvalue + '" value=""><input type="hidden" name="taxaid[]" id="taxaid-' + cvalue + '" value=""><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot" name="total[]" id="total-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="0"><input type="hidden" name="unit[]" id="unit-' + cvalue + '" value=""><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value=""><input type="hidden" name="serial[]" id="serial-' + cvalue + '" value=""> </td></tr><tr><td colspan="8" class="pdIn2"><div id="obs_accor_inv' + cvalue + '" role="tabpanel" aria-labelledby="obs_inv" class="card-collapse collapse" aria-expanded="false"><div class="card-body"><textarea class="form-control" id="product_description-' + cvalue + '" name="product_description[]" placeholder="Enter Product description" autocomplete="off"></textarea></div></div></td></tr>';
     //ajax request
     // $('#saman-row').append(data);
     $('tr.last-item-row').before(data);
@@ -326,6 +327,7 @@ $('#addproduct').on('click', function () {
 			$('#product_uni-' + id[1]).text(ui.item.data[6]);
             $('#hsn-' + id[1]).val(ui.item.data[7]);
             $('#alert-' + id[1]).val(ui.item.data[8]);
+			$('#verif_typ-' + id[1]).val(ui.item.data[9]);
             $('#serial-' + id[1]).val(ui.item.data[10]);
 			$('#butedittax-' + id[1]).removeAttr('hidden');
 			rowTotalNew(cvalue);
@@ -724,7 +726,6 @@ var rowTotalTax = function (numb) {
 	$("#tax_val-" + numb).val(parseFloat(totalTax).toFixed(2));
 }
 
-
 var rowTotalSupl = function (numb) {
 	var amountValproduct = 0;
 	if ($('#product_price').val()) {
@@ -837,7 +838,7 @@ $('#addserie').on('click', function () {
     var functionNum = "'" + cvalue + "'";
     count = $('#saman-row div').length;
 	//serie row
-    var data = '<tr><td><input type="text" class="form-control" name="serie_n[]" placeholder="Please select One Serie" id="serie_n-' + cvalue + '"> </td> <td><select name="serie_pred[]" id="serie_pred-' + cvalue + '" class="form-control b_input"><option value="0">Não</option><option value="1">Sim</option></select></td><td><input type="text" class="form-control text-center" id="serie_copy-' + cvalue + '" name="serie_copy[]" value="1"></td><td><select name="serie_tax_inc[]" id="serie_tax_inc-' + cvalue + '" class="form-control b_input"><option value="0">Não</option><option value="1">Sim</option></select></td> <td><input type="text" class="form-control" name="serie_class[]" placeholder="Sel. Activ" id="serie_class-' + cvalue + '"> </td> <td><input type="text" class="form-control" name="serie_wareh[]" placeholder="Please Select warehouse" id="serie_wareh-' + cvalue + '"></td><td><select name="serie_type_com[]" id="serie_type_com-' + cvalue + '" class="form-control b_input"><option value="0">Web Service</option><option value="1">SAFT</option><option value="2">Sem Comunicação</option><option value="3">Manual</option></select></td> <td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeProd" title="Remove" > <i class="fa fa-minus-square"></i> </button> </td><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pactid[]" id="pactid-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pwareid[]" id="pwareid-' + cvalue + '" value="0"></tr>';
+    var data = '<tr><td><input type="text" class="form-control" name="serie_n[]" placeholder="Please select One Serie" id="serie_n-' + cvalue + '"> </td> <td><select name="serie_pred[]" id="serie_pred-' + cvalue + '" class="form-control b_input"><option value="0">Não</option><option value="1">Sim</option></select></td><td><input type="text" class="form-control text-center" id="serie_copy-' + cvalue + '" name="serie_copy[]" placeholder="Num. Cópias"></td><td><input type="text" class="form-control" name="serie_class[]" placeholder="Sel. Activ" id="serie_class-' + cvalue + '"> </td> <td><input type="text" class="form-control" name="serie_wareh[]" placeholder="Please Select warehouse" id="serie_wareh-' + cvalue + '"></td><td><select name="serie_type_com[]" id="serie_type_com-' + cvalue + '" class="form-control b_input"><option value="0">Web Service</option><option value="1">SAFT</option><option value="2">Sem Comunicação</option><option value="3">Manual</option></select></td> <td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeProd" title="Remove" > <i class="fa fa-minus-square"></i> </button> </td><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pactid[]" id="pactid-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pcopyid[]" id="pcopyid-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pwareid[]" id="pwareid-' + cvalue + '" value="0"></tr>';
     //ajax request
     // $('#saman-row').append(data);
     $('tr.last-item-row').before(data);
@@ -901,6 +902,38 @@ $('#addserie').on('click', function () {
 			id_arr = $(this).attr('id');
 			id = id_arr.split("-");
 			$('#pactid-' + id[1]).val(ui.item.data[1]);
+			//rowTotal(cvalue);
+		},
+		create: function (e) {
+			$(this).prev('.ui-helper-hidden-accessible').remove();
+		}
+	});
+	
+	$('#serie_copy-'+ cvalue).autocomplete({
+		source: function (request, response) {
+			$.ajax({
+				url: baseurl + 'settings/' + bill_copys,
+				dataType: "json",
+				method: 'post',
+				data: 'name_startsWith=' + request.term + '&row_num=' + row +'&' + d_csrf,
+				success: function (data) {
+					response($.map(data, function (item) {
+						var scopy = item[0];
+						return {
+							label: scopy,
+							value: scopy,
+							data: item
+						};
+					}));
+				}
+			});
+		},
+		autoFocus: true,
+		minLength: 0,
+		select: function (event, ui) {
+			id_arr = $(this).attr('id');
+			id = id_arr.split("-");
+			$('#pcopyid-' + id[1]).val(ui.item.data[1]);
 			//rowTotal(cvalue);
 		},
 		create: function (e) {
@@ -1015,6 +1048,7 @@ var rowTotalNew = function (numb, pos = false) {
 			var result;
 			var page = '';
 			var totalValue = 0;
+			
 			var qttProdval = deciFormat($("#amount-" + numb).val());
 			var priceValval = deciFormat($("#price-" + numb).val());
 			var qttProd = accounting.unformat(qttProdval, accounting.settings.number.decimal);
@@ -1022,21 +1056,27 @@ var rowTotalNew = function (numb, pos = false) {
 			var discountVal = deciFormat($("#discount-" + numb).val());
 			
 			var alertaa = $("#alert-" + numb).val();
+			var verify_typ = $("#verif_typ-" + numb).val();
 			var alertVal = accounting.unformat(alertaa, accounting.settings.number.decimal);
 			
 			var vatVal = 0;
 			var totalPrice = qttProd * priceVal;
 			var totalValue = totalPrice;
+			
+			console.log('Tipo: '+verify_typ);
 			if ($("#inv_page").val() == 'new_i' && pid > 0) {
-				if (alertVal <= +qttProd) {
-					var aqt = alertVal - qttProd;
-					if(pos)
-					{
-						
-					}else{
-						alert('Rutura de Stock! ' + accounting.formatNumber(aqt));
+				if(verify_typ == 1){
+					if (alertVal <= +qttProd) {
+						var aqt = alertVal - qttProd;
+						if(pos)
+						{
+							
+						}else{
+							alert('Rutura de Stock! ' + accounting.formatNumber(aqt));
+						}
 					}
 				}
+				
 			}
             var i = 0;
 			var Inpercentage = 0;
@@ -1117,6 +1157,15 @@ var rowTotalNew = function (numb, pos = false) {
 			billUpyogInv();
         }
     });
+}
+
+
+var setvalRelation = function (){
+	$totalBillVal = 0;
+	var discountVal = deciFormat($("#discount").val());
+	var totalpay = accounting.unformat($('#totalpay').val(), accounting.settings.number.decimal);
+	var valnovoBig = parseFloat(totalpay-discountVal);
+	$("#invoiceyoghtml").val(parseFloat(valnovoBig).toFixed(two_fixed));
 }
 
 var billUpyogInv = function () {
@@ -1403,6 +1452,35 @@ $('#serie_n-0').autocomplete({
 });
 
 
+var rowCopys = function (numb) {
+	$('#serie_copy-'+numb).autocomplete({
+		source: function (request, response) {
+			$.ajax({
+				url: baseurl + 'settings/' + bill_copys,
+				dataType: "json",
+				method: 'post',
+				data: 'name_startsWith=' + request.term + '&row_num=1'+'&' + d_csrf,
+				success: function (data) {
+					response($.map(data, function (item) {
+						var scopy = item[0];
+						return {
+							label: scopy,
+							value: scopy,
+							data: item
+						};
+					}));
+				}
+			});
+		},
+		autoFocus: true,
+		minLength: 0,
+		select: function (event, ui) {
+			$('#pcopyid-'+numb).val(ui.item.data[1]);
+			//rowTotal(0);
+		}
+	});
+};
+
 
 $('#serie_class-0').autocomplete({
 	source: function (request, response) {
@@ -1523,6 +1601,8 @@ wait = true;
 
 $(document).on('click', ".select_pos_item", function (e) {
 	var pid = $(this).attr('data-pid');
+	
+	var verif_typ = $(this).attr('data-verif_typ');
 	var stock = accounting.unformat($(this).attr('data-stock'), accounting.settings.number.decimal);
 
 	var discount = $(this).attr('data-discount');
@@ -1542,7 +1622,7 @@ $(document).on('click', ".select_pos_item", function (e) {
 			$('#discount-' + pi).val(discount);
 			var stotal = accounting.unformat($('#amount-' + pi).val(), accounting.settings.number.decimal) + 1;
 
-			if (stotal <= stock) {
+			if (stotal <= stock || verif_typ == 0) {
 				$('#amount-' + pi).val(accounting.formatNumber(stotal));
 				$('#search_bar').val('').focus();
 			} else {
@@ -1565,7 +1645,7 @@ $(document).on('click', ".select_pos_item", function (e) {
 		var functionNum = "'" + cvalue + "'";
 		count = $('#saman-row-invoice div').length;
 		//var data = ' <div class="row  m-0 pt-1 pb-1 border-bottom"  id="ppid-' + cvalue + '"> <div class="col-6 "> <span class="quantity"><input type="text" class="form-control req amnt display-inline mousetrap" name="product_qty[]" inputmode="numeric" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' + functionNum + '), billUpyog()" autocomplete="off" value="1" ><div class="quantity-nav"><div class="quantity-button quantity-up" id="qtdup-' + cvalue + '">+</div><div class="quantity-button quantity-down" id="qtddown-' + cvalue + '">-</div></div></span>' + $(this).attr('data-name') + '-' + $(this).attr('data-pcode') + '</div> <div class="col-3"> ' + $(this).attr('data-price') + ' </div> <div class="col-3"><strong><span class="ttlText" id="result-' + cvalue + '">0</span></strong><a data-rowid="' + cvalue + '" class="red removeItem" title="Remove"> <i class="fa fa-trash"></i> </a></div><input type="hidden" class="form-control text-center" name="product_name[]" id="productname-' + cvalue + '" value="' + $(this).attr('data-name') + '-' + $(this).attr('data-pcode') + '"><input type="hidden" id="alert-' + cvalue + '" value="' + $(this).attr('data-stock') + '"  name="alert[]"><input type="hidden" class="form-control req prc" name="product_price[]" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' + functionNum + '), billUpyog()" autocomplete="off"  value="' + $(this).attr('data-price') + '" inputmode="numeric"> <input type="hidden" class="form-control vat" name="product_tax[]" id="vat-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' + functionNum + '), billUpyog()" autocomplete="off"  value="' + t_r + '"><input type="hidden" class="form-control discount pos_w" name="product_discount[]" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotal(' + functionNum + '), billUpyog()" autocomplete="off"  value="' + discount + '"><input type="hidden" name="taxa[]" id="taxa-' + cvalue + '" value="0"><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInput" name="product_subtotal[]" id="total-' + cvalue + '" value="0"> <input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="' + $(this).attr('data-pid') + '"> <input type="hidden" name="unit[]" id="unit-' + cvalue + '" value="' + $(this).attr('data-unit') + '"><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value="' + $(this).attr('data-pcode') + '"> <input type="hidden" name="serial[]" id="serial-' + cvalue + '" value="' + $(this).attr('data-serial') + '"></div>';
-		var data = '<tr><td><div class="quantity-nav"><div class="input-group"><input type="text" inputmode="numeric" class="form-control p-mobile p-width req amnt" name="product_qty[]" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" value="1" ><span id="product_uni-' + cvalue + '" name="product_uni[]" class="lightMode" value="'+$(this).attr('data-unit')+'"></span></div><div class="quantity-button quantity-up" id="qtdup-' + cvalue + '">+</div><div class="quantity-button quantity-down" id="qtddown-' + cvalue + '">-</div></div></td> <td><input type="text" class="form-control p-width p-mobile req prc" name="product_price[]"  inputmode="numeric" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"  value="' + $(this).attr('data-price') + '"></td><td><input type="text" class="form-control p-width p-mobile discount pos_w" name="product_discount[]" inputmode="numeric" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"  value="' + discount + '" inputmode="numeric"></td> <td><input type="text" disabled class="form-control p-width p-mobile text-center" id="texttaxa-' + cvalue + '" value="0%"></td><td><span class="currenty">' + currency + '</span> <strong><span class=\'ttlText\' id="result-' + cvalue + '">0</span></strong></td><td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeItem" title="Remove" > <i class="fa fa-minus-square"></i> </button> </td><input type="hidden" name="taxa[]" id="taxa-' + cvalue + '" value="0"><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot" name="total[]" id="total-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="' + $(this).attr('data-pid') + '"><input type="hidden" name="unit[]" id="unit-' + cvalue + '" value="' + $(this).attr('data-unit') + '"><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value="' + $(this).attr('data-pcode') + '"><input type="hidden" name="serial[]" id="serial-' + cvalue + '" value="' + $(this).attr('data-serial') + '"><input type="hidden" name="taxacomo[]" id="taxacomo-' + cvalue + '" value=""><input type="hidden" name="taxavals[]" id="taxavals-' + cvalue + '" value=""><input type="hidden" name="taxaname[]" id="taxaname-' + cvalue + '" value=""><input type="hidden" name="taxaperc[]" id="taxaperc-' + cvalue + '" value=""><input type="hidden" name="taxacod[]" id="taxacod-' + cvalue + '" value=""><input type="hidden" name="taxaid[]" id="taxaid-' + cvalue + '" value=""><input type="hidden" id="alert-' + cvalue + '" value="' + $(this).attr('data-stock') + '"  name="alert[]"></tr><tr id="ppid-' + cvalue + '" class="m-0 pt-1 pb-1 border-bottom"><td colspan="2" ><input type="text" readonly class="form-control text-center p-mobile" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' + cvalue + '" value="' + $(this).attr('data-name') +'"><td colspan="4" ><input type="text" readonly class="form-control" id="product_description-' + cvalue + '" name="product_description[]" placeholder="Enter Product description" autocomplete="off" value="' + $(this).attr('data-disc') + '"></td></td></tr>';
+		var data = '<tr><td><div class="quantity-nav"><div class="input-group"><input type="text" inputmode="numeric" class="form-control p-mobile p-width req amnt" name="product_qty[]" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" value="1" ><span id="product_uni-' + cvalue + '" name="product_uni[]" class="lightMode" value="'+$(this).attr('data-unit')+'"></span></div><div class="quantity-button quantity-up" id="qtdup-' + cvalue + '">+</div><div class="quantity-button quantity-down" id="qtddown-' + cvalue + '">-</div></div></td> <td><input type="text" class="form-control p-width p-mobile req prc" name="product_price[]"  inputmode="numeric" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"  value="' + $(this).attr('data-price') + '"></td><td><input type="text" class="form-control p-width p-mobile discount pos_w" name="product_discount[]" inputmode="numeric" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"  value="' + discount + '" inputmode="numeric"></td> <td><input type="text" disabled class="form-control p-width p-mobile text-center" id="texttaxa-' + cvalue + '" value="0%"></td><td><span class="currenty">' + currency + '</span> <strong><span class=\'ttlText\' id="result-' + cvalue + '">0</span></strong></td><td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeItem" title="Remove" > <i class="fa fa-minus-square"></i> </button> </td><input type="hidden" name="taxa[]" id="taxa-' + cvalue + '" value="0"><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot" name="total[]" id="total-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="' + $(this).attr('data-pid') + '"><input type="hidden" name="unit[]" id="unit-' + cvalue + '" value="' + $(this).attr('data-unit') + '"><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value="' + $(this).attr('data-pcode') + '"><input type="hidden" name="serial[]" id="serial-' + cvalue + '" value="' + $(this).attr('data-serial') + '"><input type="hidden" name="taxacomo[]" id="taxacomo-' + cvalue + '" value=""><input type="hidden" name="taxavals[]" id="taxavals-' + cvalue + '" value=""><input type="hidden" name="taxaname[]" id="taxaname-' + cvalue + '" value=""><input type="hidden" name="taxaperc[]" id="taxaperc-' + cvalue + '" value=""><input type="hidden" name="taxacod[]" id="taxacod-' + cvalue + '" value=""><input type="hidden" name="taxaid[]" id="taxaid-' + cvalue + '" value=""><input type="hidden" id="alert-' + cvalue + '" value="' + $(this).attr('data-stock') + '"  name="alert[]"><input type="hidden" id="verif_typ-' + cvalue + '" value="' + $(this).attr('data-verif_typ') + '"  name="verif_typ[]"></tr><tr id="ppid-' + cvalue + '" class="m-0 pt-1 pb-1 border-bottom"><td colspan="2" ><input type="text" readonly class="form-control text-center p-mobile" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' + cvalue + '" value="' + $(this).attr('data-name') +'"><td colspan="4" ><input type="text" readonly class="form-control" id="product_description-' + cvalue + '" name="product_description[]" placeholder="Enter Product description" autocomplete="off" value="' + $(this).attr('data-disc') + '"></td></td></tr>';
 		//ajax request
 		// $('#saman-row').append(data);
 		$('#pos_items').append(data);
@@ -1594,6 +1674,7 @@ $(document).on('click', ".select_pos_item_bar", function (e) {
 
      wait = false;
      var pid = $(this).attr('data-pid');
+	 var verif_typ = $(this).attr('data-verif_typ');
      var stock = accounting.unformat($(this).attr('data-stock'), accounting.settings.number.decimal);
 
      var discount = $(this).attr('data-discount');
@@ -1616,11 +1697,11 @@ $(document).on('click', ".select_pos_item_bar", function (e) {
                  pi = arr[1];
                  $('#discount-' + pi).val(discount);
                  var stotal = accounting.unformat($('#amount-' + pi).val(), accounting.settings.number.decimal) + 1;
-                 if (stotal <= stock && barcode_flag) {
+                 if (stotal <= stock && barcode_flag || verif_typ == 0) {
                      $('#amount-' + pi).val(accounting.formatNumber(stotal));
                      $('#search_bar').val('').focus();
                  } else {
-                     $('#stock_alert').modal('toggle');
+					 $('#stock_alert').modal('toggle');
                  }
                  rowTotalNew(pi,true);
                  flag = false;
@@ -1639,7 +1720,7 @@ $(document).on('click', ".select_pos_item_bar", function (e) {
              var functionNum = "'" + cvalue + "'";
              count = $('#saman-row-invoice div').length;
              //var data = ' <div class="row  m-0 pt-1 pb-1 border-bottom"  id="ppid-' + cvalue + '"> <div class="col-6 "> <span class="quantity"><input type="text" class="form-control req amnt display-inline mousetrap" name="product_qty[]" inputmode="numeric" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' + functionNum + '), billUpyog()" autocomplete="off" value="1" ><div class="quantity-nav"><div class="quantity-button quantity-up">+</div><div class="quantity-button quantity-down">-</div></div></span>' + $(this).attr('data-name') + '-' + $(this).attr('data-pcode') + '</div> <div class="col-3"> ' + $(this).attr('data-price') + ' </div> <div class="col-3"><strong><span class="ttlText" id="result-' + cvalue + '">0</span></strong><a data-rowid="' + cvalue + '" class="red removeItem" title="Remove"> <i class="fa fa-trash"></i> </a></div><input type="hidden" class="form-control text-center" name="product_name[]" id="productname-' + cvalue + '" value="' + $(this).attr('data-name') + '-' + $(this).attr('data-pcode') + '"><input type="hidden" id="alert-' + cvalue + '" value="' + $(this).attr('data-stock') + '"  name="alert[]"><input type="hidden" class="form-control req prc" name="product_price[]" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' + functionNum + '), billUpyog()" autocomplete="off"  value="' + $(this).attr('data-price') + '" inputmode="numeric"> <input type="hidden" class="form-control vat" name="product_tax[]" id="vat-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' + functionNum + '), billUpyog()" autocomplete="off"  value="' + t_r + '"><input type="hidden" class="form-control discount pos_w" name="product_discount[]" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotal(' + functionNum + '), billUpyog()" autocomplete="off"  value="' + discount + '"><input type="hidden" name="taxa[]" id="taxa-' + cvalue + '" value="0"><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInput" name="product_subtotal[]" id="total-' + cvalue + '" value="0"> <input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="' + $(this).attr('data-pid') + '"> <input type="hidden" name="unit[]" id="unit-' + cvalue + '" value="' + $(this).attr('data-unit') + '"><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value="' + $(this).attr('data-pcode') + '"> <input type="hidden" name="serial[]" id="serial-' + cvalue + '" value="' + $(this).attr('data-serial') + '"></div>';
-             var data = '<tr id="ppid-' + cvalue + '" class="m-0 pt-1 pb-1 border-bottom"><td colspan="6" ><input type="text" class="form-control text-center p-mobile" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' + cvalue + '" value="' + $(this).attr('data-name') + '-' + $(this).attr('data-pcode') + '"><input type="hidden" id="alert-' + cvalue + '" value="' + $(this).attr('data-stock') + '"  name="alert[]"></td></tr><tr><td><div class="quantity-nav"><div class="input-group"><input type="text" inputmode="numeric" class="form-control p-mobile p-width req amnt" name="product_qty[]" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" value="1" ><span id="product_uni-' + cvalue + '" name="product_uni[]" class="lightMode" value="'+$(this).attr('data-unit')+'"></span></div><div class="quantity-button quantity-up" id="qtdup-' + cvalue + '">+</div><div class="quantity-button quantity-down" id="qtddown-' + cvalue + '">-</div></div></td> <td><input type="text" class="form-control p-width p-mobile req prc" name="product_price[]"  inputmode="numeric" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"  value="' + $(this).attr('data-price') + '"></td><td><input type="text" class="form-control p-width p-mobile discount pos_w" name="product_discount[]" inputmode="numeric" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"  value="' + discount + '" inputmode="numeric"></td> <td><input type="text" disabled class="form-control p-width p-mobile text-center" id="texttaxa-' + cvalue + '" value="0%"></td><td><span class="currenty">' + currency + '</span> <strong><span class=\'ttlText\' id="result-' + cvalue + '">0</span></strong></td><td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeItem" title="Remove" > <i class="fa fa-minus-square"></i> </button> </td><input type="hidden" name="taxa[]" id="taxa-' + cvalue + '" value="0"><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot" name="total[]" id="total-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="' + $(this).attr('data-pid') + '"><input type="hidden" name="unit[]" id="unit-' + cvalue + '" value="' + $(this).attr('data-unit') + '"><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value="' + $(this).attr('data-pcode') + '"><input type="hidden" name="serial[]" id="serial-' + cvalue + '" value="' + $(this).attr('data-serial') + '"><input type="hidden" name="taxacomo[]" id="taxacomo-' + cvalue + '" value=""><input type="hidden" name="taxavals[]" id="taxavals-' + cvalue + '" value=""><input type="hidden" name="taxaname[]" id="taxaname-' + cvalue + '" value=""><input type="hidden" name="taxaperc[]" id="taxaperc-' + cvalue + '" value=""><input type="hidden" name="taxacod[]" id="taxacod-' + cvalue + '" value=""><input type="hidden" name="taxaid[]" id="taxaid-' + cvalue + '" value=""></tr>';
+             var data = '<tr id="ppid-' + cvalue + '" class="m-0 pt-1 pb-1 border-bottom"><td colspan="6" ><input type="text" class="form-control text-center p-mobile" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' + cvalue + '" value="' + $(this).attr('data-name') + '-' + $(this).attr('data-pcode') + '"><input type="hidden" id="alert-' + cvalue + '" value="' + $(this).attr('data-stock') + '"  name="alert[]"><input type="hidden" id="verif_typ-' + cvalue + '" value="' + $(this).attr('data-verif_typ') + '"  name="verif_typ[]"></td></tr><tr><td><div class="quantity-nav"><div class="input-group"><input type="text" inputmode="numeric" class="form-control p-mobile p-width req amnt" name="product_qty[]" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" value="1" ><span id="product_uni-' + cvalue + '" name="product_uni[]" class="lightMode" value="'+$(this).attr('data-unit')+'"></span></div><div class="quantity-button quantity-up" id="qtdup-' + cvalue + '">+</div><div class="quantity-button quantity-down" id="qtddown-' + cvalue + '">-</div></div></td> <td><input type="text" class="form-control p-width p-mobile req prc" name="product_price[]"  inputmode="numeric" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"  value="' + $(this).attr('data-price') + '"></td><td><input type="text" class="form-control p-width p-mobile discount pos_w" name="product_discount[]" inputmode="numeric" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"  value="' + discount + '" inputmode="numeric"></td> <td><input type="text" disabled class="form-control p-width p-mobile text-center" id="texttaxa-' + cvalue + '" value="0%"></td><td><span class="currenty">' + currency + '</span> <strong><span class=\'ttlText\' id="result-' + cvalue + '">0</span></strong></td><td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeItem" title="Remove" > <i class="fa fa-minus-square"></i> </button> </td><input type="hidden" name="taxa[]" id="taxa-' + cvalue + '" value="0"><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot" name="total[]" id="total-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="' + $(this).attr('data-pid') + '"><input type="hidden" name="unit[]" id="unit-' + cvalue + '" value="' + $(this).attr('data-unit') + '"><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value="' + $(this).attr('data-pcode') + '"><input type="hidden" name="serial[]" id="serial-' + cvalue + '" value="' + $(this).attr('data-serial') + '"><input type="hidden" name="taxacomo[]" id="taxacomo-' + cvalue + '" value=""><input type="hidden" name="taxavals[]" id="taxavals-' + cvalue + '" value=""><input type="hidden" name="taxaname[]" id="taxaname-' + cvalue + '" value=""><input type="hidden" name="taxaperc[]" id="taxaperc-' + cvalue + '" value=""><input type="hidden" name="taxacod[]" id="taxacod-' + cvalue + '" value=""><input type="hidden" name="taxaid[]" id="taxaid-' + cvalue + '" value=""></tr>';
 			 //ajax request
              // $('#saman-row').append(data);
              $('#pos_items').append(data);
@@ -1661,6 +1742,7 @@ $(document).on('click', ".quantity-up", function (e) {
 	var arr = pi.split('-');
 	pi = arr[1];
 	
+	var verify_typ = $("#verif_typ-" + pi).val();
 	var stock = accounting.unformat($('#alert-' + pi).val(), accounting.settings.number.decimal);
 	var oldValue = accounting.unformat($('#amount-' + pi).val(), accounting.settings.number.decimal);
 	var min = 1;
@@ -1670,7 +1752,7 @@ $(document).on('click', ".quantity-up", function (e) {
         var newVal = oldValue + 1;
     }
 	
-	if (newVal <= stock) {
+	if (newVal <= stock || verify_typ == 0) {
 		$('#amount-' + pi).val(accounting.formatNumber(newVal));
 	} else {
 		$('#stock_alert').modal('toggle');
@@ -1684,6 +1766,7 @@ $(document).on('click', ".quantity-down", function (e) {
 	var arr = pi.split('-');
 	pi = arr[1];
 	
+	var verify_typ = $("#verif_typ-" + pi).val();
 	var stock = accounting.unformat($('#alert-' + pi).val(), accounting.settings.number.decimal);
 	var oldValue = accounting.unformat($('#amount-' + pi).val(), accounting.settings.number.decimal);
 	var min = 1;
@@ -1696,7 +1779,9 @@ $(document).on('click', ".quantity-down", function (e) {
 	if (newVal <= stock) {
 		$('#amount-' + pi).val(accounting.formatNumber(newVal));
 	} else {
-		$('#stock_alert').modal('toggle');
+		if(verify_typ == 1){
+			$('#stock_alert').modal('toggle');
+		}
 	}
 	rowTotalNew(pi,true);
     return false;

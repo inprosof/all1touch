@@ -17,6 +17,7 @@ require_once APPPATH . 'third_party/qrcode/vendor/autoload.php';
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\Printer;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class Guides extends CI_Controller
 {
@@ -46,15 +47,53 @@ class Guides extends CI_Controller
 
     }
 
+	public function nt_convert()
+	{
+		$tid = $this->input->get('qo');
+		$this->create($tid, 6);
+	}
+	
+	public function quote_convert()
+	{
+		$tid = $this->input->get('qo');
+		$this->create($tid, 3);
+	}
+	
     //create guide Charge
-    public function create()
+    public function create($relation = 0, $typrelation = 0)
     {
-		$this->load->library("Custom");
-		$this->load->library("Common");
-        $this->load->model('customers_model', 'customers');
+		$this->load->model('customers_model', 'customers');
         $this->load->model('plugins_model', 'plugins');
 		$this->load->model('settings_model', 'settings');
+		$this->load->library("Custom");
+		$this->load->library("Common");
+		
 		$type = $this->input->get('ty');
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['typrelation'] = $typrelation;
+		$data['relationid'] = $relation;
+		
+		if($relation > 0)
+		{
+			if($typrelation == 0){
+				$data['tiprelated'] = 1;
+			}
+			$this->load->library("Related");
+			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
+			$data['csd_name'] = $data['docs_origem']['name'];
+			$data['csd_tax'] = $data['docs_origem']['taxid'];
+			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
+		}else{
+			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
+			$data['csd_tax'] = "999999990";
+			$data['csd_id'] = "99999999";
+			$data['docs_origem'] = [];
+			$data['products'] = [];
+		}
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
 		$typename = "";
 		if($type == 1 || $type == '1')
 		{
@@ -80,11 +119,31 @@ class Guides extends CI_Controller
 			}
 			$data['terms'] = $this->settings->billingterms(7);
 		}
-        $data['emp'] = $this->plugins->universal_api(69);
-        if ($data['emp']['key1']) {
+		
+		////////////////////////Relação entre Permissões//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
             $this->load->model('employee_model', 'employee');
             $data['employee'] = $this->employee->list_employee();
         }
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+        $data['accounts'] = $this->locations->accountslist();
         $data['type_guide'] = $type;
 		$data['guide']['type'] = $typename;
         $data['exchange'] = $this->plugins->universal_api(5);
@@ -98,36 +157,25 @@ class Guides extends CI_Controller
 		$data['countrys'] = $this->common->countrys();
 		$data['expeditions'] = $this->common->sexpeditions();
 		$data['typesinvoices'] = "";
-		
 		$numget = 0;
 		if($type == 1)
 		{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(14);
-			$data['seriesinvoiceselect'] = $this->common->default_series(14);
 		}else{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(7);
-			$data['seriesinvoiceselect'] = $this->common->default_series(7);
 		}
-		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
-		{
-			$data['locations'] = $this->settings->company_details(1);
-		}else{
-			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
-		}
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
 		$data['taxdetails'] = $this->common->taxdetail();
-		$data['autos'] = $this->guides->guide_autos_company();
-		
 		if($data['seriesinvoiceselect'] == NULL)
 		{
 			exit('Deve Inserir pelo menos uma Série no Tipo '.$typename.'. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
+			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
 			if($type == 1)
 			{
-				$seri_did_df = $this->common->default_series_id(14);
 				$numget = $this->common->lastdoc(14,$seri_did_df);
 			}else{
-				$seri_did_df = $this->common->default_series_id(7);
 				$numget = $this->common->lastdoc(7,$seri_did_df);
 			}
 			$data['lastinvoice'] = $numget;
@@ -169,6 +217,46 @@ class Guides extends CI_Controller
 		if ($data['guide']['id']) 
 			$data['products'] = $this->guides->items_with_product($tid);
 		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		if($data['guide']['status'] == 1)
+		{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
+			if($data['guide']['typeguide'] == 1)
+			{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,4,1);
+			}else{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,5,1);
+			}
+			
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
+			if($data['guide']['typeguide'] == 1)
+			{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,4,0);
+			}else{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,5,0);
+			}
+		}
+		
+		$data['typrelation'] = $data['invoice']['type_origem'];
+		$data['relationid'] = $data['invoice']['doc_origem'];
+		
+		if($data['relationid'] > 0)
+		{
+			$this->load->library("Related");
+			$data['relation'] = $this->related->detailsAfterRelation($data['relationid'],$data['typrelation']);
+			$data['csd_name'] = $data['invoice']['name'];
+			$data['csd_tax'] = $data['invoice']['taxid'];
+			$data['csd_id'] = $data['invoice']['id'];
+		}
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
+		
 		$data['title'] = 'Alterar '.$type . $data['guide']['tid'];
 		$head['title'] = 'Alterar '.$type . $data['guide']['tid'];
 		$data['guide']['type'] = $type;
@@ -177,20 +265,19 @@ class Guides extends CI_Controller
 		$data['withholdings'] = $this->settings->withholdings();
 		$data['company'] = $this->settings->company_details(1);
         $data['customergrouplist'] = $this->customers->group_list();
-        $data['lastguide'] = $this->guides->lastguide();
         $data['warehouse'] = $this->guides->warehouses();
         $data['currency'] = $this->guides->currencies();
         $data['taxlist'] = $this->common->taxlist($this->config->item('tax'));
 		$data['countrys'] = $this->common->countrys();
 		$data['expeditions'] = $this->common->sexpeditions();
-		$data['locations'] = $this->settings->company_details($data['guide']['loc']);
-		$data['autos'] = $this->guides->guide_autos_company();
+		$data['locations'] = $this->settings->company_details2($data['guide']['loc']);
         $data['taxlist'] = $this->common->taxlist_edit($data['guide']['taxstatus']);
 		$data['typesinvoices'] = "";
         $data['custom_fields_c'] = $this->custom->add_fields(1);
         $data['custom_fields'] = $this->custom->add_fields(2);
 		$data['taxdetails'] = $this->common->taxdetail();
 		
+		$data['invoice'] = $data['guide'];
         $this->load->view('fixed/header', $head);
         if ($data['guide']['id']) 
 			$this->load->view('guides/edit', $data);
@@ -248,6 +335,14 @@ class Guides extends CI_Controller
 			$currency = $currencyCOde['id'];
 		}
 		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$this->load->library("Transport");
+		$typrelation = $this->input->post('typrelation');
+		$relationid = $this->input->post('relationid');
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
         $tax = $this->input->post('tax_handle');
 		
 		$vers = 0;
@@ -278,6 +373,7 @@ class Guides extends CI_Controller
 		
         $ship_taxtype = $this->input->post('ship_taxtype');
         $disc_val = $this->input->post('disc_val');
+		
 		$discs_come = $this->input->post('discs_come');
 		
 		$taxas_tota = $this->input->post('taxas_tota');
@@ -304,13 +400,19 @@ class Guides extends CI_Controller
             exit;
 		}
 		
+		$this->load->model('settings_model', 'settings');
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
 		$emp = 0;
-        $empl_e = $this->plugins->universal_api(69);
-        if ($empl_e['key1']) {
+		if ($discship['emps'] == 1) {
             $emp = $this->input->post('employee');
-        } else {
-            $emp = $this->aauth->get_user()->id;
-        }
+        }else{
+			$emp = $this->aauth->get_user()->id;
+		}
 		
 		$guideddta = $this->input->post('invoicedate', true);
 		$guidedate = datefordatabase($guideddta);
@@ -333,7 +435,7 @@ class Guides extends CI_Controller
 			if($this->input->post('val_save_bd') == 1) {
 				$product_name = $this->input->post('matricula_aut', true);
 				$catid = 1;
-				$warehouse = $this->aauth->get_user()->loc;
+				//$warehouse = $this->aauth->get_user()->loc;
 				$product_qty = 1;
 				$product_desc = $this->input->post('designacao_aut', true);
 				$inspection_date = NULL;
@@ -531,7 +633,6 @@ class Guides extends CI_Controller
             exit;
         }
 		
-		
 		$this->load->library("Common");
 		$numget = $this->common->lastdoc($invoi_type,$invoi_serie);
 		$invocieno = $numget+1;
@@ -548,20 +649,7 @@ class Guides extends CI_Controller
 		'total' => $total, 
 		'discount' => $discs_come, 
 		'tax' => $taxas_tota, 
-		'notes' => $notes, 
-		'autoid' => $id_auto_ins,
-		'expedition' => $expeditionid,
-		'exp_date' => $start_date_guide,
-		'exp_mat' => $matricula_aut,
-		'exp_des' => $designacao_aut,
-		'charge_address' => $loc_guide_comp,
-		'charge_postbox' => $post_guide_comp,
-		'charge_city' => $city_guide_comp,
-		'charge_country' => $mcustomer_gui_comp,
-		'discharge_address' => $loc_guide_cos,
-		'discharge_postbox' => $post_guide_cos,
-		'discharge_city' => $city_guide_cos,
-		'discharge_country' => $mcustomer_gui_cos,
+		'notes' => $notes,
 		'csd' => $customer_id, 
 		'eid' => $emp, 
 		'items' => $tota_items,
@@ -576,6 +664,7 @@ class Guides extends CI_Controller
 		'tax_id' => $customer_tax, 
 		'serie' => $invoi_serie,
 		'version' => $vers,	
+		'origem' => $relationid, 'type_origem' => $typrelation, 
 		'irs_type' => $invoi_type);
         $guideno2 = $invocieno;
 		
@@ -585,7 +674,6 @@ class Guides extends CI_Controller
 		{
 			if ($this->db->insert('geopos_guides', $data)) {
 				$invocieno = $this->db->insert_id();
-				
 				$multiClause = array('typ_doc' => $invoi_type, 'serie' => $invoi_serie);
 				$this->db->set('start', "$guideno2", FALSE);
 				$this->db->where($multiClause);
@@ -610,6 +698,44 @@ class Guides extends CI_Controller
 				exit;
 			}
 		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$this->load->library("Transport");
+		if($status == 0){
+			if($relationid > 0){
+				$this->related->removeALL($invocieno,$typrelation,1);
+				if($type_guide == 1){
+					$this->related->add($invocieno,$typrelation,1,$relationid,4);
+				}else{
+					$this->related->add($invocieno,$typrelation,1,$relationid,5);
+				}
+				
+			}
+			if($type_guide == 1){
+				$this->transport->add($invocieno,4,1,$id_auto_ins,$expeditionid,$start_date_guide,$matricula_aut,$designacao_aut,$loc_guide_comp,$post_guide_comp,$city_guide_comp,$mcustomer_gui_comp,$loc_guide_cos,$post_guide_cos,$city_guide_cos,$mcustomer_gui_cos);
+			}else{
+				$this->transport->add($invocieno,5,1,$id_auto_ins,$expeditionid,$start_date_guide,$matricula_aut,$designacao_aut,$loc_guide_comp,$post_guide_comp,$city_guide_comp,$mcustomer_gui_comp,$loc_guide_cos,$post_guide_cos,$city_guide_cos,$mcustomer_gui_cos);
+			}
+			
+		}else{
+			if($relationid > 0){
+				$this->related->removeALL($invocieno,$typrelation,0);
+				if($type_guide == 1){
+					$this->related->add($invocieno,$typrelation,0,$relationid,4);
+				}else{
+					$this->related->add($invocieno,$typrelation,0,$relationid,5);
+				}
+			}
+			if($type_guide == 1){
+				$this->transport->add($invocieno,4,0,$id_auto_ins,$expeditionid,$start_date_guide,$matricula_aut,$designacao_aut,$loc_guide_comp,$post_guide_comp,$city_guide_comp,$mcustomer_gui_comp,$loc_guide_cos,$post_guide_cos,$city_guide_cos,$mcustomer_gui_cos);
+			}else{
+				$this->transport->add($invocieno,5,0,$id_auto_ins,$expeditionid,$start_date_guide,$matricula_aut,$designacao_aut,$loc_guide_comp,$post_guide_comp,$city_guide_comp,$mcustomer_gui_comp,$loc_guide_cos,$post_guide_cos,$city_guide_cos,$mcustomer_gui_cos);
+			}
+		}
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
 		
 		if ($transok) {
 			 //products
@@ -731,7 +857,7 @@ class Guides extends CI_Controller
             $no++;
             $row = array();
             $row[] = $no;
-            $row[] = '<a href="' . base_url("guides/view?id=$guides->id&type=1&tid=$guides->tid") . '">&nbsp; ' . $textini . '</a>';
+            $row[] = '<a href="' . base_url("guides/view?id=$guides->id&type=$guides->typeguide&tid=$guides->tid") . '">&nbsp; ' . $textini . '</a>';
             $row[] = $guides->name;
             $row[] = dateformat($guides->invoicedate);
             $row[] = amountExchange($guides->total, 0, $this->aauth->get_user()->loc);
@@ -775,7 +901,32 @@ class Guides extends CI_Controller
 				exit($this->lang->line('translate19'));
 			}
 			$type = 'Guia de Transporte ';
-		}		
+		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		if($data['guide']['status'] == 1)
+		{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
+			if($data['guide']['typeguide'] == 1)
+			{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,4,1);
+			}else{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,5,1);
+			}
+			
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
+			if($data['guide']['typeguide'] == 1)
+			{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,4,0);
+			}else{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,5,0);
+			}
+		}
 		
 		$data['history'] = $this->common->history($tid,'guide');
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
@@ -786,7 +937,6 @@ class Guides extends CI_Controller
 		$data['guide']['type'] = $type;
         $data['type_guide'] = $data['guide']['typeguide'];
         $this->load->view('fixed/header', $head);
-        $data['products'] = $this->guides->guide_products($tid);
         $data['employee'] = $this->guides->employee($data['guide']['eid']);
         $data['c_custom_fields'] = $this->custom->view_fields_data($tid, 2);
         if ($data['guide']['id']) {
@@ -992,22 +1142,54 @@ class Guides extends CI_Controller
 		$codQRD .= 'S:'.$campfim.'*';
 		
 		$qrCode = new QrCode($codQRD);
-		$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		
+		$writer = new PngWriter();
+		$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		ini_set('memory_limit', '64M');
 		
 		$data['Tipodoc'] = "Original";
 		$data2 = $data;
 		$data2['Tipodoc'] = "Duplicado";
+		$data3 = $data;
+		$data3['Tipodoc'] = "Triplicado";
+		$data4 = $data;
+		$data4['Tipodoc'] = "Quadruplicado";
 		
-        $html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
+		$html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
 		$html2 = $this->load->view('print_files/invoice-a4_v' . INVV, $data2, true);
-        //PDF Rendering
-        $this->load->library('pdf');
+		$html3 = $this->load->view('print_files/invoice-a4_v' . INVV, $data3, true);
+		$html4 = $this->load->view('print_files/invoice-a4_v' . INVV, $data4, true);
+		
+		$this->load->library('pdf');
         $pdf = $this->pdf->load_split(array('margin_top' => 10));
 		$loc2 = location(0);
-		$pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
-        $pdf->WriteHTML($html);
-		$pdf->AddPage();
-		$pdf->WriteHTML($html2);
+        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
+		if($data['invoice']['numcop'] == 'copy1')
+		{
+			$pdf->WriteHTML($html);
+		}else if($data['invoice']['numcop'] == 'copy2')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+		}else if($data['invoice']['numcop'] == 'copy3')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+		}else if($data['invoice']['numcop'] == 'copy4')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html4);
+		}
         $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $type.'_' . $data['invoice']['name'] . '_' . $data['invoice']['tid']);
         if ($this->input->get('d')) {
             $pdf->Output($file_name . '.pdf', 'D');
@@ -1199,21 +1381,41 @@ class Guides extends CI_Controller
         $this->load->library('parser');
         $this->load->model('templates_model', 'templates');
         $template = $this->templates->template_info(6);
-
+		
+		$mailfromtilte = '';
+		$mailfrom = '';
+		
+		$this->db->select("emailo_remet, email_app");
+		$this->db->from('geopos_system_permiss');
+		$this->db->where('docs_email', 1);
+		if($this->aauth->get_user()->loc > 0){
+			$this->db->where('loc', $this->aauth->get_user()->loc);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$mailfromtilte = $vals['emailo_remet'];
+		if($mailfromtilte == '')
+		{
+			$mailfromtilte = $this->config->item('ctitle');
+		}
+		$mailfrom = $vals['email_app'];
+		
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'BillNumber' => $invocieno2
         );
         $subject = $this->parser->parse_string($template['key1'], $data, TRUE);
         $validtoken = hash_hmac('ripemd160', $invocieno, $this->config->item('encryption_key'));
         $link = base_url('billing/view?id=' . $invocieno . '&token=' . $validtoken);
 
-
+		
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'BillNumber' => $invocieno2,
             'URL' => "<a href='$link'>$link</a>",
-            'CompanyDetails' => '<h6><strong>' . $this->config->item('ctitle') . ',</strong></h6>
+            'CompanyDetails' => '<h6><strong>' . $mailfromtilte . ',</strong></h6>
 <address>' . $this->config->item('address') . '<br>' . $this->config->item('address2') . '</address>
              ' . $this->lang->line('Phone') . ' : ' . $this->config->item('phone') . '<br>  ' . $this->lang->line('Email') . ' : ' . $this->config->item('email'),
             'DueDate' => dateformat($idate),

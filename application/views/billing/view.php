@@ -10,31 +10,27 @@
 
             <div id="invoice-template" class="card-body">
                 <div class="row wrapper white-bg page-heading">
-
                     <div class="col">
                         <?php 
 							$rming = $invoice['total'] - $invoice['pamnt'];
-                        if ($invoice['status'] == 'due' && $invoice['status'] == 'partial') { ?>
+							if ($invoice['status'] == 'due' || $invoice['status'] == 'partial') { 
+							?>
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group mt-2"><?php echo $this->lang->line('Payment') ?>:
-                                        <?php if ($online_pay['enable'] == 1) {
+                                        <?php 
+										if ($online_pay['enable'] == 1 || $online_pay['enable'] == "1") {
                                             echo '<a class="btn btn-success btn-min-width mr-1" href="#' . base_url('billing/card?id=' . $invoice['iid'] . '&itype=inv&token=' . $token) . '" data-toggle="modal" data-target="#paymentCard"><i class="fa fa-cc"></i> Credit Card</a> ';
                                         }
-                                        if ($online_pay['bank'] == 1) {
+                                        if ($online_pay['bank'] == 1 || $online_pay['bank'] == "1") {
                                             echo '<a class="btn btn-cyan btn-min-width mr-1"
-                                                    href = "' . base_url('billing/bank') . '" role = "button" ><i
-                                                        class="fa fa-bank" ></i > ' . $this->lang->line('Bank') . ' / ' . $this->lang->line('Cash') . '</a >';
+                                                    href = "' . base_url('billing/bank') . '" role = "button" ><i class="fa fa-bank" ></i > ' . $this->lang->line('Bank') . ' / ' . $this->lang->line('Cash') . '</a >';
                                         }
 
                                         if ($this->aauth->is_loggedin()) {
-
-                                            echo '<a class="btn btn-warning  mr-1"
-                                                    href = "' . base_url('invoices/view?id=' . $invoice['iid']) . '" role = "button" ><i
-                                                        class="fa fa-backward" ></i > </a >';
+                                            echo '<a class="btn btn-warning  mr-1" href = "' . base_url('invoices/view?id=' . $invoice['iid']) . '" role = "button" ><i class="fa fa-backward" ></i > </a >';
                                         }
                                         ?>
-
                                     </div>
                                 </div>
 

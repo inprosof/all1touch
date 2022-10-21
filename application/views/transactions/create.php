@@ -137,7 +137,7 @@
                         </div>
                     </div>
                     <!---- Dual -->
-                    <?php if ($dual['key1']) { ?>
+                    <?php if ($dual['dual_entry'] > 0) { ?>
                         <hr><h4 class="purple"><?php echo $this->lang->line('Dual Entry') ?></h4>
                         <div id="customerpanel" class="form-group row bg-purple bg-lighten-4 pb-1">
 

@@ -99,12 +99,21 @@ class Custom
         $this->PI->db->delete('geopos_custom_data', array('rid' => $rid,'module'=>$r_type));
 
     }
-
+	
+	function get_configs_emails($loc=0)
+    {
+		$this->PI->db->select("geopos_system_permiss.*");
+		$this->PI->db->from('geopos_system_permiss');
+		$this->PI->db->where('loc', $loc);
+		$query = $this->PI->db->get();
+        return $query->row_array();
+    }
+	
     function api_config($id=0)
     {
-        $this->PI->db->where('id', $id);
-        $query = $this->PI->db->get('univarsal_api');
-        $row1 = $query->row_array();
+		$this->PI->db->where('id', $id);
+		$query = $this->PI->db->get('univarsal_api');
+		$row1 = $query->row_array();
         return $row1;
     }
 

@@ -104,7 +104,7 @@
                                                                href="<?php echo base_url(); ?>tools/setgoals"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Set Goals') ?>
                                                             </a></li>
-														<li><a class="dropdown-item"
+														<?php if ($this->aauth->get_user()->roleid == 7) {?><li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>settings/culturs"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Culturs') ?>
                                                             </a></li>
@@ -112,6 +112,7 @@
                                                                href="<?php echo base_url(); ?>settings/countrys"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Countrys') ?>
                                                             </a></li>
+														<?php }?>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -125,6 +126,7 @@
                                                  aria-labelledby="heading2" aria-expanded="true">
                                                 <div class="card-content">
                                                     <ul>
+														<?php if ($this->aauth->get_user()->roleid == 7) {?>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>settings/currency"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Currency') ?>
@@ -136,6 +138,7 @@
                                                                href="<?php echo base_url(); ?>settings/dtformat"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Date & Time Format') ?>
                                                             </a></li>
+														<?php }?>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>settings/theme"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Theme') ?>
@@ -154,12 +157,14 @@
                                                  aria-labelledby="heading3" aria-expanded="true">
                                                 <div class="card-content">
                                                     <ul>
+														<li><a class="dropdown-item"
+                                                               href="<?php echo base_url(); ?>activate/activate"><i
+                                                                        class="ft-chevron-right"></i> <?php echo $this->lang->line('Software Activation') ?></a></li>
+														<?php if ($this->aauth->get_user()->roleid == 7) {?>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>webupdate"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Software Update') ?></a></li>
-                                                        <li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>activate/activate"><i
-                                                                        class="ft-chevron-right"></i> <?php echo $this->lang->line('Software Activation') ?></a></li>
+														<?php }?>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>settings/email"><i
                                                                         class="ft-chevron-right"></i><?php echo $this->lang->line('Email Config') ?>
@@ -198,6 +203,7 @@
                                                  aria-labelledby="heading4" aria-expanded="true">
                                                 <div class="card-content">
                                                     <ul>
+														<?php if ($this->aauth->get_user()->roleid == 7) {?>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>restapi"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('REST API') ?>
@@ -206,6 +212,11 @@
                                                                href="<?php echo base_url(); ?>cronjob"><i
                                                                         class="ft-chevron-right"></i><?php echo $this->lang->line('Automatic Corn Job') ?>
                                                             </a></li>
+														<li><a class="dropdown-item"
+                                                               href="<?php echo base_url(); ?>settings/debug"><i
+                                                                        class="ft-chevron-right"></i> <?php echo $this->lang->line('Debug Mode') ?> </a>
+                                                        </li>
+														<?php }?>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>settings/custom_fields"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('CustomFields') ?>
@@ -214,10 +225,7 @@
                                                                href="<?php echo base_url(); ?>settings/logdata"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Application Activity Log') ?></a>
                                                         </li>
-                                                        <li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>settings/debug"><i
-                                                                        class="ft-chevron-right"></i> <?php echo $this->lang->line('Debug Mode') ?> </a>
-                                                        </li>
+                                                        
                                                     </ul>
                                                 </div>
                                             </div>
@@ -231,26 +239,18 @@
                                                  aria-labelledby="heading5" aria-expanded="true">
                                                 <div class="card-content">
                                                     <ul>
-                                                               <li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>settings/billing_settings"><i
-                                                                        class="ft-chevron-right"></i> <?php echo $this->lang->line('billing_settings') ?>
-                                                            </a></li>
-                                                        <li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>settings/discship"><i
-                                                                        class="ft-chevron-right"></i> <?php echo $this->lang->line('DiscountShipping') ?>
-                                                            </a></li>
-                                                        <li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>settings/billing_terms"><i
-                                                                        class="ft-chevron-right"></i> <?php echo $this->lang->line('Billing Terms') ?>
-                                                            </a></li>
-                                                        <li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>settings/dual_entry"><i
-                                                                        class="ft-chevron-right"></i> <?php echo $this->lang->line('DualEntryAccounting') ?>
-                                                            </a></li>
-                                                        <li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>settings/pos_style"><i
-                                                                        class="ft-chevron-right"></i>POS e Configurações Gerais
-                                                            </a></li>
+														   <li><a class="dropdown-item"
+														   href="<?php echo base_url(); ?>settings/billing_settings"><i
+																	class="ft-chevron-right"></i> <?php echo $this->lang->line('billing_settings') ?>
+														</a></li>
+													<li><a class="dropdown-item"
+														   href="<?php echo base_url(); ?>settings/discship"><i
+																	class="ft-chevron-right"></i> <?php echo $this->lang->line('DiscountShipping') ?>
+														</a></li>
+													<li><a class="dropdown-item"
+														   href="<?php echo base_url(); ?>settings/billing_terms"><i
+																	class="ft-chevron-right"></i> <?php echo $this->lang->line('Billing Terms') ?>
+														</a></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -265,31 +265,31 @@
                                                  aria-labelledby="heading6" aria-expanded="true">
                                                 <div class="card-content">
                                                     <ul>
-                                                        <li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>settings/taxslabs"><i
-                                                                        class="ft-chevron-right"></i>Taxas de Iva
+														<li><a class="dropdown-item"
+                                                               href="<?php echo base_url(); ?>settings/series"><i
+                                                                        class="ft-chevron-right"></i> Séries
                                                             </a></li>
+														<?php if ($this->aauth->get_user()->roleid == 7) {?>
 														<li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>settings/withholding"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Withholding') ?>
                                                             </a></li>
 														<li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>settings/series"><i
-                                                                        class="ft-chevron-right"></i>Séries
+                                                               href="<?php echo base_url(); ?>settings/taxslabs"><i
+                                                                        class="ft-chevron-right"></i> Taxas de Iva
                                                             </a></li>
 														<li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>settings/irs_typ_docs"><i
-                                                                        class="ft-chevron-right"></i>Tipos de Documentos
-                                                            </a></li>
+                                                                        class="ft-chevron-right"></i> Tipos de Documentos
+                                                        </a></li>
 														<li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>settings/irs_typs"><i
-                                                                        class="ft-chevron-right"></i>Tipos de Documentos Séries
-                                                            </a></li>
+                                                               href="<?php echo base_url(); ?>settings/reasons_notes"><i
+                                                                        class="ft-chevron-right"></i> Razões Notas
+                                                        </a></li>
+														<?php }?>
                                                     </ul>
                                                 </div>
                                             </div>
-
-
                                         </div>
                                     </div>
                                 </li>
@@ -307,10 +307,12 @@
                                                  aria-labelledby="heading7" aria-expanded="true">
                                                 <div class="card-content">
                                                     <ul>
+														<?php if ($this->aauth->get_user()->roleid == 7) {?>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>units"><i
                                                                         class="ft-chevron-right"></i><?php echo $this->lang->line('Measurement Unit') ?>
                                                             </a></li>
+														<?php }?>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>units/variations"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('ProductsVariations') ?>
@@ -332,10 +334,28 @@
                                                  aria-labelledby="heading8" aria-expanded="true">
                                                 <div class="card-content">
                                                     <ul>
+														<?php if ($this->aauth->get_user()->roleid == 7) {?>
+														<li><a class="dropdown-item"
+                                                               href="<?php echo base_url(); ?>settings/method_expeditions"><i
+                                                                        class="ft-chevron-right"></i>Métodos de Expedição
+                                                            </a></li>
+														<li><a class="dropdown-item"
+                                                               href="<?php echo base_url(); ?>settings/method_payments"><i
+                                                                        class="ft-chevron-right"></i>Métodos de Pagamentos
+                                                            </a></li>
+														<li><a class="dropdown-item"
+                                                               href="<?php echo base_url(); ?>settings/praz_vencs"><i
+                                                                        class="ft-chevron-right"></i>Prazos de Vencimento
+                                                            </a></li>
+														<li><a class="dropdown-item"
+                                                               href="<?php echo base_url(); ?>settings/numb_copys"><i
+                                                                        class="ft-chevron-right"></i>Número de Cópias
+                                                            </a></li>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>paymentgateways/settings"><i
                                                                         class="ft-chevron-right"></i><?php echo $this->lang->line('Payment Settings') ?>
                                                             </a></li>
+														<?php }?>
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>paymentgateways"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Payment Gateways') ?>
@@ -347,10 +367,6 @@
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>paymentgateways/exchange"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('Currency Exchange') ?>
-                                                            </a></li>
-                                                        <li><a class="dropdown-item"
-                                                               href="<?php echo base_url(); ?>paymentgateways/bank_accounts"><i
-                                                                        class="ft-chevron-right"></i> <?php echo $this->lang->line('Bank Accounts') ?>
                                                             </a></li>
                                                     </ul>
                                                 </div>
@@ -370,7 +386,6 @@
                                                                href="<?php echo base_url(); ?>employee/auto_attendance"><i
                                                                         class="ft-chevron-right"></i><?php echo $this->lang->line('SelfAttendance') ?>
                                                             </a></li>
-
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>settings/registration"><i
                                                                         class="ft-chevron-right"></i> <?php echo $this->lang->line('CRMSettings') ?>
@@ -388,21 +403,23 @@
                                     </div>
                                 </li>
 
-
+								
                                 <li class="col-md-3">
-
                                     <div id="accordionWrap3" role="tablist" aria-multiselectable="true">
                                         <div class="card border-0 box-shadow-0 collapse-icon accordion-icon-rotate">
-                                            <div class="card-header p-0 pb-1 border-0 mt-1" id="heading10" role="tab">
+                                            <?php if ($this->aauth->get_user()->roleid == 7) {?>
+											<div class="card-header p-0 pb-1 border-0 mt-1" id="heading10" role="tab">
                                                 <a class=" text-uppercase black" data-toggle="collapse"
                                                    data-parent="#accordionWrap3" href="#accordion10"
                                                    aria-controls="accordion10"><i
                                                             class="fa fa-magic"></i><?php echo $this->lang->line('PluginsSettings') ?>
                                                 </a></div>
+											
                                             <div class="card-collapse collapse mb-1 " id="accordion10" role="tabpanel"
                                                  aria-labelledby="heading10" aria-expanded="true">
                                                 <div class="card-content">
                                                     <ul>
+														
                                                         <li><a class="dropdown-item"
                                                                href="<?php echo base_url(); ?>plugins/recaptcha"><i
                                                                         class="ft-chevron-right"></i><?php echo $this->lang->line('reCaptcha Security') ?></a>
@@ -422,6 +439,7 @@
                                                     </ul>
                                                 </div>
                                             </div>
+											<?php }?>
                                             <div class="card-header p-0 pb-1 border-0 mt-1" id="heading11" role="tab">
                                                 <a class=" text-uppercase black" data-toggle="collapse"
                                                    data-parent="#accordionWrap3" href="#accordion11"
@@ -468,15 +486,12 @@
                                                     </ul>
                                                 </div>
                                             </div>
-
-
                                         </div>
                                     </div>
                                 </li>
-
-
                             </ul>
-                        </li>       <?php } ?>
+                        </li>       
+					<?php } ?>
                     <li class="dropdown dropdown-notification nav-item"><a class="nav-link nav-link-label" href="#"
                                                                            data-toggle="dropdown"><i
                                     class="ficon ft-bell"></i><span
@@ -632,31 +647,64 @@
 				<a href="<?php echo base_url(); ?>dashboard/"><i class="icon-speedometer"></i><span><?php echo $this->lang->line('Dashboard') ?></span></a>
 			</li>
             <?php
-            if ($this->aauth->premission(1) || $this->aauth->premission(4) || $this->aauth->premission(7) || $this->aauth->premission(10) || $this->aauth->premission(13) || $this->aauth->premission(16) || $this->aauth->premission(19)) { ?>
+            if ($this->aauth->premission(1) || $this->aauth->premission(4) || $this->aauth->premission(7) || $this->aauth->premission(10) || $this->aauth->premission(13) || $this->aauth->premission(16) || $this->aauth->premission(19) || $this->aauth->premission(42) || $this->aauth->premission(125) || $this->aauth->premission(130) || $this->aauth->premission(136)) { ?>
                 <li class="nav-item has-sub <?php if ($this->li_a == "sales" || $this->li_a == "promo" || $this->li_a == "guides") {
                     echo ' open';
                 } ?>"><a href="#"><i class="icon-basket-loaded"></i><span>Documentos</span></a>
                     <ul class="menu-content">
-						<?php if ($this->aauth->premission(1)) {?>
-						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>invoices"><i class="icon-basket"></i>Faturas</a>
+						<?php if ($this->aauth->premission(1) || $this->aauth->premission(4) || $this->aauth->premission(125) || $this->aauth->premission(130)) {?>
+						<li class="menu-item" ><a href="#"><i class="icon-handbag"></i>Vendas</a>
+                            <ul class="menu-content">
+								<?php if ($this->aauth->premission(1)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>invoices"><i class="icon-basket"></i>Faturas</a>
+									</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(4)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>pos_invoices"><i class="icon-paper-plane"></i>POS</a>
+									</li>
+								<?php }?>
+								
+								<?php if ($this->aauth->premission(125)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>customers_notes/index?ty=0"><i class="icon-screen-tablet"></i> Notas de Débito</a>
+									</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(130)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>receipts/index?ty=0"><i class="icon-puzzle"></i> Recibos</a>
+									</li>
+								<?php }?>
+							</ul>
                         </li>
 						<?php }?>
-						<?php if ($this->aauth->premission(4)) {?>
-							<li class="menu-item">
-								<a href="<?php echo base_url(); ?>pos_invoices"><i class="icon-paper-plane"></i>POS</a>
-							</li>
-						<?php }?>
-						<?php if ($this->aauth->premission(7)) {?>
-							<li class="menu-item">
-								<a href="<?php echo base_url(); ?>quote"><i class="icon-call-out"></i><?php echo $this->lang->line('Quotes') ?></a>
-							</li>
-						<?php }?>
-						<?php if ($this->aauth->premission(10)) {?>
-                        <li class="menu-item">
-							<a href="<?php echo base_url(); ?>subscriptions"><i class="ft-radio"></i>Avenças</a>
+						<?php if ($this->aauth->premission(7) || $this->aauth->premission(10) || $this->aauth->premission(42) || $this->aauth->premission(136)){?>
+						<li class="menu-item" ><a href="#"><i class="ft-list"></i>Outros Documentos</a>
+                            <ul class="menu-content">
+								<?php if ($this->aauth->premission(7)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>quote/index?ty=0"><i class="icon-basket"></i><?php echo $this->lang->line('Quotes')?></a>
+									</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(10)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>subscriptions"><i class="ft-radio"></i>Avenças</a>
+									</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(42)) {?>
+								<li class="menu-item">
+									<a href="<?php echo base_url(); ?>purchase/index?ty=0"><i class="icon-handbag"></i> Notas de Encomenda</a>
+								</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(136)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>quote/index?ty=1"><i class="icon-paper-plane"></i>Faturas pró-Forma</a>
+									</li>
+								<?php }?>
+							</ul>
                         </li>
-						<?php }?>
+						<?php }?>						
 						<?php if ($this->aauth->premission(13) || $this->aauth->premission(16)) {?>
                         <li class="menu-item" ><a href="#"><i class="fa fa-barcode"></i>Transporte</a>
                             <ul class="menu-content">
@@ -728,7 +776,7 @@
                     </ul>
                 </li>
             <?php }
-			if ($this->aauth->premission(36) || $this->aauth->premission(39) || $this->aauth->premission(42) || $this->aauth->premission(45) || $this->aauth->premission(48) || $this->aauth->premission(49) || $this->aauth->premission(125)) { ?>
+			if ($this->aauth->premission(36) || $this->aauth->premission(39) || $this->aauth->premission(45) || $this->aauth->premission(48) || $this->aauth->premission(49) || $this->aauth->premission(125) || $this->aauth->premission(139)) { ?>
                 <li class="nav-item has-sub <?php if ($this->li_a == "crm") {
                     echo ' open';
                 } ?>"><a href="#"><i class="icon-diamond"></i> <span><?php echo $this->lang->line('CRM') ?></span></a>
@@ -743,25 +791,20 @@
                             <a href="<?php echo base_url(); ?>clientgroup"><i class="icon-grid"></i> <?php echo $this->lang->line('Client Groups'); ?></a>
                         </li>
 						<?php }?>
-						<?php if ($this->aauth->premission(42)) {?>
-						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>purchase/index?ty=0"><i class="icon-handbag"></i> Notas de Encomenda</a>
-						</li>
-						<?php }?>
 						<?php if ($this->aauth->premission(45)) {?>
 						<li class="menu-item">
                             <a href="<?php echo base_url(); ?>customers_notes/index?ty=1"><i class="icon-screen-tablet"></i> Notas de Crédito</a>
-                        </li>
-						<?php }?>
-						<?php if ($this->aauth->premission(125)) {?>
-						<li class="menu-item">
-                            <a href="<?php echo base_url(); ?>customers_notes/index?ty=0"><i class="icon-screen-tablet"></i> Notas de Débito</a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(48)) {?>
 						<li class="menu-item">
 							<a href="<?php echo base_url(); ?>stockreturn/index?ty=0"><i class="icon-puzzle"></i> Notas de Devolução</a>
                         </li>
+						<?php }?>
+						<?php if ($this->aauth->premission(139)) {?>
+							<li class="menu-item">
+								<a href="<?php echo base_url(); ?>docs_intern/index?ty=0"><i class="ft-sliders"></i> Documentos Internos</a>
+							</li>
 						<?php }?>
 						<?php if ($this->aauth->premission(49)) {?>
                         <li class="menu-item"><a href="#"><i class="fa fa-ticket"></i> <?php echo $this->lang->line('Support Tickets') ?></a>
@@ -778,7 +821,7 @@
                     </ul>
                 </li>
             <?php }
-			if ($this->aauth->premission(50) || $this->aauth->premission(51) || $this->aauth->premission(54) || $this->aauth->premission(57) || $this->aauth->premission(60) || $this->aauth->premission(122)) {?>
+			if ($this->aauth->premission(50) || $this->aauth->premission(51) || $this->aauth->premission(54) || $this->aauth->premission(57) || $this->aauth->premission(60) || $this->aauth->premission(122) || $this->aauth->premission(133) || $this->aauth->premission(142)) {?>
 				<li class="nav-item has-sub <?php if ($this->li_a == "suppliers") {
                     echo ' open';
                 } ?>"><a href="#"><i class="ft-layers"></i><span><?php echo $this->lang->line('Suppliers') ?></span></a>
@@ -805,13 +848,23 @@
 						<?php }?>
 						<?php if ($this->aauth->premission(122)) {?>
 						<li class="menu-item">
-                            <a href="<?php echo base_url(); ?>supplier_notes/index?ty=d"><i class="icon-screen-tablet"></i> Notas de Débito</a>
+                            <a href="<?php echo base_url(); ?>supplier_notes/index?ty=d"><i class="fa fa-ticket"></i> Notas de Débito</a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(60)) {?>
 						<li class="menu-item">
 							<a href="<?php echo base_url(); ?>stockreturn/index?ty=1"><i class="icon-puzzle"></i> Notas de Devolução</a>
                         </li>
+						<?php }?>
+						<?php if ($this->aauth->premission(133)) {?>
+							<li class="menu-item">
+								<a href="<?php echo base_url(); ?>receipts/index?ty=1"><i class="icon-grid"></i> Recibos</a>
+							</li>
+						<?php }?>
+						<?php if ($this->aauth->premission(142)) {?>
+							<li class="menu-item">
+								<a href="<?php echo base_url(); ?>docs_intern/index?ty=1"><i class="ft-sliders"></i> Documentos Internos</a>
+							</li>
 						<?php }?>
 					</ul>
 				</li>
@@ -994,7 +1047,7 @@
                 </li>
             <?php }
             if ($this->aauth->premission(114)|| $this->aauth->premission(115) || $this->aauth->premission(116) || $this->aauth->premission(117) || $this->aauth->premission(72)) {?>
-                <li class="menu-item  has-sub <?php if ($this->li_a == "data") {
+                <li class="menu-item has-sub <?php if ($this->li_a == "data") {
                     echo ' open';
                 } ?>" ><a href="#"><i class="icon-pie-chart"></i><span><?php echo $this->lang->line('Data & Reports') ?></span></a>
                     <ul class="menu-content">
@@ -1108,12 +1161,15 @@
 								<li class="menu-item"><a href="<?php echo base_url(); ?>export/products"><i
 												class="fa fa-caret-right"></i> <?php echo $this->lang->line('Export Products'); ?>
 									</a></li>
-								<li><a href="<?php echo base_url(); ?>export/account"><i
-										class="fa fa-caret-right"></i> <?php echo $this->lang->line('Account Statements'); ?></a>
-								</li>
-								<li><a href="<?php echo base_url(); ?>export/people_products"><i
-												class="fa fa-caret-right"></i> <?php echo $this->lang->line('ProductsAccount Statements'); ?></a>
-								</li>
+								<li class="menu-item"><a href="<?php echo base_url(); ?>export/account"><i
+												class="fa fa-caret-right"></i> <?php echo $this->lang->line('Account Statements'); ?>
+									</a></li>
+								<li class="menu-item"><a href="<?php echo base_url(); ?>export/people_products"><i
+												class="fa fa-caret-right"></i> <?php echo $this->lang->line('ProductsAccount Statements'); ?>
+									</a></li>
+								<li class="menu-item"><a href="<?php echo base_url(); ?>export/taxstatement"><i
+												class="fa fa-caret-right"></i> <?php echo $this->lang->line('Tax_Export'); ?>
+									</a></li>
 							</ul>
 						</li>
 						<li class="menu-item">
@@ -1127,7 +1183,6 @@
 								</li>
 							</ul>
 						</li>
-						<li class="mt-1"></li>
 					</ul>
                 </li>
             <?php }
@@ -1137,15 +1192,47 @@
                 } ?>" ><a href="#"><i class="icon-pie-chart"></i><span><?php echo $this->lang->line('Other Options') ?></span></a>
                     <ul class="menu-content">
 						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>export/tax_authority"><i class="fa fa-caret-right"></i> <?php echo $this->lang->line('Saft Export'); ?></a>
+							<a href="#"><i class="fa fa-caret-right"></i> A. Tributária</a>
+							<ul class="menu-content">
+								<li class="menu-item">
+									<a href="#"><i class="fa fa-caret-right"></i> Comunicação automática</a>
+									<ul class="menu-content">
+										<li class="menu-item">
+											<a href="<?php echo base_url(); ?>settings/company?id=4">Configuração da Ligação</a>
+										</li>
+										<li class="menu-item">
+											<a href="<?php echo base_url(); ?>saft/pendentes">Listagem de pendentes</a>
+										</li>
+										<li class="menu-item">
+											<a href="<?php echo base_url(); ?>saft/sucesso">Listagem de Envios com Sucesso</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu-item">
+									<a href="#"><i class="fa fa-caret-right"></i> Outras Configurações</a>
+									<ul class="menu-content">
+										<li class="menu-item">
+											<a href="<?php echo base_url(); ?>settings/company?id=5">Configuração do IVA de Caixa</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu-item">
+									<a href="#"><i class="fa fa-caret-right"></i> Exportações</a>
+									<ul class="menu-content">
+										<li class="menu-item">
+											<a href="<?php echo base_url(); ?>saft/atconfigs?id=1">Ficheiro SAF-T(PT)</a>
+										</li>
+										<li class="menu-item">
+											<a href="<?php echo base_url(); ?>saft/atconfigs?id=2">Inventário de existências</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
 						</li>
-						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>export/taxstatement"><i class="fa fa-caret-right"></i> <?php echo $this->lang->line('Tax_Export'); ?></a>
-						</li>
+						
 						<li class="menu-item">
 							<a href="<?php echo base_url(); ?>export/dbexport"><i class="fa fa-caret-right"></i> <?php echo $this->lang->line('Database Backup'); ?></a>
 						</li>
-						<li class="mt-1"></li>
 					</ul>
                 </li>
 			<?php }?>

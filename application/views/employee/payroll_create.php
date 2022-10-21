@@ -140,7 +140,7 @@
                         </div>
                     </div>
                     <!---- Dual -->
-                    <?php if ($dual['key1']) { ?>
+                    <?php if ($permissions['dual_entry'] == 1) { ?>
                         <hr><h4 class="purple"><?php echo $this->lang->line('Dual Entry') ?></h4>
                         <div id="customerpanel" class="form-group row bg-purple bg-lighten-4 pb-1">
                             <div class="col-sm-4"><label class=" col-form-label"

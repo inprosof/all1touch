@@ -33,12 +33,11 @@
 
                                 <div class="col-sm-9">
                                     <select name="ty" class="form-control">
-
-                                        <option value='Sales'>Sales TAX Report</option>
-                                        <option value='Purchase'>Purchase TAX Report</option>
+                                        <option value='Sales'>Vendas Clientes IVA Report</option>
+										<option value='Sales2'>Vendas Fornecedores IVA Report</option>
+                                        <option value='Purchase'>Nota de Encomenda Clientes IVA Report</option>
+										<option value='Purchase2'>Nota de Encomenda Fornecedores IVA Report</option>
                                     </select>
-
-
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -87,48 +86,14 @@
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-3 col-form-label" for="pay_cat"></label>
-
                                 <div class="col-sm-4">
                                     <input type="submit" class="btn btn-primary btn-md" value="View">
-
-
                                 </div>
                             </div>
-
                         </form>
                     </div>
                 </div>
-
             </div>
-
         </div>
     </div>
 </div>
-<script type="text/javascript">
-    $("#customer_statement").select2({
-        minimumInputLength: 4,
-        tags: [],
-        ajax: {
-            url: baseurl + 'search/customer_select',
-            dataType: 'json',
-            type: 'POST',
-            quietMillis: 50,
-            data: function (customer) {
-                return {
-                    customer: customer,
-                    '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data, function (item) {
-                        return {
-                            text: item.name,
-                            id: item.id
-                        }
-                    })
-                };
-            },
-        }
-    });
-</script>

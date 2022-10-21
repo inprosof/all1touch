@@ -11,6 +11,23 @@
  */
 
 defined('BASEPATH') or exit('No direct script access allowed');
+require_once APPPATH . 'third_party/vendor/autoload.php';
+require_once APPPATH . 'third_party/qrcode/vendor/autoload.php';
+
+				   																							
+use Mike42\Escpos\Printer;
+use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
+use Mike42\Escpos\PrintConnectors\FilePrintConnector;
+use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
+use Mike42\Escpos\PrintConnectors\DummyPrintConnector;
+use Mike42\Escpos\EscposImage;
+
+use Omnipay\Omnipay;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
+use Endroid\QrCode\Writer\PngWriter;
 
 class Customers_notes extends CI_Controller
 {
@@ -30,6 +47,11 @@ class Customers_notes extends CI_Controller
         if ((!$this->aauth->premission(45) && !$this->aauth->premission(125)) && (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
         }
+		if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(128)) {
+            $this->limited = '';
+        } else {
+			$this->limited = $this->aauth->get_user()->id;
+        }
         $this->load->library("Custom");
         $this->li_a = 'crm';
     }
@@ -39,25 +61,45 @@ class Customers_notes extends CI_Controller
 		$ty = $this->input->get('ty');
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
+		$data['reasonlist'] = $this->common->sResonsDocs();
 		if($ty == '1'){
 			if (!$this->aauth->premission(45) && (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 				exit($this->lang->line('translate19'));
 			}
 			$head['title'] = "Gestor de Notas de Crédito";
-			$this->li_a = 'suppliers';
-			$this->load->view('customers_notes/invoices');
+			$this->li_a = 'crm';
+			$this->load->view('customers_notes/invoices',$data);
 		}else{
 			if (!$this->aauth->premission(125) && (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 				exit($this->lang->line('translate19'));
 			}
 			$head['title'] = "Gestor de Notas de Débito";
-			$this->li_a = 'suppliers';
-			$this->load->view('customers_notes/invoices_d');
+			$this->li_a = 'sales';
+			$this->load->view('customers_notes/invoices_d',$data);
 		}
         $this->load->view('fixed/footer');
     }
+	
+	////////////////////////Funcões Get convert//////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+	public function duplicate()
+	{
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$typdoc = $this->input->get('typdoc');
+		$this->create($tid, $typ, $typdoc);
+	}
+	
+	public function convert()
+	{
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$typdoc = $this->input->get('typdoc');
+		$this->create($tid,$typ,$typdoc);
+	}
 
-    public function create($quo = 0,$ty = 0)
+    public function create($relation = 0, $typrelation = 0, $typeggc = 0, $docreason = 60)
     {
         $this->load->library("Common");
         $this->load->model('plugins_model', 'plugins');
@@ -67,13 +109,9 @@ class Customers_notes extends CI_Controller
         $data['taxlist'] = $this->common->taxlist($this->config->item('tax'));
         $this->load->model('customers_model', 'customers');
         $data['customergrouplist'] = $this->customers->group_list();
-        $data['emp'] = $this->plugins->universal_api(69);
-        if ($data['emp']['key1']) {
-            $this->load->model('employee_model', 'employee');
-            $data['employee'] = $this->employee->list_employee();
-        }
 		$typename = "";
-		if($ty == 1 || $ty == '1')
+		$ty = 0;
+		if($typeggc == 1)
 		{
 			if (!$this->aauth->premission(45) && (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 				exit($this->lang->line('translate19'));
@@ -85,6 +123,7 @@ class Customers_notes extends CI_Controller
 													class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 			}
 			$data['terms'] = $this->settings->billingterms(13);
+			$ty = 1;
 		}else{
 			if (!$this->aauth->premission(125) && (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 				exit($this->lang->line('translate19'));
@@ -97,6 +136,55 @@ class Customers_notes extends CI_Controller
 			}
 			$data['terms'] = $this->settings->billingterms(12);
 		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['typrelation'] = $typrelation;
+		$data['relationid'] = $relation;
+		$data['tiprelated'] = 0;
+		if($relation > 0)
+		{
+			if($typrelation == 0){
+				$data['tiprelated'] = 1;
+			}
+			$this->load->library("Related");
+			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
+			$data['csd_name'] = $data['docs_origem']['name'];
+			$data['csd_tax'] = $data['docs_origem']['taxid'];
+			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
+		}else{
+			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
+			$data['csd_tax'] = "999999990";
+			$data['csd_id'] = "99999999";
+			$data['docs_origem'] = [];
+		}
+		
+		
+		////////////////////////Relação entre Permissões//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+		
 		$data['type_return'] = $typename;
 		$data['typenote'] = $ty;
         $data['exchange'] = $this->plugins->universal_api(5);
@@ -112,14 +200,14 @@ class Customers_notes extends CI_Controller
 		$data['typesinvoices'] = "";
 		
 		$numget = 0;
-		if($ty == 1)
+		if($typeggc == 1)
 		{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(13);
-			$data['seriesinvoiceselect'] = $this->common->default_series(13);
 		}else{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(12);
-			$data['seriesinvoiceselect'] = $this->common->default_series(12);
 		}
+		
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
 		
 		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
 		{
@@ -133,12 +221,11 @@ class Customers_notes extends CI_Controller
 			exit('Deve Inserir pelo menos uma Série no Tipo '.$typename.'. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
-			if($ty == 1)
+			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
+			if($typeggc == 1)
 			{
-				$seri_did_df = $this->common->default_series_id(13);
 				$numget = $this->common->lastdoc(13,$seri_did_df);
 			}else{
-				$seri_did_df = $this->common->default_series_id(12);
 				$numget = $this->common->lastdoc(12,$seri_did_df);
 			}
 			$data['lastinvoice'] = $numget;
@@ -152,12 +239,14 @@ class Customers_notes extends CI_Controller
 
     public function create_c()
     {
-		$this->create(0,1);
+		$reas = $this->input->get('reas');
+		$this->create(0,0,1,$reas);
 	}
 	
 	public function create_d()
     {
-		$this->create(0,0);
+		$reas = $this->input->get('reas');
+		$this->create(0,0,0,$reas);
 	}
 	
     //edit invoice
@@ -319,15 +408,20 @@ class Customers_notes extends CI_Controller
 			echo json_encode(array('status' => 'Error', 'message' => 'Por favor inserir um Produto'));
             exit;
 		}
-
-        $this->load->model('plugins_model', 'plugins');
-        $empl_e = $this->plugins->universal_api(69);
-        if ($empl_e['key1']) {
-            $emp = $this->input->post('employee');
-        } else {
-            $emp = $this->aauth->get_user()->id;
-        }
 		
+		$this->load->model('settings_model', 'settings');
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$emp = 0;
+		if ($discship['emps'] == 1) {
+            $emp = $this->input->post('employee');
+        }else{
+			$emp = $this->aauth->get_user()->id;
+		}		
         $transok = true;
         $st_c = 0;
         $this->load->library("Common");
@@ -960,22 +1054,54 @@ class Customers_notes extends CI_Controller
 		$codQRD .= 'S:'.$campfim.'*';
 		
 		$qrCode = new QrCode($codQRD);
-		$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		
+		$writer = new PngWriter();
+		$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		ini_set('memory_limit', '64M');
 		
 		$data['Tipodoc'] = "Original";
 		$data2 = $data;
 		$data2['Tipodoc'] = "Duplicado";
+		$data3 = $data;
+		$data3['Tipodoc'] = "Triplicado";
+		$data4 = $data;
+		$data4['Tipodoc'] = "Quadruplicado";
 		
-		
-        $html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
+		$html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
 		$html2 = $this->load->view('print_files/invoice-a4_v' . INVV, $data2, true);
-        //PDF Rendering
-        $this->load->library('pdf');
+		$html3 = $this->load->view('print_files/invoice-a4_v' . INVV, $data3, true);
+		$html4 = $this->load->view('print_files/invoice-a4_v' . INVV, $data4, true);
+		
+		$this->load->library('pdf');
         $pdf = $this->pdf->load_split(array('margin_top' => 10));
-        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">{PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
-		$pdf->WriteHTML($html);
-		$pdf->AddPage();
-		$pdf->WriteHTML($html2);
+		$loc2 = location(0);
+        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
+		if($data['invoice']['numcop'] == 'copy1')
+		{
+			$pdf->WriteHTML($html);
+		}else if($data['invoice']['numcop'] == 'copy2')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+		}else if($data['invoice']['numcop'] == 'copy3')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+		}else if($data['invoice']['numcop'] == 'copy4')
+		{
+			$pdf->WriteHTML($html);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html2);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html3);
+			$pdf->AddPage();
+			$pdf->WriteHTML($html4);
+		}
 		
         $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', 'NT_'.$data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
         if ($this->input->get('d')) {
@@ -1013,20 +1139,7 @@ class Customers_notes extends CI_Controller
                 "There is an error! Notes has not deleted."));
         }
 
-    }
-
-	
-								   
-	 
-										 
-											   
-
-
-										  
-									 
-											 
-
-																  
+    }													  
 																				  
 	 
 

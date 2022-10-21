@@ -28,6 +28,8 @@
                         <th>#</th>
                         <th>Serie</th>
 						<th>C.A.E</th>
+						<th>Classe</th>
+						<th>Localização</th>
 						<th><?php echo $this->lang->line('Inicial') ?></th>
 						<th><?php echo $this->lang->line('Ended') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
@@ -41,6 +43,8 @@
                         <th>#</th>
                         <th>Serie</th>
 						<th>C.A.E</th>
+						<th>Classe</th>
+						<th>Localização</th>
 						<th><?php echo $this->lang->line('Inicial') ?></th>
 						<th><?php echo $this->lang->line('Ended') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>

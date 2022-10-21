@@ -6,7 +6,70 @@ class Common
     {
         $this->PI = &get_instance();
     }
-
+	
+	public function currencies()
+    {
+        $this->PI->db->select('*');
+        $this->PI->db->from('geopos_currencies');
+        $query = $this->PI->db->get();
+        return $query->result_array();
+    }
+	
+	public function get_all_class()
+    {
+		$this->PI->db->select('*');
+        $this->PI->db->from('geopos_products_class');
+        $query = $this->PI->db->get();
+		$result = $query->result_array();
+		$claa_list = '';
+		foreach ($result as $row) {
+            $claa_list .= '<option value="' . $row['id'] . '">' . $row['title'] . '</option> ';
+        }
+		return $claa_list;
+    }
+	
+	
+	
+	public function get_all_Localizacoes()
+    {
+		$this->PI->db->select('*');
+		$this->PI->db->from('geopos_system');
+		$this->PI->db->where('id', 1);
+		$query = $this->PI->db->get();
+		$out = $query->row_array();
+		$locl_list = '<option value="0">' . $out['cname'] . '</option> ';
+			
+		$this->PI->db->select('*');
+		$this->PI->db->from('geopos_locations');
+		$query = $this->PI->db->get();
+		$result = $query->result_array();
+		foreach ($result as $row) {
+            $locl_list .= '<option value="' . $row['id'] . '">' . $row['cname'] . '</option> ';
+        }
+		
+		return $locl_list;
+	}
+	
+	
+	public function guide_autos_company()
+    {
+		$this->PI->db->select("geopos_assets.*, CONCAT('(', geopos_assets.assest_name, ') - ', geopos_assets.product_des) AS nameasset");
+        $this->PI->db->from('geopos_assets');
+		$this->PI->db->join('geopos_assets_cat', 'geopos_assets_cat.id = geopos_assets.acat', 'left');
+        $this->PI->db->where('geopos_assets_cat.type', 1);
+		if($this->PI->aauth->get_user()->loc > 0)
+		{
+			$this->PI->db->where('geopos_assets.warehouse', $this->PI->aauth->get_user()->loc);
+		}
+		$query = $this->PI->db->get();
+		$result = $query->result_array();
+		$assets_list = '';
+		foreach ($result as $row) {
+            $assets_list .= '<option value="' . $row['id'] . '">' . $row['nameasset'] . '</option> ';
+        }
+		return $assets_list;
+	}
+	
     function taxlist($id = 0)
     {
         $tax_list = '';
@@ -193,7 +256,7 @@ class Common
 	
 	function languagesSystem()
     {
-        $lang = '<option value="english">English</option><option value="french">French</option><option value="german">German</option><option value="italian">Italian</option><option value="portuguese">Portuguese</option>';
+        $lang = '<option value="portuguese">Portuguese</option><option value="english">English</option><option value="french">French</option><option value="german">German</option><option value="italian">Italian</option>';
         return $lang;
     }
 	
@@ -347,7 +410,24 @@ class Common
         return $country;
     }
 
-	
+	function sResonsDocs($id = 0)
+    {
+		$query = "";
+        if ($id) {
+            $this->PI->db->select('*');
+            $this->PI->db->from('geopos_config');
+			$this->PI->db->where('geopos_config.type', 11);
+            $this->PI->db->where('id', $id);
+            $query = $this->PI->db->get();
+        } else {
+            $this->PI->db->select('*');
+            $this->PI->db->from('geopos_config');
+			$this->PI->db->where('geopos_config.type', 11);
+            $query = $this->PI->db->get();
+        }
+		$result = $query->result_array();
+        return $result;
+    }
 	
 	
 	function sexpeditions($id = 0)
@@ -415,15 +495,14 @@ class Common
 				$wr = '<option value="0">*' . $this->PI->lang->line('All') .'*</option>';
 			}
         } else {
-            $this->PI->db->select('univarsal_api.key1,geopos_warehouse.title');
-            $this->PI->db->from('univarsal_api');
-            $this->PI->db->join('geopos_warehouse', 'univarsal_api.key1=geopos_warehouse.id', 'left');
-            $this->PI->db->where('univarsal_api.id', 60);
+            $this->PI->db->select("".WARHOUSE." as ware,geopos_warehouse.title");
+            $this->PI->db->from('geopos_warehouse');
+            $this->PI->db->where('geopos_warehouse.id', WARHOUSE);
             $query = $this->PI->db->get();
             $result = $query->row_array();
             if ($result['title'])
 			{
-				$wr .= '<option value="' . $result['key1'] . '">*' . $result['title'] . '*</option>';
+				$wr .= '<option value="' . $result['ware'] . '">*' . $result['title'] . '*</option>';
 				$wr .= '<option value="0">' . $this->PI->lang->line('All') . '</option>';
 			}else{
 				$wr = '<option value="0">*' . $this->PI->lang->line('All') . '*</option>';
@@ -435,41 +514,36 @@ class Common
 	public function default_series_id($id)
     {
 		$wr = 0;
-		$this->PI->db->select("geopos_irs_typ_series.*,geopos_series.id as serie_id, CONCAT(geopos_series.serie,' - ',geopos_config.val1) as seriename, CASE WHEN geopos_irs_typ_series.predf = 0 THEN 'Não' ELSE 'Sim' END as predfname, CASE WHEN geopos_irs_typ_series.taxs = 0 THEN 'Não' ELSE 'Sim' END as taxsname, CASE WHEN geopos_irs_typ_series.type_com = 0 THEN 'Web Service' WHEN geopos_irs_typ_series.type_com = 1 THEN 'SAFT' WHEN geopos_irs_typ_series.type_com = 2 THEN 'Sem Comunicação' ELSE 'Manual' END as type_comname, geopos_warehouse.title as warehousename, geopos_products_class.title as claname");
-        $this->PI->db->from('geopos_irs_typ_series');
-		$this->PI->db->join('geopos_irs_typ', 'geopos_irs_typ_series.irs_type = geopos_irs_typ.id');
-		$this->PI->db->join('geopos_irs_typ_doc', 'geopos_irs_typ.typ_doc = geopos_irs_typ_doc.id');
-        $this->PI->db->where('geopos_irs_typ_doc.id', $id);
-		$this->PI->db->where('geopos_irs_typ_series.predf', 1);
-		$this->PI->db->join('geopos_series', 'geopos_series.id = geopos_irs_typ_series.serie', 'left');
-		$this->PI->db->join('geopos_config', 'geopos_config.id = geopos_series.cae', 'left');
-		$this->PI->db->join('geopos_warehouse', 'geopos_warehouse.id = geopos_irs_typ_series.warehouse', 'left');
-		$this->PI->db->join('geopos_products_class', 'geopos_products_class.id = geopos_irs_typ_series.cla', 'left');
+		$this->PI->db->select("geopos_series.id as serie_id");
+        $this->PI->db->from('geopos_series');
+		$this->PI->db->where('geopos_series.loc', $id);
+		$this->PI->db->where('geopos_series.exclued', 0);
+		//$this->PI->db->where('geopos_series.predf', 1);
+		$this->PI->db->order_by('geopos_series.predf', 'DESC');
         $query = $this->PI->db->get();
 		$result = $query->row_array();
-		if ($result['serie_id'])
-			$wr = $result['serie_id'];
+		if(!empty($result)){
+			if ($result['serie_id'])
+				$wr = $result['serie_id'];
+		}
+		
         return $wr;
     }
 	
 	public function default_series($id)
     {
-		$this->PI->db->select("geopos_irs_typ_series.*,geopos_series.id as serie_id, CONCAT(geopos_series.serie,' - ',geopos_config.val1) as seriename, CASE WHEN geopos_irs_typ_series.predf = 0 THEN 'Não' ELSE 'Sim' END as predfname, CASE WHEN geopos_irs_typ_series.taxs = 0 THEN 'Não' ELSE 'Sim' END as taxsname, CASE WHEN geopos_irs_typ_series.type_com = 0 THEN 'Web Service' WHEN geopos_irs_typ_series.type_com = 1 THEN 'SAFT' WHEN geopos_irs_typ_series.type_com = 2 THEN 'Sem Comunicação' ELSE 'Manual' END as type_comname, geopos_warehouse.title as warehousename, geopos_products_class.title as claname");
-        $this->PI->db->from('geopos_irs_typ_series');
-		$this->PI->db->join('geopos_irs_typ', 'geopos_irs_typ_series.irs_type = geopos_irs_typ.id');
-		$this->PI->db->join('geopos_irs_typ_doc', 'geopos_irs_typ.typ_doc = geopos_irs_typ_doc.id');
-        $this->PI->db->where('geopos_irs_typ_doc.id', $id);
-		$this->PI->db->where('geopos_irs_typ_series.predf', 1);
-		$this->PI->db->join('geopos_series', 'geopos_series.id = geopos_irs_typ_series.serie', 'left');
-		$this->PI->db->join('geopos_config', 'geopos_config.id = geopos_series.cae', 'left');
-		$this->PI->db->join('geopos_warehouse', 'geopos_warehouse.id = geopos_irs_typ_series.warehouse', 'left');
-		$this->PI->db->join('geopos_products_class', 'geopos_products_class.id = geopos_irs_typ_series.cla', 'left');
+		$this->PI->db->select("geopos_series.*,geopos_series.id as serie_id, CONCAT(geopos_series.serie,' - ',geopos_caes.name) as seriename");
+		$this->PI->db->from('geopos_series');
+		$this->PI->db->join('geopos_caes', 'geopos_caes.id = geopos_series.cae', 'left');
+		$this->PI->db->where('geopos_series.loc', $id);
+		$this->PI->db->where('geopos_series.exclued', 0);
+		$this->PI->db->order_by('geopos_series.predf', 'DESC');
         $query = $this->PI->db->get();
-		$result = $query->row_array();
-		if ($result['serie_id'])
-			$wr = '<option value="' . $result['serie_id'] . '">' . $result['seriename'] . '</option>';
-		else
-			$wr = $result;
+		$result = $query->result_array();
+		$wr = '';
+		foreach ($result as $row) {
+            $wr .= '<option value="' . $row['id'] . '">' . $row['seriename'] . '</option> ';
+        }
         return $wr;
     }
 
@@ -479,6 +553,32 @@ class Common
 		from geopos_irs_typ_doc order by typ_name";
 		$query = $this->PI->db->query($quer);
 		$result = $query->result_array();		
+		return $result;
+	}
+	
+	
+	public function default_typ_pref_doc_list($loc)
+    {
+		$quer = "select geopos_documents_copys.typ_doc as id, 
+						geopos_irs_typ_doc.description as typ_name, 
+						geopos_config.val1 as copyname,
+						geopos_documents_copys.copy
+					from geopos_documents_copys
+					inner join geopos_irs_typ_doc on geopos_documents_copys.typ_doc = geopos_irs_typ_doc.id
+					inner join geopos_config on geopos_config.id = geopos_documents_copys.copy
+					where geopos_documents_copys.loc = '$loc'
+			UNION ALL
+					select 
+						geopos_irs_typ_doc.id, 
+						geopos_irs_typ_doc.description as typ_name,
+						'Duplicado' as copyname,
+						'37' as copy
+					from geopos_irs_typ_doc 
+					where geopos_irs_typ_doc.id not in (select typ_doc from geopos_documents_copys where loc = '$loc')
+			order by typ_name";
+		$query = $this->PI->db->query($quer);
+		$result = $query->result_array();
+		
 		return $result;
 	}
 	
@@ -570,7 +670,7 @@ class Common
 				$query = $this->PI->db->get();
 				$result = $query->row_array();
 				if ($result['id']) 
-					$wr = '<option value="' . $result['id'] . '" data-serie="' . $result['type'] . '">' . $result['nameused'] . '</option>';
+					$wr = '<option value="' . $result['id'] . '" data-serie="' . $result['type'] . '">--' . $result['nameused'] . '--</option>';
 				else{
 					$this->PI->db->select("geopos_irs_typ_doc.id, geopos_irs_typ_doc.type, geopos_irs_typ_doc.description, geopos_irs_typ_doc.description as nameused");
 					$this->PI->db->from('geopos_irs_typ_doc');
@@ -578,7 +678,7 @@ class Common
 					$query = $this->PI->db->get();
 					$result = $query->row_array();
 					if ($result['id'])
-						$wr = '<option value="' . $result['id'] . '" data-serie="' . $result['type'] . '">' . $result['nameused'] . '</option>';
+						$wr = '<option value="' . $result['id'] . '" data-serie="' . $result['type'] . '">--' . $result['nameused'] . '--</option>';
 				}
 			}else{
 				$this->PI->db->select("geopos_irs_typ_doc.id, geopos_irs_typ_doc.type, geopos_irs_typ_doc.description, geopos_irs_typ_doc.description as nameused");
@@ -587,7 +687,7 @@ class Common
 				$query = $this->PI->db->get();
 				$result = $query->row_array();
 				if ($result['id'])
-					$wr = '<option value="' . $result['id'] . '" data-serie="' . $result['type'] . '">' . $result['nameused'] . '</option>';
+					$wr = '<option value="' . $result['id'] . '" data-serie="' . $result['type'] . '">--' . $result['nameused'] . '--</option>';
 			}
 		}else{
 			$this->PI->db->select("geopos_irs_typ_doc.id, geopos_irs_typ_doc.type, geopos_irs_typ_doc.description, geopos_irs_typ_doc.description as nameused");
@@ -596,7 +696,7 @@ class Common
 			$query = $this->PI->db->get();
 			$result = $query->row_array();
 			if ($result['id'])
-				$wr = '<option value="' . $result['id'] . '" data-serie="' . $result['type'] . '">' . $result['nameused'] . '</option>';
+				$wr = '<option value="' . $result['id'] . '" data-serie="' . $result['type'] . '">--' . $result['nameused'] . '--</option>';
 		}
 		return $wr;
     }

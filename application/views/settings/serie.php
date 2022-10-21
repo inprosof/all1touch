@@ -23,6 +23,11 @@
 					<li class="nav-item">
 						<a class="nav-link" id="base-tab2" data-toggle="tab" aria-controls="tab2"
 						   href="#tab2" role="tab"
+						   aria-selected="false">Preferências</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="base-tab3" data-toggle="tab" aria-controls="tab3"
+						   href="#tab3" role="tab"
 						   aria-selected="false">Números Iniciais</a>
 					</li>
 				</ul>
@@ -67,7 +72,40 @@
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-3 col-form-label"
-								   for="currency">Inativar?</label>
+								   for="serie_iva_caixa">Regime de IVA de Caixa?</label>
+							<div class="col-sm-2">
+								<select name="serie_iva_caixa" class="form-control b_input">
+									<option value="0"><?php echo $this->lang->line('No') ?></option>
+									<option value="1"><?php echo $this->lang->line('Yes') ?></option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="tab2" role="tabpanel" aria-labelledby="base-tab2">
+						<div class="form-group row">
+							<label class="col-sm-3 col-form-label"
+								   for="serie_iva_caixa">Regime de IVA de Caixa?</label>
+							<div class="col-sm-2">
+								<select name="serie_iva_caixa" class="form-control b_input">
+									<option value="0"><?php echo $this->lang->line('No') ?></option>
+									<option value="1"><?php echo $this->lang->line('Yes') ?></option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-3 col-form-label"
+								   for="serie_pred">Predefinido?</label>
+							<div class="col-sm-2">
+								<select name="serie_pred" class="form-control b_input">
+									<option value="0"><?php echo $this->lang->line('No') ?></option>
+									<option value="1"><?php echo $this->lang->line('Yes') ?></option>
+								</select>
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-sm-3 col-form-label"
+								   for="exclued">Inativar?</label>
 							<div class="col-sm-2">
 								<select name="exclued" class="form-control b_input">
 									<option value="0"><?php echo $this->lang->line('No') ?></option>
@@ -75,9 +113,44 @@
 								</select>
 							</div>
 						</div>
+						
+						<div class="form-group row">
+							<label class="col-sm-3 col-form-label"
+								   for="serie_class"><?php echo $this->lang->line('Class Ativ') ?>.</label>
+							<div class="col-sm-6">
+								<select name="serie_class" id="serie_class" class="form-control b_input">
+									<option value="">Escolha uma Opção</option>
+									<?php echo $classes?>
+								</select>
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-sm-3 col-form-label"
+								   for="serie_wareh">Localização</label>
+							<div class="col-sm-6">
+								<select name="serie_wareh" id="serie_wareh" class="form-control b_input">
+									<option value="">Escolha uma Opção</option>
+									<?php echo $localizacoes?>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-sm-3 col-form-label"
+								   for="serie_type_com"><?php echo $this->lang->line('Type Com') ?>.</label>
+							<div class="col-sm-6">
+								<select name="serie_type_com" id="serie_type_com" class="form-control b_input">
+									<option value="">Escolha uma Opção</option>
+									<option value="0">Web Service</option>
+									<option value="1">SAFT</option>
+									<option value="2">Sem Comunicação</option>
+									<option value="3">Manual</option>
+								</select>
+							</div>
+						</div>
 					</div>
-					
-					<div class="tab-pane" id="tab2" role="tabpanel" aria-labelledby="base-tab2">
+					<div class="tab-pane" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
 						<?php
 						$cvalue = 0;
 						foreach ($docs_ini as $row) {
@@ -99,10 +172,6 @@
 						?>
 					</div>
 				</div>
-								
-								
-								
-				
 
                 <div class="form-group row">
 

@@ -25,20 +25,20 @@ class Billing_model extends CI_Model
     {
         $account['id'] = false;
         if ($loc) {
-            $this->db->select('geopos_accounts.id,geopos_accounts.holder,');
+            $this->db->select('geopos_accounts.id,geopos_accounts.holder');
             $this->db->from('geopos_locations');
             $this->db->where('geopos_locations.id', $loc);
+			$this->db->where('geopos_accounts.enable', 'Yes');
+			$this->db->where('geopos_accounts.payonline', 'Yes');
             $this->db->join('geopos_accounts', 'geopos_locations.ext = geopos_accounts.id', 'left');
             $query = $this->db->get();
             $account = $query->row_array();
         }
         if (!$account['id']) {
-            $this->db->select('geopos_accounts.id,geopos_accounts.holder,');
+			$this->db->select('geopos_accounts.id,geopos_accounts.holder,');
             $this->db->from('univarsal_api');
             $this->db->where('univarsal_api.id', 54);
-
             $this->db->join('geopos_accounts', 'univarsal_api.key1 = geopos_accounts.id', 'left');
-
             $query = $this->db->get();
             $account = $query->row_array();
         }
@@ -119,19 +119,26 @@ class Billing_model extends CI_Model
             $this->db->update('geopos_accounts');
 
         }
-                $dual = $this->custom->api_config(65);
-        if ($dual['key1']) {
-
+		
+		$discship = [];
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+        $dual = $discship;
+        if($dual['dual_entry']>0){
             $this->db->select('holder');
             $this->db->from('geopos_accounts');
-            $this->db->where('id', $dual['key2']);
+            $this->db->where('id', $dual['ac_id_d']);
             $query = $this->db->get();
             $account = $query->row_array();
 
             $data['credit'] = 0;
             $data['debit'] = $amount;
               $data['type'] = 'Expense';
-            $data['acid'] = $dual['key2'];
+            $data['acid'] = $dual['ac_id_d'];
             $data['account'] = $account['holder'];
             $data['note'] = 'Debit ' . $data['note'];
 
@@ -139,7 +146,7 @@ class Billing_model extends CI_Model
 
             //account update
             $this->db->set('lastbal', "lastbal-$amount", FALSE);
-            $this->db->where('id', $dual['key2']);
+            $this->db->where('id', $dual['ac_id_d']);
             $this->db->update('geopos_accounts');
         }
         $this->aauth->applog("[Payment Invoice $tid]  Transaction-$trans - $amount ", $this->aauth->get_user()->username);
@@ -161,7 +168,6 @@ class Billing_model extends CI_Model
 
     public function gateway_list($enable = '')
     {
-
         $this->db->from('geopos_gateways');
         if ($enable == 'Yes') {
             $this->db->where('enable', 'Yes');
@@ -170,21 +176,24 @@ class Billing_model extends CI_Model
         return $query->result_array();
     }
 
-    public function bank_accounts($enable = '')
+    public function bank_accounts($enable = '', $online = '')
     {
-
-        $this->db->from('geopos_bank_ac');
+		$this->db->select('geopos_accounts.*, geopos_currencies.code AS currency_code');
+        $this->db->from('geopos_accounts');
+		$this->db->join('geopos_currencies', 'geopos_currencies.id = geopos_accounts.currency', 'left');
         if ($enable == 'Yes') {
             $this->db->where('enable', 'Yes');
         }
+		if ($online == 'Yes') {
+			$this->db->where('payonline', 'Yes');
+		}
         $query = $this->db->get();
         return $query->result_array();
     }
 
     public function bank_account_info($id)
     {
-
-        $this->db->from('geopos_bank_ac');
+        $this->db->from('geopos_accounts');
         $this->db->where('id', $id);
         $query = $this->db->get();
         return $query->row_array();
@@ -202,7 +211,6 @@ class Billing_model extends CI_Model
             'surcharge' => $p_fee
         );
 
-
         $this->db->set($data);
         $this->db->where('id', $gid);
 
@@ -213,31 +221,15 @@ class Billing_model extends CI_Model
             echo json_encode(array('status' => 'Error', 'message' =>
                 $this->lang->line('ERROR')));
         }
-
     }
-
-    public function online_pay_settings()
-    {
-
-        $this->db->select('univarsal_api.key1 AS default_acid,univarsal_api.key2 AS currency_code,univarsal_api.url AS enable,univarsal_api.method AS bank, geopos_accounts.*');
-        $this->db->from('univarsal_api');
-        $this->db->where('univarsal_api.id', 54);
-
-        $this->db->join('geopos_accounts', 'univarsal_api.key1 = geopos_accounts.id', 'left');
-
-        $query = $this->db->get();
-        return $query->row_array();
-    }
-
-
-    public function payment_settings($id, $enable, $bank)
+	
+	public function payment_settings($id, $enable, $bank)
     {
         $data = array(
             'key1' => $id,
             'url' => $enable,
             'method' => $bank
         );
-
 
         $this->db->set($data);
         $this->db->where('id', 54);
@@ -249,59 +241,19 @@ class Billing_model extends CI_Model
             echo json_encode(array('status' => 'Error', 'message' =>
                 $this->lang->line('ERROR')));
         }
-
     }
-
-
-    public function bank_ac_add($name, $acn, $code, $enable, $bank, $branch, $address)
-    {
-        $data = array(
-            'name' => $name,
-            'acn' => $acn,
-            'code' => $code,
-            'enable' => $enable,
-            'note' => $bank,
-            'branch' => $branch,
-            'address' => $address,
-        );
-
-
-        if ($this->db->insert('geopos_bank_ac', $data)) {
-            echo json_encode(array('status' => 'Success', 'message' =>
-                $this->lang->line('ADDED')));
-        } else {
-            echo json_encode(array('status' => 'Error', 'message' =>
-                $this->lang->line('ERROR')));
-        }
-
-    }
-
-
-    public function bank_ac_update($gid, $name, $acn, $code, $enable, $bank, $branch, $address)
-    {
-        $data = array(
-            'name' => $name,
-            'acn' => $acn,
-            'code' => $code,
-            'enable' => $enable,
-            'note' => $bank,
-            'branch' => $branch,
-            'address' => $address,
-        );
-
-
-        $this->db->set($data);
-        $this->db->where('id', $gid);
-
-        if ($this->db->update('geopos_bank_ac')) {
-            echo json_encode(array('status' => 'Success', 'message' =>
-                $this->lang->line('UPDATED')));
-        } else {
-            echo json_encode(array('status' => 'Error', 'message' =>
-                $this->lang->line('ERROR')));
-        }
-
-    }
+	
+	public function online_pay_settings()
+	{
+		$this->db->select('univarsal_api.key1 AS default_acid,geopos_currencies.code AS currency_code,univarsal_api.url AS enable,univarsal_api.method AS bank, 
+		geopos_accounts.acn,geopos_accounts.holder,geopos_accounts.lastbal,geopos_accounts.branch,geopos_accounts.currency,geopos_accounts.code');
+		$this->db->from('univarsal_api');
+		$this->db->where('univarsal_api.id', 54);
+		$this->db->join('geopos_accounts', 'univarsal_api.key1 = geopos_accounts.id', 'left');
+		$this->db->join('geopos_currencies', 'geopos_currencies.id = geopos_accounts.currency', 'left');
+		$query = $this->db->get();
+		return $query->row_array();
+	}
 
     public function add_currency($code, $symbol, $spos, $rate, $decimal, $thous_sep, $deci_sep)
     {
@@ -401,8 +353,7 @@ class Billing_model extends CI_Model
 
     public function pos_paynow($tid, $amount, $note, $pmethod)
     {
-
-        $this->db->select('geopos_accounts.id,geopos_accounts.holder,');
+		$this->db->select('geopos_accounts.id,geopos_accounts.holder');
         $this->db->from('univarsal_api');
         $this->db->where('univarsal_api.id', 54);
         $this->db->join('geopos_accounts', 'univarsal_api.key1 = geopos_accounts.id', 'left');

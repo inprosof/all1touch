@@ -9,33 +9,36 @@
                 <form method="post" id="data_form">
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
+							<input type="hidden" value="<?php echo $tiprelated ?>" name="tiprelated" id="tiprelated">
+							<input type="hidden" value="<?php echo $locations['address']; ?>" name="compa_adr" id="compa_adr">
+							<input type="hidden" value="<?php echo $locations['postbox']; ?>" name="compa_post" id="compa_post">
+							<input type="hidden" value="<?php echo $locations['city']; ?>" name="compa_city" id="compa_city">
+							<input type="hidden" value="<?php echo $locations['country']; ?>" data-serie="<?php echo $locations['namecountry']; ?>" name="compa_country" id="compa_country">
+							
                             <div id="customerpanel" class="inner-cmp-pnl">
-								
                                 <div class="form-group row">
                                     <div class="fcol-sm-12">
                                         <h3 class="title">
                                             <?php echo $this->lang->line('Bill To') ?> <a href='#'
                                                                                           class="btn btn-primary btn-sm round"
                                                                                           data-toggle="modal"
-                                                                                          data-target="#addCustomer" <?php if (isset($_GET['project']) || $quote > 0 || $not_enc > 0) echo ' hidden' ?>>
+                                                                                          data-target="#addCustomer" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>>
                                                 <?php echo $this->lang->line('Add Client') ?>
                                             </a>
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <div class="frmSearch col-sm-12"><label for="cst" class="caption" <?php if (isset($_GET['project']) || $quote > 0 || $not_enc > 0) echo ' hidden' ?>><?php echo $this->lang->line('Search Client'); ?></label>
+                                    <div class="frmSearch col-sm-12"><label for="cst" class="caption" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>><?php echo $this->lang->line('Search Client'); ?></label>
                                         <input type="text" class="form-control round" name="cst" id="customer-box"
                                                placeholder="Enter Customer Name or Mobile Number to search"
-                                               autocomplete="off" <?php if (isset($_GET['project']) || $quote > 0 || $not_enc > 0) echo ' hidden' ?>/>
-                                        <div id="customer-box-result" <?php if (isset($_GET['project']) || $quote > 0 || $not_enc > 0) echo ' hidden' ?>></div>
+                                               autocomplete="off" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>/>
+                                        <div id="customer-box-result" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>></div>
                                     </div>
                                 </div>
                                 <div id="customer">
                                     <div class="clientinfo">
                                         <?php echo $this->lang->line('Client Details'); ?>
                                         <hr>
-										<input type="hidden" name="not_e_tid" id="not_e_tid" value="<?php if ($not_enc > 0) echo $not_enc?>" />
-										<input type="hidden" name="quote_tid" id="quote_tid" value="<?php if ($quote > 0) echo $quote?>" />
 										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $csd_id?>" />
 										<div id="customer_name"><strong><?php echo $csd_name; ?></strong></div>
                                     </div>
@@ -132,10 +135,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                     </div>
                                 </div>
                                 <div class="form-group row">
-
-                                    <div class="col-sm-6"><label for="invoicedate"
-                                                                 class="caption">Data de Emissão</label>
-
+                                    <div class="col-sm-6"><label for="invoicedate" class="caption">Data de Emissão</label>
                                         <div class="input-group">
                                             <div class="input-group-addon"><span class="icon-calendar4"
                                                                                  aria-hidden="true"></span></div>
@@ -158,38 +158,29 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group row">
-                                    <div class="col-sm-12">
-                                        <label for="toAddInfo"
-                                               class="caption"><?php echo $this->lang->line('Invoice Note') ?></label>
-                                        <textarea class="form-control round" name="notes" rows="2"></textarea></div>
-                                </div>
-
                             </div>
                         </div>
-
                     </div>
-
-
-                    <div id="saman-row-invoice">
+					<div id="saman-row-invoice">
 						<hr>
-                        <table id="myTable" class="table-responsive tfr my_stripe">
-                            <thead>
-                            <tr class="item_header bg-gradient-directional-blue white">
-                                <th width="25%" class="text-center"><?php echo $this->lang->line('Item Name') ?></th>
-                                <th width="7%" class="text-center">Qtd.</th>
-                                <th width="10%" class="text-center">Preço (€)</th>
+						<label class="card-title lead"><i class="fa fa-plus-circle"></i>Artigos</label>
+						<table id="myTable" class="table-responsive tfr my_stripe">
+							<thead>
+							<tr class="item_header bg-gradient-directional-blue white">
+								<th width="25%" class="text-center">Designação</th>
+								<th width="7%" class="text-center">Qtd.</th>
+								<th width="10%" class="text-center">Preço (€)</th>
 								<th width="10%" class="text-center"><?php echo $this->lang->line('Discount') ?> (%)</th>
-                                <th width="20%" class="text-center"><?php echo $this->lang->line('Tax') ?> (%)</th>
-                                <th width="10%" class="text-center">Total Líquido(<?php echo currency($this->aauth->get_user()->loc); ?>)
-                                </th>
-                                <th width="10%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
-                            </tr>
-                            </thead>
-                            <tbody>
+								<th width="20%" class="text-center"><?php echo $this->lang->line('Tax') ?> (%)</th>
+								<th width="10%" class="text-center">Total Líquido(<?php echo currency($this->aauth->get_user()->loc); ?>)
+								</th>
+								<th width="10%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
+							</tr>
+							</thead>
+							<tbody>
 							<?php 
 								$cvalue = 0;
-								if($products != null)
+								if(!empty($products))
 								{
 									$functionNum = "'".$cvalue."'";
 									$sub_t = 0;
@@ -263,6 +254,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 										<input type="hidden" name="unit[]" id="unit-' . $cvalue . '" value="' . $row['unit'] . '">
 										<input type="hidden" name="hsn[]" id="hsn-' . $cvalue . '" value="' . $row['code'] . '">
 										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="' . $row['serial'] . '"> </td>
+										<input type="hidden" name="verify_typ[]" id="verify_typ-' . $cvalue . '" value="' . $row['verify_typ'] . '"> </td>
 										</tr>
 										<tr>
 											<td colspan="8">
@@ -272,41 +264,41 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 									}
 								}
 							?>
-                            <tr class="last-item-row sub_c">
-                                <td class="add-row">
-                                    <button type="button" class="btn btn-success" aria-label="Left Align"
-                                            id="addproduct">
-                                        <i class="fa fa-plus-square"></i> <?php echo $this->lang->line('Add Row') ?>
-                                    </button>
-                                </td>
-                                <td colspan="7"></td>
-                            </tr>
+							<tr class="last-item-row sub_c">
+								<td class="add-row">
+									<button type="button" class="btn btn-success" aria-label="Left Align"
+											id="addproduct">
+										<i class="fa fa-plus-square"></i> <?php echo $this->lang->line('Add Row') ?>
+									</button>
+								</td>
+								<td colspan="7"></td>
+							</tr>
 							<tr class="sub_c" style="display: table-row;">
-                                <td colspan="6" class="reverse_align">
+								<td colspan="6" class="reverse_align">
 									<strong>Total Iliquido</strong>
-                                </td>
-                                <td align="left" colspan="2"><span class="currenty lightMode">
-									<input type="hidden" name="subttlform_val" id="subttlform_val" value="<?php if($invoice != null) echo $invoice['subtotal']; else echo '0.00' ?>">
+								</td>
+								<td align="left" colspan="2"><span class="currenty lightMode">
+									<input type="hidden" name="subttlform_val" id="subttlform_val" value="<?php if(!empty($invoice)) echo $invoice['subtotal']; else echo '0.00' ?>">
 									<?php echo $this->config->item('currency'); ?></span>
-                                    <span id="subttlform_in" name="subttlform_in" class="lightMode"><?php if($invoice != null) echo $invoice['subtotal']; else echo '0.00' ?></span></td>
-                            </tr>
-                            <tr class="sub_c" style="display: table-row;">
-                                <td colspan="6" class="reverse_align">
-                                    <strong>Desconto comercial</strong></td>
-                                <td align="left" colspan="2"><span
-                                            class="currenty lightMode"><?php echo $this->config->item('currency');
-                                        if (isset($_GET['project'])) {
-                                            echo '<input type="hidden" value="' . intval($_GET['project']) . '" name="prjid">';
-                                        } ?></span>
-                                    <span id="discs" class="lightMode"><?php if($invoice != null) echo $invoice['discount']; else echo '0.00' ?></span></td>
-									<input type="hidden" name="discs_come" id="discs_come" value="<?php if($invoice != null) echo $invoice['discount']; else echo '0.00' ?>">
-                            </tr>
+									<span id="subttlform_in" name="subttlform_in" class="lightMode"><?php if(!empty($invoice)) echo $invoice['subtotal']; else echo '0.00' ?></span></td>
+							</tr>
+							<tr class="sub_c" style="display: table-row;">
+								<td colspan="6" class="reverse_align">
+									<strong>Desconto comercial</strong></td>
+								<td align="left" colspan="2"><span
+											class="currenty lightMode"><?php echo $this->config->item('currency');
+										if (isset($_GET['project'])) {
+											echo '<input type="hidden" value="' . intval($_GET['project']) . '" name="prjid">';
+										} ?></span>
+									<span id="discs" class="lightMode"><?php if(!empty($invoice)) echo $invoice['discount']; else echo '0.00' ?></span></td>
+									<input type="hidden" name="discs_come" id="discs_come" value="<?php if(!empty($invoice)) echo $invoice['discount']; else echo '0.00' ?>">
+							</tr>
 							<tr class="sub_c" style="display: table-row;">
 								<td colspan="5" class="reverse_align"></td>
 								<td align="left" colspan="3">
 									<table id="last-item-row-taxs">
 										<?php
-											if($invoice != null)
+											if(!empty($invoice))
 											{
 												echo '<thead><tr class="item_header bg-gradient-directional-blue white"><th width="70%" class="text-center">Impostos</th><th width="30%" class="text-center">Valor</th></tr></thead>';
 												for($r = 0; $r < count($arrtudo); $r++)
@@ -320,23 +312,23 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 											?>
 									</table>
 								</td>
-                            </tr>
+							</tr>
 							<tr class="sub_c" style="display: table-row;">
-                                <td colspan="6" class="reverse_align">
-                                    <strong>Total do documento</strong></td>
-                                <td align="left" colspan="2"><span class="currenty lightMode"><?php echo $this->config->item('currency'); ?></span>
-                                    <span id="discs_tot" class="lightMode"><?php if($invoice != null) echo $invoice['total_discount_tax']; else echo '0.00' ?></span>
-									<input type="hidden" value="<?php if($invoice != null) echo $invoice['total_discount_tax']; else echo '0.00' ?>" name="discs_tot_val" id="discs_tot_val"></td>
-                            </tr>
-                            <tr class="sub_c" style="display: table-row;">
-                                <td colspan="6" class="reverse_align">
-                                    <strong><?php echo $this->lang->line('Shipping') ?> (%)</strong></td>
-                                <td align="left" colspan="2"><input type="text" class="form-control shipVal"
-                                                                    onkeypress="return isNumber(event)"
-                                                                    placeholder="Value"
-                                                                    name="shipping" id="shipping" autocomplete="off"
-                                                                    onkeyup="billUpyogInv()" value="<?php 
-																	if($invoice != null){ 
+								<td colspan="6" class="reverse_align">
+									<strong>Total do documento</strong></td>
+								<td align="left" colspan="2"><span class="currenty lightMode"><?php echo $this->config->item('currency'); ?></span>
+									<span id="discs_tot" class="lightMode"><?php if(!empty($invoice)) echo $invoice['total_discount_tax']; else echo '0.00' ?></span>
+									<input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['total_discount_tax']; else echo '0.00' ?>" name="discs_tot_val" id="discs_tot_val"></td>
+							</tr>
+							<tr class="sub_c" style="display: table-row;">
+								<td colspan="6" class="reverse_align">
+									<strong><?php echo $this->lang->line('Shipping') ?> (%)</strong></td>
+								<td align="left" colspan="2"><input type="text" class="form-control shipVal"
+																	onkeypress="return isNumber(event)"
+																	placeholder="Value"
+																	name="shipping" id="shipping" autocomplete="off"
+																	onkeyup="billUpyogInv()" value="<?php 
+																	if(!empty($invoice)){ 
 																		if($invoice['ship_tax_type'] == 'excl'){
 																			$invoice['shipping'] = $invoice['shipping'] - $invoice['ship_tax'];
 																		}
@@ -349,63 +341,63 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 																	}else{ 
 																		echo '0.00' ?>" value="<?php echo amountFormat_general($this->common->disc_status()['ship_rate']); 
 																	}?>" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
-                                    (<?php echo $this->config->item('currency'); ?>
-                                    <span id="ship_final"><?php if($invoice != null) echo $invoice['ship_tax']; else echo '0.00'; ?></span> )
-                                </td>
-                            </tr>
-                            <tr class="sub_c" style="display: table-row;">
-                                <td colspan="6" class="reverse_align">
-                                    <strong>Desconto financeiro ( <?php echo $this->config->item('currency'); ?>)</strong>
-                                </td>
-                                <td align="left" colspan="2"><input type="text"
-                                                                    class="form-control form-control discVal"
-                                                                    onkeypress="return isNumber(event)"
-                                                                    placeholder="Value"
-                                                                    name="disc_val" id="disc_val" autocomplete="off" value="<?php if($invoice != null) echo $invoice['discount_rate']; else echo '0.00'; ?>"
-                                                                    onkeyup="billUpyogInv()" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
-                                </td>
-                            </tr>
+									(<?php echo $this->config->item('currency'); ?>
+									<span id="ship_final"><?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo '0.00'; ?></span> )
+								</td>
+							</tr>
+							<tr class="sub_c" style="display: table-row;">
+								<td colspan="6" class="reverse_align">
+									<strong>Desconto financeiro ( <?php echo $this->config->item('currency'); ?>)</strong>
+								</td>
+								<td align="left" colspan="2"><input type="text"
+																	class="form-control form-control discVal"
+																	onkeypress="return isNumber(event)"
+																	placeholder="Value"
+																	name="disc_val" id="disc_val" autocomplete="off" value="<?php if(!empty($invoice)) echo $invoice['discount_rate']; else echo '0.00'; ?>"
+																	onkeyup="billUpyogInv()" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
+								</td>
+							</tr>
 
 
-                            <tr class="sub_c" style="display: table-row;">
-                                <td colspan="2"><?php if (isset($employee)){
-                                       echo $this->lang->line('Employee')
-                                ?><br>
-                                    <select name="employee"
-                                            class=" mt-1 col form-control form-control-sm">
+							<tr class="sub_c" style="display: table-row;">
+								<td colspan="2"><?php if ($configs['emps'] == 1){
+									   echo $this->lang->line('Employee')
+								?><br>
+									<select name="employee"
+											class=" mt-1 col form-control form-control-sm">
 
-                                        <?php foreach ($employee as $row) {
-                                            echo '<option value="' . $row['id'] . '">' . $row['name'] . ' (' . $row['username'] . ')</option>';
-                                        } ?>
+										<?php foreach ($employee as $row) {
+											echo '<option value="' . $row['id'] . '">' . $row['name'] . ' (' . $row['username'] . ')</option>';
+										} ?>
 
-                                    </select><?php } ?><br><?php if ($exchange['active'] == 1){
-                                    echo $this->lang->line('Payment Currency client') . ' <small>' . $this->lang->line('based on live market') ?></small>
-                                    <select name="mcurrency"
-                                            class="selectpicker form-control">
+									</select><?php } ?><br><?php if ($exchange['active'] == 1){
+									echo $this->lang->line('Payment Currency client') . ' <small>' . $this->lang->line('based on live market') ?></small>
+									<select name="mcurrency"
+											class="selectpicker form-control">
 										<?php 
-											if($invoice != null)
+											if(!empty($invoice))
 												echo '<option value="' . $invoice['multi'] . '">Do not change</option>';
 											else
 												echo '<option value="0">Default</option>';
 										?>
-                                        
-                                        <?php foreach ($currency as $row) {
-                                            echo '<option value="' . $row['id'] . '">' . $row['symbol'] . ' (' . $row['code'] . ')</option>';
-                                        } ?>
+										
+										<?php foreach ($currency as $row) {
+											echo '<option value="' . $row['id'] . '">' . $row['symbol'] . ' (' . $row['code'] . ')</option>';
+										} ?>
 
-                                    </select><?php } ?></td>
-                                <td colspan="4" class="reverse_align"><strong>Total a Pagar
-                                        (<span
-                                                class="currenty lightMode"><?php echo $this->config->item('currency'); ?></span>)</strong>
-                                </td>
-                                <td align="left" colspan="2"><input type="text" name="totalpay" class="form-control"
-                                                                    id="invoiceyoghtml" readonly="" value="<?php if($invoice != null) echo edit_amountExchange_s($invoice['total'], $invoice['multi'], $this->aauth->get_user()->loc); else echo '0.00'; ?>">
+									</select><?php } ?></td>
+								<td colspan="4" class="reverse_align"><strong>Total a Pagar
+										(<span
+												class="currenty lightMode"><?php echo $this->config->item('currency'); ?></span>)</strong>
+								</td>
+								<td align="left" colspan="2"><input type="text" name="totalpay" class="form-control"
+																	id="invoiceyoghtml" readonly="" value="<?php if(!empty($invoice)) echo edit_amountExchange_s($invoice['total'], $invoice['multi'], $this->aauth->get_user()->loc); else echo '0.00'; ?>">
 
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-						<?php if($this->aauth->get_user()->loc == 0){
+								</td>
+							</tr>
+							</tbody>
+						</table>
+						<?php if($configs['pac'] == 1){
 							echo'<div class="card">'; ?>
 									<div class="row mt-1">
 										<label class="col-sm-8"
@@ -425,67 +417,316 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 									</div>
 						<?php echo'</div>';} ?>
 						
-                        <?php
-						foreach ($custom_fields as $row) {
-							if ($row['f_type'] == 'text') { ?>
-								<div class="form-group row">
-									<label class="col-sm-10 col-form-label"
-										   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
-									<div class="col-sm-8">
-										<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
-											   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
-											   name="custom[<?php echo $row['id'] ?>]">
-									</div>
-								</div>
-							<?php }else if ($row['f_type'] == 'check') { ?>
-								<div class="form-group row">
-									<label class="col-sm-10 col-form-label"
-										   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
-									<div class="custom-control custom-checkbox">
-										<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
-										<label class="custom-control-label"
-										   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
-									</div>
-								</div>
-							<?php }else if ($row['f_type'] == 'textarea') { ?>
-								<div class="form-group row">
-									<label class="col-sm-10 col-form-label"
-										   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
-									<div class="col-sm-8">
-										<textarea placeholder="<?php echo $row['placeholder'] ?>"
-											   class="summernote <?php echo $row['other'] ?>"
-											   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
-									</div>
-								</div>
-							<?php }
-						}
+						<?php
+							if(!empty($custom_fields)){
+								foreach ($custom_fields as $row) {
+									if ($row['f_type'] == 'text') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+													   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]">
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'check') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
+												<label class="custom-control-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'textarea') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<textarea placeholder="<?php echo $row['placeholder'] ?>"
+													   class="summernote <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
+											</div>
+										</div>
+									<?php }
+								}
+							}
 						?>
-                    </div>
-					<hr>
-					<div id="saman-row-payments">
-                        <table id="myTablePayments" class="table-responsive tfr my_stripe">
-                            <thead>
-                            <tr class="item_header bg-gradient-directional-blue white">
-                                <th width="40%" class="text-center">Método de Pagamento</th>
-                                <th width="12%" class="text-center">Data</th>
-                                <th width="10%" class="text-center">Valor (€)</th>
-								<th width="28%" class="text-center">Observações</th>
-                                <th width="10%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-							<tr class="last-item-row-payments sub_c_payment">
-                                <td class="add-row-payment">
-                                    <button type="button" class="btn btn-success" aria-label="Left Align" id="addpayment">
-                                        <i class="fa fa-plus-square"></i> <?php echo $this->lang->line('Add Row') ?>
-                                    </button>
-                                </td>
-                                <td colspan="5"></td>
-                            </tr>
-							</tbody>
-						</table>
 					</div>
 					<hr>
+					<div id="accordionWrapar" role="tablist" aria-multiselectable="true">
+						<div id="headingr" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapar" href="#accordionr"
+							   aria-expanded="false" aria-controls="accordionr"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Documentos relacionados
+							</a>
+						</div>
+						<div id="accordionr" role="tabpanel" aria-labelledby="headingr"
+							 class="card-collapse <?php if ($docs_origem == null) echo 'collapse'?>" aria-expanded="false">
+							<div class="card-body">
+								<table id="myTableAddRelations" class="table-responsive">
+									<thead>
+										<tr>
+											<th></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>Relacionar este documento com outros</td>
+											<td><button type="button" class="btn btn-default" id="choise_docs_related_but">Escolher Documentos</button></td>
+										</tr>
+									</tbody>
+								</table>
+								<hr>
+								<table id="relationsdocs" name="relationsdocs" class="table-responsive <?php if ($docs_origem == null) echo 'hidden'?>">
+									<thead>
+										<tr>
+											<th width="20%">Série</th>
+											<th width="10%">Nº</th>
+											<th width="15%">Data Emissão</th>
+											<th width="15%">Cliente</th>
+											<th width="20%">Total Liq.</th>
+											<th width="20%">Valor Conciliado</th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php 
+											$valdocrela = 0;
+											if(!empty($docs_origem))
+											{
+												foreach ($docs_origem as $row) {
+													$tiiid = $row['iddoc'];
+													if($row['iddoc'] != null && $row['iddoc'] != '')
+													{
+														echo '<tr class="last-item-row-related sub_related">';
+														echo '<input type="hidden" value="'.$row['iddoc'].'" name="idtyprelation[]" id="idtyprelation-'.$valdocrela.'">';
+														echo '<input type="hidden" value="'.$row['type_related'].'" name="typrelation[]" id="typrelation-'.$valdocrela.'">';
+														echo "<td><strong>".$row['serie_name']."</strong></td>";
+														if($row['type_related'] == "0" || $row['type_related'] == "2"){
+															if($row['draft'] == "0"){
+																echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																		<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+															}else{
+																echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																		<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+															}
+														}else if($row['type_related'] == "1"){
+															echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																		<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+														}else if($row['type_related'] == "3"){
+															echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																		<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+														}
+														echo "<td>".$row['invoicedate']."</td>";
+														echo "<td>".$row['taxid']."</td>";
+														echo '<td><input type="hidden" disabled readonly value="'.$row['total'].'" id="val_tot_rel-'.$valdocrela.'"></td>';
+														echo '<td><input type="hidden" disabled readonly value="'.$row['total'].'" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+														echo '</tr>';
+													}
+													
+													$valdocrela++;
+												}
+											}
+										?>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div id="accordionWrapa1" role="tablist" aria-multiselectable="true">
+						<div id="heading2" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion2"
+							   aria-expanded="false" aria-controls="accordion2"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Entrega e Transporte
+							</a>
+						</div>
+						<div id="accordion2" role="tabpanel" aria-labelledby="heading2"
+							 class="card-collapse collapse" aria-expanded="false">
+							<div class="card-body">
+								<table class="table-responsive">
+									<tbody>
+									<tr class="sub_c" style="display: table-row;">
+											<td colspan="1">Transporte 
+												<div class="col-sm-12">
+													<div class="custom-control custom-checkbox">
+														<input type="checkbox" class="custom-control-input required" name="copy_date"
+															   id="copy_date"/>
+														<label class="custom-control-label"
+															   for="copy_date">Preencher com a data e hora de agora</label>
+													</div>
+													<label for="guidedate" class="caption">Início do transporte</label>
+													<div class="input-group">
+														<input type="text" id="start_date_guide" name="start_date_guide" class="form-control round required" value="" placeholder="0000-00-00 00:00:00"/>
+														<span class="input-group-addon" title="<?php echo 'A data inserida tem que ser no formato: aaaa-mm-dd hh:mm';?>"><i class="fa fa-info fa-2x"></i></span>
+													</div>
+													<label type="text" id="zone_date" name="zone_date" value="" placeholder="timezone"></label>
+													<label for="exped" class="caption">Expedição</label>
+													<input type="hidden" value="exp0" name="expedival" id="expedival">
+													<select name="exped_se" class="form-control b_input required" id="exped_se">
+														<option value="0" data-type="exp0">Escolha uma Opção</option>
+														<?php
+															echo $expeditions;
+														?>
+
+													</select>
+													<label for="autos_s" class="caption">Viatura</label>
+													<div class="input-group">
+														<select name="autos_se" id="autos_se" class="form-control round" disabled>
+															<option value="">Escolha uma Opção</option>
+															<?php echo $autos; ?>
+														</select>
+														<a class="btn btn-primary btn-sm rounded ajaddauto hidden">+Veiculo</a>
+													</div>
+													
+													
+													<div class="col-sm-12 associate hidden">
+														<label for="guidedate" class="caption">Matrícula</label>
+														<input type="text" class="form-control round" placeholder="matricula" name="matricula_aut" id="matricula_aut"/>
+														<label for="guidedate" class="caption">Designacao</label>
+														<input type="text" class="form-control round" placeholder="designacao" name="designacao_aut" id="designacao_aut"/>
+														<div class="custom-control custom-checkbox">
+															<input type="hidden" value="0" type="text" id="val_save_bd" name="val_save_bd"/>
+															<input type="checkbox" class="custom-control-input" name="copy_autos"
+																   id="copy_autos">
+															<label class="custom-control-label"
+																   for="copy_autos">Guardar nas minhas viaturas</label>
+														</div>
+													</div>
+												</div>
+											</td>
+											<td colspan="2">Local de Carga 
+												<div class="col-sm-32">
+													<div class="custom-control custom-checkbox">
+														<input type="checkbox" class="custom-control-input" name="copy_comp" id="copy_comp"/>
+														<label class="custom-control-label" for="copy_comp">Preencher com os dados da empresa</label>
+													</div>
+													<label for="guideloc" class="caption">Morada</label>
+													<div class="input-group">
+														<input type="text" id="loc_guide_comp" name="loc_guide_comp" class="form-control round required" placeholder=""/>
+														<span class="input-group-addon" title="<?php echo 'Defina o local de carga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
+													</div>
+													<div class="form-group row">
+														<div class="col-sm-6">
+															<label for="guideloc" class="caption">Cód. Postal</label>
+															<input type="text" id="post_guide_comp" name="post_guide_comp" class="form-control round required" placeholder=""/>
+														</div>
+														<div class="col-sm-12">
+															<label for="guideloc" class="caption">Localidade</label>
+															<input type="text" id="city_guide_comp" name="city_guide_comp" class="form-control round required" placeholder=""/>
+														</div>
+													</div>
+													<div class="col-sm-12">
+														<label for="mcustomer_gui_comp"><?php echo $this->lang->line('Country') ?></label>
+														<select name="mcustomer_gui_comp" class="form-control b_input required" id="mcustomer_gui_comp">
+															<option value="0">Escolha uma Opção</option>
+															<?php
+															echo $countrys;
+															?>
+
+														</select>
+													</div>
+												</div>
+											</td>
+											<td colspan="3">Local de Descarga 
+												<div class="col-sm-32">
+													<div class="custom-control custom-checkbox">
+														<input type="checkbox" class="custom-control-input" name="copy_cos" id="copy_cos"/>
+														<label class="custom-control-label" for="copy_cos">Preencher com os dados do cliente</label>
+													</div>
+													<label for="guideloc" class="caption">Morada</label>
+													<div class="input-group">
+														<input type="text" id="loc_guide_cos" name="loc_guide_cos" class="form-control round required"" placeholder=""/>
+														<span class="input-group-addon" title="<?php echo 'Defina o local de descarga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
+													</div>
+													<div class="form-group row">
+														<div class="col-sm-6">
+															<label for="guideloc" class="caption">Cód. Postal</label>
+															<input type="text" id="post_guide_cos" name="post_guide_cos" class="form-control round required" placeholder=""/>
+														</div>
+														<div class="col-sm-12">
+															<label for="guideloc" class="caption">Localidade</label>
+															<input type="text" id="city_guide_cos" name="city_guide_cos" class="form-control round required" placeholder=""/>
+														</div>
+													</div>
+													<div class="col-sm-12">
+														<label for="mcustomer_gui_cos"><?php echo $this->lang->line('Country') ?></label>
+														<select name="mcustomer_gui_cos" class="form-control b_input" id="mcustomer_gui_cos">
+															<option value="">Escolha uma Opção</option>
+															<?php
+															echo $countrys;
+															?>
+
+														</select>
+													</div>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div id="accordionWrapaPay" role="tablist" aria-multiselectable="true">
+						<div id="heading3" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapaPay" href="#accordionPay"
+							   aria-expanded="false" aria-controls="accordionPay"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Pagamentos
+							</a>
+						</div>
+						<div id="accordionPay" role="tabpanel" aria-labelledby="heading3"
+							 class="card-collapse collapse" aria-expanded="false">
+							<div class="card-body">
+								<div id="saman-row-payments">
+									<table id="myTablePayments" class="table-responsive tfr my_stripe">
+										<thead>
+										<tr class="item_header bg-gradient-directional-blue white">
+											<th width="40%" class="text-center">Método de Pagamento</th>
+											<th width="12%" class="text-center">Data</th>
+											<th width="10%" class="text-center">Valor (€)</th>
+											<th width="28%" class="text-center">Observações</th>
+											<th width="10%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr class="last-item-row-payments sub_c_payment">
+											<td class="add-row-payment">
+												<button type="button" class="btn btn-success" aria-label="Left Align" id="addpayment">
+													<i class="fa fa-plus-square"></i> <?php echo $this->lang->line('Add Row') ?>
+												</button>
+											</td>
+											<td colspan="5"></td>
+										</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div id="accordionWrapa3" role="tablist" aria-multiselectable="true">
+						<div id="heading3" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapa3" href="#accordion3"
+							   aria-expanded="false" aria-controls="accordion3"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Observações
+							</a>
+						</div>
+						<div id="accordion3" role="tabpanel" aria-labelledby="heading3"
+							 class="card-collapse collapse" aria-expanded="false">
+							<div class="card-body">
+								<textarea class="form-control round" name="notes" rows="2"></textarea>
+							</div>
+						</div>
+					</div>
+					<hr>		
 					<div id="saman-row-buts">
 						<table id="myTablebuts" class="table-responsive tfr my_stripe">
                             <thead>
@@ -520,13 +761,13 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 					<input type="hidden" value="<?php echo $cvalue?>" name="counter" id="ganakpay">
                     <input type="hidden" value="<?php echo currency($this->aauth->get_user()->loc); ?>" name="currency">
                     <input type="hidden" value="<?php echo $taxdetails['handle']; ?>" name="taxformat" id="tax_format">
-					<input type="hidden" name="taxas_tota" id="taxas_tota" value="<?php if($invoice != null) echo $invoice['tax']; else '0.00';?>">
-					<input type="hidden" name="tota_items" id="tota_items" value="<?php if($invoice != null) echo $invoice['items']; else '0.00';?>">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['tax_status']; echo $taxdetails['format'];?>" name="tax_handle" id="tax_status">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['format_discount']; else echo $this->common->disc_status()['disc_format'];?>" name="discountFormat" id="discount_format">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['ship_tax']; else echo amountFormat_general($this->common->disc_status()['ship_rate']);?>" name="ship_rate" id="ship_rate">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['ship_tax_type']; else echo $this->common->disc_status()['ship_tax'];?>" name="ship_taxtype" id="ship_taxtype">
-                    <input type="hidden" value="<?php if($invoice != null) echo $invoice['ship_tax']; else echo '0.00';?>" name="ship_tax" id="ship_tax">
+					<input type="hidden" name="taxas_tota" id="taxas_tota" value="<?php if(!empty($invoice)) echo $invoice['tax']; else '0.00';?>">
+					<input type="hidden" name="tota_items" id="tota_items" value="<?php if(!empty($invoice)) echo $invoice['items']; else '0.00';?>">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['tax_status']; echo $taxdetails['format'];?>" name="tax_handle" id="tax_status">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['format_discount']; else echo $this->common->disc_status()['disc_format'];?>" name="discountFormat" id="discount_format">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo amountFormat_general($this->common->disc_status()['ship_rate']);?>" name="ship_rate" id="ship_rate">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax_type']; else echo $this->common->disc_status()['ship_tax'];?>" name="ship_taxtype" id="ship_taxtype">
+                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo '0.00';?>" name="ship_tax" id="ship_tax">
                 </form>
             </div>
 
@@ -806,10 +1047,202 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
         </div>
     </div>
 </div>
+<div class="modal fade" id="choise_docs_related" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+				<div class="col-sm-12">
+					<h4 class="modal-title">Relacionar com outros documentos</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<div class="input-group">
+						<h6>Relacione este documento com outros documentos do mesmo cliente</h6>
+					</div>
+				</div>
+            </div>
+			
+			<div class="modal-body">
+				<div class="input-group">
+					<label class="col-form-label">Pesquisa</label>
+					<input type="text" placeholder="Ref. Nº Série" id="searchdoc" class="form-control col-sm-2" name="searchdoc">
+					<span class="input-group-addon" title="<?php echo 'A pesquisa nos documentos relacionados procura nos seguintes campos: Número, série, nossa referência e referência do cliente/fornecedor.
+
+	Nota: A pesquisa não é feita em documentos em rascunho ou anulados e apenas considera os documentos disponíveis para serem relacionados respeitando os restantes filtros de pesquisa aplicados.';?>"><i class="fa fa-info fa-2x"></i></span>
+					<label class="col-form-label" for="email_s">Tipo Doc.</label>
+					<select name="choise-doc-type" class="form-control b_input required" id="choise-doc-type">
+						<option value="-1"><?php echo $this->lang->line('Please Select') ?></option>
+						<option value="2">Avença</option>
+						<option value="3">Orçamento</option>
+						<option value="12">Fatura Pró-Forma</option>
+						<option value="4">Guia de Transporte</option>
+						<option value="5">Guia de Remessa</option>
+						<option value="6">Nota de Encomenda</option>
+					</select>
+					<label class="col-form-label" for="email_s">Data Emissão:</label>
+					<label class="col-form-label" for="email_s">Início:</label>
+					<input type="date" style="width: 80px" class="form-control round required" placeholder="De" id="startdaterel" name="startdate" autocomplete="false">
+					<label class="col-form-label" for="email_s">Fim:</label>
+					<input type="date" style="width: 80px" class="form-control round required" placeholder="Até" id="enddaterel" name="enddate" autocomplete="false">
+					<button id="searchdocbut" name="searchdocbut" type="button" class="btn btn-default searchdocbut">Pesquisar Filtros Aplicados</button>
+				</div>
+            </div>
+            <div class="modal-footer">
+				<table id="relationssearch" name="relationssearch" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
+			</div>
+			<button id="pass_selected" name="pass_selected" type="button" class="btn btn-primary"><span class="fa fa-select"></span>Passa Selecionados</button>	
+			<button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line('Close') ?></button>
+		 </div>
+	 </div>
+ </div>
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js'); ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 <script>
 	$("#invoi_serie").select2();
+	$(document).ready(function () {
+        billUpyogInv();
+	});
+	
+	$('select[name="exped_se"]').change(function (){
+        let selectedCategoryType = $(this).find('option:selected').data('type');
+		$('#autos_se').prop('selectedIndex', -1);
+		$("#autos_se").val('');
+		$("#expedival").val(selectedCategoryType);
+		console.log(selectedCategoryType);
+        if(selectedCategoryType == 'exp3'){
+			$("#autos_se").attr({ disabled: false});
+			$('.ajaddauto').removeClass('hidden');
+        }else{
+			$("#autos_se").attr({ disabled: true});
+			$('.ajaddauto').addClass('hidden');
+		}
+		if(!$('.associate').hasClass('hidden'))
+		{
+			$('.associate').addClass('hidden');
+		}
+		$("#matricula_aut").val('');
+		$("#designacao_aut").val('');
+		$("#copy_autos").val('');
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
+    });
+	
+	$('select[name="autos_se"]').change(function (){
+		$("#matricula_aut").val('');
+		$("#designacao_aut").val('');
+		$("#copy_autos").val('');
+		if(!$('.associate').hasClass('hidden'))
+		{
+			$('.associate').addClass('hidden');
+		}
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
+	});
+	
+	$("#copy_autos").change(function () {
+		if ($(this).prop("checked") == true) {
+			$('#val_save_bd').val('1');
+		} else {
+			$('#val_save_bd').val('0');
+		}
+	});
+	
+	
+	$("#copy_date").change(function () {
+		if ($(this).prop("checked") == true) {
+			
+			var today = new Date();
+			var date = today.getUTCFullYear()+'-'+(today.getUTCMonth()+1)+'-'+today.getUTCDate();
+			var time = today.getUTCHours() + ":" + today.getUTCMinutes();
+			var todat = date+' '+time;
+			$('#start_date_guide').val(todat);
+			
+			var offset = today.getTimezoneOffset();
+			
+			var MyTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			
+			var zon1 = "Fuso horário: "+MyTimeZone+" | GMT";
+			if(offset<0)
+				zon1 = zon1+"+" + (offset/-60);
+			else
+				zon1 = zon1+"-" + (offset/60);
+			
+			$('#zone_date').val(zon1);
+			$('#zone_date').text(zon1);
+		} else {
+			$('#start_date_guide').val('');
+			$('#zone_date').val('');
+			$('#zone_date').text('');
+		}
+	});
+	
+	$("#copy_cos").change(function () {
+		$('#loc_guide_cos').val('');
+		$('#city_guide_cos').val('');
+		$('#post_guide_cos').val('');
+		$('#mcustomer_gui_cos').prop('selectedIndex', -1);
+		$("#mcustomer_gui_cos").val('');
+		if ($(this).prop("checked") == true) {
+			var cosid = $('#customer_id').val();
+			if (cosid == "") {
+				$("#notify .message").html("<strong>Cliente em Falta</strong>: Por favor selecione um Cliente primeiro.");
+                $("#notify").removeClass("alert-success").addClass("alert-warning").fadeIn();
+                $("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
+			}else{
+				$('#loc_guide_cos').val($('#customer_adr_hi').val());
+				$('#city_guide_cos').val($('#customer_city_hi').val());
+				$('#post_guide_cos').val($('#customer_post_box_hi').val());
+				var ee = $("#customer_country_hi");
+				var sel = document.getElementById('mcustomer_gui_cos');
+				var opts = sel.options;
+				for ( var i = 0; i < opts.length; i++ ) {
+					if (opts[i]['value'] == ee.val()) {
+					  sel.selectedIndex = i;
+					  break;
+					}
+				}
+			}
+		}
+	});
+	
+	$("#copy_comp").change(function () {
+		$('#loc_guide_comp').val('');
+		$('#city_guide_comp').val('');
+		$('#post_guide_comp').val('');
+		$('#mcustomer_gui_comp').prop('selectedIndex', -1);
+		$("#mcustomer_gui_comp").val('0');
+		if ($(this).prop("checked") == true) {
+			$('#loc_guide_comp').val($('#compa_adr').val());
+			$('#city_guide_comp').val($('#compa_city').val());
+			$('#post_guide_comp').val($('#compa_post').val());
+			
+			var ee = $("#compa_country");
+			var sel = document.getElementById('mcustomer_gui_comp');
+			var opts = sel.options;
+			for ( var i = 0; i < opts.length; i++ ) {
+				if (opts[i]['value'] == ee.val()) {
+				  sel.selectedIndex = i;
+				  break;
+				}
+			}
+		}
+	});
+
+    $(document).on('click', ".ajaddauto", function (e) {
+		e.preventDefault();
+		$("#matricula_aut").val('');
+		$("#designacao_aut").val('');
+		$("#copy_autos").val('');
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
+		$('#autos_se').prop('selectedIndex', -1);
+		$("#autos_se").val('');
+		if($('.associate').hasClass('hidden'))
+		{
+			$('.associate').removeClass('hidden');
+		}else{
+			
+			$('.associate').addClass('hidden');
+		}
+    });
 	
 	$("#s_accounts").on('change', function () {
 		var tips = $('#s_accounts').val();
@@ -817,36 +1250,4 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 		$("#account_set").val(accountaaa);
 		$("#account_set_id").val(tips);
 	});
-	
-    $("#invoi_type").on('change', function () {
-        $("#invoi_serie").val('').trigger('change');
-        var tips = $('#invoi_type').val();
-		var el = $("#invoi_type option:selected").attr('data-serie');
-		
-        $("#invoi_serie").select2({
-            ajax: {
-                url: baseurl + 'settings/sub_series?id=' + tips,
-                dataType: 'json',
-                type: 'POST',
-                quietMillis: 50,
-                data: function (product) {
-                    return {
-                        product: product,
-                        '<?php echo $this->security->get_csrf_token_name()?>': crsf_hash
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.seriename,
-                                value: item.serie_id,
-								id: item.serie_id
-                            }
-                        })
-                    };
-                },
-            }
-        });
-    });	
 </script>

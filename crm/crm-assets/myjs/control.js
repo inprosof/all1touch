@@ -3,7 +3,7 @@ function selectCustomer(cid, contrr, pgui1, cname, cadd1, cadd2, ph, email,cli_t
 	$('#customer_tax').val(cli_tax);
     $('#customer_name').html('<strong>'+cname+'</strong>');
     $('#customer_name').val(cname);
-    $('#customer_address1').html(cadd1+'<br>'+pgui1+' 'cadd2+'<br>'+contrr);
+    $('#customer_address1').html(cadd1+'<br>'+pgui1+' '+cadd2+'<br>'+contrr);
     //$('#customer_phone').html('Phone: <strong>'+ph+'</strong><br>Email: <strong>'+email+'</strong>');
     $("#customer-box").val();
 

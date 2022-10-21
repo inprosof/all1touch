@@ -24,7 +24,6 @@
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
                         <th><?php echo $this->lang->line('Category') ?></th>
-                        <th><?php echo $this->lang->line('Warehouse') ?></th>
 						<th><?php echo $this->lang->line('Qty') ?></th>
                         <th><?php echo $this->lang->line('Description') ?></th>
                         <th><?php echo $this->lang->line('Actions') ?></th>
@@ -38,7 +37,6 @@
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
                         <th><?php echo $this->lang->line('Category') ?></th>
-                        <th><?php echo $this->lang->line('Warehouse') ?></th>
 						<th><?php echo $this->lang->line('Qty') ?></th>
                         <th><?php echo $this->lang->line('Description') ?></th>
 						<th><?php echo $this->lang->line('Actions') ?></th>

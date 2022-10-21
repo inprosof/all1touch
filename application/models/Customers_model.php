@@ -45,8 +45,8 @@ class Customers_model extends CI_Model
     private function _get_datatables_query($id = '')
     {
         $due = $this->input->post('due');
+		$inac = $this->input->post('inac');
         if ($due) {
-
             $this->db->select('geopos_customers.*,SUM(geopos_invoices.total) AS total,SUM(geopos_invoices.pamnt) AS pamnt');
             $this->db->from('geopos_invoices');
             $this->db->where('geopos_invoices.status!=', 'paid');
@@ -62,8 +62,13 @@ class Customers_model extends CI_Model
             $this->db->group_by('geopos_invoices.csd');
             $this->db->order_by('total', 'desc');
 
-        } else {
-            $this->db->from($this->table);
+        }else {
+			$this->db->from($this->table);
+			if($inac){
+				$this->db->where('inactive', 1);
+			}else{
+				$this->db->where('inactive', 0);
+			}
             if ($this->aauth->get_user()->loc) {
                 $this->db->where('loc', $this->aauth->get_user()->loc);
             } elseif (!BDATA) {
@@ -79,22 +84,25 @@ class Customers_model extends CI_Model
         foreach ($this->column_search as $item) // loop column
         {
             $search = $this->input->post('search');
-            $value = $search['value'];
-            if ($value) // if datatable send POST for search
-            {
+			if($search != null){
+				$value = $search['value'];
+				if ($value) // if datatable send POST for search
+				{
 
-                if ($i === 0) // first loop
-                {
-                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
-                    $this->db->like($item, $value);
-                } else {
-                    $this->db->or_like($item, $value);
-                }
+					if ($i === 0) // first loop
+					{
+						$this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
+						$this->db->like($item, $value);
+					} else {
+						$this->db->or_like($item, $value);
+					}
 
-                if (count($this->column_search) - 1 == $i) //last loop
-                    $this->db->group_end(); //close bracket
-            }
-            $i++;
+					if (count($this->column_search) - 1 == $i) //last loop
+						$this->db->group_end(); //close bracket
+				}
+				$i++;
+			}
+            
         }
         $search = $this->input->post('order');
         if ($search) // here order processing
@@ -120,7 +128,7 @@ class Customers_model extends CI_Model
 
     function count_filtered($id = '')
     {
-        $this->_get_datatables_query();
+        $this->_get_datatables_query($id);
         $query = $this->db->get();
         if ($id != '') {
             $this->db->where('geopos_customers.gid', $id);
@@ -133,7 +141,7 @@ class Customers_model extends CI_Model
 
     public function count_all($id = '')
     {
-        $this->_get_datatables_query();
+        $this->_get_datatables_query($id);
         if ($this->aauth->get_user()->loc) {
             $this->db->where('geopos_customers.loc', $this->aauth->get_user()->loc);
         }
@@ -196,6 +204,16 @@ class Customers_model extends CI_Model
         $query = $this->db->get();
         return $query->row_array();
     }
+	
+	
+	public function verifytax($taxid)
+	{
+		$this->db->select('*');
+        $this->db->from('geopos_customers');
+        $this->db->where('taxid', $taxid);
+        $query = $this->db->get();
+        return $query->num_rows();
+	}
 
     public function due_details($custid)
     {
@@ -208,204 +226,205 @@ class Customers_model extends CI_Model
     }
 
 
-    public function add($name, $company, $phone, $email, $address, $city, $region, $country, $postbox, $customergroup, $taxid, $name_s, $phone_s, $email_s, $address_s, $city_s, $region_s, $country_s, $postbox_s, $language = '', $create_login = true, $password = '', $docid = '', $custom = '', $discount = 0)
+    public function add($name, $company, $phone, $email, $address, $city, $region, $country, $postbox, $customergroup, $taxid, $name_s, $phone_s, $email_s, $address_s, $city_s, $region_s, $country_s, $postbox_s, $language = '', $create_login = true, $password = '', $docid = '', $discount = 0)
     {
-        $this->db->select('email');
-        $this->db->from('geopos_customers');
-        $this->db->where('email', $email);
-        $query = $this->db->get();
-        $valid = $query->row_array();
-		$lecture = $valid['email'] ?? null;
-        if (!$lecture) {
-            if (!$discount) {
-                $this->db->select('disc_rate');
-                $this->db->from('geopos_cust_group');
-                $this->db->where('id', $customergroup);
-                $query = $this->db->get();
-                $result = $query->row_array();
-                $discount = $result['disc_rate'];
-            }
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+		  echo json_encode(array('status' => 'Validação de Email', 'message' => 'O email inserido não é válido! Por favor verifique.'));
+		}else{
+			$this->db->select('email');
+			$this->db->from('geopos_customers');
+			$this->db->where('email', $email);
+			$query = $this->db->get();
+			$valid = $query->row_array();
+			$lecture = $valid['email'] ?? null;
+			if (!$lecture) {
+				if (!$discount) {
+					$this->db->select('disc_rate');
+					$this->db->from('geopos_cust_group');
+					$this->db->where('id', $customergroup);
+					$query = $this->db->get();
+					$result = $query->row_array();
+					$discount = $result['disc_rate'];
+				}
+
+				$data = array(
+					'name' => $name,
+					'company' => $company,
+					'phone' => $phone,
+					'email' => $email,
+					'address' => $address,
+					'city' => $city,
+					'region' => $region,
+					'country' => $country,
+					'postbox' => $postbox,
+					'gid' => $customergroup,
+					'taxid' => $taxid,
+					'name_s' => $name_s,
+					'phone_s' => $phone_s,
+					'email_s' => $email_s,
+					'address_s' => $address_s,
+					'city_s' => $city_s,
+					'region_s' => $region_s,
+					'country_s' => $country_s,
+					'postbox_s' => $postbox_s,
+					'docid' => $docid,
+					'inactive' => 0,
+					'discount_c' => $discount
+				);
 
 
-            $data = array(
-                'name' => $name,
-                'company' => $company,
-                'phone' => $phone,
-                'email' => $email,
-                'address' => $address,
-                'city' => $city,
-                'region' => $region,
-                'country' => $country,
-                'postbox' => $postbox,
-                'gid' => $customergroup,
-                'taxid' => $taxid,
-                'name_s' => $name_s,
-                'phone_s' => $phone_s,
-                'email_s' => $email_s,
-                'address_s' => $address_s,
-                'city_s' => $city_s,
-                'region_s' => $region_s,
-                'country_s' => $country_s,
-                'postbox_s' => $postbox_s,
-                'docid' => $docid,
-                'custom1' => $custom,
-                'discount_c' => $discount
-            );
+				if ($this->aauth->get_user()->loc) {
+					$data['loc'] = $this->aauth->get_user()->loc;
+				}
+
+				if ($this->db->insert('geopos_customers', $data)) {
+					$cid = $this->db->insert_id();
+					$p_string = '';
+					$temp_password = '';
+					if ($create_login) {
+
+						if ($password) {
+							$temp_password = $password;
+						} else {
+							$temp_password = rand(200000, 999999);
+						}
+
+						$pass = password_hash($temp_password, PASSWORD_DEFAULT);
+						$data = array(
+							'user_id' => 1,
+							'status' => 'active',
+							'is_deleted' => 0,
+							'name' => $name,
+							'password' => $pass,
+							'email' => $email,
+							'user_type' => 'Member',
+							'cid' => $cid,
+							'lang' => $language
+						);
+
+						$this->db->insert('users', $data);
+						$p_string = ' A senha temporária é: ' . $temp_password . ' ';
+					}
+					$this->aauth->applog("[Client Added] $name ID " . $cid, $this->aauth->get_user()->username);
+					echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . $p_string . '&nbsp;<a href="' . base_url('customers/view?id=' . $cid) . '" class="btn btn-info btn-sm"><span class="icon-eye"></span>' . $this->lang->line('View') . '</a>', 'cid' => $cid, 'pass' => $temp_password, 'discount' => amountFormat_general($discount)));
+
+					$this->custom->save_fields_data($cid, 1);
+
+					$this->db->select('other');
+					$this->db->from('univarsal_api');
+					$this->db->where('id', 64);
+					$query = $this->db->get();
+					$othe = $query->row_array();
+
+					if ($othe['other']) {
+						$auto_mail = $this->send_mail_auto($email, $name, $temp_password);
+						$this->load->model('communication_model');
+						$attachmenttrue = false;
+						$attachment = '';
+						$this->communication_model->send_corn_email($email, $name, $auto_mail['subject'], $auto_mail['message'], $attachmenttrue, $attachment, $this->aauth->get_user()->loc);
+					}
+
+				} else {
+					echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
+				}
+			} else if (!$valid['email']) {
+				if (!$discount) {
+					$this->db->select('disc_rate');
+					$this->db->from('geopos_cust_group');
+					$this->db->where('id', $customergroup);
+					$query = $this->db->get();
+					$result = $query->row_array();
+					$discount = $result['disc_rate'];
+				}
 
 
-            if ($this->aauth->get_user()->loc) {
-                $data['loc'] = $this->aauth->get_user()->loc;
-            }
-
-            if ($this->db->insert('geopos_customers', $data)) {
-                $cid = $this->db->insert_id();
-                $p_string = '';
-                $temp_password = '';
-                if ($create_login) {
-
-                    if ($password) {
-                        $temp_password = $password;
-                    } else {
-                        $temp_password = rand(200000, 999999);
-                    }
-
-                    $pass = password_hash($temp_password, PASSWORD_DEFAULT);
-                    $data = array(
-                        'user_id' => 1,
-                        'status' => 'active',
-                        'is_deleted' => 0,
-                        'name' => $name,
-                        'password' => $pass,
-                        'email' => $email,
-                        'user_type' => 'Member',
-                        'cid' => $cid,
-                        'lang' => $language
-                    );
-
-                    $this->db->insert('users', $data);
-                    $p_string = ' A senha temporária é: ' . $temp_password . ' ';
-                }
-                $this->aauth->applog("[Client Added] $name ID " . $cid, $this->aauth->get_user()->username);
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . $p_string . '&nbsp;<a href="' . base_url('customers/view?id=' . $cid) . '" class="btn btn-info btn-sm"><span class="icon-eye"></span>' . $this->lang->line('View') . '</a>', 'cid' => $cid, 'pass' => $temp_password, 'discount' => amountFormat_general($discount)));
-
-                $this->custom->save_fields_data($cid, 1);
-
-                $this->db->select('other');
-                $this->db->from('univarsal_api');
-                $this->db->where('id', 64);
-                $query = $this->db->get();
-                $othe = $query->row_array();
-
-                if ($othe['other']) {
-                    $auto_mail = $this->send_mail_auto($email, $name, $temp_password);
-                    $this->load->model('communication_model');
-                    $attachmenttrue = false;
-                    $attachment = '';
-                    $this->communication_model->send_corn_email($email, $name, $auto_mail['subject'], $auto_mail['message'], $attachmenttrue, $attachment);
-                }
-
-            } else {
-                echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
-            }
-        } else if (!$valid['email']) {
-			if (!$discount) {
-                $this->db->select('disc_rate');
-                $this->db->from('geopos_cust_group');
-                $this->db->where('id', $customergroup);
-                $query = $this->db->get();
-                $result = $query->row_array();
-                $discount = $result['disc_rate'];
-            }
+				$data = array(
+					'name' => $name,
+					'company' => $company,
+					'phone' => $phone,
+					'email' => $email,
+					'address' => $address,
+					'city' => $city,
+					'region' => $region,
+					'country' => $country,
+					'postbox' => $postbox,
+					'gid' => $customergroup,
+					'taxid' => $taxid,
+					'name_s' => $name_s,
+					'phone_s' => $phone_s,
+					'email_s' => $email_s,
+					'address_s' => $address_s,
+					'city_s' => $city_s,
+					'region_s' => $region_s,
+					'country_s' => $country_s,
+					'postbox_s' => $postbox_s,
+					'docid' => $docid,
+					'inactive' => 0,
+					'discount_c' => $discount
+				);
 
 
-            $data = array(
-                'name' => $name,
-                'company' => $company,
-                'phone' => $phone,
-                'email' => $email,
-                'address' => $address,
-                'city' => $city,
-                'region' => $region,
-                'country' => $country,
-                'postbox' => $postbox,
-                'gid' => $customergroup,
-                'taxid' => $taxid,
-                'name_s' => $name_s,
-                'phone_s' => $phone_s,
-                'email_s' => $email_s,
-                'address_s' => $address_s,
-                'city_s' => $city_s,
-                'region_s' => $region_s,
-                'country_s' => $country_s,
-                'postbox_s' => $postbox_s,
-                'docid' => $docid,
-                'custom1' => $custom,
-                'discount_c' => $discount
-            );
+				if ($this->aauth->get_user()->loc) {
+					$data['loc'] = $this->aauth->get_user()->loc;
+				}
 
+				if ($this->db->insert('geopos_customers', $data)) {
+					$cid = $this->db->insert_id();
+					$p_string = '';
+					$temp_password = '';
+					if ($create_login) {
+						if ($password) {
+							$temp_password = $password;
+						} else {
+							$temp_password = rand(200000, 999999);
+						}
 
-            if ($this->aauth->get_user()->loc) {
-                $data['loc'] = $this->aauth->get_user()->loc;
-            }
+						$pass = password_hash($temp_password, PASSWORD_DEFAULT);
+						$data = array(
+							'user_id' => 1,
+							'status' => 'active',
+							'is_deleted' => 0,
+							'name' => $name,
+							'password' => $pass,
+							'email' => $email,
+							'user_type' => 'Member',
+							'cid' => $cid,
+							'lang' => $language
+						);
 
-            if ($this->db->insert('geopos_customers', $data)) {
-                $cid = $this->db->insert_id();
-                $p_string = '';
-                $temp_password = '';
-                if ($create_login) {
+						$this->db->insert('users', $data);
+						$p_string = ' A senha temporária é: ' . $temp_password . ' ';
+					}
+					$this->aauth->applog("[Client Added] $name ID " . $cid, $this->aauth->get_user()->username);
+					echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . $p_string . '&nbsp;<a href="' . base_url('customers/view?id=' . $cid) . '" class="btn btn-info btn-sm"><span class="icon-eye"></span>' . $this->lang->line('View') . '</a>', 'cid' => $cid, 'pass' => $temp_password, 'discount' => amountFormat_general($discount)));
 
-                    if ($password) {
-                        $temp_password = $password;
-                    } else {
-                        $temp_password = rand(200000, 999999);
-                    }
+					$this->custom->save_fields_data($cid, 1);
 
-                    $pass = password_hash($temp_password, PASSWORD_DEFAULT);
-                    $data = array(
-                        'user_id' => 1,
-                        'status' => 'active',
-                        'is_deleted' => 0,
-                        'name' => $name,
-                        'password' => $pass,
-                        'email' => $email,
-                        'user_type' => 'Member',
-                        'cid' => $cid,
-                        'lang' => $language
-                    );
+					$this->db->select('other');
+					$this->db->from('univarsal_api');
+					$this->db->where('id', 64);
+					$query = $this->db->get();
+					$othe = $query->row_array();
 
-                    $this->db->insert('users', $data);
-                    $p_string = ' A senha temporária é: ' . $temp_password . ' ';
-                }
-                $this->aauth->applog("[Client Added] $name ID " . $cid, $this->aauth->get_user()->username);
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . $p_string . '&nbsp;<a href="' . base_url('customers/view?id=' . $cid) . '" class="btn btn-info btn-sm"><span class="icon-eye"></span>' . $this->lang->line('View') . '</a>', 'cid' => $cid, 'pass' => $temp_password, 'discount' => amountFormat_general($discount)));
+					if ($othe['other']) {
+						$auto_mail = $this->send_mail_auto($email, $name, $temp_password);
+						$this->load->model('communication_model');
+						$attachmenttrue = false;
+						$attachment = '';
+						$this->communication_model->send_corn_email($email, $name, $auto_mail['subject'], $auto_mail['message'], $attachmenttrue, $attachment, $this->aauth->get_user()->loc);
+					}
 
-                $this->custom->save_fields_data($cid, 1);
-
-                $this->db->select('other');
-                $this->db->from('univarsal_api');
-                $this->db->where('id', 64);
-                $query = $this->db->get();
-                $othe = $query->row_array();
-
-                if ($othe['other']) {
-                    $auto_mail = $this->send_mail_auto($email, $name, $temp_password);
-                    $this->load->model('communication_model');
-                    $attachmenttrue = false;
-                    $attachment = '';
-                    $this->communication_model->send_corn_email($email, $name, $auto_mail['subject'], $auto_mail['message'], $attachmenttrue, $attachment);
-                }
-
-            } else {
-                echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
-            }
-		}else {
-            echo json_encode(array('status' => 'Error', 'message' => 'Duplicate Email'));
-        }
-
+				} else {
+					echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
+				}
+			}else {
+				echo json_encode(array('status' => 'Erro de duplicação', 'message' => 'Email já registado por favor insira um Novo. Por favor verifique!'));
+			}
+		}
     }
 
 
-    public function edit($id, $name, $company, $phone, $email, $address, $city, $region, $country, $postbox, $customergroup, $taxid, $name_s, $phone_s, $email_s, $address_s, $city_s, $region_s, $country_s, $postbox_s, $docid = '', $custom = '', $language = '', $discount = 0)
+    public function edit($id, $name, $company, $phone, $email, $address, $city, $region, $country, $postbox, $customergroup, $taxid, $name_s, $phone_s, $email_s, $address_s, $city_s, $region_s, $country_s, $postbox_s, $docid = '', $inactive, $language = '', $discount = 0)
     {
         $data = array(
             'name' => $name,
@@ -428,7 +447,7 @@ class Customers_model extends CI_Model
             'country_s' => $country_s,
             'postbox_s' => $postbox_s,
             'docid' => $docid,
-            'custom1' => $custom,
+            'inactive' => $inactive,
             'discount_c' => $discount
         );
 
@@ -526,11 +545,97 @@ class Customers_model extends CI_Model
         $query = $this->db->query("SELECT c.*,p.pc FROM geopos_cust_group AS c LEFT JOIN ( SELECT gid,COUNT(gid) AS pc FROM geopos_customers $whr GROUP BY gid) AS p ON p.gid=c.id");
         return $query->result_array();
     }
+	
+	
+	public function verifydelete($id)
+	{
+		$return = 0;
+		$this->db->select('*');
+		$this->db->from('geopos_invoices');
+		$this->db->where('id', $id);
+		$query = $this->db->get();
+		if($query->num_rows() > 0)
+		{
+			$return = 1;
+		}else{
+			$this->db->select('*');
+			$this->db->from('geopos_quotes');
+			$this->db->where('id', $id);
+			$query = $this->db->get();
+			if($query->num_rows() > 0)
+			{
+				$return = 2;
+			}else{
+				$this->db->select('*');
+				$this->db->from('geopos_receipts');
+				$this->db->where('id', $id);
+				$query = $this->db->get();
+				if($query->num_rows() > 0)
+				{
+					$return = 3;
+				}else{
+					$this->db->select('*');
+					$this->db->from('geopos_transactions');
+					$this->db->where('id', $id);
+					$query = $this->db->get();
+					if($query->num_rows() > 0)
+					{
+						$return = 4;
+					}else{
+						$this->db->select('*');
+						$this->db->from('geopos_projects');
+						$this->db->where('id', $id);
+						$query = $this->db->get();
+						if($query->num_rows() > 0)
+						{
+							$return = 5;
+						}else{
+							$this->db->select('*');
+							$this->db->from('geopos_customers_notes');
+							$this->db->where('id', $id);
+							$query = $this->db->get();
+							if($query->num_rows() > 0)
+							{
+								$return = 6;
+							}else{
+								$this->db->select('*');
+								$this->db->from('geopos_docs_intern');
+								$this->db->where('id', $id);
+								$query = $this->db->get();
+								if($query->num_rows() > 0)
+								{
+									$return = 7;
+								}else{
+									$this->db->select('*');
+									$this->db->from('geopos_draft');
+									$this->db->where('id', $id);
+									$query = $this->db->get();
+									if($query->num_rows() > 0)
+									{
+										$return = 8;
+									}else{
+										$this->db->select('*');
+										$this->db->from('geopos_guides');
+										$this->db->where('id', $id);
+										$query = $this->db->get();
+										if($query->num_rows() > 0)
+										{
+											$return = 9;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return $return;
+	}
 
     public function delete($id)
     {
-
-
         if ($this->aauth->get_user()->loc) {
             $this->db->delete('geopos_customers', array('id' => $id, 'loc' => $this->aauth->get_user()->loc));
 
@@ -1097,28 +1202,41 @@ class Customers_model extends CI_Model
         $this->load->library('parser');
         $this->load->model('templates_model', 'templates');
         $template = $this->templates->template_info(16);
-
+		
+		$mailfromtilte = '';
+		$mailfrom = '';
+		
+		$this->db->select("emailo_remet, email_app");
+		$this->db->from('geopos_system_permiss');
+		if($this->aauth->get_user()->loc > 0){
+			$this->db->where('loc', $this->aauth->get_user()->loc);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$mailfromtilte = $vals['emailo_remet'];
+		if($mailfromtilte == '')
+		{
+			$mailfromtilte = $this->config->item('ctitle');
+		}
+		$mailfrom = $vals['email_app'];		
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'NAME' => $name
         );
         $subject = $this->parser->parse_string($template['key1'], $data, TRUE);
-
         $data = array(
-            'Company' => $this->config->item('ctitle'),
+            'Company' => $mailfromtilte,
             'NAME' => $name,
             'EMAIL' => $email,
             'URL' => base_url() . 'crm',
             'PASSWORD' => $password,
-            'CompanyDetails' => '<h6><strong>' . $this->config->item('ctitle') . ',</strong></h6>
+            'CompanyDetails' => '<h6><strong>' . $mailfromtilte . ',</strong></h6>
 			<address>' . $this->config->item('address') . '<br>' . $this->config->item('address2') . '</address>
              ' . $this->lang->line('Phone') . ' : ' . $this->config->item('phone') . '<br>  ' . $this->lang->line('Email') . ' : ' . $this->config->item('email'),
-
-
         );
         $message = $this->parser->parse_string($template['other'], $data, TRUE);
-
-
         return array('subject' => $subject, 'message' => $message);
     }
 	

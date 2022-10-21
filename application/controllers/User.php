@@ -348,13 +348,32 @@ class User extends CI_Controller
         $out = $this->aauth->remind_password($email);
         if ($out) {
             $this->load->model('communication_model');
-
+			
+			$mailfromtilte = '';
+			$mailfrom = '';
+			
+			$this->db->select("emailo_remet, email_app");
+			$this->db->from('geopos_system_permiss');
+			
+			if($this->aauth->get_user()->loc > 0){
+				$this->db->where('loc', $this->aauth->get_user()->loc);
+			}else{
+				$this->db->where('loc', 0);
+			}
+			$query = $this->db->get();
+			$vals = $query->row_array();
+			$mailfromtilte = $vals['emailo_remet'];
+			if($mailfromtilte == '')
+			{
+				$mailfromtilte = $this->config->item('ctitle');
+			}
+			$mailfrom = $vals['email_app'];
             $mailtoc = $out['email'];
             $mailtotilte = $out['username'];
-            $subject = '[' . $this->config->item('ctitle') . '] Password Reset Link';
+            $subject = '[' . $mailfromtilte . '] Link de redefinição de senha';
             $link = base_url('user/reset_pass?code=' . $out['vcode'] . '&email=' . $email);
 
-            $message = "<h4>Dear $mailtotilte</h4>, <p>We have generated a password reset request for you. You can reset the password using following link.</p> <p><a href='$link'>$link</a></p><p>Reagrds,<br>Team " . $this->config->item('ctitle') . "</p>";
+            $message = "<h4>Ex.mo(a), $mailtotilte</h4>, <p>Geramos uma solicitação de redefinição de senha para você. Você pode redefinir a senha usando o seguinte link.</p> <p><a href='$link'>$link</a></p><p>Cumprimentos,<br>Equipa " . $mailfromtilte . "</p>";
             $attachmenttrue = false;
             $attachment = '';
             $this->communication_model->send_email($mailtoc, $mailtotilte, $subject, $message, $attachmenttrue, $attachment);

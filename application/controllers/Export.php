@@ -15,7 +15,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Export extends CI_Controller {
 
     var $date;
-
     public function __construct()
     {
         parent::__construct();
@@ -59,31 +58,6 @@ class Export extends CI_Controller {
     }
 
     // this is the function for the download xml
-
-
-    function exportSaft() {
-		if (!$this->aauth->premission(119) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
-            exit($this->lang->line('translate19'));
-        }
-        $this->load->helper('download');
-    	$data = [
-            'version' => $this->input->post('version'),
-            'pay_acc' => $this->input->post('pay_acc'),
-            'sdate' => $this->input->post('sdate'),
-            'edate' => $this->input->post('edate')
-    	];
-        //var_dump($this->download);die;
-    	$result = $this->export_model->xmldata($data);
-    	if(!empty($result)){
-			$name = 'saft'.'_'.$data['sdate'].'_'.$data['edate'].'.xml';
-			force_download($name, $result);
-        }
-        else {
-			 //echo "<script>alert('Work is under process!');</script>";
-			echo "<script>alert('Data not found between ".$data['sdate']." to ".$data['edate']." range.! ');</script>";
-			$this->tax_authority();
-		}
-    }
 
     function crm()
     {
@@ -357,7 +331,7 @@ class Export extends CI_Controller {
         $data['process'] = $process;
         $data['time_course'] = $process['year'] . '/' . $process['month'];
         $data['employee'] = $this->employee_model->employee_details($process['employee_id']);
-        $data['list'] = $this->reports_model->get_statements_employee($pay_acc, $trans_type, $sdate, $edate);
+        //$data['list'] = $this->reports_model->get_statements_employee($pay_acc, $trans_type, $sdate, $edate);
         $data['lang']['statement'] = $this->lang->line('Employee Account Statement');
         $data['lang']['title'] = $this->lang->line('Employee');
         $ccgrossi = $this->employee_model->get_gross_month($process['year'], $process['employee_id'], 1);
@@ -560,123 +534,5 @@ class Export extends CI_Controller {
         $pdf = $this->pdf->load();
         $pdf->WriteHTML($html);
         $pdf->Output('Statement' . $customer . '.pdf', 'I');
-    }
-
-    // this is the funtion for the download xml file by eyno
-
-    function tax_authority()
-    {
-        if (!$this->aauth->premission(119) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
-            exit($this->lang->line('translate19'));
-        }
-        $this->li_a = 'taxstsaft';
-        $head['title'] = "Saft Export";
-        $head['usernm'] = $this->aauth->get_user()->username;
-        $this->load->model('locations_model');
-        $data['locations'] = $this->locations_model->locations_list();
-        $this->load->view('fixed/header', $head);
-        $this->load->view('export/saft_export', $data);
-        $this->load->view('fixed/footer');
-    }
-
-	/*function tax_authority() {
-		if (!$this->aauth->premission(118) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
-            exit($this->lang->line('translate19'));
-        }
-        $this->li_a = 'taxstsaft';
-        $head['title'] = "Saft Export";
-        $head['usernm'] = $this->aauth->get_user()->username;
-        $this->load->model('locations_model');
-        $data['activation'] = $this->export_model->getactivateVal($this->aauth->get_user()->loc);
-		$data['activation_caixa'] = $this->export_model->getactivateValCaixa($this->aauth->get_user()->loc);
-        $data['locations'] = $this->locations_model->locations_list();
-        $this->load->view('fixed/header', $head);
-        $this->load->view('export/saft_export', $data);
-        $this->load->view('fixed/footer');
-    }*/
-
-    public function save_val_ativate()
-    {
-		$bill_doc = 0;
-		$trans_doc = 0;
-		
-		if(filter_has_var(INPUT_POST,'billing_doc')) {
-			$bill_doc = 1;
-		}else{
-			$bill_doc = 0;
-		}
-		
-		if(filter_has_var(INPUT_POST,'transport_doc')) {
-			$trans_doc = 1;
-		}else{
-			$trans_doc = 0;
-		}
-		
-		
-		$databdtrans = "";
-		if($trans_doc == 1)
-		{
-			if($this->input->post('transport_doc_date') == "")
-			{
-				$databdtrans = date('d-m-Y');
-			}else{
-				$databdtrans = $this->input->post('transport_doc_date');
-			}
-		}
-        $username = $this->input->post('username');
-        $password = $this->input->post('password');
-        $date = $this->input->post('adate');
-		$id_saft_activ = $this->input->post('id_saft_activ');
-        $result = $this->export_model->addActivateVal($id_saft_activ, $bill_doc, $trans_doc, $username, $password, $date, $this->aauth->get_user()->loc, $databdtrans);
-        if ($result) {
-            echo json_encode(array('status' => 'Success', 'message' => 'Campos de ativação de comunicação á AT alterados com sucesso!'));
-        }else{
-            echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
-        }
-    }
-
-	
-	public function save_val_ativate_caixa()
-    {
-		$caixa_1 = 0;
-		$caixa_2 = 0;
-		$caixa_3 = 0;
-		$caixa_4 = 0;
-		
-		if(filter_has_var(INPUT_POST,'caixa_1')) {
-			$caixa_1 = 1;
-		}
-		
-		if(filter_has_var(INPUT_POST,'caixa_2')) {
-			$caixa_2 = 1;
-		}
-		
-		if(filter_has_var(INPUT_POST,'caixa_3')) {
-			$caixa_3 = 1;
-		}
-		
-		if(filter_has_var(INPUT_POST,'caixa_4')) {
-			$caixa_4 = 1;
-		}
-		
-		$dateActiv = "";
-		if($caixa_1 == 1 && $caixa_2 == 1 && $caixa_3 == 1)
-		{
-			if($caixa_4 == 1){
-				if($this->input->post('caixa_doc_date') == "")
-				{
-					$dateActiv = date('d-m-Y');
-				}else{
-					$dateActiv = $this->input->post('caixa_doc_date');
-				}
-			}
-		}
-		$caixa_id_saft = $this->input->post('caixa_id_saft');
-        $result = $this->export_model->addActivateValCaixa($caixa_id_saft, $caixa_1, $caixa_2, $caixa_3, $caixa_4, $this->aauth->get_user()->loc, $dateActiv);
-        if ($result) {
-            echo json_encode(array('status' => 'Success', 'message' => 'Regime de IVA alterado com Sucesso!'));
-        }else{
-            echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
-        }
     }
 }

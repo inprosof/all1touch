@@ -9,6 +9,7 @@
                 <form method="post" id="data_form">
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
+							<input type="hidden" value="<?php echo $type_quote_id; ?>" name="type_quote" id="type_quote">
 							<input type="hidden" value="<?php echo $locations['address']; ?>" name="compa_adr" id="compa_adr">
 							<input type="hidden" value="<?php echo $locations['postbox']; ?>" name="compa_post" id="compa_post">
 							<input type="hidden" value="<?php echo $locations['city']; ?>" name="compa_city" id="compa_city">
@@ -39,8 +40,8 @@
                                     <div class="clientinfo">
                                         <?php echo $this->lang->line('Client Details'); ?>
                                         <hr>
-										<input type="hidden" name="customer_id" id="customer_id" value="99999999">
-										<div id="customer_name"><?php echo $this->lang->line('Default'); ?>: <strong>Consumidor Final</strong></div>
+										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $csd_id?>">
+										<div id="customer_name"><strong><?php echo $csd_name; ?></strong></div>
                                     </div>
                                     <div class="clientinfo">
 										<input type="hidden" name="customer_adr_hi" id="customer_adr_hi" value="Desconhecido">
@@ -57,7 +58,7 @@
 											<div class="input-group-addon"><span class="icon-calendar4"
 																				 aria-hidden="true"></span></div>
 											<input type="text" class="form-control round required editdate"
-												   placeholder="contribuinte" id="customer_tax" name="customer_tax" value="999999990">
+												   placeholder="contribuinte" id="customer_tax" name="customer_tax" value="<?php echo $csd_tax?>" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
 										</div>
 									</div>
                                     <hr>
@@ -90,7 +91,7 @@
                                 <div class="form-group row">
 									<div class="col-sm-8">
 										<label for="invoi_type"
-                                               class="caption"><?php echo $this->lang->line('Quote Number') ?> <strong><?php echo $lastinvoice + 1 ?> (numeração provisória)</strong></label>
+                                               class="caption"><?php echo $type_quote.' nº' ?><strong><?php echo $lastinvoice + 1 ?> (numeração provisória)</strong></label>
 										<span class="input-group-addon" title="<?php echo "Esta numeração é atribuída com base na sequência dos documentos gerados dentro da série escolhida
 
 Os documentos do mesmo tipo dentro da mesma série têm que ter uma numeração sequêncial, a qual é mostrada aqui.
@@ -107,10 +108,6 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                                 id="invoi_type" name="invoi_type">
 											<?php 
 												echo $typesinvoicesdefault;
-												
-												foreach ($typesinvoices as $row) {
-													echo '<option value="' . $row['id'] . '" data-serie="' . $row['type'] . '">' .$row['description'] . '</option>';
-												}
 											?>
                                         </select>
                                     </div>
@@ -151,7 +148,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                 <div class="form-group row">
 
                                     <div class="col-sm-6"><label for="invoicedate"
-                                                                 class="caption"><?php echo $this->lang->line('Quote Date'); ?></label>
+                                                                 class="caption">Data <?php echo $type_quote?></label>
 
                                         <div class="input-group">
                                             <div class="input-group-addon"><span class="icon-calendar4"
@@ -165,7 +162,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                     </div>									
 									
                                     <div class="col-sm-6"><label for="invocieduedate"
-                                                                 class="caption"><?php echo $this->lang->line('Quote Validity') ?></label>
+                                                                 class="caption">Validade da(o) <?php echo $type_quote?></label>
 
                                         <div class="input-group">
                                             <div class="input-group-addon"><span class="icon-calendar-o"
@@ -180,7 +177,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                 <div class="form-group row">
                                     <div class="col-sm-12">
                                         <label for="toAddInfo"
-                                               class="caption"><?php echo $this->lang->line('Quote Note') ?></label>
+                                               class="caption">Notas da(o) <?php echo $type_quote?></label>
                                         <textarea class="form-control round" name="notes" rows="2"></textarea></div>
                                 </div>
 
@@ -212,6 +209,91 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 
                             </thead>
                             <tbody>
+							<?php 
+								$cvalue = 0;
+								if(!empty($products))
+								{
+									$functionNum = "'".$cvalue."'";
+									$sub_t = 0;
+									$valsumtax = 0;
+									$valsumcisc = 0;
+									$arrtudo = [];
+									foreach ($products as $row) {
+										$valsum = 0;
+										$valsumperc = '';
+										$myArraytaxid = explode(";", $row['taxaid']);
+										$myArraytaxperc = explode(";", $row['taxaperc']);
+										foreach ($myArraytaxid as $row1) {
+											$valsum += $row1;
+											$valsumtax += $row1;
+										}
+										
+										foreach ($myArraytaxperc as $row2) {
+											$valsumperc = $row2.'%';
+										}
+										if($row['serial'] != '') 
+											$row['product'].=' - '.$row['serial'];
+										$myArraytaxname = explode(";", $row['taxaname']);
+										$myArraytaxcod = explode(";", $row['taxacod']);
+										$myArraytaxvals = explode(";", $row['taxavals']);
+										$myArraytaxcomo = explode(";", $row['taxacomo']);
+										
+										for($i = 0; $i < count($myArraytaxname); $i++)
+										{
+											$jatem = false;
+											for($oo = 0; $oo < count($arrtudo); $oo++)
+											{
+												if($arrtudo[$oo]['title'] == $myArraytaxname[$i])
+												{
+													$arrtudo[$oo]['val'] = ($arrtudo[$oo]['val']+$myArraytaxvals[$i]);
+													$arrtudo[$oo]['inci'] = ($arrtudo[$oo]['inci']+$row['subtotal']);
+													$jatem = true;
+													break;
+												}
+											}
+											
+											if(!$jatem)
+											{
+												$stack = array('title'=>$myArraytaxname[$i], 'val'=>$myArraytaxvals[$i], 'perc'=>$myArraytaxperc[$i].' %', 'inci'=>$row['subtotal'], 'cod'=>$myArraytaxcod[$i], 'como'=>$myArraytaxcomo[$i], 'id'=>$myArraytaxid[$i]);
+												array_push($arrtudo, $stack);
+											}
+										}
+										
+										echo '<tr><td><input type="text" value="' . $row['product'] . '" class="form-control" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' . $cvalue . '"></td><td><div class="input-group">
+										<input value="' . $row['qty'] . '" type="text" class="form-control req amnt" name="product_qty[]" id="amount-' . $cvalue . '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' . $functionNum . ')" autocomplete="off" value="1"  inputmode="numeric">
+										<span id="product_uni-' . $cvalue . '" name="product_uni[]" class="lightMode"></span></div></td>
+										<input type="hidden" id="alert-' . $cvalue . '" name="alert[]" value="' .$row['alert']. '"> </td> <td>
+										<input value="' . $row['price'] . '" type="text" class="form-control req prc" name="product_price[]" id="price-' . $cvalue . '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' . $functionNum . ')" autocomplete="off" inputmode="numeric"></td><td>
+										<input value="' . $row['discount'] . '" type="text" class="form-control discount" name="product_discount[]" onkeypress="return isNumber(event)" id="discount-' . $cvalue . '" onkeyup="rowTotal(' . $functionNum . ')" autocomplete="off"></td> <td><div class="input-group">
+										<input type="text" disabled class="col-form-label text-center" id="texttaxa-' . $cvalue . '" value="' . $valsumperc . '">
+										<a title="Alterar" class="btn btn-blue btn-sm butedittax" name="butedittax[]" id="butedittax-'.$cvalue.'">
+										<span class="fa fa-edit" aria-hidden="false"></span></a></div></td><td><span class="currenty">' .$this->config->item('currency') . '</span> <strong>
+										<span class=\'ttlText\' id="result-' . $cvalue . '">' .$row['totaltax'].'</span></strong></td><td class="text-center">
+										<button type="button" data-rowid="' . $cvalue . '" class="btn btn-danger removeProd" title="Remove" > 
+										<i class="fa fa-minus-square"></i></button><input type="hidden" name="taxacomo[]" id="taxacomo-' . $cvalue . '" value="' .$row['taxacomo']. '">
+										<input type="hidden" name="taxavals[]" id="taxavals-' . $cvalue . '" value="' .$row['taxavals']. '">
+										<input type="hidden" name="taxaname[]" id="taxaname-' . $cvalue . '" value="' .$row['taxaname']. '">
+										<input type="hidden" name="taxaperc[]" id="taxaperc-' . $cvalue . '" value="' .$row['taxaperc']. '">
+										<input type="hidden" name="taxacod[]" id="taxacod-' . $cvalue . '" value="' .$row['taxacod']. '">
+										<input type="hidden" name="taxaid[]" id="taxaid-' . $cvalue . '" value="' .$row['taxaid']. '">
+										<input type="hidden" name="taxa[]" id="taxa-' . $cvalue . '" value="' .$row['tax']. '">
+										<input type="hidden" name="disca[]" id="disca-' . $cvalue . '" value="' . $row['totaldiscount'] . '">
+										<input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' . $cvalue . '" value="' . $row['subtotal'] . '">
+										<input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' . $cvalue . '" value="' .$row['tax']. '">
+										<input type="hidden" class="ttInputtot" name="total[]" id="total-' . $cvalue . '" value="' .$row['totaltax']. '">
+										<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $cvalue . '" value="' . $row['pid'] . '">
+										<input type="hidden" name="unit[]" id="unit-' . $cvalue . '" value="' . $row['unit'] . '">
+										<input type="hidden" name="hsn[]" id="hsn-' . $cvalue . '" value="' . $row['code'] . '">
+										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="' . $row['serial'] . '"> </td>
+										</tr>
+										<tr>
+											<td colspan="8">
+											<textarea class="form-control pdIn" id="product_description-' . $cvalue . '" name="product_description[]" placeholder="Enter Product description" autocomplete="off">' . $row['product_des'] . '</textarea></td>
+										</tr>';
+										$cvalue++;
+									}
+								}
+							?>
                             <tr class="last-item-row sub_c">
                                 <td class="add-row">
                                     <button type="button" class="btn btn-success" aria-label="Left Align"
@@ -350,6 +432,81 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 							?>
                     </div>
 					<hr>
+					<div id="accordionWrapar" role="tablist" aria-multiselectable="true">
+						<div id="headingr" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapar" href="#accordionr"
+							   aria-expanded="false" aria-controls="accordionr"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Documentos relacionados
+							</a>
+						</div>
+						<div id="accordionr" role="tabpanel" aria-labelledby="headingr"
+							 class="card-collapse <?php if ($docs_origem == null) echo 'collapse'?>" aria-expanded="false">
+							<div class="card-body">
+								<table id="myTableAddRelations" class="table-responsive">
+									<thead>
+										<tr>
+											<th></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>Relacionar este documento com outros</td>
+											<td><button type="button" class="btn btn-default" id="choise_docs_related_but">Escolher Documentos</button></td>
+										</tr>
+									</tbody>
+								</table>
+								<hr>
+								<table id="relationsdocs" name="relationsdocs" class="table-responsive <?php if ($docs_origem == null) echo 'hidden'?>">
+									<thead>
+										<tr>
+											<th width="20%">Série</th>
+											<th width="10%">Nº</th>
+											<th width="15%">Data Emissão</th>
+											<th width="15%">Cliente</th>
+											<th width="20%">Total Liq.</th>
+											<th width="20%">Valor Conciliado</th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php 
+											$valdocrela = 0;
+											foreach ($docs_origem as $row) {
+												$tiiid = $row['iddoc'];
+												echo '<tr class="last-item-row-related sub_related">';
+												echo '<input type="hidden" value="'.$row['iddoc'].'" name="idtyprelation[]" id="idtyprelation-'.$valdocrela.'">';
+												echo '<input type="hidden" value="'.$row['type_related'].'" name="typrelation[]" id="typrelation-'.$valdocrela.'">';
+												echo "<td><strong>".$row['serie_name']."</strong></td>";
+												if($row['type_related'] == "0" || $row['type_related'] == "2"){
+													if($row['draft'] == "0"){
+														echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+													}else{
+														echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+													}
+												}else if($row['type_related'] == "1"){
+													echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}else if($row['type_related'] == "3"){
+													echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+												}
+												echo "<td>".$row['invoicedate']."</td>";
+												echo "<td>".$row['taxid']."</td>";
+												echo '<td><input type="text" disabled readonly value="'.$row['total'].'" id="val_tot_rel-'.$valdocrela.'"></td>';
+												echo '<td><input type="text" disabled readonly value="'.$row['total'].'" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+												echo '</tr>';
+												$valdocrela++;
+											}
+										?>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<hr>
 					<div id="accordionWrapa1" role="tablist" aria-multiselectable="true">
 						<div id="heading2" class="card-header">
 							<a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion2"
@@ -362,128 +519,128 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 							 class="card-collapse collapse" aria-expanded="false">
 							<div class="card-body">
 								<table class="table-responsive">
-								<tbody>
-								<tr class="sub_c" style="display: table-row;">
-										<td colspan="1">Transporte 
-											<div class="col-sm-12">
-												<div class="custom-control custom-checkbox">
-													<input type="checkbox" class="custom-control-input required" name="copy_date"
-														   id="copy_date"/>
-													<label class="custom-control-label"
-														   for="copy_date">Preencher com a data e hora de agora</label>
-												</div>
-												<label for="guidedate" class="caption">Início do transporte</label>
-												<div class="input-group">
-													<input type="text" id="start_date_guide" name="start_date_guide" class="form-control round required" value="" placeholder="0000-00-00 00:00:00"/>
-													<span class="input-group-addon" title="<?php echo 'A data inserida tem que ser no formato: aaaa-mm-dd hh:mm';?>"><i class="fa fa-info fa-2x"></i></span>
-												</div>
-												<label type="text" id="zone_date" name="zone_date" value="" placeholder="timezone"></label>
-												<label for="exped" class="caption">Expedição</label>
-												<select name="exped_se" class="form-control b_input required" id="exped_se">
-													<option value="" data-type="exp0">Escolha uma Opção</option>
-													<?php
-														echo $expeditions;
-													?>
-
-												</select>
-												<label for="autos_s" class="caption">Viatura</label>
-												<div class="input-group">
-													<select name="autos_se" id="autos_se" class="form-control round" disabled>
-														<option value="">Escolha uma Opção</option>
-														<?php echo $autos; ?>
-													</select>
-													<a class="btn btn-primary btn-sm rounded ajaddauto">+Veiculo</a>
-												</div>
-												
-												
-												<div class="col-sm-12 associate hidden">
-													<label for="guidedate" class="caption">Matrícula</label>
-													<input type="text" class="form-control round" placeholder="matricula" name="matricula_aut" id="matricula_aut"/>
-													<label for="guidedate" class="caption">Designacao</label>
-													<input type="text" class="form-control round" placeholder="designacao" name="designacao_aut" id="designacao_aut"/>
+									<tbody>
+									<tr class="sub_c" style="display: table-row;">
+											<td colspan="1">Transporte 
+												<div class="col-sm-12">
 													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" name="copy_autos"
-															   id="copy_autos">
+														<input type="checkbox" class="custom-control-input required" name="copy_date"
+															   id="copy_date"/>
 														<label class="custom-control-label"
-															   for="copy_autos">Guardar nas minhas viaturas</label>
+															   for="copy_date">Preencher com a data e hora de agora</label>
 													</div>
-												</div>
-											</div>
-										</td>
-										<td colspan="2">Local de Carga 
-											<div class="col-sm-32">
-												<div class="custom-control custom-checkbox">
-													<input type="checkbox" class="custom-control-input" name="copy_comp" id="copy_comp"/>
-													<label class="custom-control-label" for="copy_comp">Preencher com os dados da empresa</label>
-												</div>
-												<label for="guideloc" class="caption">Morada</label>
-												<div class="input-group">
-													<input type="text" id="loc_guide_comp" name="loc_guide_comp" class="form-control round required" placeholder=""/>
-													<span class="input-group-addon" title="<?php echo 'Defina o local de carga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
-												</div>
-												<div class="form-group row">
-													<div class="col-sm-6">
-														<label for="guideloc" class="caption">Cód. Postal</label>
-														<input type="text" id="post_guide_comp" name="post_guide_comp" class="form-control round required" placeholder=""/>
+													<label for="guidedate" class="caption">Início do transporte</label>
+													<div class="input-group">
+														<input type="text" id="start_date_guide" name="start_date_guide" class="form-control round required" value="" placeholder="0000-00-00 00:00:00"/>
+														<span class="input-group-addon" title="<?php echo 'A data inserida tem que ser no formato: aaaa-mm-dd hh:mm';?>"><i class="fa fa-info fa-2x"></i></span>
 													</div>
-													<div class="col-sm-12">
-														<label for="guideloc" class="caption">Localidade</label>
-														<input type="text" id="city_guide_comp" name="city_guide_comp" class="form-control round required" placeholder=""/>
-													</div>
-												</div>
-												<div class="col-sm-12">
-													<label for="mcustomer_gui_comp"><?php echo $this->lang->line('Country') ?></label>
-													<select name="mcustomer_gui_comp" class="form-control b_input required" id="mcustomer_gui_comp">
-														<option value="0">Escolha uma Opção</option>
+													<label type="text" id="zone_date" name="zone_date" value="" placeholder="timezone"></label>
+													<label for="exped" class="caption">Expedição</label>
+													<input type="hidden" value="exp0" name="expedival" id="expedival">
+													<select name="exped_se" class="form-control b_input required" id="exped_se">
+														<option value="0" data-type="exp0">Escolha uma Opção</option>
 														<?php
-														echo $countrys;
+															echo $expeditions;
 														?>
 
 													</select>
+													<label for="autos_s" class="caption">Viatura</label>
+													<div class="input-group">
+														<select name="autos_se" id="autos_se" class="form-control round" disabled>
+															<option value="">Escolha uma Opção</option>
+															<?php echo $autos; ?>
+														</select>
+														<a class="btn btn-primary btn-sm rounded ajaddauto hidden">+Veiculo</a>
+													</div>
+													
+													
+													<div class="col-sm-12 associate hidden">
+														<label for="guidedate" class="caption">Matrícula</label>
+														<input type="text" class="form-control round" placeholder="matricula" name="matricula_aut" id="matricula_aut"/>
+														<label for="guidedate" class="caption">Designacao</label>
+														<input type="text" class="form-control round" placeholder="designacao" name="designacao_aut" id="designacao_aut"/>
+														<div class="custom-control custom-checkbox">
+															<input type="hidden" value="0" type="text" id="val_save_bd" name="val_save_bd"/>
+															<input type="checkbox" class="custom-control-input" name="copy_autos"
+																   id="copy_autos">
+															<label class="custom-control-label"
+																   for="copy_autos">Guardar nas minhas viaturas</label>
+														</div>
+													</div>
 												</div>
-											</div>
-										</td>
-										<td colspan="3">Local de Descarga 
-											<div class="col-sm-32">
-												<div class="custom-control custom-checkbox">
-													<input type="checkbox" class="custom-control-input" name="copy_cos" id="copy_cos"/>
-													<label class="custom-control-label" for="copy_cos">Preencher com os dados do cliente</label>
-												</div>
-												<label for="guideloc" class="caption">Morada</label>
-												<div class="input-group">
-													<input type="text" id="loc_guide_cos" name="loc_guide_cos" class="form-control round required"" placeholder=""/>
-													<span class="input-group-addon" title="<?php echo 'Defina o local de descarga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
-												</div>
-												<div class="form-group row">
-													<div class="col-sm-6">
-														<label for="guideloc" class="caption">Cód. Postal</label>
-														<input type="text" id="post_guide_cos" name="post_guide_cos" class="form-control round required" placeholder=""/>
+											</td>
+											<td colspan="2">Local de Carga 
+												<div class="col-sm-32">
+													<div class="custom-control custom-checkbox">
+														<input type="checkbox" class="custom-control-input" name="copy_comp" id="copy_comp"/>
+														<label class="custom-control-label" for="copy_comp">Preencher com os dados da empresa</label>
+													</div>
+													<label for="guideloc" class="caption">Morada</label>
+													<div class="input-group">
+														<input type="text" id="loc_guide_comp" name="loc_guide_comp" class="form-control round required" placeholder=""/>
+														<span class="input-group-addon" title="<?php echo 'Defina o local de carga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
+													</div>
+													<div class="form-group row">
+														<div class="col-sm-6">
+															<label for="guideloc" class="caption">Cód. Postal</label>
+															<input type="text" id="post_guide_comp" name="post_guide_comp" class="form-control round required" placeholder=""/>
+														</div>
+														<div class="col-sm-12">
+															<label for="guideloc" class="caption">Localidade</label>
+															<input type="text" id="city_guide_comp" name="city_guide_comp" class="form-control round required" placeholder=""/>
+														</div>
 													</div>
 													<div class="col-sm-12">
-														<label for="guideloc" class="caption">Localidade</label>
-														<input type="text" id="city_guide_cos" name="city_guide_cos" class="form-control round required" placeholder=""/>
+														<label for="mcustomer_gui_comp"><?php echo $this->lang->line('Country') ?></label>
+														<select name="mcustomer_gui_comp" class="form-control b_input required" id="mcustomer_gui_comp">
+															<option value="0">Escolha uma Opção</option>
+															<?php
+															echo $countrys;
+															?>
+
+														</select>
 													</div>
 												</div>
-												<div class="col-sm-12">
-													<label for="mcustomer_gui_cos"><?php echo $this->lang->line('Country') ?></label>
-													<select name="mcustomer_gui_cos" class="form-control b_input" id="mcustomer_gui_cos">
-														<option value="">Escolha uma Opção</option>
-														<?php
-														echo $countrys;
-														?>
+											</td>
+											<td colspan="3">Local de Descarga 
+												<div class="col-sm-32">
+													<div class="custom-control custom-checkbox">
+														<input type="checkbox" class="custom-control-input" name="copy_cos" id="copy_cos"/>
+														<label class="custom-control-label" for="copy_cos">Preencher com os dados do cliente</label>
+													</div>
+													<label for="guideloc" class="caption">Morada</label>
+													<div class="input-group">
+														<input type="text" id="loc_guide_cos" name="loc_guide_cos" class="form-control round required"" placeholder=""/>
+														<span class="input-group-addon" title="<?php echo 'Defina o local de descarga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
+													</div>
+													<div class="form-group row">
+														<div class="col-sm-6">
+															<label for="guideloc" class="caption">Cód. Postal</label>
+															<input type="text" id="post_guide_cos" name="post_guide_cos" class="form-control round required" placeholder=""/>
+														</div>
+														<div class="col-sm-12">
+															<label for="guideloc" class="caption">Localidade</label>
+															<input type="text" id="city_guide_cos" name="city_guide_cos" class="form-control round required" placeholder=""/>
+														</div>
+													</div>
+													<div class="col-sm-12">
+														<label for="mcustomer_gui_cos"><?php echo $this->lang->line('Country') ?></label>
+														<select name="mcustomer_gui_cos" class="form-control b_input" id="mcustomer_gui_cos">
+															<option value="">Escolha uma Opção</option>
+															<?php
+															echo $countrys;
+															?>
 
-													</select>
+														</select>
+													</div>
 												</div>
-											</div>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-							
+											</td>
+										</tr>
+									</tbody>
+								</table>
 							</div>
 						</div>
 					</div>
-					
 					<hr>
 					<div id="saman-row-buts">
 						<table id="myTablebuts" class="table-responsive tfr my_stripe">
@@ -822,20 +979,97 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
         </div>
     </div>
 </div>
+<div class="modal fade" id="choise_docs_related" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+				<div class="col-sm-12">
+					<h4 class="modal-title">Relacionar com outros documentos</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<div class="input-group">
+						<h6>Relacione este documento com outros documentos do mesmo cliente</h6>
+					</div>
+				</div>
+            </div>
+			
+			<div class="modal-body">
+				<div class="input-group">
+					<label class="col-form-label">Pesquisa</label>
+					<input type="text" placeholder="Ref. Nº Série" id="searchdoc" class="form-control col-sm-2" name="searchdoc">
+					<span class="input-group-addon" title="<?php echo 'A pesquisa nos documentos relacionados procura nos seguintes campos: Número, série, nossa referência e referência do cliente/fornecedor.
+
+	Nota: A pesquisa não é feita em documentos em rascunho ou anulados e apenas considera os documentos disponíveis para serem relacionados respeitando os restantes filtros de pesquisa aplicados.';?>"><i class="fa fa-info fa-2x"></i></span>
+					<label class="col-form-label" for="email_s">Tipo Doc.</label>
+					<select name="choise-doc-type" class="form-control b_input required" id="choise-doc-type">
+						<option value="-1"><?php echo $this->lang->line('Please Select') ?></option>
+						<option value="15">Documento Interno</option>
+					</select>
+					<label class="col-form-label" for="email_s">Data Emissão:</label>
+					<label class="col-form-label" for="email_s">Início:</label>
+					<input type="date" style="width: 80px" class="form-control round required" placeholder="De" id="startdaterel" name="startdate" autocomplete="false">
+					<label class="col-form-label" for="email_s">Fim:</label>
+					<input type="date" style="width: 80px" class="form-control round required" placeholder="Até" id="enddaterel" name="enddate" autocomplete="false">
+					<button id="searchdocbut" name="searchdocbut" type="button" class="btn btn-default searchdocbut">Pesquisar Filtros Aplicados</button>
+				</div>
+            </div>
+            <div class="modal-footer">
+				<table id="relationssearch" name="relationssearch"></table>
+			</div>
+			<button id="pass_selected" name="pass_selected" type="button" class="btn btn-gold"><span class="fa fa-select"></span>Passa Selecionados</button>	
+			<button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line('Close') ?></button>
+		 </div>
+	 </div>
+ </div>
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js'); ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 <script>
 	$("#invoi_serie").select2();
+	$(document).ready(function () {
+        billUpyogInv();
+	});
 	$('select[name="exped_se"]').change(function (){
         let selectedCategoryType = $(this).find('option:selected').data('type');
 		$('#autos_se').prop('selectedIndex', -1);
 		$("#autos_se").val('');
+		$("#expedival").val(selectedCategoryType);
+		console.log(selectedCategoryType);
         if(selectedCategoryType == 'exp3'){
 			$("#autos_se").attr({ disabled: false});
+			$('.ajaddauto').removeClass('hidden');
         }else{
 			$("#autos_se").attr({ disabled: true});
+			$('.ajaddauto').addClass('hidden');
 		}
+		if(!$('.associate').hasClass('hidden'))
+		{
+			$('.associate').addClass('hidden');
+		}
+		$("#matricula_aut").val('');
+		$("#designacao_aut").val('');
+		$("#copy_autos").val('');
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
     });
+	
+	$('select[name="autos_se"]').change(function (){
+		$("#matricula_aut").val('');
+		$("#designacao_aut").val('');
+		$("#copy_autos").val('');
+		if(!$('.associate').hasClass('hidden'))
+		{
+			$('.associate').addClass('hidden');
+		}
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
+	});
+	
+	$("#copy_autos").change(function () {
+		if ($(this).prop("checked") == true) {
+			$('#val_save_bd').val('1');
+		} else {
+			$('#val_save_bd').val('0');
+		}
+	});
 	
 	
 	$("#copy_date").change(function () {
@@ -923,8 +1157,10 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 		$("#matricula_aut").val('');
 		$("#designacao_aut").val('');
 		$("#copy_autos").val('');
-		$("#copy_autos").attr("checked", false);
-		
+		document.getElementById('copy_autos').checked = false;
+		$('#val_save_bd').val('0');
+		$('#autos_se').prop('selectedIndex', -1);
+		$("#autos_se").val('');
 		if($('.associate').hasClass('hidden'))
 		{
 			$('.associate').removeClass('hidden');
@@ -968,41 +1204,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 			   date.getFullYear()                          // Get full year
 			].join('-');                                   // Glue the pieces together
 		}
-	}
-	
-	
-    $("#invoi_type").on('change', function () {
-        $("#invoi_serie").val('').trigger('change');
-        var tips = $('#invoi_type').val();
-		var el = $("#invoi_type option:selected").attr('data-serie');
-		
-		$("#invoi_type_val").val(el);
-        $("#invoi_serie").select2({
-            ajax: {
-                url: baseurl + 'settings/sub_series?id=' + tips,
-                dataType: 'json',
-                type: 'POST',
-                quietMillis: 50,
-                data: function (product) {
-                    return {
-                        product: product,
-                        '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.seriename,
-                                value: item.serie_id,
-								id: item.serie_id
-                            }
-                        })
-                    };
-                },
-            }
-        });
-    });	
+	};
 </script>
 
 <script type="text/javascript">

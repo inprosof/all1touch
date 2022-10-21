@@ -17,6 +17,7 @@ class Accounts extends CI_Controller
     {
         parent::__construct();
         $this->load->library("Aauth");
+		$this->load->library("Common");
         if (!$this->aauth->is_loggedin()) {
             redirect('/user/', 'refresh');
         }
@@ -62,6 +63,7 @@ class Accounts extends CI_Controller
 		}
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->model('locations_model');
+		$data['currencys'] = $this->common->currencies();
         $data['locations'] = $this->locations_model->locations_list2();
         $head['title'] = $this->lang->line('Add Account');
         $this->load->view('fixed/header', $head);
@@ -79,16 +81,101 @@ class Accounts extends CI_Controller
         $intbal = numberClean($this->input->post('intbal'));
         $acode = $this->input->post('acode');
         $lid = $this->input->post('lid');
-        $account_type = $this->input->post('account_type');
-
+		$bank = $this->input->post('bank');
+        $branch = $this->input->post('branch');
+		$address = $this->input->post('address');
+		$account_type = $this->input->post('account_type');
+		$enable = $this->input->post('enable');
+		$payonline = $this->input->post('payonline');
+		$notes = $this->input->post('notes');
+		$lcurrency = $this->input->post('lcurrency');
         if ($this->aauth->get_user()->loc) {
             $lid = $this->aauth->get_user()->loc;
         }
-
-        if ($accno) {
-            $this->accounts->addnew($accno, $holder, $intbal, $acode, $lid, $account_type);
-
-        }
+		
+		$this->load->library("form_validation");
+		$rules = array(
+            array(
+                'field' => 'accno',
+                'label' => 'Nome da Conta',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Insira um %s.')
+            ),
+            array(
+                'field' => 'holder',
+                'label' => 'IBAN',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor preencha o seu %s.')
+            ),
+            array(
+                'field' => 'intbal',
+                'label' => 'Valor Inicial',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor insira um %s.')
+            ),
+            array(
+                'field' => 'acode',
+                'label' => 'Código',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor insira um %s.')
+            ),
+            array(
+                'field' => 'lid',
+                'label' => 'Localização',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Seleccione uma %s.')
+            ),
+            array(
+                'field' => 'bank',
+                'label' => 'Banco',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor insira o nome do %s.')
+            ),
+            array(
+                'field' => 'branch',
+                'label' => 'BICSWIFT',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor insira o %s.')
+            ),
+            array(
+                'field' => 'address',
+                'label' => 'Endereço',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor insira o %s do banco da conta.')
+            ),
+            array(
+                'field' => 'account_type',
+                'label' => 'Tipologia',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Selecione uma %s.')
+            ),
+            array(
+                'field' => 'enable',
+                'label' => 'Habilitar',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Selecione se pretende %s ou não esta conta.')
+            ),
+            array(
+                'field' => 'payonline',
+                'label' => 'Pagamentos Online',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Selecione se pretende que aparece para %s.')
+            ),
+			array(
+                'field' => 'lcurrency',
+                'label' => 'Moeda',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Selecione a %s para esta Conta.')
+            )
+        );
+		
+		$this->form_validation->set_rules($rules);		
+		if ($this->form_validation->run())
+		{
+			$this->accounts->addnew($accno, $holder, $intbal, $acode, $lid, $bank, $branch, $address, $account_type, $enable, $payonline, $notes, $lcurrency);
+		}else{
+			echo json_encode(array('status' => 'Dados de Formulário', 'message' => $this->form_validation->error_string()));
+		}
     }
 
     public function delete_i()
@@ -125,10 +212,10 @@ class Accounts extends CI_Controller
         $query = $this->db->get();
         $data['account'] = $query->row_array();
         $this->load->model('locations_model');
+		$data['currencys'] = $this->common->currencies();
         $data['locations'] = $this->locations_model->locations_list();
         $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = $this->lang->line('Edit Account');
-
         $this->load->view('fixed/header', $head);
         $this->load->view('accounts/edit', $data);
         $this->load->view('fixed/footer');
@@ -143,16 +230,23 @@ class Accounts extends CI_Controller
         $acid = $this->input->post('acid');
         $accno = $this->input->post('accno');
         $holder = $this->input->post('holder');
+        $intbal = numberClean($this->input->post('intbal'));
         $acode = $this->input->post('acode');
         $lid = $this->input->post('lid');
-        $equity = numberClean($this->input->post('balance'));
+		$bank = $this->input->post('bank');
+        $branch = $this->input->post('branch');
+		$address = $this->input->post('address');
 		$account_type = $this->input->post('account_type');
+		$enable = $this->input->post('enable');
+		$payonline = $this->input->post('payonline');
+		$notes = $this->input->post('notes');
+		$lcurrency = $this->input->post('lcurrency');
 		
         if ($this->aauth->get_user()->loc) {
             $lid = $this->aauth->get_user()->loc;
         }
         if ($acid) {
-            $this->accounts->edit($acid, $accno, $holder, $acode, $lid, $equity, $account_type);
+            $this->accounts->edit($acid, $accno, $holder, $intbal, $acode, $lid, $bank, $branch, $address, $account_type, $enable, $payonline, $notes, $lcurrency);
         }
     }
 

@@ -71,25 +71,25 @@ class Reports_model extends CI_Model
         return $result;
     }
 
-        public function get_statements_employee($pay_emp, $trans_type, $sdate, $edate)
+    public function get_statements_employee($pay_emp, $trans_type, $sdate, $edate)
     {
-
+		$where = '';
         if ($trans_type == 'All') {
-            $where = "payerid	='$pay_emp'  AND ext='4' AND (DATE(date) BETWEEN '$sdate' AND '$edate') ";
+            $where = "geopos_transactions.payerid ='$pay_emp'  AND geopos_transactions.ext='4' AND (DATE(date) BETWEEN '$sdate' AND '$edate') ";
         } else {
-            $where = "payerid	='$pay_emp'  AND ext='4' AND (DATE(date) BETWEEN '$sdate' AND '$edate') AND type='$trans_type'";
+            $where = "geopos_transactions.payerid ='$pay_emp'  AND geopos_transactions.ext='4' AND (DATE(date) BETWEEN '$sdate' AND '$edate') AND geopos_transactions.type='$trans_type'";
         }
         if ($this->aauth->get_user()->loc) {
-            $where .= " AND loc='" . $this->aauth->get_user()->loc . "'";
+            $where .= " AND geopos_transactions.loc='" . $this->aauth->get_user()->loc . "'";
         } elseif (!BDATA) {
-            $where .= " AND loc='0'";
+            $where .= " AND geopos_transactions.loc='0'";
         }
         $this->db->select('geopos_transactions.*, geopos_trans_cat.cod as cod_cat, geopos_trans_cat.name as name_cat,geopos_config.val1 AS methodname');
         $this->db->from('geopos_transactions');
 		$this->db->join('geopos_trans_cat', 'geopos_transactions.cat = geopos_trans_cat.id', 'left');
 		$this->db->join('geopos_config', 'geopos_transactions.method = geopos_config.id', 'left');
         $this->db->where($where);
-
+		$this->db->order_by('geopos_transactions.id', 'DESC');
 
         //  $this->db->order_by('id', 'DESC');
         $query = $this->db->get();

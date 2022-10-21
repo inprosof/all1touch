@@ -71,11 +71,85 @@
     </div>
 </div>
 
+<div class="modal fade" id="choise_type_convert" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Converter documento</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+				<input type="hidden" id="convert-id" name="convert-id" value="">
+				<input type="hidden" id="convert-type" name="convert-type" value="">
+				<input type="hidden" id="convert-ext" name="convert-ext" value="0">
+				<select class="form-control b_input required" id="doc-convert-type" name="doc-convert-type">
+					<option value="0" data-url="customers_notes/convert"><i class='fa fa-pencil'></i>Nota de Débito</option>
+					<option value="1" data-url="customers_notes/convert"><i class='fa fa-pencil'></i>Nota de Crédito</option>
+					<option value="0" data-url="receipts/convert"><i class='fa fa-pencil'></i>Recibo</option>
+				</select>
+            </div>
+			<h6 id="titulo_converters" name="titulo_converters"></h6>
+			<table id="convertersview" name="convertersview" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
+            <div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn btn-primary" id="convert-confirm">Converter Agora</button>
+                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="choise_type_duplicate" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Em que tipo de Documento pretende Duplicar?</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+				<input type="hidden" id="duplicate-id" value="">
+				<input type="hidden" id="duplicate-ext" name="duplicate-ext" value="0">
+				<select name="duplicate-type" class="form-control b_input required" id="duplicate-type">
+					<option value="1" data-url="invoices/duplicate"><i class='fa fa-pencil'></i>Fatura</option>
+					<option value="2" data-url="invoices/duplicate"><i class='fa fa-pencil'></i>Fatura Recibo</option>
+					<option value="3" data-url="invoices/duplicate"><i class='fa fa-pencil'></i>Fatura Simplificada</option>
+				</select>
+            </div>
+            <div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn btn-primary" id="duplicate-confirm">Duplicar Agora</button>
+                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="choise_docs_related" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+			<input type="hidden" id="relations-id" name="relations-id" value="">
+			<input type="hidden" id="relations-type" name="relations-type" value="">
+			<input type="hidden" id="relations-ext" name="relations-ext" value="0">
+            <div class="modal-header">
+                <h4 class="modal-title">Documentos relacionados</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+			<div class="modal-body">
+                <h6 id="titulo_relationt" name="titulo_relationt"></h6>
+				<table id="relationstview" name="relationsview" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
+				<h6 id="titulo_relationd" name="titulo_relationd"></h6>
+				<table id="relationsdview" name="relationsview" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
+            </div>
+            <div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+			</div>
+		</div>
+    </div>
+</div>
+
 <div class="modal fade" id="choise_type" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Que tipo de Fatura pretende Criar?</h4>
+                <h4 class="modal-title">Que tipo de Documento pretende Criar?</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
             </div>
@@ -85,8 +159,7 @@
 				<a href="<?php echo base_url("invoices/create?ty=3")?>" class='btn btn-blue'><i class='fa fa-pencil'></i> Fatura Simplificada</a>
             </div>
             <div class="modal-footer">
-                <button type="button" data-dismiss="modal"
-                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
             </div>
         </div>
     </div>
@@ -102,21 +175,73 @@
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                <p>Pretende Anular o documento? Esta função é irreversível.</p>
+				<label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
+					<strong>Atenção:</strong> Esta ferramenta permite-lhe colocar um documento em estado anulado, caso cumpra as condições impostas pela Autoridade Tributária.<strong>Ao efetuar esta operação, irá ficar associado e responsabilizado pela operação perante as autoridades competentes.</strong>
+				</label>
+                <p>Caso já tenha comunicado à Autoridade Tributária o ficheiro SAF-T(PT) referente ao mês do documento que estiver a anular, terá que o voltar a exportar e submeter no eFatura.</p>
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="object-id" value="">
 				<input type="hidden" id="object-tid" value="">
-				<input type="hidden" id="object-tdraft" value="">
+				<input type="hidden" id="object-tdraft" value="1">
                 <input type="hidden" id="action-url" value="invoices/delete_i">
-                <button type="button" data-dismiss="modal" class="btn btn-primary"
-                        id="delete-confirm">Anular</button>
+				<textarea class="summernote" name="justification_cancel" id="justification_cancel" rows="1"></textarea></div>
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete-confirm">Anular</button>
                 <button type="button" data-dismiss="modal"
                         class="btn"><?php echo $this->lang->line('Cancel') ?></button>
             </div>
         </div>
     </div>
 </div>
+
+<div id="delete_model2" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h4 class="modal-title">Apagar Documento</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+				<label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
+					<strong>Atenção:</strong> Esta ferramenta permite-lhe remover este documento por estar ainda em estado Rascunho.</strong>
+				</label>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="object-id2" value="">
+				<input type="hidden" id="object-tid2" value="">
+				<input type="hidden" id="object-tdraft2" value="0">
+                <input type="hidden" id="action-url2" value="invoices/delete_i">
+                <button type="button" data-dismiss="modal" class="btn btn-primary"
+                        id="delete-confirm2"><?php echo $this->lang->line('Delete') ?></button>
+                <button type="button" data-dismiss="modal"
+                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('.summernote').summernote({
+            height: 50,
+            tooltip:false,
+            toolbar: [
+                // [groupName, [list of button]]
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['fullscreen', ['fullscreen']],
+                ['codeview', ['codeview']]
+            ]
+        });
+    });
+
+</script>
 <script type="text/javascript">
     $(document).ready(function () {
 		var start_date = $('#start_date').val();
@@ -150,6 +275,11 @@
 					'<?php echo $this->security->get_csrf_token_name()?>': crsf_hash,
 					start_date: start_date,
 					end_date: end_date
+				}
+			},
+			'rowCallback': function ( row, data, cell) {
+				if(data.status == 'canceled'){
+					$(row).css('background-color', ' rgba(255, 0, 39, 0.22)');
 				}
 			},
 			'columnDefs': [

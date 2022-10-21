@@ -9,6 +9,7 @@
                 <form method="post" id="data_form">
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
+							<input type="hidden" value="<?php echo $tiprelated ?>" name="tiprelated" id="tiprelated">
 							<input type="hidden" value="<?php echo $locations['address']; ?>" name="compa_adr" id="compa_adr">
 							<input type="hidden" value="<?php echo $locations['postbox']; ?>" name="compa_post" id="compa_post">
 							<input type="hidden" value="<?php echo $locations['city']; ?>" name="compa_city" id="compa_city">
@@ -21,32 +22,27 @@
                                             <?php echo $this->lang->line('Bill To') ?> <a href='#'
                                                                                           class="btn btn-primary btn-sm round"
                                                                                           data-toggle="modal"
-                                                                                          data-target="#addCustomer">
+                                                                                          data-target="#addCustomer" <?php if ($relationid > 0) echo ' hidden' ?>>
                                                 <?php echo $this->lang->line('Add Client') ?>
                                             </a>
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <div class="frmSearch col-sm-12"><label for="cst"
-                                                                            class="caption"><?php echo $this->lang->line('Search Client'); ?></label>
+                                    <div class="frmSearch col-sm-12"><label for="cst" class="caption" <?php if ($relationid > 0) echo ' hidden'; ?>><?php echo $this->lang->line('Search Client'); ?></label>
                                         <input type="text" class="form-control round" name="cst" id="customer-box"
                                                placeholder="Enter Customer Name or Mobile Number to search"
-                                               autocomplete="off"/>
-                                        <div id="customer-box-result"></div>
+                                               autocomplete="off" <?php if ($relationid > 0) echo ' hidden' ?>/>
+                                        <div id="customer-box-result" <?php if ($relationid > 0) echo ' hidden' ?>></div>
                                     </div>
                                 </div>
                                 <div id="customer">
                                     <div class="clientinfo">
                                         <?php echo $this->lang->line('Client Details'); ?>
                                         <hr>
-										<input type="hidden" name="customer_id" id="customer_id" value="99999999">
-										<div id="customer_name"><?php echo $this->lang->line('Default'); ?>: <strong>Consumidor Final</strong></div>
+										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $csd_id?>" />
+										<div id="customer_name"><strong><?php echo $csd_name; ?></strong></div>
                                     </div>
                                     <div class="clientinfo">
-										<input type="hidden" name="customer_adr_hi" id="customer_adr_hi" value="Desconhecido">
-										<input type="hidden" name="customer_post_box_hi" id="customer_post_box_hi" value="0000-000">
-										<input type="hidden" name="customer_city_hi" id="customer_city_hi" value="Desconhecido">
-										<input type="hidden" name="customer_country_hi" id="customer_country_hi" value="PT">
                                         <div id="customer_address1"></div>
                                     </div>
 									<div class="clientinfo">
@@ -57,21 +53,20 @@
 											<div class="input-group-addon"><span class="icon-calendar4"
 																				 aria-hidden="true"></span></div>
 											<input type="text" class="form-control round required editdate"
-												   placeholder="contribuinte" id="customer_tax" name="customer_tax" value="999999990">
+												   placeholder="contribuinte" id="customer_tax" name="customer_tax" value="<?php echo $csd_tax?>" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>/>
 										</div>
 									</div>
                                     <hr>
-                                    <div id="customer_pass">
-										<?php echo $this->lang->line('Warehouse') ?>
-										<select name="s_warehouses" id="s_warehouses" class="form-control round">
+                                    <div id="customer_pass"></div><?php echo $this->lang->line('Warehouse') ?> <select
+                                            name="s_warehouses" id="s_warehouses"
+                                            class="form-control round">
 										<?php 
 											echo $this->common->default_warehouse();
 											foreach ($warehouse as $row) {
 												echo '<option value="' . $row['id'] . '">' . $row['title'] . '</option>';
 											}
 										?>
-										</select>
-									</div>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -190,9 +185,93 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                                 </th>
                                 <th width="10%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
                             </tr>
-
                             </thead>
                             <tbody>
+							<?php 
+								$cvalue = 0;
+								if(!empty($products))
+								{
+									$functionNum = "'".$cvalue."'";
+									$sub_t = 0;
+									$valsumtax = 0;
+									$valsumcisc = 0;
+									$arrtudo = [];
+									foreach ($products as $row) {
+										$valsum = 0;
+										$valsumperc = '';
+										$myArraytaxid = explode(";", $row['taxaid']);
+										$myArraytaxperc = explode(";", $row['taxaperc']);
+										foreach ($myArraytaxid as $row1) {
+											$valsum += $row1;
+											$valsumtax += $row1;
+										}
+										
+										foreach ($myArraytaxperc as $row2) {
+											$valsumperc = $row2.'%';
+										}
+										if($row['serial'] != '') 
+											$row['product'].=' - '.$row['serial'];
+										$myArraytaxname = explode(";", $row['taxaname']);
+										$myArraytaxcod = explode(";", $row['taxacod']);
+										$myArraytaxvals = explode(";", $row['taxavals']);
+										$myArraytaxcomo = explode(";", $row['taxacomo']);
+										
+										for($i = 0; $i < count($myArraytaxname); $i++)
+										{
+											$jatem = false;
+											for($oo = 0; $oo < count($arrtudo); $oo++)
+											{
+												if($arrtudo[$oo]['title'] == $myArraytaxname[$i])
+												{
+													$arrtudo[$oo]['val'] = ($arrtudo[$oo]['val']+$myArraytaxvals[$i]);
+													$arrtudo[$oo]['inci'] = ($arrtudo[$oo]['inci']+$row['subtotal']);
+													$jatem = true;
+													break;
+												}
+											}
+											
+											if(!$jatem)
+											{
+												$stack = array('title'=>$myArraytaxname[$i], 'val'=>$myArraytaxvals[$i], 'perc'=>$myArraytaxperc[$i].' %', 'inci'=>$row['subtotal'], 'cod'=>$myArraytaxcod[$i], 'como'=>$myArraytaxcomo[$i], 'id'=>$myArraytaxid[$i]);
+												array_push($arrtudo, $stack);
+											}
+										}
+										
+										echo '<tr><td><input type="text" value="' . $row['product'] . '" class="form-control" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' . $cvalue . '"></td><td><div class="input-group">
+										<input value="' . $row['qty'] . '" type="text" class="form-control req amnt" name="product_qty[]" id="amount-' . $cvalue . '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' . $functionNum . ')" autocomplete="off" value="1"  inputmode="numeric">
+										<span id="product_uni-' . $cvalue . '" name="product_uni[]" class="lightMode"></span></div></td>
+										<input type="hidden" id="alert-' . $cvalue . '" name="alert[]" value="' .$row['alert']. '"> </td> <td>
+										<input value="' . $row['price'] . '" type="text" class="form-control req prc" name="product_price[]" id="price-' . $cvalue . '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' . $functionNum . ')" autocomplete="off" inputmode="numeric"></td><td>
+										<input value="' . $row['discount'] . '" type="text" class="form-control discount" name="product_discount[]" onkeypress="return isNumber(event)" id="discount-' . $cvalue . '" onkeyup="rowTotal(' . $functionNum . ')" autocomplete="off"></td> <td><div class="input-group">
+										<input type="text" disabled class="col-form-label text-center" id="texttaxa-' . $cvalue . '" value="' . $valsumperc . '">
+										<a title="Alterar" class="btn btn-blue btn-sm butedittax" name="butedittax[]" id="butedittax-'.$cvalue.'">
+										<span class="fa fa-edit" aria-hidden="false"></span></a></div></td><td><span class="currenty">' .$this->config->item('currency') . '</span> <strong>
+										<span class=\'ttlText\' id="result-' . $cvalue . '">' .$row['totaltax'].'</span></strong></td><td class="text-center">
+										<button type="button" data-rowid="' . $cvalue . '" class="btn btn-danger removeProd" title="Remove" > 
+										<i class="fa fa-minus-square"></i></button><input type="hidden" name="taxacomo[]" id="taxacomo-' . $cvalue . '" value="' .$row['taxacomo']. '">
+										<input type="hidden" name="taxavals[]" id="taxavals-' . $cvalue . '" value="' .$row['taxavals']. '">
+										<input type="hidden" name="taxaname[]" id="taxaname-' . $cvalue . '" value="' .$row['taxaname']. '">
+										<input type="hidden" name="taxaperc[]" id="taxaperc-' . $cvalue . '" value="' .$row['taxaperc']. '">
+										<input type="hidden" name="taxacod[]" id="taxacod-' . $cvalue . '" value="' .$row['taxacod']. '">
+										<input type="hidden" name="taxaid[]" id="taxaid-' . $cvalue . '" value="' .$row['taxaid']. '">
+										<input type="hidden" name="taxa[]" id="taxa-' . $cvalue . '" value="' .$row['tax']. '">
+										<input type="hidden" name="disca[]" id="disca-' . $cvalue . '" value="' . $row['totaldiscount'] . '">
+										<input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' . $cvalue . '" value="' . $row['subtotal'] . '">
+										<input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' . $cvalue . '" value="' .$row['tax']. '">
+										<input type="hidden" class="ttInputtot" name="total[]" id="total-' . $cvalue . '" value="' .$row['totaltax']. '">
+										<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $cvalue . '" value="' . $row['pid'] . '">
+										<input type="hidden" name="unit[]" id="unit-' . $cvalue . '" value="' . $row['unit'] . '">
+										<input type="hidden" name="hsn[]" id="hsn-' . $cvalue . '" value="' . $row['code'] . '">
+										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="' . $row['serial'] . '"> </td>
+										</tr>
+										<tr>
+											<td colspan="8">
+											<textarea class="form-control pdIn" id="product_description-' . $cvalue . '" name="product_description[]" placeholder="Enter Product description" autocomplete="off">' . $row['product_des'] . '</textarea></td>
+										</tr>';
+										$cvalue++;
+									}
+								}
+							?>
                             <tr class="last-item-row sub_c">
                                 <td class="add-row">
                                     <button type="button" class="btn btn-success" aria-label="Left Align"
@@ -826,41 +905,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 			   date.getFullYear()                          // Get full year
 			].join('-');                                   // Glue the pieces together
 		}
-	}
-	
-	
-    $("#invoi_type").on('change', function () {
-        $("#invoi_serie").val('').trigger('change');
-        var tips = $('#invoi_type').val();
-		var el = $("#invoi_type option:selected").attr('data-serie');
-		
-		$("#invoi_type_val").val(el);
-        $("#invoi_serie").select2({
-            ajax: {
-                url: baseurl + 'settings/sub_series?id=' + tips,
-                dataType: 'json',
-                type: 'POST',
-                quietMillis: 50,
-                data: function (product) {
-                    return {
-                        product: product,
-                        '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.seriename,
-                                value: item.serie_id,
-								id: item.serie_id
-                            }
-                        })
-                    };
-                },
-            }
-        });
-    });	
+	};
 </script>
 
 <script type="text/javascript">

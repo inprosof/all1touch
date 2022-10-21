@@ -115,7 +115,7 @@ class Products extends CI_Controller
 
     public function add()
     {
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
         $data['units'] = $this->products->units();
 		$data['p_cla'] = $this->products->proclasses();
         $data['warehouse'] = $this->categories_model->warehouse_list();
@@ -379,7 +379,7 @@ class Products extends CI_Controller
         $data['cat_sub'] = $this->categories_model->sub_cat_curr($data['product']['sub_id']);
         $data['cat_sub_list'] = $this->categories_model->sub_cat_list($data['product']['pcat']);
         $data['warehouse'] = $this->categories_model->warehouse_list();
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
         $data['custom_fields'] = $this->custom->view_edit_fields($pid, 4);
         $head['title'] = "Edit Product";
         $head['usernm'] = $this->aauth->get_user()->username;
@@ -537,51 +537,30 @@ class Products extends CI_Controller
 
 
     public function prd_stats()
-
     {
-
         $this->products->prd_stats();
-
     }
-
 
 
     public function stock_transfer_products()
-
     {
-
         $wid = $this->input->get('wid');
-
         $customer = $this->input->post('product');
-
         $terms = @$customer['term'];
-
         $result = $this->products->products_list($wid, $terms);
-
         echo json_encode($result);
-
     }
-
 
 
     public function sub_cat()
-
     {
-
         $wid = $this->input->get('id');
-
         $result = $this->categories_model->category_list(1, $wid);
-
         echo json_encode($result);
-
     }
 
-
-
     public function stock_transfer()
-
     {
-
         if ($this->input->post()) {
 
             $products_l = $this->input->post('products_l');
@@ -596,7 +575,7 @@ class Products extends CI_Controller
 
         } else {
 
-            $data['cat'] = $this->categories_model->category_list();
+            $data['cat'] = $this->categories_model->category_list_completa();
 
             $data['warehouse'] = $this->categories_model->warehouse_list();
 
@@ -969,33 +948,26 @@ class Products extends CI_Controller
 
 
         if ($pid && $r_type) {
-
-
-
-
-
             switch ($r_type) {
-
                 case 1 :
-
-                    $query = $this->db->query("SELECT geopos_invoices.tid,geopos_invoice_items.qty,geopos_invoice_items.price,geopos_invoices.invoicedate FROM geopos_invoice_items LEFT JOIN geopos_invoices ON geopos_invoices.id=geopos_invoice_items.tid WHERE geopos_invoice_items.pid='$pid' AND geopos_invoices.status!='canceled' AND (DATE(geopos_invoices.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date'))");
-
+                    $query = $this->db->query("SELECT CONCAT(geopos_irs_typ_doc.type, ' ',geopos_series.serie, '/', geopos_invoices.tid) as tid,geopos_invoice_items.qty, geopos_invoice_items.price,CONCAT(geopos_invoices.invoicedate, ' - ', geopos_invoice_items.product) as invoicedate 
+					FROM geopos_invoice_items 
+					LEFT JOIN geopos_invoices ON geopos_invoices.id=geopos_invoice_items.tid 
+					LEFT JOIN geopos_products ON geopos_products.pid=geopos_invoice_items.pcat 
+					LEFT JOIN geopos_irs_typ_doc ON geopos_invoices.irs_type = geopos_irs_typ_doc.id 
+					LEFT JOIN geopos_series ON geopos_series.id = geopos_invoices.serie WHERE geopos_invoice_items.pid='$pid' AND geopos_invoices.status!='canceled' AND (DATE(geopos_invoices.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date'))");
                     $result = $query->result_array();
-
                     break;
-
-
-
                 case 2 :
-
-                    $query = $this->db->query("SELECT geopos_purchase.tid,geopos_purchase_items.qty,geopos_purchase_items.price,geopos_purchase.invoicedate FROM geopos_purchase_items LEFT JOIN geopos_purchase ON geopos_purchase.id=geopos_purchase_items.tid WHERE geopos_purchase_items.pid='$pid' AND geopos_purchase.status!='canceled' AND (DATE(geopos_purchase.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date'))");
-
+                    $query = $this->db->query("SELECT CONCAT(geopos_irs_typ_doc.type, ' ',geopos_series.serie, '/', geopos_purchase.tid) as tid,geopos_purchase_items.qty, geopos_purchase_items.price,CONCAT(geopos_purchase.invoicedate, ' - ', geopos_purchase_items.product) as invoicedate
+					FROM geopos_purchase_items 
+					LEFT JOIN geopos_purchase ON geopos_purchase.id=geopos_purchase_items.tid 
+					LEFT JOIN geopos_products ON geopos_products.pid=geopos_purchase_items.pid 
+					LEFT JOIN geopos_product_cat ON geopos_product_cat.id=geopos_products.pcat 
+					LEFT JOIN geopos_irs_typ_doc ON geopos_purchase.irs_type = geopos_irs_typ_doc.id 
+					LEFT JOIN geopos_series ON geopos_series.id = geopos_purchase.serie WHERE geopos_purchase_items.pid='$pid' AND geopos_purchase.status!='canceled' AND (DATE(geopos_purchase.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date'))");
                     $result = $query->result_array();
-
                     break;
-
-
-
                 case 3 :
 
                     $query = $this->db->query("SELECT rid2 AS qty, DATE(d_time) AS  invoicedate,note FROM geopos_movers  WHERE geopos_movers.d_type='1' AND rid1='$pid'  AND (DATE(d_time) BETWEEN DATE('$s_date') AND DATE('$e_date'))");
@@ -1208,7 +1180,7 @@ class Products extends CI_Controller
 
         } else {
 
-            $data['cat'] = $this->categories_model->category_list();
+            $data['cat'] = $this->categories_model->category_list_completa();
 
             $data['warehouse'] = $this->categories_model->warehouse_list();
 
@@ -1342,7 +1314,7 @@ class Products extends CI_Controller
 
         } else {
 
-            $data['cat'] = $this->categories_model->category_list();
+            $data['cat'] = $this->categories_model->category_list_completa();
 
             $data['warehouse'] = $this->categories_model->warehouse_list();
 
@@ -1488,7 +1460,7 @@ class Products extends CI_Controller
 
         } else {
 
-            $data['cat'] = $this->categories_model->category_list();
+            $data['cat'] = $this->categories_model->category_list_completa();
 
             $data['warehouse'] = $this->categories_model->warehouse_list();
 
@@ -1620,7 +1592,7 @@ class Products extends CI_Controller
 
             if ($this->products->addclassesmod($title)) {
 
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . " <a href='addclasses' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a>   <a href='classes' class='btn btn-blue btn-lg'><span class='icon-list-ul' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . " <a href='addclasses' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='classes' class='btn btn-grey-blue btn-lg'><span class='fa fa-list-alt' aria-hidden='true'></span>  </a>"));
 
             } else {
 
@@ -1668,7 +1640,7 @@ class Products extends CI_Controller
 
             if ($this->products->editclass($id, $title)) {
 
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . " <a href='classes' class='btn btn-blue btn-lg'><span class='icon-list-ul' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . " <a href='classes' class='btn btn-grey-blue btn-lg'><span class='fa fa-list-alt' aria-hidden='true'></span>  </a>"));
 
             } else {
 

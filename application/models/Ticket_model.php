@@ -42,7 +42,7 @@ class Ticket_model extends CI_Model
     private function send_email($mailto, $mailtotitle, $subject, $message, $attachmenttrue = false, $attachment = '')
     {
         $this->load->library('ultimatemailer');
-        $this->db->select('host,port,auth,auth_type,username,password,sender');
+        $this->db->select('host,port,auth,auth_type,username,password');
         $this->db->from('geopos_smtp');
         $query = $this->db->get();
         $smtpresult = $query->row_array();
@@ -52,11 +52,29 @@ class Ticket_model extends CI_Model
         $auth_type = $smtpresult['auth_type'];
         $username = $smtpresult['username'];;
         $password = $smtpresult['password'];
-        $mailfrom = $smtpresult['sender'];
-        $mailfromtilte = $this->config->item('ctitle');
-
-        $this->ultimatemailer->bin_send($host, $port, $auth, $auth_type, $username, $password, $mailfrom, $mailfromtilte, $mailto, $mailtotitle, $subject, $message, $attachmenttrue, $attachment);
-
+        $mailfromtilte = '';
+		$mailfrom = '';
+		
+		$this->db->select("emailo_remet, email_app");
+		$this->db->from('geopos_system_permiss');
+		if($this->aauth->get_user()->loc > 0){
+			$this->db->where('loc', $this->aauth->get_user()->loc);
+		}else{
+			$this->db->where('loc', 0);
+		}
+		$query = $this->db->get();
+		$vals = $query->row_array();
+		$mailfromtilte = $vals['emailo_remet'];
+		if($mailfromtilte == '')
+		{
+			$mailfromtilte = $this->config->item('ctitle');
+		}
+		$mailfrom = $vals['email_app'];
+		if($mailfrom == ''){
+			return 1;
+		}else{
+			$this->ultimatemailer->bin_send($host, $port, $auth, $auth_type, $username, $password, $mailfrom, $mailfromtilte, $mailto, $mailtotitle, $subject, $message, $attachmenttrue, $attachment);
+		}
     }
 
     public function thread_info($id)

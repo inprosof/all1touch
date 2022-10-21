@@ -80,7 +80,6 @@ class Customers extends CI_Controller
     public function load_list()
     {
         $no = $this->input->post('start');
-
         $list = $this->customers->get_datatables();
         $data = array();
         if ($this->input->post('due')) {
@@ -99,12 +98,14 @@ class Customers extends CI_Controller
 					$option .= '<a href="customers/edit?id=' . $customers->id . '" class="btn btn-primary btn-sm"><span class="fa fa-pencil"></span>  ' . $this->lang->line('Edit') . '</a>';
 				}
 				if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
-					$option .= '<a href="#" data-object-id="' . $customers->id . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+					if($customers->delete1 == 1){
+						$option .= '<a href="#" data-object-id="' . $customers->id . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+					}
 				}
 				$row[] = $option;
                 $data[] = $row;
             }
-        } else {
+        }else {
             foreach ($list as $customers) {
                 $no++;
                 $row = array();
@@ -120,7 +121,9 @@ class Customers extends CI_Controller
 					$option .= '<a href="customers/edit?id=' . $customers->id . '" class="btn btn-primary btn-sm"><span class="fa fa-pencil"></span>  ' . $this->lang->line('Edit') . '</a>';
 				}
 				if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
-					$option .= '<a href="#" data-object-id="' . $customers->id . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+					if($customers->delete1 == 1){
+						$option .= '<a href="#" data-object-id="' . $customers->id . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+					}
 				}
 				$row[] = $option;
                 $data[] = $row;
@@ -163,11 +166,11 @@ class Customers extends CI_Controller
     }
 
 	public function validaNIF($nif, $ignoreFirst=true) {
-		//Limpamos eventuais espaços a mais
+		$verifyni = false;
 		$nif=trim($nif);
 		//Verificamos se é numérico e tem comprimento 9
 		if (!is_numeric($nif) || strlen($nif)!=9) {
-			return false;
+			$verifyni = false;
 		} else {
 			$nifSplit=str_split($nif);
 			//O primeiro digíto tem de ser 1, 2, 3, 5, 6, 8 ou 9
@@ -183,14 +186,15 @@ class Customers extends CI_Controller
 				if($checkDigit>=10) $checkDigit=0;
 				//Comparamos com o último dígito
 				if ($checkDigit==$nifSplit[8]) {
-					return true;
+					$verifyni = true;
 				} else {
-					return false;
+					$verifyni = false;
 				}
 			} else {
-				return false;
+				$verifyni = false;
 			}
 		}
+		return $verifyni;
 	}
 	
 	public function searchnif($nif, $country='PT')
@@ -227,40 +231,71 @@ class Customers extends CI_Controller
 	
     public function addcustomer()
     {
+		$name = $this->input->post('name', true);
 		$taxid = $this->input->post('taxid');
-		//$validani = $this->validaNIF($taxid);
-		/*if(!$validani){
-			echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('nifpt')));
+		$email = $this->input->post('email', true);
+		if($taxid == ''){
+			$taxid = '999999990';
+		}else{
+			$validani = $this->validaNIF($taxid);
+			if(!$validani || $validani == ''){
+				echo json_encode(array('status' => 'Erro na Validação', 'message' => 'Número de Contribuinte não é válido. Insira um número válido. Ou deixe em branco e ficará o número por defeito.'));
+				return;
+			}
+			
+			$versetem = $this->customers->verifytax($taxid);
+			if($versetem > 0)
+			{
+				echo json_encode(array('status' => 'Erro de duplicação', 'message' => 'Cliente já registado com esse Número de Contribuinte. Por favor verifique!'));
+				return;
+			}
+		}
+        $company = $this->input->post('company');
+        $phone = $this->input->post('phone');
+        $address = $this->input->post('address');
+        $city = $this->input->post('city');
+        $region = $this->input->post('region');
+        $country = $this->input->post('country');
+        $postbox = $this->input->post('postbox');
+		$customergroup = $this->input->post('customergroup');
+        $name_s = $this->input->post('name_s');
+        $phone_s = $this->input->post('phone_s');
+        $email_s = $this->input->post('email_s');
+        $address_s = $this->input->post('address_s');
+        $city_s = $this->input->post('city_s');
+        $region_s = $this->input->post('region_s');
+        $country_s = $this->input->post('country_s');
+        $postbox_s = $this->input->post('postbox_s');
+        $language = $this->input->post('language');
+        $create_login = $this->input->post('c_login');
+        $password = $this->input->post('password_c');
+        $docid = $this->input->post('docid');
+        $discount = $this->input->post('discount');
+		
+		$this->load->library("form_validation");
+		$rules = array(
+            array(
+                'field' => 'name',
+                'label' => 'Nome',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Insira um %s.')
+            ),
+            array(
+                'field' => 'email',
+                'label' => 'Email',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Insira um %s.')
+            )
+        );
+		
+		$this->form_validation->set_rules($rules);		
+		if ($this->form_validation->run())
+		{
+			$this->customers->add($name, $company, $phone, $email, $address, $city, $region, $country, $postbox, $customergroup, $taxid, $name_s, $phone_s, $email_s, $address_s, $city_s, $region_s, $country_s, $postbox_s, $language, $create_login, $password, $docid, $discount);
+		}else{
+			echo json_encode(array('status' => 'Dados de Formulário', 'message' => $this->form_validation->error_string()));
 			return;
-		}*/
-        $name = $this->input->post('name', true);
-        $company = $this->input->post('company', true);
-        $phone = $this->input->post('phone', true);
-        $email = $this->input->post('email', true);
-        $address = $this->input->post('address', true);
-        $city = $this->input->post('city', true);
-        $region = $this->input->post('region', true);
-        $country = $this->input->post('country', true);
-        $postbox = $this->input->post('postbox', true);
-        
-        $customergroup = $this->input->post('customergroup');
-        $name_s = $this->input->post('name_s', true);
-        $phone_s = $this->input->post('phone_s', true);
-        $email_s = $this->input->post('email_s', true);
-        $address_s = $this->input->post('address_s', true);
-        $city_s = $this->input->post('city_s', true);
-        $region_s = $this->input->post('region_s', true);
-        $country_s = $this->input->post('country_s', true);
-        $postbox_s = $this->input->post('postbox_s', true);
-        $language = $this->input->post('language', true);
-        $create_login = $this->input->post('c_login', true);
-        $password = $this->input->post('password_c', true);
-        $docid = $this->input->post('docid', true);
-        $custom = $this->input->post('c_field', true);
-        $discount = $this->input->post('discount', true);
-        $this->customers->add($name, $company, $phone, $email, $address, $city, $region, $country, $postbox, $customergroup, $taxid, $name_s, $phone_s, $email_s, $address_s, $city_s, $region_s, $country_s, $postbox_s, $language, $create_login, $password, $docid, $custom, $discount);
-
-
+		}
     }
 
     function sendSelected()
@@ -328,11 +363,11 @@ class Customers extends CI_Controller
         $country_s = $this->input->post('country_s', true);
         $postbox_s = $this->input->post('postbox_s', true);
         $docid = $this->input->post('docid', true);
-        $custom = $this->input->post('c_field', true);
+        $inactive = $this->input->post('c_field', true);
         $language = $this->input->post('language', true);
         $discount = $this->input->post('discount', true);
         if ($id) {
-            $this->customers->edit($id, $name, $company, $phone, $email, $address, $city, $region, $country, $postbox, $customergroup, $taxid, $name_s, $phone_s, $email_s, $address_s, $city_s, $region_s, $country_s, $postbox_s, $docid, $custom, $language, $discount);
+            $this->customers->edit($id, $name, $company, $phone, $email, $address, $city, $region, $country, $postbox, $customergroup, $taxid, $name_s, $phone_s, $email_s, $address_s, $city_s, $region_s, $country_s, $postbox_s, $docid, $inactive, $language, $discount);
         }
     }
 
@@ -368,6 +403,36 @@ class Customers extends CI_Controller
 		}
 		$id = $this->input->post('deleteid');
 		if ($id > 1) {
+			$controlverify = $this->customers->verifydelete($id);
+			if($controlverify == 1){
+				echo json_encode(array('status' => 'Success', 'message' => 'Não pode remover o cliente devído a ter Documentos associados! Inactive para não aparecer nas pesquisas!'));
+				return;
+			}elseif($controlverify == 2){
+				echo json_encode(array('status' => 'Success', 'message' => 'Não pode remover o cliente devído a ter Orçamentos associados! Inactive para não aparecer nas pesquisas!'));
+				return;
+			}elseif($controlverify == 3){
+				echo json_encode(array('status' => 'Success', 'message' => 'Não pode remover o cliente devído a ter Recibos associadas! Inactive para não aparecer nas pesquisas!'));
+				return;
+			}elseif($controlverify == 4){
+				echo json_encode(array('status' => 'Success', 'message' => 'Não pode remover o cliente devído a ter Transações associados! Inactive para não aparecer nas pesquisas!'));
+				return;
+			}elseif($controlverify == 5){
+				echo json_encode(array('status' => 'Success', 'message' => 'Não pode remover o cliente devído a ter Projectos associadas! Inactive para não aparecer nas pesquisas!'));
+				return;
+			}elseif($controlverify == 6){
+				echo json_encode(array('status' => 'Success', 'message' => 'Não pode remover o cliente devído a ter Notas associadas! Inactive para não aparecer nas pesquisas!'));
+				return;
+			}elseif($controlverify == 7){
+				echo json_encode(array('status' => 'Success', 'message' => 'Não pode remover o cliente devído a ter Documentos Internos associados! Inactive para não aparecer nas pesquisas!'));
+				return;
+			}elseif($controlverify == 8){
+				echo json_encode(array('status' => 'Success', 'message' => 'Não pode remover o cliente devído a ter Rascunhos associados! Inactive para não aparecer nas pesquisas!'));
+				return;
+			}elseif($controlverify == 9){
+				echo json_encode(array('status' => 'Success', 'message' => 'Não pode remover o cliente devído a ter Guias associadas! Inactive para não aparecer nas pesquisas!'));
+				return;
+			}
+			
 			if ($this->customers->delete($id)) {
 				echo json_encode(array('status' => 'Success', 'message' => 'Customer details deleted Successfully!'));
 			} else {
@@ -760,7 +825,7 @@ class Customers extends CI_Controller
             $content = $this->input->post('content');
 
             if ($this->customers->addnote($title, $content, $cid)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='addnote?id=" . $cid . "' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a> <a href='notes?id=" . $cid . "' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='addnote?id=" . $cid . "' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='notes?id=" . $cid . "' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }

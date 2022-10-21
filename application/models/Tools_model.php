@@ -158,7 +158,7 @@ class Tools_model extends CI_Model
 
     private function _notes_datatables_query()
     {
-		$this->db->select("geopos_notes.id, geopos_notes.cdate, geopos_notes.last_edit, geopos_notes.title, geopos_employees.name as name_add, 
+		$this->db->select("geopos_notes.id, geopos_notes.fid, geopos_notes.cdate, geopos_notes.last_edit, geopos_notes.title, geopos_employees.name as name_add, 
 		CASE WHEN geopos_customers.name = '' OR geopos_customers.name IS NULL THEN 'Doc. Empresa' ELSE geopos_customers.name END as cli_add");
         $this->db->from('geopos_notes');
 		$this->db->join('geopos_customers', 'geopos_customers.id = geopos_notes.fid', 'left');
@@ -222,7 +222,7 @@ class Tools_model extends CI_Model
 
     function addnote($title, $content)
     {
-        $data = array('title' => $title, 'content' => $content, 'cdate' => date('Y-m-d'), 'last_edit' => date('Y-m-d H:i:s'), 'cid' => $this->aauth->get_user()->id, 'fid' => 0, 'rid' => 0, 'ntype' => 0);
+        $data = array('title' => $title, 'content' => $content, 'cdate' => date('Y-m-d'), 'last_edit' => date('Y-m-d H:i:s'), 'cid' => $this->aauth->get_user()->id, 'fid' => 0, 'rid' => 0);
         return $this->db->insert('geopos_notes', $data);
 
     }

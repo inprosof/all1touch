@@ -31,7 +31,7 @@
                         </div>
                         <hr>
                         <h6><?php echo $this->lang->line('Client Group') ?>
-                            <small><?php echo $customergroup['title'] ?></small>
+                            <small><?php if($customergroup != null) echo $customergroup['title']; ?></small>
                         </h6>
                         <div class="row mt-3">
                             <div class="col-md-12">

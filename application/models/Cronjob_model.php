@@ -171,6 +171,7 @@ class Cronjob_model extends CI_Model
 
         $this->db->select('id,tid');
         $this->db->where('i_class >', 1);
+		$this->db->where('i_class <', 3);
         $this->db->from('geopos_invoices');
 
         $this->db->order_by('id', 'DESC');
@@ -334,7 +335,6 @@ class Cronjob_model extends CI_Model
 				$discship = $this->plugins->universal_api(65);
 				if($row['loc'] == 0)
 				{
-					$data['accounts'] = $this->locations->accountslist();
 					$t_data['acid'] = $discship['key2'];
 					$t_data['account'] = "Conta Por Defeito";
 				}else{
@@ -391,22 +391,37 @@ class Cronjob_model extends CI_Model
         }
     }
 
-    public function stock()
+    public function stock($idloc)
     {
-
-        $query = $this->db->query("SELECT product_name,product_price,qty,unit FROM geopos_products WHERE qty<=alert ORDER BY product_name");
+		$query = $this->db->query("SELECT geopos_products.product_name,geopos_products.product_price,geopos_products.qty,geopos_products.unit 
+		FROM geopos_products 
+		INNER JOIN geopos_warehouse on geopos_products.warehouse = geopos_warehouse.id 
+		WHERE geopos_products.qty <= geopos_products.alert and geopos_products.alert > 0 and geopos_warehouse.loc = $idloc
+		ORDER BY geopos_products.product_name");
         $result = $query->result_array();
-        $html_table = '<h2>Product Stock Alert</h2><p>Dear Business Owner, You have some products running low/out of stock.</p><table><tr><th>Product Name</th><th>Qty</th><th>Price</th></tr>';
+        $html_table = '<h2>Product Stock Alert</h2><p>Prezado Empresário, Você tem alguns produtos em falta.</p><table><tr><th>Produto</th><th>Qtd.</th><th>Preço</th></tr>';
         foreach ($result as $row) {
-
             $html_table .= '<tr><td>' . $row['product_name'] . '</td><td>' . amountFormat_general($row['qty']) . ' ' . $row['unit'] . '</td><td>' . amountExchange($row['product_price'], $invoice['multi'], $this->aauth->get_user()->loc). '</td></tr>';
-
         }
         $html_table .= '</table>';
-
         return $html_table;
-
-
+    }
+	
+	
+	public function stock_sold_off($idloc)
+    {
+        $query = $this->db->query("SELECT geopos_products.product_name,geopos_products.product_price,geopos_products.qty,geopos_products.unit 
+		FROM geopos_products 
+		INNER JOIN geopos_warehouse on geopos_products.warehouse = geopos_warehouse.id 
+		WHERE geopos_products.qty = 0 and geopos_products.alert > 0 and geopos_warehouse.loc = $idloc
+		ORDER BY geopos_products.product_name");
+        $result = $query->result_array();
+        $html_table = '<h2>Product Stock Alert</h2><p>Prezado Empresário, Você tem alguns produtos em falta/esgotado.</p><table><tr><th>Produto</th><th>Qtd.</th><th>Preço</th></tr>';
+        foreach ($result as $row) {
+            $html_table .= '<tr><td>' . $row['product_name'] . '</td><td>' . amountFormat_general($row['qty']) . ' ' . $row['unit'] . '</td><td>' . amountExchange($row['product_price'], $invoice['multi'], $this->aauth->get_user()->loc). '</td></tr>';
+        }
+        $html_table .= '</table>';
+        return $html_table;
     }
 
     public function expiry()

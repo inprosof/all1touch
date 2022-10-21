@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-header">
             <h5><?php echo $this->lang->line('Suppliers') . ' ' . $this->lang->line('Stock Return') ?> <a
-                        href="<?php echo base_url('stockreturn/create?ty=0') ?>"
+                        href="<?php echo base_url('stockreturn/create?ty=1') ?>"
                         class="btn btn-primary btn-sm rounded">
                     <?php echo $this->lang->line('Add new') ?>
                 </a></h5>

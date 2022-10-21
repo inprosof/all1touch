@@ -29,7 +29,7 @@ class Transactions extends CI_Controller
 
     public function index()
     {
-        if (!$this->aauth->premission(5)) {
+		if (!$this->aauth->premission(73) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
             exit($this->lang->line('translate19'));
         }
         $head['title'] = "Transações";
@@ -46,11 +46,19 @@ class Transactions extends CI_Controller
             exit($this->lang->line('translate19'));
         }
 		$this->load->library("Common");
-        $data['dual'] = $this->custom->api_config(65);
+		$this->load->model('settings_model', 'settings');
+		$discship = [];
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+        $data['dual'] = $discship;
         $data['cat'] = $this->transactions->categories();
         $data['accounts'] = $this->transactions->acc_list();
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
-        $head['title'] = "Add Transaction";
+        $head['title'] = "Nova Transação";
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
         $this->load->view('transactions/create', $data);
@@ -60,10 +68,12 @@ class Transactions extends CI_Controller
 	
 	public function transfers()
     {
-        if (!$this->aauth->premission(5)) {
+        if (!$this->aauth->premission(79) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
             exit($this->lang->line('translate19'));
         }
-        $head['title'] = "Transferências";
+        $head['title'] = "Gestão de Transferências";
+		$data['cat'] = $this->transactions->categories();
+		$data['accounts'] = $this->transactions->acc_list();
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
         $this->load->view('transactions/transfers', $data);
@@ -73,12 +83,12 @@ class Transactions extends CI_Controller
 
     public function transfer()
     {
-        if (!$this->aauth->premission(5)) {
+        if (!$this->aauth->premission(129) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
             exit($this->lang->line('translate19'));
         }
         $data['cat'] = $this->transactions->categories();
         $data['accounts'] = $this->transactions->acc_list();
-        $head['title'] = "New Transfer";
+        $head['title'] = "Nova Transferência";
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
         $this->load->view('transactions/transfer', $data);
@@ -123,7 +133,7 @@ class Transactions extends CI_Controller
                 $this->db->update('geopos_customers');
             }
         }
-
+		
         $data = array(
             'acid' => $acid,
             'account' => $account['holder'],
@@ -152,9 +162,7 @@ class Transactions extends CI_Controller
         $totalrm = $invresult->total - $invresult->pamnt;
 
         if ($totalrm > $amount) {
-            $this->db->set('pmethod', $pmethod);
             $this->db->set('pamnt', "pamnt+$amount", FALSE);
-
             $this->db->set('status', 'partial');
             $this->db->where('id', $tid);
             $this->db->update('geopos_invoices');
@@ -181,7 +189,6 @@ class Transactions extends CI_Controller
                 $this->db->update('geopos_transactions');
 
             }
-            $this->db->set('pmethod', $pmethod);
             $this->db->set('pamnt', "pamnt+$totalrm", FALSE);
             $this->db->set('status', 'paid');
             $this->db->where('id', $tid);
@@ -196,19 +203,26 @@ class Transactions extends CI_Controller
         $amount += $amount2;
 
         $activitym = "<tr><td>" . '<a href="' . base_url('invoices') . '/view_payslip?id=' . $tttid . '&inv=' . $tid . '" class="btn btn-blue btn-sm"><span class="fa fa-print" aria-hidden="true"></span></a> ' . substr($paydate, 0, 10) . "</td><td>$pmethod</td><td>" . amountExchange_s($amount, 0, $this->aauth->get_user()->loc) . "</td><td>$note</td></tr>";
-        $dual = $this->custom->api_config(65);
-        if ($dual['key1']) {
-
+        $this->load->model('settings_model', 'settings');
+		$discship = [];
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$dual = $discship;
+		if($dual['dual_entry']>0){
             $this->db->select('holder');
             $this->db->from('geopos_accounts');
-            $this->db->where('id', $dual['key2']);
+            $this->db->where('id', $dual['ac_id_d']);
             $query = $this->db->get();
             $account = $query->row_array();
 
             $data['credit'] = 0;
             $data['debit'] = $amount;
             $data['type'] = 'Expense';
-            $data['acid'] = $dual['key2'];
+            $data['acid'] = $dual['ac_id_d'];
             $data['account'] = $account['holder'];
             $data['note'] = 'Debit ' . $data['note'];
 
@@ -216,18 +230,18 @@ class Transactions extends CI_Controller
 
             //account update
             $this->db->set('lastbal', "lastbal-$amount", FALSE);
-            $this->db->where('id', $dual['key2']);
+            $this->db->where('id', $dual['ac_id_d']);
             $this->db->update('geopos_accounts');
         }
         echo json_encode(array('status' => 'Success', 'message' =>
             $this->lang->line('Transaction has been added'), 'pstatus' => $this->lang->line($status), 'activity' => $activitym, 'amt' => $totalrm, 'ttlpaid' => amountExchange_s($amount, 0, $this->aauth->get_user()->loc)));
-
-                $alert = $this->custom->api_config(66);
-        if ($alert['key1'] == 1) {
+		
+        $alert = $this->custom->get_configs_emails($this->aauth->get_user()->loc);
+        if ($alert['trans_email'] == 1) {
             $this->load->model('communication_model');
             $subject = $cname . ' ' . $this->lang->line('Transaction has been');
             $body = $subject . '<br> ' . $this->lang->line('Credit') . ' ' . $this->lang->line('Amount') . ' ' . $amount . '<br> ' . $this->lang->line('Debit') . ' ' . $this->lang->line('Amount') . ' 0  <br> ID# ' . $tttid;
-            $out = $this->communication_model->send_corn_email($alert['url'], $alert['url'], $subject, $body, false, '');
+            $out = $this->communication_model->send_corn_email($alert['email_app'], $alert['emailo_remet'], $subject, $body, false, '');
         }
     }
 
@@ -302,20 +316,26 @@ class Transactions extends CI_Controller
             $status = 'Paid';
             $paid_amount = $amount;
         }
-
-        $dual = $this->custom->api_config(65);
-        if ($dual['key1']) {
-
+		
+		$discship = [];
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$dual = $discship;
+		if($dual['dual_entry']>0){
             $this->db->select('holder');
             $this->db->from('geopos_accounts');
-            $this->db->where('id', $dual['url']);
+            $this->db->where('id', $dual['ac_id_d']);
             $query = $this->db->get();
             $account = $query->row_array();
 
             $data['debit'] = 0;
             $data['credit'] = $amount;
             $data['type'] = 'Income';
-            $data['acid'] = $dual['url'];
+            $data['acid'] = $dual['ac_id_d'];
             $data['account'] = $account['holder'];
             $data['note'] = 'Credit ' . $data['note'];
 
@@ -323,7 +343,7 @@ class Transactions extends CI_Controller
 
             //account update
             $this->db->set('lastbal', "lastbal+$amount", FALSE);
-            $this->db->where('id', $dual['url']);
+            $this->db->where('id', $dual['ac_id_d']);
             $this->db->update('geopos_accounts');
         }
         $activitym = "<tr><td>" . substr($paydate, 0, 10) . "</td><td>$pmethod</td><td>$amount</td><td>$note</td></tr>";
@@ -419,7 +439,7 @@ class Transactions extends CI_Controller
 
     public function translist()
     {
-        if ($this->aauth->get_user()->roleid < 5) {
+        if (!$this->aauth->premission(98) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
 			 exit($this->lang->line('translate19'));
         }
         $ttype = $this->input->get('type');
@@ -566,8 +586,16 @@ class Transactions extends CI_Controller
         if (!$this->aauth->premission(74) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 			exit($this->lang->line('translate19'));
 		}
-        $dual = $this->custom->api_config(65);
-
+		
+		$this->load->model('settings_model', 'settings');
+		$discship = [];
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$dual = $discship;
         $credit = 0;
         $debit = 0;
         $payer_id = $this->input->post('payer_id', true);
@@ -590,7 +618,7 @@ class Transactions extends CI_Controller
             if ($this->transactions->addtrans($payer_id, $payer_name, $pay_acc, $date, $debit, $credit, $pay_type, $pay_cat, $paymethod, $note, $this->aauth->get_user()->id, $this->aauth->get_user()->loc, $payer_ty)) {
                 $lid = $this->db->insert_id();
 
-                if ($dual['key1']) {
+               if($dual['dual_entry']>0){
                     $pay_acc = $this->input->post('f_pay_acc', true);
                     $pay_cat = $this->input->post('f_pay_cat');
                     $paymethod = $this->input->post('f_paymethod');
@@ -615,9 +643,9 @@ class Transactions extends CI_Controller
             echo json_encode(array('status' => 'Error', 'message' =>
                 'Error!'));
         }
-
-        $alert = $this->custom->api_config(66);
-        if ($alert['key1'] == 1) {
+		
+		$alert = $this->custom->get_configs_emails($this->aauth->get_user()->loc);
+        if ($alert['trans_email'] == 1) {
             $this->load->model('communication_model');
 			$subject = "";
 			$body = "";
@@ -635,7 +663,7 @@ class Transactions extends CI_Controller
 			}
             
            
-            $out = $this->communication_model->send_corn_email($alert['url'], $alert['url'], $subject, $body, false, '');
+            $out = $this->communication_model->send_corn_email($alert['email_app'], $alert['emailo_remet'], $subject, $body, false, '');
         }
 
 
@@ -673,8 +701,6 @@ class Transactions extends CI_Controller
         $id = $this->input->post('deleteid');
         if ($id) {
             echo json_encode($this->transactions->delt($id));
-            $alert = $this->custom->api_config(66);
-
         } else {
             echo json_encode(array('status' => 'Error', 'message' => 'Error!'));
         }

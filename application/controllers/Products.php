@@ -62,8 +62,18 @@ class Products extends CI_Controller
 			exit($this->lang->line('translate19'));
 		}
 		$this->load->model('settings_model', 'settings');
-        $data['cat'] = $this->categories_model->category_list();
+        $data['cat'] = $this->categories_model->category_list_completa();
+		$data['typ'] = $this->categories_model->gettypsproducts();
+		$data['classifica'] = $this->products->proclassesprodutos();
         $data['units'] = $this->products->units();
+		$getreflast = $this->products->getlastref();
+		if(is_null($getreflast)){
+			$getreflast['product_code'] = 'REF000000000';
+		}
+		$data['ultimaref'] = $getreflast['product_code'];
+		$codnew = '#####**'.$data['ultimaref'];
+		$codnew++;
+		$data['nextcod'] = str_replace('#####**', '', $codnew);
 		$data['p_cla'] = $this->products->proclasses();
         $data['warehouse'] = $this->categories_model->warehouse_list();
 		$data['withholdings'] = $this->settings->withholdings();
@@ -76,6 +86,7 @@ class Products extends CI_Controller
         $this->load->view('products/product-add', $data);
         $this->load->view('fixed/footer');
     }
+	
     public function product_list()
     {
 		if (!$this->aauth->premission(22) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
@@ -83,14 +94,19 @@ class Products extends CI_Controller
 		}
 		
         $catid = $this->input->get('id');
-        $sub = $this->input->get('sub');
+        $sub = 0;
 		$cid = 0;
 		if(filter_has_var(INPUT_POST,'cid')) {
 			 $cid = $this->input->post('cid');
 		}
+		if(filter_has_var(INPUT_POST,'sub')) {
+			 $sub = $this->input->post('sub');
+		}
 		if ($cid > 0) {
 			$list = $this->products->get_datatables('','','',$cid);
 		}else if ($catid > 0) {
+            $list = $this->products->get_datatables($catid);
+        }else if ($sub > 0) {
             $list = $this->products->get_datatables($catid, '', $sub);
         } else {
             $list = $this->products->get_datatables();
@@ -104,7 +120,11 @@ class Products extends CI_Controller
             $row[] = $no;
             $pid = $prd->pid;
             $row[] = '<a href="#" data-object-id="' . $pid . '" class="view-object"><span class="avatar-lg align-baseline"><img src="' . base_url() . 'userfiles/product/thumbnail/' . $prd->image . '" ></span>&nbsp;' . $prd->product_name . '</a>';
-            $row[] = +$prd->qty;
+            if($prd->pcat == 2){
+				$row[] = '---';
+			}else{
+				$row[] = $prd->qty;
+			}
             $row[] = $prd->product_code;
             $row[] = $prd->c_title;
             $row[] = $prd->title;
@@ -124,7 +144,7 @@ class Products extends CI_Controller
 				}
 				if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7)
 				{
-					$option .= '<a class="btn btn-danger btn-sm delete-object" href="#" data-object-id="' . $cla->id . '"> <i class="fa fa-trash"></i> </a>';
+					$option .= '<a class="btn btn-danger btn-sm delete-object" href="#" data-object-id="' . $pid . '"> <i class="fa fa-trash"></i> </a>';
 				}
 				$option .= '<button type="button" class="btn btn btn-primary dropdown-toggle   btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-cog"></i>  </button></div>';		 					 
 				$row[] = $option;
@@ -191,17 +211,103 @@ class Products extends CI_Controller
         $w_alert = $this->input->post('w_alert');
         $wdate = datefordatabase($this->input->post('wdate'));
         $code_type = $this->input->post('code_type');
-        $sub_cat = $this->input->post('sub_cat');
-        $brand = $this->input->post('brand');
+        $sub_cat = $this->input->post('sub_classif');
+		if (!$sub_cat) 
+			$sub_cat = 0;
+        $brand = $this->input->post('product_typ', true);
         $serial = $this->input->post('product_serial');
 		
 		$taxlist = array();
 		$prodindex = 0;
-		$podetaxas = true;
-		if(filter_has_var(INPUT_POST,'pidt')) {
+		$supplielist = array();
+		$prodsindex = 0;
+		$ftotal_tax = $this->input->post('ftotal_tax');
+		
+		$coust_unit = $this->input->post('coust_unit');
+		$tem_stock = 0;
+		if(filter_has_var(INPUT_POST,'tem_stock')) {
+			$tem_stock = 1;
+		}else{
+			$tem_stock = 0;
+		}
+		
+		$fav_pos = 0;
+		if(filter_has_var(INPUT_POST,'fav_pos')) {
+			$fav_pos = 1;
+		}else{
+			$fav_pos = 0;
+		}
+			
+		$this->load->library("form_validation");
+		$rules = array(
+            array(
+                'field' => 'ftotal_tax',
+                'label' => 'Taxa de Iva',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Insira uma %s.')
+            ),
+            array(
+                'field' => 'unit',
+                'label' => 'Unidades',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Selecione uma %s.')
+            ),
+            array(
+                'field' => 'product_disc',
+                'label' => 'Descrição',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor insira uma %s.')
+            ),
+            array(
+                'field' => 'product_price',
+                'label' => 'Preço',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor insira um %s.')
+            ),
+            array(
+                'field' => 'product_code',
+                'label' => 'Referência',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor insira uma %s.')
+            ),
+            array(
+                'field' => 'product_name',
+                'label' => 'Nome',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor insira um %s.')
+            ),
+            array(
+                'field' => 'product_cat',
+                'label' => 'Categoria',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Selecione uma %s.')
+            ),
+            array(
+                'field' => 'product_class',
+                'label' => 'Classe do Produto',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Selecione uma %s.')
+            ),
+            array(
+                'field' => 'product_typ',
+                'label' => 'Tipo',
+                'rules' => 'required',
+				'errors' => array('required' => 'Por favor Selecione uma %s.')
+            )
+        );
+		
+		$this->form_validation->set_rules($rules);		
+		if ($this->form_validation->run())
+		{
+			if($tem_stock == 1){
+				if($$product_qty == 0){
+					echo json_encode(array('status' => 'Dados de Formulário', 'message' => 'Por favor insira um valor válido para o Stock que existe.'));
+					return;
+				}
+			}
 			$s_id = $this->input->post('pidt');
-			$tax_id = $this->input->post('pidt');
 			$tax_n = $this->input->post('tax_n', true);
+			$tax_id = $this->input->post('pidt');
 			$tax_val = $this->input->post('tax_val', true);
 			$tax_como = $this->input->post('tax_como');
 			$pcodid = $this->input->post('pcodid');
@@ -210,12 +316,14 @@ class Products extends CI_Controller
 			foreach ($s_id as $key => $value) {
 				$valcomo = 0;
 				if($pcodid[$key] != 'ISE'){
-					if($tax_como[$key] == 'on')
+					if(!is_null($tax_como))
 					{
-						$valcomo = 1;
+						if($tax_como[$key] == 'on')
+						{
+							$valcomo = 1;
+						}
 					}
 				}else{
-					
 					$valcomo = $tax_ise[$key];
 				}
 				
@@ -236,49 +344,48 @@ class Products extends CI_Controller
 				}
 				$prodindex++;
 			}
-		}else{
-			$podetaxas = false;
-		}
-		$supplielist = array();
-		$prodsindex = 0;
-		
-		if(filter_has_var(INPUT_POST,'supliid')) {
-			$sup_id = $this->input->post('supliid');
-			$supliid = $this->input->post('supliid');
-			$supli_n = $this->input->post('supli_n', true);
-			$supli_ref = $this->input->post('supli_ref', true);
-			$supli_pr_c = $this->input->post('supli_pr_c', true);
-			$supli_des_c = $this->input->post('supli_des_c');
-			$supli_des_g = $this->input->post('supli_des_g');
-			$supli_pr_c_d = $this->input->post('supli_pr_c_d');
-			$supli_marg_e = $this->input->post('supli_marg_e');
-			$supli_marg_p = $this->input->post('supli_marg_p');
 			
-			foreach ($sup_id as $key => $value) {
-				$data = array(
-					't_id' => $supliid[$key],
-					'supli_n' => $supli_n[$key],
-					'supli_ref' => $supli_ref[$key],
-					'supli_pr_c' => $supli_pr_c[$key],
-					'supli_des_c' => $supli_des_c[$key],
-					'supli_des_g' => $supli_des_g[$key],
-					'supli_pr_c_d' => $supli_pr_c_d[$key],
-					'supli_marg_e' => $supli_marg_e[$key],
-					'supli_marg_p' => $supli_marg_p[$key]
-				);
-				if($data['supli_n'] != "" && $data['supli_n'] != null && $data['supli_ref'] != "" && $data['supli_ref'] != null && $data['supli_pr_c'] != "" && $data['supli_pr_c'] != null)
-				{
-					$supplielist[$prodsindex] = $data;
-				}
-				$prodsindex++;
+			$vals = count($taxlist);
+			if($vals == 0){
+				echo json_encode(array('status' => 'Dados de Formulário', 'message' => 'Por favor Seleccione pelos menos uma Taxa de Iva'));
+				return;
 			}
+			
+			if(filter_has_var(INPUT_POST,'supliid')) {
+				$sup_id = $this->input->post('supliid');
+				$supliid = $this->input->post('supliid');
+				$supli_n = $this->input->post('supli_n', true);
+				$supli_ref = $this->input->post('supli_ref', true);
+				$supli_pr_c = $this->input->post('supli_pr_c', true);
+				$supli_des_c = $this->input->post('supli_des_c');
+				$supli_des_g = $this->input->post('supli_des_g');
+				$supli_pr_c_d = $this->input->post('supli_pr_c_d');
+				$supli_marg_e = $this->input->post('supli_marg_e');
+				$supli_marg_p = $this->input->post('supli_marg_p');
+				
+				foreach ($sup_id as $key => $value) {
+					$data = array(
+						't_id' => $supliid[$key],
+						'supli_n' => $supli_n[$key],
+						'supli_ref' => $supli_ref[$key],
+						'supli_pr_c' => $supli_pr_c[$key],
+						'supli_des_c' => $supli_des_c[$key],
+						'supli_des_g' => $supli_des_g[$key],
+						'supli_pr_c_d' => $supli_pr_c_d[$key],
+						'supli_marg_e' => $supli_marg_e[$key],
+						'supli_marg_p' => $supli_marg_p[$key]
+					);
+					if($data['supli_n'] != "" && $data['supli_n'] != null && $data['supli_ref'] != "" && $data['supli_ref'] != null && $data['supli_pr_c'] != "" && $data['supli_pr_c'] != null)
+					{
+						$supplielist[$prodsindex] = $data;
+					}
+					$prodsindex++;
+				}
+			}
+			$this->products->addnew($catid, $warehouse, $product_name, $product_code, $product_price, $factoryprice, $taxrate, $disrate, $product_qty, $product_qty_alert, $product_desc, $image, $unit, $barcode, $v_type, $v_stock, $v_alert, $wdate, $code_type, $w_type, $w_stock, $w_alert, $sub_cat, $brand, $serial, $pclas, $taxlist, $supplielist, $tem_stock, $fav_pos, $coust_unit);
+		}else{
+			echo json_encode(array('status' => 'Dados de Formulário', 'message' => $this->form_validation->error_string()));
 		}
-		
-		if(!$podetaxas){
-			echo json_encode(array('status' => 'Error', 'message' => 'Por favor verifique e selecione a Taxa.'));
-		}else if ($catid) {
-            $this->products->addnew($catid, $warehouse, $product_name, $product_code, $product_price, $factoryprice, $taxrate, $disrate, $product_qty, $product_qty_alert, $product_desc, $image, $unit, $barcode, $v_type, $v_stock, $v_alert, $wdate, $code_type, $w_type, $w_stock, $w_alert, $sub_cat, $brand, $serial, $pclas, $taxlist, $supplielist);
-        }
     }
 
 
@@ -333,18 +440,18 @@ class Products extends CI_Controller
             $query = $this->db->get();
             $data['product_ware'] = $query->result_array();
         }
+		
+		$data['cat'] = $this->categories_model->category_list_completa();
+		$data['typ'] = $this->categories_model->gettypsproducts();
+		$data['classifica'] = $this->products->proclassesprodutos();
 		$data['p_cla'] = $this->products->proclasses();
         $data['units'] = $this->products->units();
         $data['serial_list'] = $this->products->serials($data['product']['pid']);
 		$data['withholdings'] = $this->settings->withholdings();
 		$data['irs_produts'] = $this->products->irs_produts($data['product']['pid']);
 		$data['suppliers_produts'] = $this->products->suppliers_produts($data['product']['pid']);
-		
         $data['cat_ware'] = $this->categories_model->cat_ware($pid);
-        $data['cat_sub'] = $this->categories_model->sub_cat_curr($data['product']['sub_id']);
-        $data['cat_sub_list'] = $this->categories_model->sub_cat_list($data['product']['pcat']);
         $data['warehouse'] = $this->categories_model->warehouse_list();
-        $data['cat'] = $this->categories_model->category_list();
         $data['custom_fields'] = $this->custom->view_edit_fields($pid, 5);
         $head['title'] = "Edit Product";
         $head['usernm'] = $this->aauth->get_user()->username;
@@ -376,9 +483,25 @@ class Products extends CI_Controller
         $unit = $this->input->post('unit');
         $barcode = $this->input->post('barcode');
         $code_type = $this->input->post('code_type');
-        $sub_cat = $this->input->post('sub_cat');
-        if (!$sub_cat) $sub_cat = 0;
-        $brand = $this->input->post('brand');
+		
+		$tem_stock = 0;
+		if(filter_has_var(INPUT_POST,'tem_stock')) {
+			$tem_stock = 1;
+		}else{
+			$tem_stock = 0;
+		}
+		
+		$fav_pos = 0;
+		if(filter_has_var(INPUT_POST,'fav_pos')) {
+			$fav_pos = 1;
+		}else{
+			$fav_pos = 0;
+		}
+		
+        $sub_cat = $this->input->post('sub_classif');
+        if (!$sub_cat) 
+			$sub_cat = 0;
+        $brand = $this->input->post('product_typ', true);
         $vari = array();
         $vari['v_type'] = $this->input->post('v_type');
         $vari['v_stock'] = $this->input->post('v_stock');
@@ -472,7 +595,7 @@ class Products extends CI_Controller
         if(!$podetaxas){
 			echo json_encode(array('status' => 'Error', 'message' => 'Por favor verifique e selecione a Taxa.'));
 		}else if ($pid) {
-            $this->products->edit($pid, $catid, $warehouse, $product_name, $product_code, $product_price, $factoryprice, $taxrate, $disrate, $product_qty, $product_qty_alert, $product_desc, $image, $unit, $barcode, $code_type, $sub_cat, $brand, $vari, $serial, $pclas, $taxlist, $supplielist);
+            $this->products->edit($pid, $catid, $warehouse, $product_name, $product_code, $product_price, $factoryprice, $taxrate, $disrate, $product_qty, $product_qty_alert, $product_desc, $image, $unit, $barcode, $code_type, $sub_cat, $brand, $vari, $serial, $pclas, $taxlist, $supplielist,$tem_stock, $fav_pos);
         }
     }
 
@@ -723,11 +846,25 @@ class Products extends CI_Controller
         if ($pid && $r_type) {
             switch ($r_type) {
                 case 1 :
-                    $query = $this->db->query("SELECT geopos_invoices.tid,geopos_invoice_items.qty,geopos_invoice_items.price,geopos_invoices.invoicedate FROM geopos_invoice_items LEFT JOIN geopos_invoices ON geopos_invoices.id=geopos_invoice_items.tid WHERE geopos_invoice_items.pid='$pid' AND geopos_invoices.status!='canceled' AND (DATE(geopos_invoices.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date'))");
+                    $query = $this->db->query("SELECT CONCAT(geopos_irs_typ_doc.type, ' ',geopos_series.serie, '/', geopos_invoices.tid) as tid,geopos_invoice_items.qty, geopos_invoice_items.price,CONCAT(geopos_invoices.invoicedate, ' - ', geopos_invoice_items.product) as invoicedate 
+					FROM geopos_invoice_items 
+					LEFT JOIN geopos_invoices ON geopos_invoices.id=geopos_invoice_items.tid 
+					LEFT JOIN geopos_products ON geopos_products.pid=geopos_invoice_items.pid 
+					LEFT JOIN geopos_product_cat ON geopos_product_cat.id=geopos_products.pcat 
+					LEFT JOIN geopos_irs_typ_doc ON geopos_invoices.irs_type = geopos_irs_typ_doc.id 
+					LEFT JOIN geopos_series ON geopos_series.id = geopos_invoices.serie 
+					WHERE geopos_invoice_items.pid='$pid' AND geopos_invoices.status!='canceled' AND (DATE(geopos_invoices.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date'))");
                     $result = $query->result_array();
                     break;
                 case 2 :
-                    $query = $this->db->query("SELECT geopos_purchase.tid,geopos_purchase_items.qty,geopos_purchase_items.price,geopos_purchase.invoicedate FROM geopos_purchase_items LEFT JOIN geopos_purchase ON geopos_purchase.id=geopos_purchase_items.tid WHERE geopos_purchase_items.pid='$pid' AND geopos_purchase.status!='canceled' AND (DATE(geopos_purchase.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date'))");
+                    $query = $this->db->query("SELECT CONCAT(geopos_irs_typ_doc.type, ' ',geopos_series.serie, '/', geopos_purchase.tid) as tid,geopos_purchase_items.qty, geopos_purchase_items.price,CONCAT(geopos_purchase.invoicedate, ' - ', geopos_purchase_items.product) as invoicedate
+					FROM geopos_purchase_items 
+					LEFT JOIN geopos_purchase ON geopos_purchase.id=geopos_purchase_items.tid 
+					LEFT JOIN geopos_products ON geopos_products.pid=geopos_purchase_items.pid 
+					LEFT JOIN geopos_product_cat ON geopos_product_cat.id=geopos_products.pcat 
+					LEFT JOIN geopos_irs_typ_doc ON geopos_purchase.irs_type = geopos_irs_typ_doc.id 
+					LEFT JOIN geopos_series ON geopos_series.id = geopos_purchase.serie
+					WHERE geopos_purchase_items.pid='$pid' AND geopos_purchase.status!='canceled' AND (DATE(geopos_purchase.invoicedate) BETWEEN DATE('$s_date') AND DATE('$e_date'))");
                     $result = $query->result_array();
                     break;
                 case 3 :
@@ -1012,7 +1149,7 @@ class Products extends CI_Controller
         if ($this->input->post('title')) {
             $title = $this->input->post('title', true);
             if ($this->products->addclassesmod($title)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . " <a href='addclasses' class='btn btn-indigo btn-lg'><span class='icon-plus-circle' aria-hidden='true'></span>  </a>   <a href='classes' class='btn btn-blue btn-lg'><span class='icon-list-ul' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . " <a href='addclasses' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>   <a href='classes' class='btn btn-grey-blue btn-lg'><span class='fa fa-list-alt' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }
@@ -1037,7 +1174,7 @@ class Products extends CI_Controller
             $id = $this->input->post('id');
             $title = $this->input->post('title', true);
             if ($this->products->editclass($id, $title)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . " <a href='classes' class='btn btn-blue btn-lg'><span class='icon-list-ul' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . " <a href='classes' class='btn btn-grey-blue btn-lg'><span class='fa fa-list-alt' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }

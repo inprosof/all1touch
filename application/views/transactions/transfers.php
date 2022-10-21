@@ -4,9 +4,9 @@ $type = 'transfer';
 <div class="content-body">
     <div class="card">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Transactions') ?> <a href="<?php echo base_url('transactions/transfer') ?>"
+            <h5>Transferências <a href="<?php echo base_url('transactions/transfer') ?>"
                         class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(129) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
-                    <?php echo $this->lang->line('New Transfer') ?>
+                    <?php echo $this->lang->line('New Transfer') ?></a>
 			</h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">

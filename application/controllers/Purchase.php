@@ -15,6 +15,7 @@ require_once APPPATH . 'third_party/qrcode/vendor/autoload.php';
 
 use Omnipay\Omnipay;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class Purchase extends CI_Controller
 {
@@ -32,15 +33,21 @@ class Purchase extends CI_Controller
             redirect('/user/', 'refresh');
         }
 
-        if (!$this->aauth->premission(2)) {
+        if ((!$this->aauth->premission(42) && !$this->aauth->premission(54)) && (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
+        }
+		
+		if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(128)) {
+            $this->limited = '';
+        } else {
+			$this->limited = $this->aauth->get_user()->id;
         }
 		
 		$ty = $this->input->get('ty');
 		if($ty == 1){
 			$this->li_a = 'suppliers';
 		}else{
-			$this->li_a = 'crm';
+			$this->li_a = 'sales';
 		}
         //exit('Em desenvolvimento. Obrigado pela Compreensão.');
     }
@@ -56,32 +63,46 @@ class Purchase extends CI_Controller
 			$this->li_a = 'suppliers';
 			$this->load->view('purchase/invoices_f');
 		}else{
-			$this->li_a = 'crm';
+			$this->li_a = 'sales';
 			$this->load->view('purchase/invoices');
 		}
         $this->load->view('fixed/footer');
     }
 
-	public function quote_perc_convert()
+	////////////////////////Funcões Get convert//////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+	public function duplicate()
 	{
-		$tid = $this->input->get('qo');
-		$this->create($tid);
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$ext = $this->input->get('ext');
+		$this->create($tid, $typ, $ext);
+	}
+	
+	
+	public function convert()
+	{
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$ext = $this->input->get('ext');
+		$this->create($tid, $typ, $ext);
 	}
 	
 	public function create_c()
     {
-		$this->li_a = 'crm';
-		$this->create(0,0);
+		$this->li_a = 'sales';
+		$this->create(0,0,0);
 	}
 	
 	public function create_f()
     {
 		$this->li_a = 'suppliers';
-		$this->create(0,1);
+		$this->create(0,0,1);
 	}
 	
     //
-    public function create($quo = 0,$ty = 0)
+    public function create($relation = 0, $typrelation = 0,$ty = 0)
     {
         $data['taxlist'] = $this->common->taxlist($this->config->item('tax'));
         $data['exchange'] = $this->plugins->universal_api(5);
@@ -110,39 +131,57 @@ class Purchase extends CI_Controller
 		$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
 		$data['csd_tax'] = "999999990";
 		$data['csd_id'] = "99999999";
-		if($quo > 0)
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['typrelation'] = $typrelation;
+		$data['relationid'] = $relation;
+		
+		if($relation > 0)
 		{
-			$data['invoice'] = $this->purchase->detailsFromQuote($quo);
-			$data['csd_name'] = $data['invoice']['name'];
-			$data['csd_tax'] = $data['invoice']['taxid'];
-			$data['csd_id'] = $data['invoice']['id'];
-			$data['quote'] = $quo;
-			$data['products'] = $this->purchase->items_with_product_quote($quo);
+			if($typrelation == 0){
+				$data['tiprelated'] = 1;
+			}
+			$this->load->library("Related");
+			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
+			$data['csd_name'] = $data['docs_origem']['name'];
+			$data['csd_tax'] = $data['docs_origem']['taxid'];
+			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
+		}else if($ty == 0)
+		{
+			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
+			$data['csd_tax'] = "999999990";
+			$data['csd_id'] = "99999999";
+			$data['docs_origem'] = [];
+			$data['products'] = [];
+		}else{
+			$data['csd_name'] = "";
+			$data['csd_tax'] = "";
+			$data['csd_id'] = "";
+			$data['docs_origem'] = [];
+			$data['products'] = [];
 		}
-		$data['quote'] = $quo;
 		$data['currency'] = $this->purchase->currencies();
 		$data['taxsiva'] = $this->settings->slabscombo();		
 		$data['typesinvoices'] = "";
 		if($ty == 1)
 		{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(17);
-			$data['seriesinvoiceselect'] = $this->common->default_series(17);
 		}else{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(5);
-			$data['seriesinvoiceselect'] = $this->common->default_series(5);
 		}
 		
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
 		if($data['seriesinvoiceselect'] == NULL)
 		{
-			exit('Deve Inserir pelo menos uma Série no Tipo Nota de Encomenda. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
-												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
+			exit('Ainda não definiu nenhuma série para esta Localização. <a class="match-width match-height"  href="'.base_url().'settings/series"><i class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
+			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
 			if($ty == 1)
 			{
-				$seri_did_df = $this->common->default_series_id(17);
 				$numget = $this->common->lastdoc(17,$seri_did_df);
 			}else{
-				$seri_did_df = $this->common->default_series_id(5);
 				$numget = $this->common->lastdoc(5,$seri_did_df);
 			}	
 			
@@ -318,13 +357,19 @@ class Purchase extends CI_Controller
             exit;
 		}
 
-        $this->load->model('plugins_model', 'plugins');
-        $empl_e = $this->plugins->universal_api(69);
-        if ($empl_e['key1']) {
+        $this->load->model('settings_model', 'settings');
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$emp = 0;
+		if ($discship['emps'] == 1) {
             $emp = $this->input->post('employee');
-        } else {
-            $emp = $this->aauth->get_user()->id;
-        }
+        }else{
+			$emp = $this->aauth->get_user()->id;
+		}
 		
         $transok = true;
         $st_c = 0;
@@ -1045,7 +1090,11 @@ class Purchase extends CI_Controller
 		$codQRD .= 'S:'.$campfim.'*';
 		
 		$qrCode = new QrCode($codQRD);
-		$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		
+		$writer = new PngWriter();
+		$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
+		ini_set('memory_limit', '64M');
 		
 		$data['Tipodoc'] = "Original";
 		$data2 = $data;

@@ -33,10 +33,15 @@
 								   href="#tab2" role="tab"
 								   aria-selected="false">Financeiro</a>
 							</li>
-							  <li class="nav-item">
+							<li class="nav-item">
 								<a class="nav-link" id="base-tab3" data-toggle="tab" aria-controls="tab3"
 								   href="#tab3" role="tab"
 								   aria-selected="false">Faturação</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" id="base-tab4" data-toggle="tab" aria-controls="tab4"
+								   href="#tab4" role="tab"
+								   aria-selected="false">Documentos</a>
 							</li>
 						</ul>
 						
@@ -184,7 +189,7 @@
 								
 								<div class="form-group row">
 									<label class="col-sm-2 control-label"
-										   for="typedoc">Documentos <?php echo $this->lang->line('Default') ?> e POS</label>
+										   for="type_doc">Tipo Documentos <?php echo $this->lang->line('Default') ?> e POS</label>
 									<div class="col-sm-8">
 										<select name="type_doc"
 												class="selectpicker form-control round required">
@@ -198,9 +203,42 @@
 								</div>
 								
 								<div class="form-group row">
-									<label class="col-sm-2 col-form-label" for="account">Conta para Crédito Online</label>
+									<label class="col-sm-2 control-label"
+										   for="account_d">Conta Documentos <?php echo $this->lang->line('Default') ?> e POS</label>
+									<div class="col-sm-8">
+										<select name="account_d" class="selectpicker form-control round required">
+											<option value="0">Escolha uma Conta</option>
+											<?php
+												foreach ($accounts as $row) {
+													echo '<option value="' . $row['id'] . '">' . $row['holder'] . ' / ' . $row['acn'] . '</option>';
+												}
+											?>
+
+										</select>
+									</div>
+								</div>
+								
+								<div class="form-group row">
+									<label class="col-sm-2 control-label"
+										   for="account_f">Conta Fornecedores <?php echo $this->lang->line('Default') ?></label>
+									<div class="col-sm-8">
+										<select name="account_f" class="selectpicker form-control round required">
+											<option value="0">Escolha uma Conta</option>
+											<?php
+												foreach ($accounts as $row) {
+													echo '<option value="' . $row['id'] . '">' . $row['holder'] . ' / ' . $row['acn'] . '</option>';
+												}
+											?>
+
+										</select>
+									</div>
+								</div>
+								
+								<div class="form-group row">
+									<label class="col-sm-2 col-form-label" for="account">Conta Vendas Online</label>
 									<div class="col-sm-5">
 										<select name="account" class="form-control">
+											<option value="0">Escolha uma Conta</option>
 											<?php
 											foreach ($accounts as $row) {
 												echo '<option value="' . $row['id'] . '">' . $row['holder'] . ' / ' . $row['acn'] . '</option>';
@@ -248,8 +286,25 @@
 									</div>
 								</div>
 							</div>
+							
+							<div class="tab-pane" id="tab4" role="tabpanel" aria-labelledby="base-tab4">
+								<?php
+									$cvalue = 0;
+									foreach ($docs_copy_ini as $row) {
+										echo '<div class="col-sm-12">
+												<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $cvalue . '" value="' . $row['id'] . '">
+												<input type="hidden" class="pdIn" name="pcopyid[]" id="pcopyid-' . $cvalue . '" value="' . $row['copy'] . '">
+												<label class="col-form-label" for="typ_doc_'.$cvalue.'">'.$row['typ_name'].'</label><div class="col-sm-8">
+												<input type="text" class="form-control text-center" onkeyup="rowCopys(' . $cvalue . ')"  name="serie_copy[]" id="serie_copy-' . $cvalue . '" value="' . $row['copyname'] . '">
+												</div>
+											</div>';
+										$cvalue++;
+									}
+									?>
+							</div>
 						</div>
 					</div>
+					<input type="hidden" value="search_copys" id="bill_copys">
                     <input type="hidden" name="image" id="image" value="logo.png">
                 </form>
             </div>

@@ -215,27 +215,29 @@ class Manager_model extends CI_Model
             $this->db->where('DATE(geopos_projects.edate)=', $cday);
         }
 
-
         $i = 0;
+		
+		$search = $this->input->post('search');
+		if($search != null){
+			 foreach ($this->pcolumn_search as $item) // loop column
+			{
+				$search = $this->input->post('search');
+				$value = $search['value'];
+				if ($value) {
 
-        foreach ($this->pcolumn_search as $item) // loop column
-        {
-            $search = $this->input->post('search');
-            $value = $search['value'];
-            if ($value) {
+					if ($i === 0) {
+						$this->db->group_start();
+						$this->db->like($item, $value);
+					} else {
+						$this->db->or_like($item, $value);
+					}
 
-                if ($i === 0) {
-                    $this->db->group_start();
-                    $this->db->like($item, $value);
-                } else {
-                    $this->db->or_like($item, $value);
-                }
-
-                if (count($this->pcolumn_search) - 1 == $i) //last loop
-                    $this->db->group_end(); //close bracket
-            }
-            $i++;
-        }
+					if (count($this->pcolumn_search) - 1 == $i) //last loop
+						$this->db->group_end(); //close bracket
+				}
+				$i++;
+			}
+		}
         $search = $this->input->post('order');
         if ($search) {
             $this->db->order_by($this->pcolumn_order[$search['0']['column']], $search['0']['dir']);

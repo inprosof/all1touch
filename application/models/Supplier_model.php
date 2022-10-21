@@ -37,6 +37,7 @@ class Supplier_model extends CI_Model
     {
 		$this->db->select_sum('total');
 		$this->db->select_sum('pamnt');
+		$this->db->select_sum('discount');
 		$this->db->from('geopos_invoices');
 		$this->db->where('csd', $csd);
 		//$this->db->where('status', $trans_type);
@@ -45,11 +46,28 @@ class Supplier_model extends CI_Model
 		} elseif (!BDATA) {
 			$this->db->where('loc', 0);
 		}
-
+		
 		$query = $this->db->get();
 		$result = $query->row_array();
+		if(empty($result)){
+			$result['total'] = '0';
+			$result['pamnt'] = '0';
+			$result['discount'] = '0';
+		}
 		return $result;
 	}
+	
+	
+	public function recipientinfo($ids)
+    {
+        $this->db->select('id,name,email,phone');
+        $this->db->from('geopos_supplier');
+        $this->db->where('geopos_supplier.id', $ids);
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+	
+	
     private function _get_datatables_query($id = '')
     {
         $this->db->from($this->table);
@@ -230,6 +248,7 @@ class Supplier_model extends CI_Model
 			'metod_pag' => $n_met_pag,
 			'metod_exp' => $n_met_exp,
 			'obs' => $obs,
+			'loc' => $this->aauth->get_user()->loc,
 			'taxid' => $taxid
         );
 
@@ -484,29 +503,34 @@ class Supplier_model extends CI_Model
     }
 	
 	
-	var $invoice_order = array('geopos_invoices_supli.tid' => 'desc');
+	var $invoice_order = array('geopos_invoices.tid' => 'desc');
 	var $invoice_column_order = array(null, 'tid', 'name', 'invoicedate', 'total', 'status', null);
     var $invoice_column_search = array('tid', 'name', 'invoicedate', 'total');
 	
 	private function _invoice_datatables_query($opt = '')
     {
-        $this->db->select('geopos_invoices_supli.id,geopos_invoices_supli.tid,geopos_invoices_supli.invoicedate,geopos_invoices_supli.invoiceduedate,geopos_invoices_supli.total,geopos_invoices_supli.status,geopos_customers.name');
-        $this->db->from('geopos_invoices_supli');
-        $this->db->where('geopos_invoices_supli.i_class', 0);
+        $this->db->select('geopos_invoices.id,geopos_invoices.tid,geopos_invoices.invoicedate,geopos_invoices.invoiceduedate,geopos_supplier.taxid,geopos_invoices.total,geopos_invoices.status,
+		geopos_supplier.name,
+		geopos_irs_typ_doc.type,
+		geopos_series.serie AS serie_name');
+        $this->db->from('geopos_invoices');
+		$this->db->where('geopos_invoices.i_class', 0);
+		$this->db->where('geopos_invoices.ext', 1);
         if ($opt) {
-            $this->db->where('geopos_invoices_supli.eid', $opt);
+            $this->db->where('geopos_invoices.eid', $opt);
         }
         if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_invoices_supli.loc', $this->aauth->get_user()->loc);
+            $this->db->where('geopos_invoices.loc', $this->aauth->get_user()->loc);
         }
-        elseif(!BDATA) { $this->db->where('geopos_invoices_supli.loc', 0); }
+        elseif(!BDATA) { $this->db->where('geopos_invoices.loc', 0); }
         if ($this->input->post('start_date') && $this->input->post('end_date')) // if datatable send POST for search
         {
-            $this->db->where('DATE(geopos_invoices_supli.invoicedate) >=', datefordatabase($this->input->post('start_date')));
-            $this->db->where('DATE(geopos_invoices_supli.invoicedate) <=', datefordatabase($this->input->post('end_date')));
+            $this->db->where('DATE(geopos_invoices.invoicedate) >=', datefordatabase($this->input->post('start_date')));
+            $this->db->where('DATE(geopos_invoices.invoicedate) <=', datefordatabase($this->input->post('end_date')));
         }
-        $this->db->join('geopos_customers', 'geopos_invoices_supli.csd=geopos_customers.id', 'left');
-
+        $this->db->join('geopos_supplier', 'geopos_invoices.csd=geopos_supplier.id', 'left');
+		$this->db->join('geopos_irs_typ_doc', 'geopos_invoices.irs_type = geopos_irs_typ_doc.id', 'left');
+		$this->db->join('geopos_series', 'geopos_series.id = geopos_invoices.serie', 'left');
         $i = 0;
 
         foreach ($this->invoice_column_search as $item) // loop column
@@ -543,10 +567,10 @@ class Supplier_model extends CI_Model
         if ($_POST['length'] != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
-        $this->db->where('geopos_invoices_supli.i_class', 0);
         if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_invoices_supli.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_invoices_supli.loc', 0); }
+            $this->db->where('geopos_invoices.loc', $this->aauth->get_user()->loc);
+        }  elseif(!BDATA) { 
+					$this->db->where('geopos_invoices.loc', 0); }
 
         return $query->result();
     }
@@ -554,34 +578,26 @@ class Supplier_model extends CI_Model
     function invoice_count_filtered($opt = '')
     {
         $this->_invoice_datatables_query($opt);
-        if ($opt) {
-            $this->db->where('eid', $opt);
-        }
         if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_invoices_supli.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_invoices_supli.loc', 0); }
+            $this->db->where('geopos_invoices.loc', $this->aauth->get_user()->loc);
+        }  elseif(!BDATA) { 
+					$this->db->where('geopos_invoices.loc', 0); }
         $query = $this->db->get();
         return $query->num_rows();
     }
 
     public function invoice_count_all($opt = '')
     {
-        $this->db->select('geopos_invoices_supli.id');
-        $this->db->from('geopos_invoices_supli');
-        $this->db->where('geopos_invoices_supli.i_class', 0);
-        if ($opt) {
-            $this->db->where('geopos_invoices_supli.eid', $opt);
-
-        }
+        $this->_invoice_datatables_query($opt);
         if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_invoices_supli.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_invoices_supli.loc', 0); }
+            $this->db->where('geopos_invoices.loc', $this->aauth->get_user()->loc);
+        }  elseif(!BDATA) { 
+					$this->db->where('geopos_invoices.loc', 0); }
         return $this->db->count_all_results();
     }
 
     public function group_info($id)
     {
-
         $this->db->from('geopos_cust_group');
         $this->db->where('id', $id);
         $query = $this->db->get();
@@ -604,6 +620,7 @@ class Supplier_model extends CI_Model
         if ($pay) {
             $this->db->select_sum('total');
             $this->db->select_sum('pamnt');
+			$this->db->select_sum('discount');
             $this->db->from('geopos_purchase');
             $this->db->where('DATE(invoicedate) >=', $sdate);
             $this->db->where('DATE(invoicedate) <=', $edate);
@@ -617,6 +634,12 @@ class Supplier_model extends CI_Model
 
             $query = $this->db->get();
             $result = $query->row_array();
+			
+			if(empty($result)){
+				$result['total'] = '0';
+				$result['pamnt'] = '0';
+				$result['discount'] = '0';
+			}
             return $result;
         } else {
             if ($amount) {
