@@ -81,7 +81,7 @@ class Categories_model extends CI_Model
 	
 	public function gettypsproducts()
 	{
-		$query = $this->db->query("SELECT id,val1 as title,val2 as cod FROM geopos_config WHERE type=1 ORDER BY id ASC");
+		$query = $this->db->query("SELECT id,val1 as title,val2 as cod FROM geopos_config WHERE type=5 ORDER BY id ASC");
         return $query->result_array();
 	}	
 	

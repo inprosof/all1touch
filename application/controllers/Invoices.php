@@ -409,8 +409,6 @@ class Invoices extends CI_Controller
 		////////////////////////Relação entre documentos//////////////////////
 		$this->load->library("Related");
 		$this->load->library("Transport");
-		$typrelation = $this->input->post('typrelation');
-		$relationid = $this->input->post('relationid');
 		////////////////////////Relação entre documentos//////////////////////
 		///////////////////////////////////////////////////////////////////////
 		
@@ -786,6 +784,7 @@ class Invoices extends CI_Controller
 					$i++;
 					$prodindex++;
 					$amt = numberClean($product_qty[$key]);
+					
 					if ($product_id[$key] > 0 && $verify_typ[$key] == 1) {
 						$this->db->set('qty', "qty-$amt", FALSE);
 						$this->db->where('pid', $product_id[$key]);
@@ -808,11 +807,16 @@ class Invoices extends CI_Controller
 					$this->db->insert_batch('geopos_invoice_items', $productlist);
 					$pay_obs = $this->input->post('pay_obs');
 					$pay_date = $this->input->post('pay_date');
-					$pay_met = $this->input->post('pay_met');	
+					$pay_met = $this->input->post('pay_met');
 					$pay_tot = $this->input->post('pay_tot');
 					$paymentslist = array();
 					foreach ($pay_met as $keyp => $value) {
 						$bill_date = datefordatabase($pay_date[$keyp]);
+						if($pay_tot[$keyp] == "" || $pay_tot[$keyp] == null){
+							echo json_encode(array('status' => 'Error', 'message' => 'Por favor insira um valor Válido na parte dos Pagamentos.'));
+							$transok = false;
+							break;
+						}
 						$total_pay += $pay_tot[$keyp];
 						$pmethoget = $this->invocies->methodpayname($pay_met[$keyp]);
 						$pmethodname = $pmethoget['methodname'];
@@ -938,24 +942,57 @@ class Invoices extends CI_Controller
 					
 					///////////////////////////////////////////////////////////////////////
 					////////////////////////Relação entre documentos//////////////////////
-					$textconver = '';
-					if($typrelation == 3)
-					{
-						$textconver = 'Converteu com sucesso em Fatura o Orçamento. ';
-						$this->db->set('status', 'ended');
-						$this->db->where('id', $relationid);
-						$this->db->update('geopos_quotes');
-					}else if($typrelation == 6)
-					{
-						$textconver = 'Converteu com sucesso em Fatura a Nota de Encomenda. ';
-						$this->db->set('status', 'ended');
-						$this->db->where('id', $relationid);
-						$this->db->update('geopos_purchase');
+					$this->load->library("Related");
+					$idtyprelation = $this->input->post('idtyprelation');
+					$typrelation = $this->input->post('typrelation');
+					$tipoconvert = '';
+					//$val_tot_rel = $this->input->post('val_tot_rel');
+					$tipp = $invoi_type;
+					$relaindex = 0;
+					$Relationslist = [];
+					if($typrelation != null){
+						foreach ($typrelation as $keyp => $value) {
+							$idtdoc = $idtyprelation[$keyp];
+							$tipoconvert = $typrelation[$keyp];
+							//$val_doc = $val_tot_rel[$keyp];
+							$datare = array(
+								'tid' => $invocieno,
+								'ttype' => $typrelation[$keyp],
+								'type' => $tipp,
+								'draft' => 0,
+								'doc' => $idtdoc);
+							$Relationslist[$relaindex] = $datare;
+							if($typrelation[$keyp] == 3)
+							{
+								$this->db->set('status', 'ended');
+								$this->db->where('id', $idtdoc);
+								$this->db->update('geopos_quotes');
+							}else if($typrelation[$keyp] == 6)
+							{
+								$this->db->set('status', 'ended');
+								$this->db->where('id', $idtdoc);
+								$this->db->update('geopos_purchase');
+							}
+							$relaindex++;
+						}
 					}
 					
-					if($relationid > 0){
-						$this->related->removeALL($invocieno,$typrelation,0);
-						$this->related->add($invocieno,$typrelation,0,$relationid,0);
+					if(is_array($Relationslist)){
+						if(count($Relationslist) > 0){
+							$this->db->insert_batch('geopos_data_related', $Relationslist);
+						}
+					}
+					///////////////////////////////////////////////////////////////////////
+					////////////////////////Relação entre documentos//////////////////////
+					$textconver = '';
+					if($tipoconvert == 3)
+					{
+						$textconver = 'Converteu com sucesso o Orçamento em Fatura Nº: '.$invocieno2;
+					}else if($tipoconvert == 6)
+					{
+						$textconver = 'Converteu com sucesso a Nota de Encomenda em Fatura Nº: '.$invocieno2;
+					}else{
+						$textconver = 'Criou com sucesso a Fatura Nº: '.$invocieno2;
 					}
 					///////////////////////////////////////////////////////////////////////
 					////////////////////////Relação entre documentos//////////////////////
@@ -969,10 +1006,10 @@ class Invoices extends CI_Controller
 					$striPay = "[CREATED]<br>Utilizador: ".$this->aauth->get_user()->username;
 					$striPay = $striPay.'<br>'.$yourbrowser;
 					$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-					$striPay = $striPay.' '.$textconver.'<br>Fatura Nº: '.$invocieno2.' - '.$statuPay;
+					$striPay = $striPay.' '.$textconver.'<br>'.$invocieno2.' - '.$statuPay;
 					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'fa', $invocieno);
 					
-					echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('Invoice Success') . " <a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+					echo json_encode(array('status' => 'Success', 'message' => $textconver . " <a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 					
 					/*if($passouquo)
 					{
@@ -1469,8 +1506,10 @@ class Invoices extends CI_Controller
 		}
         $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
 		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
         if (CUSTOM) 
 			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+			$data['custom_fields'] = $this->custom->view_fields_data($tid, 2);
         $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_s'], 't_type' => 0);
         ini_set('memory_limit', '64M');
 		

@@ -47,16 +47,26 @@ class Guides extends CI_Controller
 
     }
 
-	public function nt_convert()
+	public function duplicate()
 	{
-		$tid = $this->input->get('qo');
-		$this->create($tid, 6);
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$this->create($tid, $typ);
 	}
 	
-	public function quote_convert()
+	
+	public function convert()
 	{
-		$tid = $this->input->get('qo');
-		$this->create($tid, 3);
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$this->create($tid, $typ);
+	}
+	
+	
+	public function create_guide()
+	{
+		$type = $this->input->get('ty');
+		$this->create(0, $type);
 	}
 	
     //create guide Charge
@@ -68,7 +78,7 @@ class Guides extends CI_Controller
 		$this->load->library("Custom");
 		$this->load->library("Common");
 		
-		$type = $this->input->get('ty');
+		
 		///////////////////////////////////////////////////////////////////////
 		////////////////////////Relação entre documentos//////////////////////
 		$data['typrelation'] = $typrelation;
@@ -95,8 +105,10 @@ class Guides extends CI_Controller
 		////////////////////////Relação entre documentos//////////////////////
 		///////////////////////////////////////////////////////////////////////
 		$typename = "";
-		if($type == 1 || $type == '1')
+		$type = "2";
+		if($typrelation == 1 || $typrelation == '1')
 		{
+			$type = "1";
 			if (!$this->aauth->premission(14) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 				exit($this->lang->line('translate19'));
 			}
@@ -862,10 +874,18 @@ class Guides extends CI_Controller
             $row[] = dateformat($guides->invoicedate);
             $row[] = amountExchange($guides->total, 0, $this->aauth->get_user()->loc);
 			$row[] = $guides->viatura;
-			
-			$option = '<a href="' . base_url("guides/view?id=$guides->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("guides/printguide?id=$guides->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-			if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
-				$option .= '<a href="#" data-object-id="' . $guides->id . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+			if($guides->status == 2){
+				$option = '<a href="' . base_url("guides/view?id=$guides->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("guides/printguide?id=$guides->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+				$option .= '<a id="choise_type_duplicate_but" name="choise_type_duplicate_but" data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$guides->serie_name.'" data-object-type="'.$guides->irs_type.'" data-object-type_n="'.$guides->irs_type_c.'" data-object-type_s="'.$guides->type.'" data-object-ext="' . $guides->ext . '" data-object-id="' . $guides->id . '" data-object-tid="' . $guides->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>';
+				$row[] = $option;
+			}else{
+				$option = '<a href="' . base_url("guides/view?id=$guides->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("guides/printguide?id=$guides->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+				$option .= '<a id="choise_type_convert_but" name="choise_type_convert_but" data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-serie="'.$guides->serie_name.'" data-object-type="'.$guides->irs_type.'" data-object-type_n="'.$guides->irs_type_c.'" data-object-type_s="'.$guides->type.'" data-object-ext="' . $guides->ext . '" data-object-id="' . $guides->id . '" data-object-tid="' . $guides->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>&nbsp;';
+				$option .= '<a id="choise_type_duplicate_but" name="choise_type_duplicate_but" data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$guides->serie_name.'" data-object-type="'.$guides->irs_type.'" data-object-type_n="'.$guides->irs_type_c.'" data-object-type_s="'.$guides->type.'" data-object-ext="' . $guides->ext . '" data-object-id="' . $guides->id . '" data-object-tid="' . $guides->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+				$option .= '<a id="choise_docs_relateds_but" name="choise_docs_relateds_but" data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$guides->serie_name.'" data-object-type="'.$guides->irs_type.'" data-object-type_n="'.$guides->irs_type_c.'" data-object-type_s="'.$guides->type.'" data-object-ext="' . $guides->ext . '" data-object-id="' . $guides->id . '" data-object-tid="' . $guides->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+				if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
+					$option .= '<a href="#" data-object-id="' . $guides->id . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				}
 			}
 			$row[] = $option;
             $data[] = $row;

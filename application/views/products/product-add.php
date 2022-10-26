@@ -75,7 +75,7 @@
 						<div class="form-group row">
 							<div class="col-sm-4">
 								<label class="col-form-label" for="product_warehouse"><?php echo $this->lang->line('Warehouse') ?>*</label>
-								<select name="product_warehouse" class="form-control required"><option value=""><?php echo $this->lang->line('Please Select warehouse') ?></option>
+								<select name="product_warehouse" id="product_warehouse" class="form-control required"><option value=""><?php echo $this->lang->line('Please Select warehouse') ?></option>
 									<?php
 									foreach ($warehouse as $row) {
 										$cid = $row['id'];
@@ -101,7 +101,7 @@
 							</div>
 							<div class="col-sm-4">
 								<label class="col-form-label"><?php echo $this->lang->line('Measurement Unit') ?>*</label>
-								<select name="unit" class="form-control required">
+								<select name="unit" id="unit" class="form-control required">
 									<option value=""><?php echo $this->lang->line('Please Select') ?></option>
 									<?php
 									foreach ($units as $row) {
@@ -136,7 +136,7 @@
 							</div>
 							<div class="col-sm-4"><label class="col-form-label"
 														 for="product_class"><?php echo $this->lang->line('Product Classes') ?>*</label>
-								<select name="product_class" class="form-control required">
+								<select name="product_class" id="product_class" class="form-control required">
 									<option value=""><?php echo $this->lang->line('Please Select') ?></option>
 									<?php
 									foreach ($p_cla as $row) {

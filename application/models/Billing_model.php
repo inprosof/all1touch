@@ -94,7 +94,6 @@ class Billing_model extends CI_Model
         $totalrm = $invoice['total'] - $invoice['pamnt'];
 
         if ($totalrm > $amount) {
-            $this->db->set('pmethod', $pmethod);
             $this->db->set('pamnt', "pamnt+$amount", FALSE);
 
             $this->db->set('status', 'partial');
@@ -108,7 +107,6 @@ class Billing_model extends CI_Model
             $this->db->update('geopos_accounts');
 
         } else {
-            $this->db->set('pmethod', $pmethod);
             $this->db->set('pamnt', "pamnt+$amount", FALSE);
             $this->db->set('status', 'paid');
             $this->db->where('id', $tid);

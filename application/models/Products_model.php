@@ -636,7 +636,6 @@ class Products_model extends CI_Model
 				'fav_pos' => $fav_pos,
 				'p_cla' => $pclas
             );
-
             $this->db->set($data);
             $this->db->where('pid', $pid);
             if ($this->db->update('geopos_products')) {

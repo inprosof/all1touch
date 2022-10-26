@@ -470,8 +470,8 @@ class Products extends CI_Controller
         $product_name = $this->input->post('product_name', true);
         $catid = $this->input->post('product_cat');
 		$pclas = $this->input->post('product_class', true);
-        $warehouse = $this->input->post('product_warehouse', true);
-        $product_code = $this->input->post('product_code');
+        $warehouse = $this->input->post('product_warehouses', true);
+        $product_code = $this->input->post('product_code', true);		
         $product_price = numberClean($this->input->post('product_price'));
         $factoryprice = 0;
         $taxrate = 0;
@@ -528,9 +528,12 @@ class Products extends CI_Controller
 			foreach ($s_id as $key => $value) {
 				$valcomo = 0;
 				if($pcodid[$key] != 'ISE'){
-					if($tax_como[$key] == 'on')
+					if(!is_null($tax_como))
 					{
-						$valcomo = 1;
+						if($tax_como[$key] == 'on' )
+						{
+							$valcomo = 1;
+						}
 					}
 				}else{
 					

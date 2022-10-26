@@ -32,6 +32,21 @@ class Stockreturn extends CI_Controller
         }
     }
 	
+	public function duplicate()
+	{
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$this->create($tid, $typ);
+	}
+	
+	
+	public function convert()
+	{
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$this->create($tid, $typ);
+	}
+	
     //create invoice
     public function create($relation = 0, $typrelation = 0)
     {

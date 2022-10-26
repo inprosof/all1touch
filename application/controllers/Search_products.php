@@ -328,7 +328,6 @@ class Search_products extends CI_Controller
         if ($enable_bar=='true' AND is_numeric($name) AND strlen($name)>8) {
 			$flag_p=true;
             $bar = " (geopos_products.barcode = '" . (substr($name, 0, -1)) . "' OR geopos_products.barcode LIKE '" . $name . "%')";
-
                $query = "SELECT geopos_products.*,case when geopos_products.b_id != 66 then 0 else 1 end as verif_typ  FROM geopos_products $join WHERE " . $qw . "$bar AND (geopos_products.qty>0 OR geopos_products.b_id != 66) ORDER BY geopos_products.product_name LIMIT 6";
                $p_class='select_pos_item_bar';
 

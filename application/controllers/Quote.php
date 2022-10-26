@@ -90,9 +90,9 @@ class Quote extends CI_Controller
 			}
 			$this->load->library("Related");
 			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
-			$data['csd_name'] = $data['relation']['name'];
-			$data['csd_tax'] = $data['relation']['taxid'];
-			$data['csd_id'] = $data['relation']['id'];
+			$data['csd_name'] = $data['docs_origem']['name'];
+			$data['csd_tax'] = $data['docs_origem']['taxid'];
+			$data['csd_id'] = $data['docs_origem']['id'];
 			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
 		}else{
 			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
@@ -899,15 +899,25 @@ class Quote extends CI_Controller
 			$statt = "";
 			$statt2 = "";
 			$width = 0;
+			$valnow = 0;
 			$valrelated = $this->related->getRelated(0,$invoices->tid,0);
-			if($valrelated->total == 0 || $valrelated->total == null || $valrelated->total == "" || $invoices->total == 0 || $invoices->total == null || $invoices->total == "")
+			if(count($valrelated) > 0)
 			{
+				if($valrelated->total == 0 || $valrelated->total == null || $valrelated->total == "" || $invoices->total == 0 || $invoices->total == null || $invoices->total == "")
+				{
+					$width = round(0*100,2);
+					$valnow = 0;
+				}else
+				{
+					$width = round(($valrelated->total/$invoices->total)*100,2);
+					$valnow = $valrelated->total;
+				}
+			}else{
 				$width = round(0*100,2);
-			}else
-			{
-				$width = round(($valrelated->total/$invoices->total)*100,2);
+				$valnow = 0;
 			}
-			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='$valrelated->total' aria-valuemin='0' aria-valuemax='$invoices->total' style='width:$width%;'>$width%</div></div>";
+			
+			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='$valnow' aria-valuemin='0' aria-valuemax='$invoices->total' style='width:$width%;'>$width%</div></div>";
 			
 			if($invoices->status == 'draft')
 			{

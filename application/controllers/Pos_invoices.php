@@ -427,7 +427,6 @@ class Pos_invoices extends CI_Controller
         $pterms = $this->input->post('pterms', true);
 		$tota_items = $this->input->post('tota_items');
         $i = 0;
-		$metretnotqo = "";
         if ($customer_id == 0) {
             echo json_encode(array('status' => 'Error', 'message' => 'Por favor Selecionar um cliente'));
             exit;
@@ -498,6 +497,7 @@ class Pos_invoices extends CI_Controller
             $bill_date = datefordatabase($invoicedate);
             $bill_due_date = datefordatabase($invocieduedate);
             $promo_flag = false;
+			$total_discount = 0;
             if ($coupon) {
                 $this->db->select('*');
                 $this->db->from('geopos_promo');
@@ -511,7 +511,7 @@ class Pos_invoices extends CI_Controller
                     $total_discount += $amount;
                 }
             }
-            $data = array('tid' => $invocieno, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'pmethod' => $metretnotqo, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'loc' => $warehouse, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 1, 'ext' => 0, 'irs_type' => $invoi_type, 'datedoc' => date('Y-m-d H:i:s'));
+            $data = array('tid' => $invocieno, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'loc' => $warehouse, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 1, 'ext' => 0, 'irs_type' => $invoi_type, 'datedoc' => date('Y-m-d H:i:s'));
 			if ($this->db->insert('geopos_invoices', $data)) {
                 $invocieno_n = $invocieno;
                 $invocieno2 = $invocieno;
@@ -543,6 +543,7 @@ class Pos_invoices extends CI_Controller
                 $product_hsn = $this->input->post('hsn', true);
                 $product_alert = $this->input->post('alert');
                 $product_serial = $this->input->post('serial');
+				$verify_typ = $this->input->post('verif_typ');
 				
 				$taxaname = $this->input->post('taxaname');
 				$taxaid = $this->input->post('taxaid');
@@ -587,12 +588,12 @@ class Pos_invoices extends CI_Controller
 						
                         $amt = numberClean($product_qty[$key]);
 
-                        if ($product_id[$key] > 0 and $this->common->zero_stock()) {
-
-                            if ((numberClean($product_alert[$key]) - $amt) < 0 and $st_c == 0) {
+                        if ($product_id[$key] > 0 and $this->common->zero_stock() and $verify_typ[$key] == 1) {
+							// and $st_c == 0
+                            if ((numberClean($product_alert[$key]) - $amt) < 0) {
                                 echo json_encode(array('status' => 'Error', 'message' => 'Product - <strong>' . $product_name1[$key] . "</strong> - Low quantity. Available stock is  " . $product_alert[$key]));
                                 $transok = false;
-                                $st_c = 1;
+                                //$st_c = 1;
                             } else {
                                 $this->db->set('qty', "qty-$amt", FALSE);
                                 $this->db->where('pid', $product_id[$key]);
@@ -623,11 +624,14 @@ class Pos_invoices extends CI_Controller
                     $this->load->library("Printer");
                     $printer = $this->printer->check($this->aauth->get_user()->loc);
                     $p_tid = 'thermal_p';
-                    if ($printer['val2'] == 'server') 
-						$p_tid = 'thermal_server';
-
+					$p_direct = '';
+					if($printer != false){
+						if ($printer['val2'] == 'server') 
+							$p_tid = 'thermal_server';
+						$p_direct = $printer['val3'];
+					}
                     echo json_encode(array('status' => 'Success', 'message' =>
-                        $this->lang->line('Invoice Success') . " <a target='_blank' href='thermal_pdf?id=$invocieno' class='btn btn-blue btn-lg'><span class='fa fa-ticket' aria-hidden='true'></span> PDF  </a> &nbsp; &nbsp;   <a id='$p_tid' data-ptid='$invocieno' data-url='" . $printer['val3'] . "'  class='btn btn-info btn-lg white'><span class='fa fa-ticket' aria-hidden='true'></span> " . $this->lang->line('Thermal Printer') . "  </a> &nbsp; &nbsp;<a href='#' class='btn btn-reddit btn-lg print_image' id='print_image' data-inid='$invocieno'><span class='fa fa-window-restore' aria-hidden='true'></span></a> &nbsp; &nbsp; <a target='_blank' href='$linkprint' class='btn btn-blue btn-lg'><span class='fa fa-print' aria-hidden='true'></span> A4  </a> &nbsp; &nbsp; <a href='view?id=$invocieno' class='btn btn-purple btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-blue-grey btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp;<a href='create' class='btn btn-flickr btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span> " . $this->lang->line('Create') . "  </a>"));
+                        $this->lang->line('Invoice Success') . " <a target='_blank' href='thermal_pdf?id=$invocieno' class='btn btn-blue btn-lg'><span class='fa fa-ticket' aria-hidden='true'></span> PDF  </a> &nbsp; &nbsp;   <a id='$p_tid' data-ptid='$invocieno' data-url='" . $p_direct . "'  class='btn btn-info btn-lg white'><span class='fa fa-ticket' aria-hidden='true'></span> " . $this->lang->line('Thermal Printer') . "  </a> &nbsp; &nbsp;<a href='#' class='btn btn-reddit btn-lg print_image' id='print_image' data-inid='$invocieno'><span class='fa fa-window-restore' aria-hidden='true'></span></a> &nbsp; &nbsp; <a target='_blank' href='$linkprint' class='btn btn-blue btn-lg'><span class='fa fa-print' aria-hidden='true'></span> A4  </a> &nbsp; &nbsp; <a href='view?id=$invocieno' class='btn btn-purple btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-blue-grey btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp;<a href='create' class='btn btn-flickr btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span> " . $this->lang->line('Create') . "  </a>"));
                 }
                 $this->load->model('billing_model', 'billing');
 				
@@ -680,10 +684,10 @@ class Pos_invoices extends CI_Controller
 				}else{
 					$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
 				}
-				$d_trans = $discship;
+				$dual = $discship;
 				if($dual['dual_entry']>0){
 					$t_data = array(
-						'type' => 'Income',
+						'type' => 'Expense',
 						'cat' => 3,
 						'payerid' => $customer_id,
 						'method' => $pmethod,
@@ -699,7 +703,6 @@ class Pos_invoices extends CI_Controller
 					$account_d = $query->row_array();
 					$t_data['credit'] = 0;
 					$t_data['debit'] = $total;
-					$t_data['type'] = 'Expense';
 					$t_data['acid'] = $dual['ac_id_d'];
 					$t_data['account'] = $account_d['holder'];
 					$t_data['note'] = 'Debit ' . $tnote;
@@ -719,8 +722,8 @@ class Pos_invoices extends CI_Controller
 					$striPay = $striPay.'<br>Pagamento Dual'.$pmethodname;
 					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'fa', $invocieno);
 				}
-                if ($pamnt > 0) 
-					$this->billing->paynow($invocieno, $pamnt, $tnote, $pmethod, $this->aauth->get_user()->loc, $bill_date, $account);
+                if ($pamnt > 0)
+					$this->billing->paynow($invocieno, $pamnt, $tnote, $pmethod, $this->aauth->get_user()->loc, $bill_date, $account_set_id);
 					$this->registerlog->update($this->aauth->get_user()->id, $r_amt1, $r_amt2, $r_amt3, $r_amt4, $r_amt5, $r_amt6, $r_amt7, $r_amt8, $r_amt9, $c_amt);
 					// now try it
 					$ua=$this->aauth->getBrowser();
@@ -742,7 +745,6 @@ class Pos_invoices extends CI_Controller
                     $this->db->set($data);
                     $this->db->where('id', $result_c['id']);
                     $this->db->update('geopos_promo');
-
                     if ($result_c['reflect'] > 0) {
                         $data = array(
                             'payerid' => 0,
@@ -753,12 +755,13 @@ class Pos_invoices extends CI_Controller
                             'debit' => 0,
                             'credit' => $amount,
                             'type' => 'Income',
-                            'cat' => $this->lang->line('Coupon'),
+                            'cat' => 6,
                             'method' => 63,
                             'eid' => $this->aauth->get_user()->id,
                             'note' => $this->lang->line('Coupon') . ' ' . $result_c['code'],
                             'loc' => $this->aauth->get_user()->loc
                         );
+						$notes .= ' - '.$this->lang->line('Coupon') . ' ' . $result_c['code'];
                         $this->db->set('lastbal', "lastbal+$amount", FALSE);
                         $this->db->where('id', $result_c['reflect']);
                         $this->db->update('geopos_accounts');
@@ -770,28 +773,10 @@ class Pos_invoices extends CI_Controller
 						$striPay = "Utilizador: ".$this->aauth->get_user()->username;
 						$striPay = $striPay.'<br>'.$yourbrowser;
 						$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-						$striPay = $striPay.'<br>Pagamento Com Copão'.$pmethodname;
+						$striPay = $striPay.'<br>'.$notes.' - '.$pmethodname;
 						$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'fa', $invocieno);
                     }
                 }
-				$data2 = array(
-					'acid' => $account_set_id,
-					'account' => $account_set,
-					'type' => 'Income',
-					'cat' => 3,
-					'credit' => $total,
-					'debit' => 0,
-					'payer' => $customer_name,
-					'payerid' => $customer_id,
-					'method' => $pmethod,
-					'date' => $bill_date,
-					'eid' => $emp,
-					'tid' => $invocieno,
-					'note' => $tnote,
-					'loc' => $this->aauth->get_user()->loc
-				);
-				$this->db->insert('geopos_transactions', $data2);
-				$trans = $this->db->insert_id();
             } else {
 				echo json_encode(array('status' => 'Error', 'message' => "Algum valor em Falta."));
                 $transok = false;
@@ -863,6 +848,8 @@ class Pos_invoices extends CI_Controller
                 $product_hsn = $this->input->post('hsn');
                 $product_alert = $this->input->post('alert');
                 $product_serial = $this->input->post('serial');
+				$verify_typ = $this->input->post('verif_typ');
+				
 				$taxaname = $this->input->post('taxaname');
 				$taxaid = $this->input->post('taxaid');
 				$taxacod = $this->input->post('taxacod');
@@ -900,7 +887,7 @@ class Pos_invoices extends CI_Controller
                     $i++;
                     $prodindex++;
                     $amt = numberClean($product_qty[$key]);
-                    if ($product_id[$key] > 0 and $this->common->zero_stock()) {
+                    if ($product_id[$key] > 0 and $this->common->zero_stock() and $verify_typ[$key] == 1) {
                         if ((numberClean($product_alert[$key]) - $amt) < 0 and $st_c == 0) {
                             echo json_encode(array('status' => 'Error', 'message' => 'Product - <strong>' . $product_name1[$key] . "</strong> - Low quantity. Available stock is  " . $product_alert[$key]));
                             $transok = false;
@@ -960,7 +947,7 @@ class Pos_invoices extends CI_Controller
                             'debit' => 0,
                             'credit' => $amount,
                             'type' => 'Income',
-                            'cat' => $this->lang->line('Coupon'),
+                            'cat' => 6,
                             'method' => 63,
                             'eid' => $this->aauth->get_user()->id,
                             'note' => $this->lang->line('Coupon') . ' ' . $this->lang->line('Delete') . ' ' . $this->lang->line('Qty') . '-' . $result_c['available'],
@@ -1282,8 +1269,11 @@ class Pos_invoices extends CI_Controller
 			$data['products'] = $this->invocies->invoice_products($tid);
         if ($data['invoice']['id']) 
 			$data['activity'] = $this->invocies->invoice_transactions($tid);
-        $data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1);
-
+		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
+        if (CUSTOM) 
+			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+			$data['custom_fields'] = $this->custom->view_fields_data($tid, 2);
         $this->load->library("Printer");
         $data['printer'] = $this->printer->check($data['invoice']['loc']);
 		
@@ -1291,7 +1281,19 @@ class Pos_invoices extends CI_Controller
 		$online_pay = $this->billing->online_pay_settings();
 		if ($online_pay['enable'] == 1) {
 			$token = hash_hmac('ripemd160', $tid, $this->config->item('encryption_key'));
-		}	
+		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$data['docs_origem'] = $this->related->getRelated($tid,0,0);
+		$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
+		$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,0);
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		
+        $data['iddoc'] = $data['invoice']['id'];
+		
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
         $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
         $head['title'] = "Invoice " . $data['invoice']['tid'];
@@ -1489,8 +1491,7 @@ class Pos_invoices extends CI_Controller
                     }
 
                 } else {
-                    echo json_encode(array('status' => 'Error', 'message' =>
-                        "Please add at least one product in invoice"));
+                    echo json_encode(array('status' => 'Error', 'message' => "Please add at least one product in invoice"));
                     $transok = false;
                 }
                 echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('Invoice has  been updated') . " <a href='view?id=$invocieno' class='btn btn-info btn-lg'><span class='icon-file-text2' aria-hidden='true'></span> " . $this->lang->line('View') . " </a> "));
@@ -1559,7 +1560,7 @@ class Pos_invoices extends CI_Controller
                             'debit' => 0,
                             'credit' => $amount,
                             'type' => 'Income',
-                            'cat' => $this->lang->line('Coupon'),
+                            'cat' => 6,
                             'method' => 63,
                             'eid' => $this->aauth->get_user()->id,
                             'note' => $this->lang->line('Coupon') . ' ' . $this->lang->line('Delete') . ' ' . $this->lang->line('Qty') . '-' . $result_c['available'],
@@ -1860,7 +1861,7 @@ class Pos_invoices extends CI_Controller
                         // echo 'imagick not installed';
                         echo json_encode(array('status' => 'Error', 'message' => 'imagick not installed'));
                         $printer->close();
-die();
+						die();
                     }
                     try {
                         $im = new Imagick();

@@ -261,7 +261,7 @@ class Guides_model extends CI_Model
 
     private function _get_datatables_query($opt = '', $typ = 1)
     {
-        $this->db->select("geopos_guides.id,geopos_guides.status,geopos_guides.tid,geopos_guides.typeguide,
+        $this->db->select("geopos_guides.id,geopos_guides.irs_type, geopos_series.serie AS serie_name, geopos_irs_typ_doc.id as irs_type_c, geopos_guides.status,geopos_guides.tid,geopos_guides.typeguide,
 		geopos_guides.invoicedate,geopos_guides.total,
 		CASE WHEN geopos_assets.assest_name = '' OR geopos_assets.assest_name IS NULL THEN 'Sem Veículo Associado' ELSE geopos_assets.assest_name END as viatura,
 		geopos_customers.name, geopos_irs_typ_doc.type");

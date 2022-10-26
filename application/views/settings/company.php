@@ -229,7 +229,7 @@
 										<div class="form-group row">
 											<div class="col-sm-12">
 												<label class="col-form-label"
-													   for="email"><?php echo $this->lang->line('Tax') ?></label>
+													   for="email">Contribuinte</label>
 
 												<div class="col-sm-10">
 													<input type="text" placeholder="<?php echo $this->lang->line('Tax') ?>"

@@ -148,9 +148,14 @@
 				<input type="hidden" id="convert-type" name="convert-type" value="">
 				<input type="hidden" id="convert-ext" name="convert-ext" value="0">
 				<select class="form-control b_input required" id="object-id-doc-convert-type" name="object-id-doc-convert-type">
-					<option data-url="customers_notes/convert">Nota de Débito</option>
-					<option data-url="customers_notes/convert">Nota de Crédito</option>
-					<option data-url="receipts/convert">Recibo</option>
+					<option value="1" data-url="invoices/convert">Fatura</option>
+					<option value="12" data-url="quotes/convert">Fatura Pro-Forma</option>
+					<option value="3" data-url="invoices/convert">Fatura Simplificada</option>
+					<option value="2" data-url="invoices/convert">Fatura-Recibo</option>
+					<option value="2" data-url="guides/convert">Guia de Remessa</option>
+					<option value="1" data-url="guides/convert">Guia de Transporte</option>
+					<option value="1" data-url="purchase/convert">Nota de Encomenda</option>
+					<option value="8" data-url="quotes/convert">Orçamento</option>
 				</select>
             </div>
             <div class="modal-footer">
@@ -164,126 +169,18 @@
 <div class="modal fade" id="choise_docs_related" role="dialog">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
+			<input type="hidden" id="relations-id" name="relations-id" value="">
+			<input type="hidden" id="relations-type" name="relations-type" value="">
+			<input type="hidden" id="relations-ext" name="relations-ext" value="0">
             <div class="modal-header">
                 <h4 class="modal-title">Documentos relacionados</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
-			
 			<div class="modal-body">
-                <h6>O documento <?php echo $invoice['irs_type_n'].' '.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'] ?> teve origem nos documentos abaixo (Está conciliado com)</h6>
-				<div class="row">
-					<table class="table table-striped">
-						<?php if(is_array($docs_origem)) {
-							$reicoun = count($docs_origem);
-							if($reicoun > 0){
-								echo "<thead>
-									<tr>
-										<th>Documento</th>
-										<th>Série/Nº</th>
-										<th>Data Emissão</th>
-										<th>NIF/NIC</th>
-										<th>Ilíquido</th>
-										<th>Impostos</th>
-										<th>Total Liq.</th>
-										<th>".$this->lang->line('Settings')."</th>
-									</tr>
-								</thead>
-								<tbody id='activity'>";
-								foreach ($docs_origem as $row) {
-									$tiiid = $row['id'];
-									echo '<tr>';
-									echo "<td><strong>".$row['tipo']."</strong></td>";
-									echo "<td>".$row['serie_name'].'/'.$row['tid']."</td>";
-									echo "<td>".$row['invoicedate']."</td>";
-									echo "<td>".$row['tax_id']."</td>";
-									echo "<td>".amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc)."</td>";
-									echo "<td>".amountExchange($row['tax'], 0, $this->aauth->get_user()->loc)."</td>";
-									echo "<td>".amountExchange($row['total'], 0, $this->aauth->get_user()->loc)."</td>";
-									if($row['type_related'] == "0" || $row['type_related'] == "2"){
-										if($row['draft'] == "0"){
-											echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-													<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-										}else{
-											echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-													<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-										}
-									}else if($row['type_related'] == "1"){
-										echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-													<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-									}else if($row['type_related'] == "3"){
-										echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-													<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-									}
-									echo '</tr>';
-								}
-								echo "</tbody>";
-							}else
-							{
-								echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que tivesse origem neste documento!</td><tr></tbody>';
-							}
-							
-						}else {
-							echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que tivesse origem neste documento!</td><tr></tbody>';
-						}?>
-					</table>
-				</div>
-				<h6>O documento <?php echo $invoice['irs_type_n'].' '.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'] ?> deu origem aos documentos abaixo (Foi conciliado com)</h6>
-				<div class="row">
-					<table class="table table-striped">
-						<?php if(is_array($docs_deu_origem)) {
-							$reicoun2 = count($docs_deu_origem);
-							if($reicoun2 > 0){
-								echo "<thead>
-									<tr>
-										<th>Documento</th>
-										<th>Série/Nº</th>
-										<th>Data Emissão</th>
-										<th>NIF/NIC</th>
-										<th>Ilíquido</th>
-										<th>Impostos</th>
-										<th>Total Liq.</th>
-										<th>".$this->lang->line('Settings')."</th>
-									</tr>
-								</thead>
-								<tbody>";
-								foreach ($docs_deu_origem as $row) {
-									$tiiide = $row['id'];
-									echo '<tr>';
-									echo "<td><strong>".$row['tipo']."</strong></td>";
-									echo "<td>".$row['serie_name'].'/'.$row['tid']."</td>";
-									echo "<td>".$row['invoicedate']."</td>";
-									echo "<td>".$row['tax_id']."</td>";
-									echo "<td>".amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc)."</td>";
-									echo "<td>".amountExchange($row['tax'], 0, $this->aauth->get_user()->loc)."</td>";
-									echo "<td>".amountExchange($row['total'], 0, $this->aauth->get_user()->loc)."</td>";
-									if($row['type_related'] == "0" || $row['type_related'] == "2"){
-										if($row['draft'] == "0"){
-											echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-													<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-										}else{
-											echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=1").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-													<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-										}
-									}else if($row['type_related'] == "1"){
-										echo '<td><a href="'.base_url("invoices/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-													<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-									}else if($row['type_related'] == "3"){
-										echo '<td><a href="'.base_url("quote/view?id=$tiiide&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-													<a href="' . base_url("quote/printquote?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-									}
-									
-									echo '</tr>';
-								}
-								echo "</tbody>";
-							}else{
-								echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr></tbody>';
-							}
-						}else {
-							echo '<thead></thead><tbody id="activity"><tr><td>Não existe nenhum documento que desse origem a este documento!</td><tr></tbody>';
-						}?>
-					</table>
-				</div>
+                <h6 id="titulo_relationt" name="titulo_relationt"></h6>
+				<table id="relationstview" name="relationsview" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
+				<h6 id="titulo_relationd" name="titulo_relationd"></h6>
+				<table id="relationsdview" name="relationsview" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
             </div>
             <div class="modal-footer">
 				<button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>

@@ -55,17 +55,17 @@
 									<label class="col-form-label" for="product_name"><?php echo $this->lang->line('Product Name') ?>*</label>
 									<input type="text" placeholder="Product Name"
 										   class="form-control margin-bottom required" name="product_name"
-										   value="<?php echo $product['product_name'] ?>">
+										   value="<?php echo $product['product_name']; ?>"/>
 								</div>
 								<div class="col-sm-4">
 									<label class="col-form-label" for="product_code">Referência</label>
 									<input type="text" placeholder="Product Code"
 									   class="form-control required" name="product_code"
-									   value="<?php echo $product['product_code'] ?>" <?php if ($this->aauth->get_user()->roleid != 7) echo 'disabled' ?>>
+									   value="<?php echo $product['product_code']; ?>" <?php if ($this->aauth->get_user()->roleid != 7) echo 'disabled' ?>/>
 								</div>
 								<div class="col-sm-4">
 									<label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Product Category') ?>*</label>
-									<select name="product_cat" class="form-control required" id="product_cat">
+									<select name="product_cat" class="form-control required">
 										<?php
 										echo '<option value="' . $cat_ware['cid'] . '">** ' . $cat_ware['catt'] . ' **</option>';
 										echo $cat;
@@ -76,8 +76,8 @@
 							
 							<div class="form-group row">
 								<div class="col-sm-4">
-									<label class="col-form-label" for="product_warehouse"><?php echo $this->lang->line('Warehouse') ?>*</label>
-									<select name="product_warehouse" class="form-control required" <?php if ($this->aauth->get_user()->roleid != 7) echo 'disabled' ?>>
+									<label class="col-form-label" for="product_warehouses"><?php echo $this->lang->line('Warehouse') ?>*</label>
+									<select name="product_warehouses" class="form-control required" <?php if ($this->aauth->get_user()->roleid != 7) echo 'disabled' ?>>
 										<?php
 										echo '<option value="' . $cat_ware['wid'] . '">** ' . $cat_ware['watt'] . ' **</option>';
 										foreach ($warehouse as $row) {

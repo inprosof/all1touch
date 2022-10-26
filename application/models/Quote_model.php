@@ -176,7 +176,7 @@ class Quote_model extends CI_Model
 
     private function _get_datatables_query($opt,$typ)
     {
-        $this->db->select('geopos_quotes.id,geopos_series.serie AS serie_name,geopos_quotes.tid,geopos_quotes.invoicedate,geopos_quotes.i_class,
+        $this->db->select('geopos_quotes.id,geopos_quotes.subtotal,geopos_quotes.tax,geopos_quotes.irs_type, geopos_irs_typ_doc.id as irs_type_c, geopos_series.serie AS serie_name,geopos_quotes.tid,geopos_quotes.invoicedate,geopos_quotes.i_class,
 		geopos_quotes.invoiceduedate,geopos_quotes.total,geopos_assets.assest_name as viatura,geopos_quotes.status,geopos_customers.name, geopos_customers.taxid, geopos_irs_typ_doc.type');
         $this->db->from($this->table);
 		$this->db->where('geopos_quotes.i_class', $typ);

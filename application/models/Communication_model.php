@@ -59,8 +59,11 @@ class Communication_model extends CI_Model
 			$mailfromtilte = $this->config->item('ctitle');
 		}
 		$mailfrom = $vals['email_app'];
-        $this->ultimatemailer->load($host, $port, $auth, $auth_type, $username, $password, $mailfrom, $mailfromtilte, $mailto, $mailtotitle, $subject, $message, $attachmenttrue, $attachment);
-
+		if($mailfrom == ''){
+			return true;
+		}else{
+			$this->ultimatemailer->load($host, $port, $auth, $auth_type, $username, $password, $mailfrom, $mailfromtilte, $mailto, $mailtotitle, $subject, $message, $attachmenttrue, $attachment);
+		}
     }
 
     public function send_corn_email($mailto, $mailtotitle, $subject, $message, $attachmenttrue = false, $attachment = '', $locid = 0)

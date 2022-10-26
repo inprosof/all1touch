@@ -254,7 +254,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 										<input type="hidden" name="unit[]" id="unit-' . $cvalue . '" value="' . $row['unit'] . '">
 										<input type="hidden" name="hsn[]" id="hsn-' . $cvalue . '" value="' . $row['code'] . '">
 										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="' . $row['serial'] . '"> </td>
-										<input type="hidden" name="verify_typ[]" id="verify_typ-' . $cvalue . '" value="' . $row['verify_typ'] . '"> </td>
+										<input type="hidden" name="verif_typ[]" id="verif_typ-' . $cvalue . '" value="' . $row['verify_typ'] . '"> </td>
 										</tr>
 										<tr>
 											<td colspan="8">
@@ -523,8 +523,8 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 														}
 														echo "<td>".$row['invoicedate']."</td>";
 														echo "<td>".$row['taxid']."</td>";
-														echo '<td><input type="text" disabled readonly value="'.$row['total_discount_tax'].'" id="val_tot_rel-'.$valdocrela.'"></td>';
-														echo '<td><input type="text" disabled readonly value="'.$row['pamnt'].'" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+														echo '<td><input type="text" disabled readonly value="'.$row['total_discount_tax'].'" name="val_tot_rel[]" id="val_tot_rel-'.$valdocrela.'"></td>';
+														echo '<td><input type="text" disabled readonly value="'.$row['pamnt'].'" name="val_tot_rel[]" id="val_tot_rel_con-'.$valdocrela.'"></td>';
 														echo '</tr>';
 													}
 													

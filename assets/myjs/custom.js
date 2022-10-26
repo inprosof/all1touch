@@ -320,6 +320,7 @@ $('#addproduct').on('click', function () {
             var discount = ui.item.data[4];
             $('#amount-' + id[1]).val(1);
             $('#price-' + id[1]).val(ui.item.data[1]);
+			$('#subtotal-' + id[1]).val(ui.item.data[1]);
             $('#pid-' + id[1]).val(ui.item.data[2]);
             $('#discount-' + id[1]).val(discount);
             $('#product_description-' + id[1]).val(ui.item.data[5]);
@@ -330,6 +331,7 @@ $('#addproduct').on('click', function () {
 			$('#verif_typ-' + id[1]).val(ui.item.data[9]);
             $('#serial-' + id[1]).val(ui.item.data[10]);
 			$('#butedittax-' + id[1]).removeAttr('hidden');
+			
 			rowTotalNew(cvalue);
 			$('#closemodal').click(function() {
 				$('#newtaxs').modal('hide');
@@ -1182,18 +1184,26 @@ var billUpyogInv = function () {
     var sum = 0;
     var iliqpr = 0;
     var discs = 0;
+	var pricess = 0;
+	var subtott = 0;
 	
 	var data = "";
 	var arr = [];
 	var numpp = 0;
     for (var z = 0; z < idList.length; z++) {
         var x = idList[z];
-		numpp += accounting.unformat($('#amount-' + x).val(), accounting.settings.number.decimal);
-		
-		
+		var numelems = accounting.unformat($('#amount-' + x).val(), accounting.settings.number.decimal);
+		numpp += numelems;
 		var itempriceListtt = accounting.unformat(itempriceList[z], accounting.settings.number.decimal);
         if (itempriceListtt > 0) {
             sum += itempriceListtt;
+			var d2 = accounting.unformat($("#price-" + x).val(), accounting.settings.number.decimal);
+			if (d2 > 0) {
+				pricess += d2;
+			}
+			
+			subtott += (pricess*numelems);
+			
 			var d1 = accounting.unformat($("#disca-" + x).val(), accounting.settings.number.decimal);
 			if (d1 > 0) {
 				discs += d1;
@@ -1263,7 +1273,8 @@ var billUpyogInv = function () {
 			}
 		});
 		
-		var valnovoiliq = parseFloat(sum+discs).toFixed(two_fixed);
+		
+		var valnovoiliq = parseFloat(subtott).toFixed(two_fixed);
 		$("#subttlform_in").text(valnovoiliq);
 		$("#subttlform_val").val(valnovoiliq);
 		
@@ -1271,15 +1282,17 @@ var billUpyogInv = function () {
 		
 		$("#discs").text(discs);
 		$("#discs_come").val(discs);
-		var valnovo = parseFloat(valiva+sum);
+		var valnovo = valiva+subtott+discs;
 		
 		var totalBillVal = (valnovo + shipTot(valiva,sum) - discfin - coupon());
-		valnovo = parseFloat(valiva+sum).toFixed(two_fixed);
+		valnovo = parseFloat(valnovo).toFixed(two_fixed);
+		
 		$("#discs_tot_val").val(valnovo);
 		$("#discs_tot").text(valnovo);
 		$("#taxas_tota").val(valiva);
 		$("#tota_items").val(numpp);
 		$("#total_items_count").text(numpp);
+		
 		var valnovoBig = parseFloat(totalBillVal);
 		$("#invoiceyoghtml").val(parseFloat(valnovoBig).toFixed(two_fixed));
 		$("#bigtotal").text(parseFloat(valnovoBig).toFixed(two_fixed));
@@ -1653,7 +1666,7 @@ $(document).on('click', ".select_pos_item", function (e) {
 		$('#ganak').val(cvalue + 1);
 		$('#amount-' + cvalue).focus();
 	}
-	var whr = $('#warehouses option:selected').val();
+	var whr = $('#s_warehouses option:selected').val();
 	var cat = $('#categories option:selected').val();
 	$.ajax({
 		type: "POST",
