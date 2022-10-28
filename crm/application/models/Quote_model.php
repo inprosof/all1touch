@@ -30,16 +30,32 @@ class Quote_model extends CI_Model
         parent::__construct();
     }
 
+    public function lastquote()
+    {
+        $this->db->select('tid');
+        $this->db->from($this->table);
+        $this->db->order_by('tid', 'DESC');
+        $this->db->limit(1);
+        $query = $this->db->get();
+        if ($query->num_rows() > 0) {
+            return $query->row()->tid;
+        } else {
+            return 1000;
+        }
+    }
+
     public function warehouses()
     {
         $this->db->select('*');
         $this->db->from('geopos_warehouse');
         $query = $this->db->get();
         return $query->result_array();
+
     }
 
     public function quote_details($id)
     {
+
         $this->db->select('geopos_quotes.*,geopos_quotes.id AS iid,geopos_customers.*,geopos_customers.id AS cid,geopos_terms.id AS termid,geopos_terms.title AS termtit,geopos_terms.terms AS terms');
         $this->db->from($this->table);
         $this->db->where('geopos_quotes.id', $id);
@@ -133,6 +149,15 @@ class Quote_model extends CI_Model
         $this->db->set('status', 'customer_approved');
                 $this->db->where('id', $id);
                return $this->db->update('geopos_quotes');
+    }
+
+
+    public function billingterms()
+    {
+        $this->db->select('id,title');
+        $this->db->from('geopos_terms');
+        $query = $this->db->get();
+        return $query->result_array();
     }
 
     public function employee($id)

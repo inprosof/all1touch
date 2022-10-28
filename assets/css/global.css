@@ -9,6 +9,9 @@
   --radius: 6px;
   --form-width: 400px;
 }
+.card-content{
+  padding: 4rem !important;
+}
 
 /* Base */
 * {

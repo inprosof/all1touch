@@ -14,6 +14,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="<?php echo assets_url() ?>app-assets/images/ico/favicon.ico">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i%7COpen+Sans:300,300i,400,400i,600,600i,700,700i"
           rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
     <!-- BEGIN VENDOR CSS-->
     <link rel="stylesheet" type="text/css" href="<?php echo assets_url() ?>app-assets/<?php echo LTR ?>/vendors.css">
     <link rel="stylesheet" type="text/css" href="<?php echo assets_url() ?>app-assets/vendors/css/extensions/unslider.css">

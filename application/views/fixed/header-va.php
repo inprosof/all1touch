@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css"
       href="<?php echo assets_url() ?>app-assets/<?php echo LTR ?>/core/menu/menu-types/vertical-menu-modern.css">
 </head>
-<body class="vertical-layout vertical-menu-modern 2-columns   menu-expanded fixed-navbar" data-open="click"
+<body class="vertical-layout vertical-menu-modern 2-columns menu-expanded fixed-navbar" data-open="click"
       data-menu="vertical-menu-modern" data-col="2-columns">
 <span id="hdata"
       data-df="<?php echo $this->config->item('dformat2'); ?>"
@@ -10,14 +10,15 @@
 <nav class="header-navbar navbar-expand-md navbar navbar-with-menu fixed-top navbar-semi-dark navbar-shadow">
     <div class="navbar-wrapper">
         <div class="navbar-header">
-            <ul class="nav navbar-nav flex-row">
-                <li class="nav-item mobile-menu d-md-none mr-auto"><a
-                            class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i
-                                class="ft-menu font-large-1"></i></a></li>
-                <li class="nav-item"><a class="navbar-brand" href="<?php echo base_url() ?>dashboard/"><img
-                                class="brand-logo ml-1" alt="logo"
-                                src="<?php echo base_url(); ?>userfiles/theme/logo-header.png">
-                    </a></li>
+            <ul class="nav navbar-nav flex-row" id="navbarVertical">
+                <li class="nav-item mobile-menu d-md-none mr-auto" >
+                    <a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i class="ft-menu font-large-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item"><a class="navbar-brand" href="<?php echo base_url() ?>dashboard/">
+                    <img class="brand-logo ml-1" alt="logo" src="<?php echo base_url(); ?>userfiles/theme/logo-header.png">
+                    </a>
+                </li>
                 <li class="nav-item d-md-none"><a class="nav-link open-navbar-container" data-toggle="collapse"
                                                   data-target="#navbar-mobile"><i class="fa fa-ellipsis-v"></i></a></li>
             </ul>
@@ -71,8 +72,10 @@
                 </ul> 
 
                 <ul class="nav navbar-nav float-right"><?php if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) { ?>
-                        <li class="dropdown nav-item mega-dropdown"><a class="dropdown-toggle nav-link " href="#"
-                                                                       data-toggle="dropdown"><?php echo $this->lang->line('admin_settings') ?></a>
+                        <li class="dropdown nav-item mega-dropdown">
+                            <a class="dropdown-toggle nav-link " href="#" data-toggle="dropdown"> <?php echo $this->lang->line('admin') ?>
+                                <i class="bi bi-gear" style="font-size: 1.2rem; margin-left: 0.5rem"></i>
+                            </a>
                             <ul class="mega-dropdown-menu dropdown-menu row">
                                 <li class="col-md-3">
 
@@ -547,7 +550,7 @@
 
                             <?php if ($this->aauth->clock()) {
 
-                                echo ' <a class="nav-link nav-link-label" href="#" data-toggle="dropdown"><i class="ficon spinner icon-clock"></i><span class="badge badge-pill badge-default badge-success badge-default badge-up">' . $this->lang->line('On') . '</span></a>';
+                                echo ' <a class="nav-link nav-link-label" href="#" data-toggle="dropdown"><i class="ficon spinner icon-clock"></i><span class="badge badge-pill badge-default badge-success badge-default badge-up" >' . $this->lang->line('On') . '</span></a>';
 
                             } else {
                                 echo ' <a class="nav-link nav-link-label" href="#" data-toggle="dropdown"><i class="ficon icon-clock"></i><span class="badge badge-pill badge-default badge-warning badge-default badge-up">' . $this->lang->line('Off') . '</span></a>';
@@ -558,7 +561,7 @@
                                 <br><br>
                                 <?php echo '<span class="p-1 text-bold-300">' . $this->lang->line('Attendance') . ':</span>';
                                 if (!$this->aauth->clock()) {
-                                    echo '<a href="' . base_url() . '/dashboard/clock_in" class="btn btn-outline-success  btn-outline-white btn-md ml-1 mr-1" ><span class="icon-toggle-on" aria-hidden="true"></span> ' . $this->lang->line('ClockIn') . ' <i
+                                    echo '<a href="' . base_url() . '/dashboard/clock_in" class="btn btn-outline-success  btn-outline-white btn-md ml-1 mr-1" id="buttonClock"><span class="icon-toggle-on" aria-hidden="true" ></span> ' . $this->lang->line('ClockIn') . ' <i
                                     class="ficon icon-clock spinner"></i></a>';
                                 } else {
                                     echo '<a href="' . base_url() . '/dashboard/clock_out" class="btn btn-outline-danger  btn-outline-white btn-md ml-1 mr-1" ><span class="icon-toggle-off" aria-hidden="true"></span> ' . $this->lang->line('ClockOut') . ' </a>';

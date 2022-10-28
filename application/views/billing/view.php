@@ -1,5 +1,5 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card" id="previsao">
         <div class="card-content">
             <div id="notify" class="alert alert-success" style="display:none;">
                 <a href="#" class="close" data-dismiss="alert">&times;</a>

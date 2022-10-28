@@ -2,13 +2,14 @@
 $lang['name_soft'] = "PCTECKSERV - CRM";
 $lang['Date']='Data';
 $lang['Edit']='Alterar';
-$lang['employee_login_panel']='Entrada para Funcionário';
+$lang['File upload error'] = 'Erro no upload do ficheiro';
+$lang['File upload success'] = 'Ficheiro enviado';
+$lang['employee_login_panel']= 'Entrada para Funcionário';
 $lang['remember_me']='Lembrar de Mim';
 $lang['forgot_password']='Esqueceu-se da sua senha';
 $lang['login']='Conecte-se';
 $lang['customer_login']='Aceder á área do Cliente';
 $lang['Are you a client ?']='Voçê é um cliente?';
-
 $lang['send_you_a_link']='Enviar link para si';
 $lang['recover_password']='Recuperar_palavra-passe';
 $lang['Pending Tasks']='Tarefas Pendentes';
@@ -24,7 +25,7 @@ $lang['Invoices Suppliers'] = "Faturas Fornecedores";
 $lang['Manage Invoices Suppliers']='Gestão de Facturas de Fornecedores';
 $lang['New Quote']='Novo Orçamento';
 $lang['Order Number']='Ordem Nº';
-
+$lang['admin'] = 'Administrador';
 $lang['Manage Quotes']='Gestão de Orçamentos';
 $lang['Reccuring Sales']='Recuperação de Vendas';
 $lang['Stock']='Stock';

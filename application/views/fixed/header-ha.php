@@ -9,29 +9,33 @@
 <!-- fixed-top-->
 <nav class="header-navbar navbar-expand-md navbar navbar-with-menu navbar-static-top navbar-dark bg-gradient-x-grey-blue navbar-border navbar-brand-center">
     <div class="navbar-wrapper">
-        <div class="navbar-header">
-            <ul class="nav navbar-nav flex-row">
-                <li class="nav-item mobile-menu d-md-none mr-auto"><a
-                            class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i
-                                class="ft-menu font-large-1"></i></a></li>
-                <li class="nav-item"><a class="navbar-brand" href="<?php echo base_url() ?>dashboard/"><img
-                                class="brand-logo" alt="logo"
-                                src="<?php echo base_url(); ?>userfiles/theme/logo-header.png">
-                    </a></li>
+        <div class="navbar-header" id="navMobile">
+            <ul class="nav navbar-nav flex-row" id="navHorizontal">
+                <li class="nav-item"><a class="navbar-brand" href="<?php echo base_url() ?>dashboard/">
+                        <img class="brand-logo ml-1" alt="logo" src="<?php echo base_url(); ?>userfiles/theme/logo-header.png">
+                    </a>
+                </li>
+                <li class="nav-item mobile-menu d-md-none mr-auto">
+                    <a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#">
+                        <i class="ft-menu font-large-1"></i>
+                    </a>
+                </li>
+
                 <li class="nav-item d-md-none"><a class="nav-link open-navbar-container" data-toggle="collapse"
                                                   data-target="#navbar-mobile"><i class="fa fa-ellipsis-v"></i></a></li>
             </ul>
         </div>
         <div class="navbar-container content">
             <div class="collapse navbar-collapse" id="navbar-mobile">
-                <ul class="nav navbar-nav mr-auto float-left">
-                    <li class="nav-item d-none d-md-block"><a class="nav-link nav-menu-main menu-toggle hidden-xs"
-                                                              href="#"><i class="ft-menu"></i></a></li>
-
-
-                    <li class="dropdown  nav-item"><a class="nav-link nav-link-label" href="#"
-                                                      data-toggle="dropdown"><i
-                                    class="ficon ft-map-pin success"></i></a>
+                <ul class="nav navbar-nav mr-auto float-left" id="navbarHorizontal">
+                    <li class="nav-item"><a class="navbar-brand" href="<?php echo base_url() ?>dashboard/">
+                            <img class="brand-logo ml-1" alt="logo" src="<?php echo base_url(); ?>userfiles/theme/logo-header.png">
+                        </a>
+                    </li>
+                    <li class="dropdown  nav-item">
+                        <a class="nav-link nav-link-label" href="#" data-toggle="dropdown">
+                            <i class="ficon ft-map-pin success"></i>
+                        </a>
                         <ul class="dropdown-menu dropdown-menu-media dropdown-menu-left">
                             <li class="dropdown-menu-header">
                                 <h6 class="dropdown-header m-0"><span
@@ -70,22 +74,22 @@
 					<li class="nav-item d-none d-md-block">
 						<a class="nav-link" href="#"><?php echo $this->session->userdata('license_t'); ?></a>
 					</li>
-                    <li class="nav-item nav-search" style="<?php if (!$this->aauth->premission(120)) echo 'display:none' ?> !important;"><a class="nav-link nav-link-search" href="#" aria-haspopup="true"
-                                                       aria-expanded="false" id="search-input"><i
-                                    class="ficon ft-search"></i></a>
+                    <li class="nav-item nav-search" style="<?php if(!$this->aauth->premission(120)) echo 'display:none' ?> !important;">
+                        <a class="nav-link nav-link-search" href="#" aria-haspopup="true" aria-expanded="false" id="search-input">
+                            <i class="ficon ft-search"></i>
+                        </a>
                         <div class="search-input">
-                            <input class="input" type="text"
-                                   placeholder="<?php echo $this->lang->line('Search Customer') ?>"
-                                   id="head-customerbox">
+                            <input class="input" type="text" placeholder="<?php echo $this->lang->line('Search Customer') ?>" id="head-customerbox">
                         </div>
-                        <div id="head-customerbox-result" class="dropdown-menu ml-5"
-                             aria-labelledby="search-input"></div>
+                        <div id="head-customerbox-result" class="dropdown-menu ml-5" aria-labelledby="search-input"></div>
                     </li>
                 </ul>
 
                 <ul class="nav navbar-nav float-right"><?php if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) { ?>
-                        <li class="dropdown nav-item mega-dropdown"><a class="dropdown-toggle nav-link " href="#"
-                                                                       data-toggle="dropdown"> <?php echo $this->lang->line('admin_settings') ?> </a>
+                        <li class="dropdown nav-item mega-dropdown">
+                            <a class="dropdown-toggle nav-link " href="#" data-toggle="dropdown"> <?php echo $this->lang->line('admin') ?>
+                                <i class="bi bi-gear" style="font-size: 1.2rem; margin-left: 0.5rem"></i>
+                            </a>
                             <ul class="mega-dropdown-menu dropdown-menu row">
                                 <li class="col-md-3">
 
@@ -591,7 +595,7 @@
                                 <br><br>
                                 <?php echo '<span class="p-1 text-bold-300">' . $this->lang->line('Attendance') . ':</span>';
                                 if (!$this->aauth->clock()) {
-                                    echo '<a href="' . base_url() . '/dashboard/clock_in" class="btn btn-outline-success  btn-outline-white btn-md ml-1 mr-1" ><span class="icon-toggle-on" aria-hidden="true"></span> ' . $this->lang->line('ClockIn') . ' <i
+                                    echo '<a href="' . base_url() . '/dashboard/clock_in" class="btn btn-outline-success  btn-outline-white btn-md ml-1 mr-1" id="buttonClock"><span class="icon-toggle-on" aria-hidden="true"></span> ' . $this->lang->line('ClockIn') . ' <i
                                     class="ficon icon-clock spinner"></i></a>';
                                 } else {
                                     echo '<a href="' . base_url() . '/dashboard/clock_out" class="btn btn-outline-danger  btn-outline-white btn-md ml-1 mr-1" ><span class="icon-toggle-off" aria-hidden="true"></span> ' . $this->lang->line('ClockOut'). ' </a>';

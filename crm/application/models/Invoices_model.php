@@ -138,6 +138,15 @@ class Invoices_model extends CI_Model
         return $this->db->count_all_results();
     }
 
+
+    public function billingterms()
+    {
+        $this->db->select('id,title');
+        $this->db->from('geopos_terms');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
     public function employee($id)
     {
         $this->db->select('geopos_employees.name,geopos_employees.sign,geopos_users.roleid');

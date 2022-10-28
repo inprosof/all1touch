@@ -246,7 +246,7 @@
             <div class="card-header">
                 <h4 class="card-title"><i class="icon-arrow-right deep-orange"></i> Configuração</h4><h3 class="primary">
             </div>
-            <div class="card-content" role="tab" data-parent="#accordionWrap" href="#accordion1" aria-controls="accordion1">
+            <div class="card-content" role="tab" data-parent="#accordionWrap" href="#accordion1" aria-controls="accordion1" id="cardConfig">
 				<div class="card-header p-0 pb-1 border-0 mt-1" id="heading1" role="tab">
 					<?php 
 						$erros="";
@@ -556,7 +556,7 @@
             <div class="card-header">
                 <h4 class="card-title"><i class="icon-arrow-right deep-orange"></i> Uso da Conta</h4>
             </div>
-            <div class="card-content">
+            <div class="card-content" id="cardUseCont">
 				<table id="items" class="table2">
 					<tr class="item-row">
 						<td class="total-inov" style="border-right: 0; border-left: 0; border-top: 0;"><a class="match-width match-height"
@@ -693,7 +693,7 @@
                     </p>
                 </div>
             </div>
-            <div class="card-content">
+            <div class="card-content" id="cardRecentOrders">
 
                 <div class="table-responsive">
                     <table id="recent-orders" class="table table-hover mb-1">
@@ -904,7 +904,7 @@
                                 class="icon-arrow-right deep-orange"></i></a></h4>
             </div>
 
-            <div class="card-content">
+            <div class="card-content" id="cardDailyActivity">
                 <div id="daily-activity">
                     <table class="table table-striped table-bordered base-style table-responsive" >
                         <thead>

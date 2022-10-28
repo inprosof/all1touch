@@ -1,6 +1,8 @@
 <?php 
 $lang['name_soft'] = "PCTECKSERV - CRM";
 $lang['Date'] = "Date";
+$lang['File upload error'] = "File upload error";
+$lang['File upload success']='File upload success';
 $lang['Edit'] = "Edit";
 $lang['employee_login_panel'] = "Employee Login Panel";
 $lang['remember_me'] = "Remember Me";
@@ -20,7 +22,7 @@ $lang['Invoices Suppliers'] = "Invoices Suppliers";
 $lang['Manage Invoices Suppliers'] = "Manage Invoices Suppliers";
 $lang['New Quote'] = "New Quote";
 $lang['Order Number']='Order Number';
-
+$lang['admin'] = 'Administrator';
 $lang['Manage Quotes'] = "Manage Quotes";
 $lang['Reccuring Sales'] = "Recurring Sales";
 $lang['Stock'] = "Stock";
