@@ -497,6 +497,7 @@ ballsWaveG {
     right: auto;
 }
 
+
 .timeline > li.timeline-inverted > .timeline-panel:after {
     border-left-width: 0;
     border-right-width: 14px;
@@ -744,9 +745,30 @@ p.card-text {
     border-top: 4px solid #F6BB42;
 }
 
+.card .blue-top {
+    border-top: 4px solid grey;
+
+}
+
 h5.title {
     font-size: 1.14rem;
     font-weight: 600;
+    text-transform: uppercase !important;
+}
+
+a.btn-back {
+    margin-right: .7rem;
+}
+
+h4.title {
+    font-size: 1.14rem;
+    font-weight: 600;
+}
+
+#centerButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .alert {
