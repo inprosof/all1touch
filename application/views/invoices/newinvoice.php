@@ -6,48 +6,48 @@
                 <div class="message"></div>
             </div>
             <div class="card-body">
-                <form method="post" id="data_form">
-                    <div class="row">
-                        <div class="col-sm-6 cmp-pnl">
+				<form method="post" id="data_form">
+					<div class="row">
+						<div class="col-sm-6 cmp-pnl">
 							<input type="hidden" value="<?php echo $tiprelated ?>" name="tiprelated" id="tiprelated">
 							<input type="hidden" value="<?php echo $locations['address']; ?>" name="compa_adr" id="compa_adr">
 							<input type="hidden" value="<?php echo $locations['postbox']; ?>" name="compa_post" id="compa_post">
 							<input type="hidden" value="<?php echo $locations['city']; ?>" name="compa_city" id="compa_city">
 							<input type="hidden" value="<?php echo $locations['country']; ?>" data-serie="<?php echo $locations['namecountry']; ?>" name="compa_country" id="compa_country">
 							
-                            <div id="customerpanel" class="inner-cmp-pnl">
-                                <div class="form-group row">
-                                    <div class="fcol-sm-12">
-                                        <h3 class="title">
-                                            <?php echo $this->lang->line('Bill To') ?> <a href='#'
-                                                                                          class="btn btn-primary btn-sm round"
-                                                                                          data-toggle="modal"
-                                                                                          data-target="#addCustomer" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>>
-                                                <?php echo $this->lang->line('Add Client') ?>
-                                            </a>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <div class="frmSearch col-sm-12"><label for="cst" class="caption" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>><?php echo $this->lang->line('Search Client'); ?></label>
-                                        <input type="text" class="form-control round" name="cst" id="customer-box"
-                                               placeholder="Enter Customer Name or Mobile Number to search"
-                                               autocomplete="off" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>/>
-                                        <div id="customer-box-result" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>></div>
-                                    </div>
-                                </div>
-                                <div id="customer">
-                                    <div class="clientinfo">
-                                        <?php echo $this->lang->line('Client Details'); ?>
-                                        <hr>
+							<div id="customerpanel" class="inner-cmp-pnl">
+								<div class="form-group row">
+									<div class="fcol-sm-12">
+										<h3 class="title">
+											<?php echo $this->lang->line('Bill To') ?> <a href='#'
+																						  class="btn btn-primary btn-sm round"
+																						  data-toggle="modal"
+																						  data-target="#addCustomer" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>>
+												<?php echo $this->lang->line('Add Client') ?>
+											</a>
+									</div>
+								</div>
+								<div class="form-group row">
+									<div class="frmSearch col-sm-12"><label for="cst" class="caption" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>><?php echo $this->lang->line('Search Client'); ?></label>
+										<input type="text" class="form-control round" name="cst" id="customer-box"
+											   placeholder="Enter Customer Name or Mobile Number to search"
+											   autocomplete="off" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>/>
+										<div id="customer-box-result" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>></div>
+									</div>
+								</div>
+								<div id="customer">
+									<div class="clientinfo">
+										<?php echo $this->lang->line('Client Details'); ?>
+										<hr>
 										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $csd_id?>" />
 										<div id="customer_name"><strong><?php echo $csd_name; ?></strong></div>
-                                    </div>
-                                    <div class="clientinfo">
-                                        <div id="customer_address1"></div>
-                                    </div>
+									</div>
 									<div class="clientinfo">
-                                        <div id="customer_phone"></div>
-                                    </div>
+										<div id="customer_address1"></div>
+									</div>
+									<div class="clientinfo">
+										<div id="customer_phone"></div>
+									</div>
 									<div class="col-sm-6"><label class="caption"><?php echo $this->lang->line('TAX ID'); ?></label>
 										<div class="input-group">
 											<div class="input-group-addon"><span class="icon-calendar4"
@@ -56,41 +56,41 @@
 												   placeholder="contribuinte" id="customer_tax" name="customer_tax" value="<?php echo $csd_tax?>" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>/>
 										</div>
 									</div>
-                                    <hr>
-                                    <div id="customer_pass"></div><?php echo $this->lang->line('Warehouse') ?> <select
-                                            name="s_warehouses" id="s_warehouses"
-                                            class="form-control round">
+									<hr>
+									<div id="customer_pass"></div><?php echo $this->lang->line('Warehouse') ?> <select
+											name="s_warehouses" id="s_warehouses"
+											class="form-control round">
 										<?php 
 											echo $this->common->default_warehouse();
 											foreach ($warehouse as $row) {
 												echo '<option value="' . $row['id'] . '">' . $row['title'] . '</option>';
 											}
 										?>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 cmp-pnl">
-                            <div class="inner-cmp-pnl">
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-6 cmp-pnl">
+							<div class="inner-cmp-pnl">
 							<input type="hidden" class="form-control round" placeholder="Invoice #" name="invocieno" value="<?php echo $lastinvoice + 1 ?>"> 
-                                <div class="form-group row">
+								<div class="form-group row">
 									<div class="col-sm-8">
 										<label for="invoi_type"
-                                               class="caption"><?php echo $this->lang->line('Invoice Number') ?> <strong><?php echo $lastinvoice + 1 ?> (numeração provisória)</strong></label>
+											   class="caption"><?php echo $this->lang->line('Invoice Number') ?> <strong><?php echo $lastinvoice + 1 ?> (numeração provisória)</strong></label>
 										<span class="input-group-addon" title="<?php echo "Esta numeração é atribuída com base na sequência dos documentos gerados dentro da série escolhida
 
 Os documentos do mesmo tipo dentro da mesma série têm que ter uma numeração sequêncial, a qual é mostrada aqui.
 No entanto, e como se trata de uma ferramenta On-line com vários utilizadores que podem administrar documentos na mesma empresa ao mesmo tempo, a numeração final poderá ser diferente da mostrada, caso alguém se antecipe e insira um documento do mesmo tipo e série.
 
 A numeração final só é atribuída depois de escolher a opção 'Guardar e finalizar Documento'.";?>"><i class="fa fa-info fa-2x"></i></span>
-                                    </div>
-                                </div>
+									</div>
+								</div>
 								<div class="form-group row">
-                                    <div class="col-sm-6">
-                                        <label for="invoi_type"
-                                               class="caption"><?php echo $this->lang->line('Types Tax') ?></label>
-                                        <select class="form-control round required"
-                                                id="invoi_type" name="invoi_type">
+									<div class="col-sm-6">
+										<label for="invoi_type"
+											   class="caption"><?php echo $this->lang->line('Types Tax') ?></label>
+										<select class="form-control round required"
+												id="invoi_type" name="invoi_type">
 											<?php 
 												echo $typesinvoicesdefault;
 												
@@ -98,69 +98,69 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 													echo '<option value="' . $row['id'] . '" data-serie="' . $row['type'] . '">' .$row['description'] . '</option>';
 												}
 											?>
-                                        </select>
-                                    </div>
-                                    <div class="col-sm-6">
+										</select>
+									</div>
+									<div class="col-sm-6">
 
-                                        <div class="form-group">
-                                            <label for="invoi_serie"
-                                                   class="caption">Serie</label>
+										<div class="form-group">
+											<label for="invoi_serie"
+												   class="caption">Serie</label>
 											<select id="invoi_serie" name="invoi_serie" class="form-control required round select-box">
 												<?php 
 													echo $seriesinvoiceselect;
 												?>
 											</select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <div class="col-sm-6"><label for="invocieno"
-                                                                 class="caption">Enc./Orç.</label>
+										</div>
+									</div>
+								</div>
+								<div class="form-group row">
+									<div class="col-sm-6"><label for="invocieno"
+																 class="caption">Enc./Orç.</label>
 
-                                        <div class="input-group">
-                                            <div class="input-group-addon"><span class="icon-file-text-o"
-                                                                                 aria-hidden="true"></span></div>
-                                            <input type="text" class="form-control round" placeholder="Enc Orc #"
-                                                   name="invocieencorc"
-                                                   value="">
+										<div class="input-group">
+											<div class="input-group-addon"><span class="icon-file-text-o"
+																				 aria-hidden="true"></span></div>
+											<input type="text" class="form-control round" placeholder="Enc Orc #"
+												   name="invocieencorc"
+												   value="">
 											<span class="input-group-addon" title="<?php echo 'Caso tenha que inserir alguma referência no documento, use este campo';?>"><i class="fa fa-info fa-2x"></i></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6"><label for="invocieno"
-                                                                 class="caption"><?php echo $this->lang->line('Reference') ?></label>
+										</div>
+									</div>
+									<div class="col-sm-6"><label for="invocieno"
+																 class="caption"><?php echo $this->lang->line('Reference') ?></label>
 										<div class="input-group">
 											<input type="text" class="form-control round" placeholder="Reference #" name="refer">
 											<span class="input-group-addon" title="<?php echo 'Caso tenha que inserir alguma referência do seu cliente na fatura (Nº de Requisição ou Encomenda, por exemplo), use este campo';?>"><i class="fa fa-info fa-2x"></i></span>
 										</div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <div class="col-sm-6"><label for="invoicedate" class="caption">Data de Emissão</label>
-                                        <div class="input-group">
-                                            <div class="input-group-addon"><span class="icon-calendar4"
-                                                                                 aria-hidden="true"></span></div>
-                                            <input type="text" class="form-control round required"
-                                                   placeholder="Billing Date" name="invoicedate"
-                                                   data-toggle="datepicker"
-                                                   autocomplete="false" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
+									</div>
+								</div>
+								<div class="form-group row">
+									<div class="col-sm-6"><label for="invoicedate" class="caption">Data de Emissão</label>
+										<div class="input-group">
+											<div class="input-group-addon"><span class="icon-calendar4"
+																				 aria-hidden="true"></span></div>
+											<input type="text" class="form-control round required"
+												   placeholder="Billing Date" name="invoicedate"
+												   data-toggle="datepicker"
+												   autocomplete="false" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
 											<span class="input-group-addon" title="<?php echo 'A data inserida tem que ser no formato: dd-mm-aaaa';?>"><i class="fa fa-info fa-2x"></i></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6"><label for="invocieduedate"
-                                                                 class="caption">Data de Validade</label>
+										</div>
+									</div>
+									<div class="col-sm-6"><label for="invocieduedate"
+																 class="caption">Data de Validade</label>
 
-                                        <div class="input-group">
-                                            <div class="input-group-addon"><span class="icon-calendar-o"
-                                                                                 aria-hidden="true"></span></div>
-                                            <input type="text" class="form-control round required"
-                                                   name="invocieduedate"
-                                                   placeholder="Due Date" autocomplete="false" data-toggle="datepicker" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+										<div class="input-group">
+											<div class="input-group-addon"><span class="icon-calendar-o"
+																				 aria-hidden="true"></span></div>
+											<input type="text" class="form-control round required"
+												   name="invocieduedate"
+												   placeholder="Due Date" autocomplete="false" data-toggle="datepicker" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 					<div id="saman-row-invoice">
 						<hr>
 						<label class="card-title lead"><i class="fa fa-plus-circle"></i>Artigos</label>
@@ -231,7 +231,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 										echo '<tr><td><input type="text" value="' . $row['product'] . '" class="form-control" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' . $cvalue . '"></td><td><div class="input-group">
 										<input value="' . $row['qty'] . '" type="text" class="form-control req amnt" name="product_qty[]" id="amount-' . $cvalue . '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' . $functionNum . ')" autocomplete="off" value="1"  inputmode="numeric">
 										<span id="product_uni-' . $cvalue . '" name="product_uni[]" class="lightMode"></span></div></td>
-										<input type="hidden" id="alert-' . $cvalue . '" name="alert[]" value="' .$row['alert']. '"> </td> <td>
+										<input type="hidden" id="alert-' . $cvalue . '" name="alert[]" value="' .$row['alert']. '"><td>
 										<input value="' . $row['price'] . '" type="text" class="form-control req prc" name="product_price[]" id="price-' . $cvalue . '" onkeypress="return isNumber(event)" onkeyup="rowTotal(' . $functionNum . ')" autocomplete="off" inputmode="numeric"></td><td>
 										<input value="' . $row['discount'] . '" type="text" class="form-control discount" name="product_discount[]" onkeypress="return isNumber(event)" id="discount-' . $cvalue . '" onkeyup="rowTotal(' . $functionNum . ')" autocomplete="off"></td> <td><div class="input-group">
 										<input type="text" disabled class="col-form-label text-center" id="texttaxa-' . $cvalue . '" value="' . $valsumperc . '">
@@ -239,7 +239,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 										<span class="fa fa-edit" aria-hidden="false"></span></a></div></td><td><span class="currenty">' .$this->config->item('currency') . '</span> <strong>
 										<span class=\'ttlText\' id="result-' . $cvalue . '">' .$row['totaltax'].'</span></strong></td><td class="text-center">
 										<button type="button" data-rowid="' . $cvalue . '" class="btn btn-danger removeProd" title="Remove" > 
-										<i class="fa fa-minus-square"></i></button><input type="hidden" name="taxacomo[]" id="taxacomo-' . $cvalue . '" value="' .$row['taxacomo']. '">
+										<i class="fa fa-minus-square"></i></button><input type="hidden" name="taxacomo[]" id="taxacomo-' . $cvalue . '" value="' .$row['taxacomo']. '"></td>
 										<input type="hidden" name="taxavals[]" id="taxavals-' . $cvalue . '" value="' .$row['taxavals']. '">
 										<input type="hidden" name="taxaname[]" id="taxaname-' . $cvalue . '" value="' .$row['taxaname']. '">
 										<input type="hidden" name="taxaperc[]" id="taxaperc-' . $cvalue . '" value="' .$row['taxaperc']. '">
@@ -253,8 +253,8 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 										<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $cvalue . '" value="' . $row['pid'] . '">
 										<input type="hidden" name="unit[]" id="unit-' . $cvalue . '" value="' . $row['unit'] . '">
 										<input type="hidden" name="hsn[]" id="hsn-' . $cvalue . '" value="' . $row['code'] . '">
-										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="' . $row['serial'] . '"> </td>
-										<input type="hidden" name="verif_typ[]" id="verif_typ-' . $cvalue . '" value="' . $row['verify_typ'] . '"> </td>
+										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="' . $row['serial'] . '">
+										<input type="hidden" name="verif_typ[]" id="verif_typ-' . $cvalue . '" value="' . $row['verify_typ'] . '">
 										</tr>
 										<tr>
 											<td colspan="8">
@@ -523,8 +523,8 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 														}
 														echo "<td>".$row['invoicedate']."</td>";
 														echo "<td>".$row['taxid']."</td>";
-														echo '<td><input type="text" disabled readonly value="'.$row['total_discount_tax'].'" name="val_tot_rel[]" id="val_tot_rel-'.$valdocrela.'"></td>';
-														echo '<td><input type="text" disabled readonly value="'.$row['pamnt'].'" name="val_tot_rel[]" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+														echo '<td><input type="hidden" disabled readonly value="'.$row['total_discount_tax'].'" name="val_tot_rel[]" id="val_tot_rel-'.$valdocrela.'"></td>';
+														echo '<td><input type="hidden" disabled readonly value="'.$row['pamnt'].'" name="val_tot_rel[]" id="val_tot_rel_con-'.$valdocrela.'"></td>';
 														echo '</tr>';
 													}
 													
@@ -729,53 +729,50 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 					<hr>		
 					<div id="saman-row-buts">
 						<table id="myTablebuts" class="table-responsive tfr my_stripe">
-                            <thead>
+							<thead>
 							</thead>
-                            <tbody>
+							<tbody>
 							<tr class="last-item-row-buts sub_c_buts">
 								<td>
 									<?php echo $this->lang->line('Payment Terms') ?> 
 									<select name="pterms" class="selectpicker form-control"><?php foreach ($terms as $row) {
-                                            echo '<option value="' . $row['id'] . '">' . $row['title'] . '</option>';
-                                        } ?>
+											echo '<option value="' . $row['id'] . '">' . $row['title'] . '</option>';
+										} ?>
 
-                                    </select>
+									</select>
 								</td>
 								<td colspan="5"></td>
 								<td>
-									<input type="submit" class="btn btn-success sub-btn" value="Atualizar Rascunho" id="submit-data3" data-loading-text="Creating...">
-									<input type="submit" class="btn btn-success sub-btn btn-lg" value="Guardar e finalizar Documento" id="submit-data" data-loading-text="Creating...">
+									<input type="submit" class="btn btn-success sub-btn" value="Guardar Rascunho" id="submit-data-draft" data-loading-text="Creating...">
+									<input type="submit" class="btn btn-success sub-btn btn-lg" value="Guardar e finalizar Documento" id="submit-data-save" data-loading-text="Creating...">
 								</td>
-                            </tr>
+							</tr>
 							</tbody>
 						</table>
 					</div>
 					<input type="hidden" value="<?php echo $accountname; ?>" id="account_set" name="account_set">
 					<input type="hidden" value="<?php echo $accountid; ?>" id="account_set_id" name="account_set_id">
-                    <input type="hidden" value="new_i" id="inv_page">
-                    <input type="hidden" value="invoices/action" id="action-url">
+					<input type="hidden" value="new_i" id="inv_page">
+					<input type="hidden" value="search" id="billtype">
+					<input type="hidden" value="invoices/action" id="action-url">
 					<input type="hidden" value="invoices/action2" id="action-url2">
-                    <input type="hidden" value="search" id="billtype">
 					<input type="hidden" value="searchtax" id="billtypetax">
-                    <input type="hidden" value="<?php echo $cvalue?>" name="counter" id="ganak">
+					<input type="hidden" value="<?php echo $cvalue?>" name="counter" id="ganak">
 					<input type="hidden" value="<?php echo $cvalue?>" name="counter" id="ganakpay">
-                    <input type="hidden" value="<?php echo currency($this->aauth->get_user()->loc); ?>" name="currency">
-                    <input type="hidden" value="<?php echo $taxdetails['handle']; ?>" name="taxformat" id="tax_format">
+					<input type="hidden" value="<?php echo currency($this->aauth->get_user()->loc); ?>" name="currency">
+					<input type="hidden" value="<?php echo $taxdetails['handle']; ?>" name="taxformat" id="tax_format">
 					<input type="hidden" name="taxas_tota" id="taxas_tota" value="<?php if(!empty($invoice)) echo $invoice['tax']; else '0.00';?>">
 					<input type="hidden" name="tota_items" id="tota_items" value="<?php if(!empty($invoice)) echo $invoice['items']; else '0.00';?>">
-                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['tax_status']; echo $taxdetails['format'];?>" name="tax_handle" id="tax_status">
-                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['format_discount']; else echo $this->common->disc_status()['disc_format'];?>" name="discountFormat" id="discount_format">
-                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo amountFormat_general($this->common->disc_status()['ship_rate']);?>" name="ship_rate" id="ship_rate">
-                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax_type']; else echo $this->common->disc_status()['ship_tax'];?>" name="ship_taxtype" id="ship_taxtype">
-                    <input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo '0.00';?>" name="ship_tax" id="ship_tax">
-                </form>
+					<input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['tax_status']; echo $taxdetails['format'];?>" name="tax_handle" id="tax_status">
+					<input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['format_discount']; else echo $this->common->disc_status()['disc_format'];?>" name="discountFormat" id="discount_format">
+					<input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo amountFormat_general($this->common->disc_status()['ship_rate']);?>" name="ship_rate" id="ship_rate">
+					<input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax_type']; else echo $this->common->disc_status()['ship_tax'];?>" name="ship_taxtype" id="ship_taxtype">
+					<input type="hidden" value="<?php if(!empty($invoice)) echo $invoice['ship_tax']; else echo '0.00';?>" name="ship_tax" id="ship_tax">
+				</form>
             </div>
-
         </div>
     </div>
 </div>
-
-
 <div class="modal fade" id="newtaxs" role="dialog">
     <div class="modal-dialog modal-xl">
         <div class="modal-content ">

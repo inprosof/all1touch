@@ -57,11 +57,12 @@ class User extends CI_Controller
         }
         if ($this->aauth->login($user, $password, $rem, $this->captcha)) {
             $this->aauth->applog("[Logged In] $user");
+			$this->load->model('cronjob_model', 'cronjob');
+			$corn = $this->cronjob->generate();
             redirect('/dashboard/', 'refresh');
         } else {
             redirect('/user/?e=eyxde', 'refresh');
         }
-
     }
 
     public function profile()

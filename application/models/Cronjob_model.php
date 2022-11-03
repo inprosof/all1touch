@@ -45,12 +45,9 @@ class Cronjob_model extends CI_Model
         $random = rand(11111111, 99999999);
         $data = array(
             'key1' => $random
-
         );
         $this->db->set($data);
         $this->db->where('id', 55);
-
-
         if ($this->db->update('univarsal_api')) {
             return true;
         } else {

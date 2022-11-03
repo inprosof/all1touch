@@ -225,11 +225,12 @@
 
 							<div class="form-group row">
 								<label class="col-form-label"><?php echo $this->lang->line('Description') ?></label>
-								<div class="col-sm-8">
-								<textarea placeholder="Description"
-										  class="form-control margin-bottom" name="product_desc"
-								><?php echo $product['product_des'] ?></textarea>
+								<div class="col-sm-12">
+									<textarea maxlength="250" placeholder="Description"
+											  class="form-control margin-bottom" name="product_desc"
+									><?php echo $product['product_des'] ?></textarea>
 								</div>
+								<span class="input-group-addon" title="<?php echo 'Máximo 250 Caracteres';?>"><i class="fa fa-info fa-2x"></i></span>
 							</div>
 							<div class="form-group row">
 
@@ -571,6 +572,9 @@
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js'); ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 <script>
+	$(document).ready(function () {
+        billUpyogProduct();
+	});
     /*jslint unparam: true */
     /*global window, $ */
     $(function () {

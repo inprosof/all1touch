@@ -63,15 +63,20 @@ class Quote extends CI_Controller
 		$this->create($tid, $typ);
 	}
 	
-	public function create_typ()
+	public function create_c()
 	{
-		$typ = $this->input->get('typ');
-		$this->create(0, $typ);
+		$this->create(0, 0, 0);
+	}
+	
+	public function create_p()
+	{
+		$this->create(0, 0, 1);
 	}
 	
     //create invoice
-    public function create($relation = 0, $typrelation = 0)
+    public function create($relation = 0, $typrelation = 0, $typ = 0)
     {
+		$this->load->model('locations_model', 'locations');
         $this->load->model('plugins_model', 'plugins');
 		$this->load->model('settings_model', 'settings');
 		$this->load->model('customers_model', 'customers');
@@ -90,21 +95,22 @@ class Quote extends CI_Controller
 			}
 			$this->load->library("Related");
 			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
-			$data['csd_name'] = $data['docs_origem']['name'];
-			$data['csd_tax'] = $data['docs_origem']['taxid'];
-			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['csd_name'] = $data['docs_origem'][0]['name'];
+			$data['csd_tax'] = $data['docs_origem'][0]['taxid'];
+			$data['csd_id'] = $data['docs_origem'][0]['id'];
 			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
 		}else{
 			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
 			$data['csd_tax'] = "999999990";
 			$data['csd_id'] = "99999999";
 			$data['docs_origem'] = [];
+			$data['products'] = [];
 		}
 		
 		////////////////////////Relação entre documentos//////////////////////
 		///////////////////////////////////////////////////////////////////////
 		$typename = "";
-		if($typrelation == 12 || $typrelation == '12')
+		if($typ == 1 || $typ == "1")
 		{
 			$data['type_quote_id'] = 1;
 			$typename = "Fatura Pró-Forma ";
@@ -161,7 +167,7 @@ class Quote extends CI_Controller
         $data['customergrouplist'] = $this->customers->group_list();
         $data['prazos_vencimento'] = $this->common->sprazovencimento();
 		$numget = 0;
-		if($typrelation == 12)
+		if($typ == 1)
 		{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(10);
 		}else{
@@ -182,7 +188,7 @@ class Quote extends CI_Controller
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
 			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
-			if($typrelation == 12)
+			if($typ == 1)
 			{
 				$numget = $this->common->lastdoc(10,$seri_did_df);
 				$data['custom_fields'] = [];
@@ -933,13 +939,18 @@ class Quote extends CI_Controller
             $row[] = '<span class="'.$statt2. '">' . $statt . '</span>';
 			if($invoices->status == 'draft' || $invoices->status == 'pending' || $invoices->status == 'rejected')
 			{
-				$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				if($invoices->status == 'draft')
+				{
+					$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid&draf=1") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id&draf=1") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				}else{
+					$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid&draf=1") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id&draf=0") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				}
 				$option .= '<a data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>';
 				if($invoices->i_class == 0)
 				{
-					$option .= '&nbsp;<a href="' . base_url("quote/duplicate?typ=3&id=$invoices->id") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
+					$option .= '&nbsp;<a href="' . base_url("quote/duplicate?typ=3&id=$invoices->id&draf=1") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
 				}else{
-					$option .= '&nbsp;<a href="' . base_url("quote/duplicate?typ=12&id=$invoices->id") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
+					$option .= '&nbsp;<a href="' . base_url("quote/duplicate?typ=12&id=$invoices->id&draf=0") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
 				}
 				
 				$option .= '&nbsp;<a data-toggle="modal" data-target="#choise_docs_related" href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
@@ -955,12 +966,12 @@ class Quote extends CI_Controller
 				
 				$row[] = $option;
 			}else{
-				$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid&draf=0") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id&draf=0") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
 				if($invoices->i_class == 0)
 				{
-					$option .= '<a href="' . base_url("quote/duplicate?typ=3&id=$invoices->id") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+					$option .= '<a href="' . base_url("quote/duplicate?typ=3&id=$invoices->id&draf=0") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
 				}else{
-					$option .= '<a href="' . base_url("quote/duplicate?typ=12&id=$invoices->id") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
+					$option .= '<a href="' . base_url("quote/duplicate?typ=12&id=$invoices->id&draf=0") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
 				}
 				
 				if($invoices->status != 'canceled'){
@@ -992,52 +1003,68 @@ class Quote extends CI_Controller
         $this->load->model('accounts_model');
 		$data['acclist'] = $this->accounts_model->accountslist((integer)$this->aauth->get_user()->loc);
         $tid = intval($this->input->get('id'));
-        $data['id'] = $tid;
-        $data['invoice'] = $this->quote->quote_details($tid);
+		$token = $this->input->get('token');
+		$draf = $this->input->get('draf');
+		$type = $this->input->get('type');
+		$this->load->library("Related");
 		$type = "";
-		if($data['invoice']['i_class'] == 0)
+        $data['id'] = $tid;
+		if($draf == 0)
 		{
-			if (!$this->aauth->premission(7) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-				exit($this->lang->line('translate19'));
+			$data['draft'] = 0;
+			$data['invoice'] = $this->quote->quote_details($tid,0);
+			if($data['invoice']['i_class'] == 0)
+			{
+				if (!$this->aauth->premission(7) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+					exit($this->lang->line('translate19'));
+				}
+				$type = 'Orçamento ';
+				$data['custom_fields'] = $this->custom->view_fields_data($tid, 3);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,3,0);
+			}else{
+				if (!$this->aauth->premission(136) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+					exit($this->lang->line('translate19'));
+				}
+				$type = 'Fatura Pró-Forma ';
+				$data['custom_fields'] = [];
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,12,0);
 			}
-			$type = 'Orçamento ';
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0);
 		}else{
-			if (!$this->aauth->premission(136) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-				exit($this->lang->line('translate19'));
+			$data['draft'] = 1;
+			$data['invoice'] = $this->quote->quote_details($tid,1);
+			if($data['invoice']['i_class'] == 0)
+			{
+				if (!$this->aauth->premission(7) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+					exit($this->lang->line('translate19'));
+				}
+				$type = 'Rascunho Orçamento ';
+				$data['custom_fields'] = $this->custom->view_fields_data($tid, 3);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,3,1);
+			}else{
+				if (!$this->aauth->premission(136) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+					exit($this->lang->line('translate19'));
+				}
+				$type = 'Rascunho Fatura Pró-Forma ';
+				$data['custom_fields'] = [];
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,12,1);
 			}
-			$type = 'Fatura Pró-Forma ';
 		}
+		$data['history'] = $this->common->history($tid,'quote');
+		$data['attach'] = $this->quote->attach($tid);
+		
 		///////////////////////////////////////////////////////////////////////
 		////////////////////////Relação entre documentos//////////////////////
-				
-		$this->load->library("Related");
 		if($data['invoice']['status'] == 'draft'){
 			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
 			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
-			$data['products'] = $this->related->detailsAfterRelationProducts($tid,1);
 		}else{
 			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
 			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
-			if($data['invoice']['i_class'] == 0)
-			{
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,3,0);
-			}else{
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,12,0);
-			}
-			
-		}
-		$data['history'] = $this->common->history($tid,'quote');
-        $data['attach'] = $this->quote->attach($tid);
-        $data['employee'] = $this->quote->employee($data['invoice']['eid']);
-		$data['attach'] = $this->quote->attach($tid);
-        $head['usernm'] = $this->aauth->get_user()->username;
-		if($data['invoice']['i_class'] == 0)
-		{
-			$data['custom_fields'] = $this->custom->view_fields_data($tid, 3);
-		}else{
-			$data['custom_fields'] = [];
 		}
 		
+        $data['employee'] = $this->quote->employee($data['invoice']['eid']);
+        $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = $type."Nº" . $data['invoice']['tid'];
         $this->load->view('fixed/header', $head);
         if ($data['invoice']) 
@@ -1346,13 +1373,24 @@ class Quote extends CI_Controller
         $id = $this->input->post('deleteid');
 		$tid = $this->input->post('deletetid');
 		$draft = $this->input->post('draft');
+		
+		
 		if($draft == 0)
 		{
+			//$this->db->delete('geopos_log', array('id_c' => $id,'type_log' => 'quote'));
 			$this->db->delete('geopos_quotes_items', array('id' => $id));
 			$this->db->delete('geopos_quotes', array('id' => $id));
 			$this->db->delete('geopos_data_related', array('tid' => $id));
 			$this->db->delete('geopos_data_transport', array('tid' => $id));
-			$this->db->delete('geopos_log', array('id_c' => $idgu,'type_log' => 'quote'));
+			// now try it
+			//$ua=$this->aauth->getBrowser();
+			//$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+			
+			//$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+			//$striPay = $striPay.'<br>'.$yourbrowser;
+			//$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+			//$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
+			//$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'quote', $id);
 			echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso.'));
 		}else{
 			$justification = $this->input->post('justification');

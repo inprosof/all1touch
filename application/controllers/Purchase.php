@@ -104,12 +104,18 @@ class Purchase extends CI_Controller
     //
     public function create($relation = 0, $typrelation = 0,$ty = 0)
     {
+		$this->load->model('locations_model', 'locations');
+		$this->load->model('accounts_model');
+        $this->load->library("Common");
+        $this->load->model('plugins_model', 'plugins');
+		$this->load->model('settings_model', 'settings');
         $data['taxlist'] = $this->common->taxlist($this->config->item('tax'));
         $data['exchange'] = $this->plugins->universal_api(5);
         $data['currency'] = $this->purchase->currencies();
-        $data['customergrouplist'] = $this->customers->group_list();
+       
 		if($ty == 1)
 		{
+			$this->load->model('customers_model', 'customers');
 			if(count($this->settings->billingterms(17)) == 0)
 			{
 				exit('Deve Inserir pelo menos um Termo para o Tipo Notas de Encomendas Fornecedores. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
@@ -117,6 +123,8 @@ class Purchase extends CI_Controller
 			}
 			$data['terms'] = $this->settings->billingterms(17);
 		}else{
+			$this->load->model('supplier_model', 'supplier');
+			$data['customergrouplist'] = $this->customers->group_list();
 			if(count($this->settings->billingterms(5)) == 0)
 			{
 				exit('Deve Inserir pelo menos um Termo para o Tipo Notas de Encomendas Clientes. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
@@ -144,9 +152,9 @@ class Purchase extends CI_Controller
 			}
 			$this->load->library("Related");
 			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
-			$data['csd_name'] = $data['docs_origem']['name'];
-			$data['csd_tax'] = $data['docs_origem']['taxid'];
-			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['csd_name'] = $data['docs_origem'][0]['name'];
+			$data['csd_tax'] = $data['docs_origem'][0]['taxid'];
+			$data['csd_id'] = $data['docs_origem'][0]['id'];
 			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
 		}else if($ty == 0)
 		{
@@ -162,8 +170,62 @@ class Purchase extends CI_Controller
 			$data['docs_origem'] = [];
 			$data['products'] = [];
 		}
-		$data['currency'] = $this->purchase->currencies();
-		$data['taxsiva'] = $this->settings->slabscombo();		
+		
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
+		$discship = [];
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		if($discship['ac_id_f'] == 0 && $discship['pac'] == 0)
+		{
+			if($this->aauth->get_user()->loc == 0)
+			{
+				exit('Defina a conta Por defeito para os Documentos na Empresa! <a class="match-width match-height" href="'.base_url().'settings/company?id=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}else{
+				exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}
+		}else{
+			if($discship['ac_id_f'] == 0)
+			{
+				if($this->aauth->get_user()->loc){
+					exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+				}
+			}
+			$accountin = $this->accounts_model->details($discship['ac_id_f'],false);
+			$accountincome = ((integer)$accountin['id']);
+			$accountincomename = $accountin['holder'];
+			$data['accountid'] = $accountincome;
+			$data['accountname'] = $accountincomename;
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+		
+		if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+        $data['accounts'] = $this->locations->accountslist();
+        $data['exchange'] = $this->plugins->universal_api(5);
+		$data['company'] = $this->settings->company_details(1);
+		$data['countrys'] = $this->common->countrys();
+        $data['warehouse'] = $this->purchase->warehouses();
+        
+        $data['currency'] = $this->purchase->currencies();
+		$data['taxsiva'] = $this->settings->slabscombo();
 		$data['typesinvoices'] = "";
 		if($ty == 1)
 		{
@@ -180,11 +242,12 @@ class Purchase extends CI_Controller
 			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
 			if($ty == 1)
 			{
+				$data['custom_fields'] = $this->custom->add_fields(4);
 				$numget = $this->common->lastdoc(17,$seri_did_df);
 			}else{
+				$data['custom_fields'] = $this->custom->add_fields(1);
 				$numget = $this->common->lastdoc(5,$seri_did_df);
-			}	
-			
+			}
 			$data['lastinvoice'] = $numget;
 			$this->load->view('fixed/header', $head);
 			if($ty == 1)
@@ -726,7 +789,8 @@ class Purchase extends CI_Controller
 
     public function ajax_list()
     {
-        $list = $this->purchase->get_datatables();
+		$ext = $this->input->post('ext');
+        $list = $this->purchase->get_datatables($this->limited, $ext);
         $data = array();
 
         $no = $this->input->post('start');
@@ -735,23 +799,34 @@ class Purchase extends CI_Controller
             $row = array();
             $row[] = $no;
 			$row[] = $invoices->serie_name;
-			$row[] = '<a href="' . base_url("purchase/view?id=$invoices->id&ty=0") . '">&nbsp; ' . $invoices->tid . '</a>';
+			$row[] = '<a href="' . base_url("purchase/view?id=$invoices->id&draf=0&ext=".$invoices->ext) . '">&nbsp; ' . $invoices->tid . '</a>';
             $row[] = $invoices->name;
             $row[] = dateformat($invoices->invoicedate);
             $row[] = amountExchange($invoices->total, 0, $this->aauth->get_user()->loc);
             $row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span>';
-			if($invoices->status != 'ended'){
-				$row[] = '<a href="' . base_url("purchase/view?id=$invoices->id&ty=0") . '" class="btn btn-danger btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("purchase/printinvoice?id=$invoices->id&ty=0") . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp; &nbsp;<a href="#" data-object-id="' . $invoices->id . '" class="btn btn-danger btn-xs delete-object"><span class="fa fa-trash"></span></a>';
+			$option = '';
+			if($invoices->status == 'canceled'){
+				$option = '<a href="' . base_url("purchase/view?id=$invoices->id&draf=0&ext=".$invoices->ext) . '" class="btn btn-danger btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("purchase/printinvoice?id=$invoices->id&draf=0&ext=".$invoices->ext) . '&d=1" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>';
+				$row[] = $option;
 			}else{
-				$row[] = '<a href="' . base_url("purchase/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("purchase/printinvoice?id=$invoices->id&ty=0") . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp; &nbsp;<a href="#" data-object-id="' . $invoices->id . '" class="btn btn-danger btn-xs delete-object"><span class="fa fa-trash"></span></a>';
+				$option = '<a href="' . base_url("purchase/view?id=$invoices->id&draf=0&ext=".$invoices->ext) . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("purchase/printinvoice?id=$invoices->id&draf=0&ext=".$invoices->ext) . '" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+				
+				if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
+					$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				}
+				$row[] = $option;
 			}
-			
             $data[] = $row;
         }
 
-        $numtab1 = $this->purchase->count_all($this->limited);
-		$numfil1 = $this->purchase->count_filtered($this->limited);
-		$list = $this->purchase->get_datatables2($this->limited);
+        $numtab1 = $this->purchase->count_all($this->limited, $ext);
+		$numfil1 = $this->purchase->count_filtered($this->limited, $ext);
+		
+		$list = $this->purchase->get_datatables2($this->limited, $ext);
         foreach ($list as $drafts) {
             $no++;
 			$textini = $drafts->tid;
@@ -760,78 +835,23 @@ class Purchase extends CI_Controller
             $row = array();
 			$row[] = $no;
 			$row[] = $drafts->serie_name;
-            $row[] = '<a href="' . base_url("purchase/view?id=$drafts->id&ty=1") . '">&nbsp; ' . $textini . '</a>';
+            $row[] = '<a href="' . base_url("purchase/view?id=$drafts->id&draf=1&ext=".$drafts->ext) . '">&nbsp; ' . $textini . '</a>';
             $row[] = $drafts->name;
             $row[] = dateformat($drafts->invoicedate);
             $row[] = amountExchange($drafts->total, 0, $this->aauth->get_user()->loc);
             $row[] = 'Rascunho';
-            $row[] = '<a href="' . base_url("purchase/view?id=$drafts->id&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("purchase/printinvoice?id=$drafts->id&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> <a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" data-object-draft="0" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
-			
-            $data[] = $row;
-        }
-		
-		$numtab1 .= $this->purchase->count_all2($this->limited);
-		$numfil1 .= $this->purchase->count_filtered2($this->limited);
-		
-        $output = array(
-            "draw" => $this->input->post('draw'),
-            "recordsTotal" => $numtab1,
-            "recordsFiltered" => $numfil1,
-            "data" => $data,
-        );
-        //output to json format
-        echo json_encode($output);
-
-    }
-	
-	public function ajax_list_f()
-    {
-        $list = $this->purchase->get_datatables_f();
-        $data = array();
-
-        $no = $this->input->post('start');
-        foreach ($list as $invoices) {
-            $no++;
-            $row = array();
-            $row[] = $no;
-			$row[] = $invoices->serie_name;
-			$row[] = '<a href="' . base_url("purchase/view?id=$invoices->id&ty=2") . '">&nbsp; ' . $invoices->tid . '</a>';
-            $row[] = $invoices->name;
-            $row[] = dateformat($invoices->invoicedate);
-            $row[] = amountExchange($invoices->total, 0, $this->aauth->get_user()->loc);
-            $row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span>';
-			if($invoices->status != 'ended'){
-				$row[] = '<a href="' . base_url("purchase/view?id=$invoices->id&ty=2") . '" class="btn btn-danger btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("purchase/printinvoice?id=$invoices->id&ty=2") . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp; &nbsp;<a href="#" data-object-id="' . $invoices->id . '" class="btn btn-danger btn-xs delete-object"><span class="fa fa-trash"></span></a>';
-			}else{
-				$row[] = '<a href="' . base_url("purchase/view?id=$invoices->id&ty=2") . '" class="btn btn-success btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("purchase/printinvoice?id=$invoices->id&ty=2") . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp; &nbsp;<a href="#" data-object-id="' . $invoices->id . '" class="btn btn-danger btn-xs delete-object"><span class="fa fa-trash"></span></a>';
+            $row[] = '<a href="' . base_url("purchase/view?id=$drafts->id&draf=1&ext=".$drafts->ext) . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("purchase/printinvoice?id=$drafts->id&draf=1&ext=".$drafts->ext).'" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+			$option = '';
+			if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7)
+			{
+				$option .= '<a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" data-object-draft="0" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
 			}
-			
-            $data[] = $row;
-        }
-
-        $numtab1 = $this->purchase->count_all_f($this->limited);
-		$numfil1 = $this->purchase->count_filtered_f($this->limited);
-		$list = $this->purchase->get_datatables_f2($this->limited);
-        foreach ($list as $drafts) {
-            $no++;
-			$textini = $drafts->tid;
-			$textini .= '<br>(Provisório)';
-			$width = round(0,2);
-            $row = array();
-			$row[] = $no;
-			$row[] = $drafts->serie_name;
-            $row[] = '<a href="' . base_url("purchase/view?id=$drafts->id&ty=3") . '">&nbsp; ' . $textini . '</a>';
-            $row[] = $drafts->name;
-            $row[] = dateformat($drafts->invoicedate);
-            $row[] = amountExchange($drafts->total, 0, $this->aauth->get_user()->loc);
-            $row[] = 'Rascunho';
-            $row[] = '<a href="' . base_url("purchase/view?id=$drafts->id&ty=3") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("purchase/printinvoice?id=$drafts->id&ty=3") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> <a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" data-object-draft="0" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
-			
+            $row[] = $option;
             $data[] = $row;
         }
 		
-		$numtab1 .= $this->purchase->count_all_f2($this->limited);
-		$numfil1 .= $this->purchase->count_filtered_f2($this->limited);
+		$numtab1 .= $this->purchase->count_all2($this->limited, $ext);
+		$numfil1 .= $this->purchase->count_filtered2($this->limited, $ext);
 		
         $output = array(
             "draw" => $this->input->post('draw'),
@@ -852,38 +872,43 @@ class Purchase extends CI_Controller
         $data['acclist'] = $this->accounts_model->accountslist((integer)$this->aauth->get_user()->loc);
         $tid = $this->input->get('id');
 		$token = $this->input->get('token');
-		$type = $this->input->get('ty');
-		if($type == 0){
-			$data['title'] = "Nota de Encomenda " . $data['invoice']['tid'];
-			$head['title'] = "Nota de Encomenda " . $data['invoice']['tid'];
-			$data['invoice'] = $this->purchase->purchase_details($tid, 0, $this->limited);
+		$draf = $this->input->get('draf');
+		$ext = $this->input->get('ext');
+		if($draf == 0){
+			$data['draft'] = 0;
 			$data['products'] = $this->purchase->items_with_product($tid);
-			$data['attach'] = $this->purchase->attach($tid);
-			$data['history'] = $this->common->history($tid,'purchase');
-			$data['typeinvoice'] = 0;
-		}else if($type == 1){
-			$data['title'] = "Rascunho Nota de Encomenda " . $data['invoice']['tid'];
-			$head['title'] = "Rascunho Nota de Encomenda " . $data['invoice']['tid'];
-			$data['typeinvoice'] = 1;
-			$data['invoice'] = $this->purchase->purchase_details2($tid, 0, $this->limited);
+			if($ext == 0){
+				$data['typeinvoice'] = 0;
+				$data['invoice'] = $this->purchase->purchase_details($tid, 0, $this->limited);
+				$data['title'] = "Nota de Encomenda " . $data['invoice']['tid'];
+				$head['title'] = "Nota de Encomenda " . $data['invoice']['tid'];
+				$data['history'] = $this->common->history($tid,'purchase');
+			}else{
+				$data['typeinvoice'] = 1;
+				$data['invoice'] = $this->purchase->purchase_details($tid, 1, $this->limited);
+				$data['title'] = "Nota de Encomenda Fornecedor " . $data['invoice']['tid'];
+				$head['title'] = "Nota de Encomenda Fornecedor " . $data['invoice']['tid'];
+				$data['history'] = $this->common->history($tid,'purchase_f');
+			}
+		}else{
+			$data['draft'] = 1;
 			$data['products'] = $this->purchase->items_with_product2($tid);
-			$data['history'] = $this->common->history($tid,'purchase_draft');
-		}else if($type == 2){
-			$data['title'] = "Nota de Encomenda Fornecedor" . $data['invoice']['tid'];
-			$head['title'] = "Nota de Encomenda Fornecedor" . $data['invoice']['tid'];
-			$data['invoice'] = $this->purchase->purchase_details($tid, 1, $this->limited);
-			$data['products'] = $this->purchase->items_with_product($tid);
-			$data['attach'] = $this->purchase->attach($tid);
-			$data['history'] = $this->common->history($tid,'purchase_f');
-			$data['typeinvoice'] = 2;
-		}else if($type == 3){
-			$data['title'] = "Rascunho Nota de Encomenda " . $data['invoice']['tid'];
-			$head['title'] = "Rascunho Nota de Encomenda " . $data['invoice']['tid'];
-			$data['typeinvoice'] = 3;
-			$data['invoice'] = $this->purchase->purchase_details2($tid, 1, $this->limited);
-			$data['products'] = $this->purchase->items_with_product2($tid);
-			$data['history'] = $this->common->history($tid,'purchase_draft_f');
+			if($ext == 0){
+				$data['typeinvoice'] = 0;
+				$data['invoice'] = $this->purchase->purchase_details2($tid, 0, $this->limited);
+				$data['title'] = "Rascunho Nota de Encomenda " . $data['invoice']['tid'];
+				$head['title'] = "Rascunho Nota de Encomenda " . $data['invoice']['tid'];
+				$data['history'] = $this->common->history($tid,'purchase_draft');
+			}else{
+				$data['typeinvoice'] = 1;
+				$data['invoice'] = $this->purchase->purchase_details2($tid, 1, $this->limited);
+				$data['title'] = "Rascunho Nota de Encomenda Fornecedor " . $data['invoice']['tid'];
+				$head['title'] = "Rascunho Nota de Encomenda Fornecedor " . $data['invoice']['tid'];
+				$data['history'] = $this->common->history($tid,'purchase_draft_f');
+			}
 		}
+		
+		$data['attach'] = $this->purchase->attach($tid);
         $data['iddoc'] = $data['invoice']['id'];
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
         $head['usernm'] = $this->aauth->get_user()->username;
@@ -1125,28 +1150,43 @@ class Purchase extends CI_Controller
 			exit($this->lang->line('translate19'));
 		}
         $id = $this->input->post('deleteid');
-		$this->db->delete('geopos_purchase_items', array('tid' => $id));
-		$ua=$this->aauth->getBrowser();
-		$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+		$tid = $this->input->post('deletetid');
+		$draft = $this->input->post('draft');
 		
-		$striPay = "Utilizador: ".$this->aauth->get_user()->username;
-		$striPay = $striPay.'<br>'.$yourbrowser;
-		$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-		$striPay = $striPay.'<br>Nota de Encomenda Apagada Nº: '.$id;
-		$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'purchase', $id);
-		
-		
-		
-        if ($this->purchase->purchase_delete($id)) {
-            echo json_encode(array('status' => 'Success', 'message' =>
-                "Purchase Order #$id has been deleted successfully!"));
-
-        } else {
-
-            echo json_encode(array('status' => 'Error', 'message' =>
-                "There is an error! Purchase has not deleted."));
-        }
-
+		if($draft == 0)
+		{
+			//$this->db->delete('geopos_log', array('id_c' => $id,'type_log' => 'note_f'));
+			$this->db->delete('geopos_data_related', array('tid' => $id));
+			$this->db->delete('geopos_data_transport', array('tid' => $id));
+			$this->db->delete('geopos_purchase_items', array('id' => $id));
+			$this->db->delete('geopos_purchase', array('id' => $id));
+			// now try it
+			//$ua=$this->aauth->getBrowser();
+			//$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+			
+			//$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+			//$striPay = $striPay.'<br>'.$yourbrowser;
+			//$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+			//$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
+			//$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'note_f', $id);
+			echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso.'));
+		}else{
+			$justification = $this->input->post('justification');
+			$this->db->set('status', 'canceled');
+			$this->db->set('justification_cancel', $justification);
+			$this->db->where('id', $id);
+			$this->db->update('geopos_purchase');
+			
+			$ua=$this->aauth->getBrowser();
+			$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+			
+			$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+			$striPay = $striPay.'<br>'.$yourbrowser;
+			$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+			$striPay = $striPay.'<br>Nota de Encomenda Apagada Nº: '.$id;
+			$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'purchase', $id);
+			echo json_encode(array('status' => 'Success', 'message' => 'Documento Anulado com Sucesso.'));
+		}
     }
 
     

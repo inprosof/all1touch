@@ -221,8 +221,6 @@ class Woo_model extends CI_Model
 
     public function paynow($tid, $amount, $note, $pmethod, $date = '')
     {
-
-
         $this->db->select('geopos_accounts.id,geopos_accounts.holder,');
         $this->db->from('univarsal_api');
         $this->db->where('univarsal_api.id', 54);
@@ -304,13 +302,11 @@ class Woo_model extends CI_Model
 
     public function woocom_products()
     {
-
         $date_l = '2012-01-01T02:07:48';
         $message = '<br>';
         try {
-
             $woocommerce = $this->woo_connect();
-
+			
             $this->db->select('other');
             $this->db->from('univarsal_api');
             $this->db->where('id', 56);
@@ -322,14 +318,13 @@ class Woo_model extends CI_Model
 
             $this->db->select('other');
             $this->db->from('univarsal_api');
-            $this->db->where('id', 60);
+            $this->db->where('id', 57);
             $query = $this->db->get();
             $settings = $query->row_array();
             $extra_config = json_decode($settings['other'], true);
 
 
             $products = $woocommerce->get('products', array('after' => $last_run, 'per_page' => 100, 'order' => 'asc', 'orderby' => 'id', 'status' => $extra_config['filter']));
-
             $this->db->select('id');
             $this->db->from('geopos_product_cat');
             $this->db->where('id', $extra_config['category']);
@@ -359,7 +354,15 @@ class Woo_model extends CI_Model
                         $this->db->where('pid', $id);
                         $query = $this->db->get();
                         $c_data = $query->row_array();
-                        if ($c_data['pid']) {
+						$cid = 0;
+						if($c_data != null){
+							if ($c_data['pid']) {
+								$cid = $c_data['pid'];
+							}
+						}
+						
+						
+                        if ($cid > 0) {
                             $cid = $c_data['pid'];
                         } else {
                             $qtty = 0;
@@ -379,8 +382,35 @@ class Woo_model extends CI_Model
                             } else {
                                 $imagename = 'default.png';
                             }
-
-
+							
+							$temunit = 0;
+							if($product->manage_stock == true){
+								$temunit = 1;
+							}
+							
+							$unity = 'UN';
+							$typadd = 66;
+							$p_claas = 6;
+							/*if($product->type != 'simple'){
+								$unity = 'SR';
+								$typadd = 67;
+								$p_claas = 8;
+							}*/
+							
+							
+							$short_description = str_replace("<p>", "", $product->short_description);
+							$short_description = str_replace("</p>", "", $short_description);
+							$short_description = str_replace("<strong>", "", $short_description);
+							$short_description = str_replace("</strong>", "", $short_description);
+							$short_description = str_replace("<h2>", "", $short_description);
+							$short_description = str_replace("</h2>", "", $short_description);
+							$short_description = str_replace("<h3>", "", $short_description);
+							$short_description = str_replace("</h3>", "", $short_description);
+							$short_description = str_replace("<div>", "", $short_description);
+							$short_description = str_replace("</div>", "", $short_description);
+							
+							
+							$short_description = substr($short_description, 0, 250);
                             $data = array(
                                 'pid' => $product->id,
                                 'pcat' => $extra_config['category'],
@@ -389,19 +419,43 @@ class Woo_model extends CI_Model
                                 'product_code' => $product->sku,
                                 'product_price' => $product->price,
                                 'fproduct_price' => $product->regular_price,
-                                'taxrate' => $extra_config['tax'],
+                                'taxrate' => 0.00,
                                 'disrate' => $extra_config['discount'],
                                 'qty' => $qtty,
-                                'product_des' => $product->short_description,
+                                'product_des' => $short_description,
                                 'alert' => 1,
-                                'unit' => '',
+                                'unit' => $unity,
+								'sub_id' => 0,
+								'p_cla' => $p_claas,
+								'b_id' => $typadd,
+								'tem_stock' => $temunit,
                                 'barcode' => $barcode,
                                 'image' => $imagename
                             );
-
-                            $this->db->insert('geopos_products', $data);
-
-
+							
+							if ($this->db->insert('geopos_products', $data)) {
+								$id_auto_produ = $this->db->insert_id();
+								if($product->tax_status == 'taxable'){
+									$this->db->select('*');
+									$this->db->from('geopos_config');
+									$this->db->where('id', $extra_config['tax']);
+									$query = $this->db->get();
+									$tax = $query->row_array();
+									
+									$valtax = (numberClean($product->price)*(numberClean($tax['val2'])/100));
+									$datatax = array(
+										'p_id' => $product->id,
+										't_id' => $tax['id'],
+										't_name' => $tax['val1'],
+										't_val	' => $valtax,
+										't_como' => 0,
+										't_cod' => $tax['taxcode'],
+										't_per' => $tax['val2']
+									);
+									
+									$this->db->insert('geopos_products_taxs', $datatax);
+								}
+							}
                         }
 
                         $r++;
@@ -452,7 +506,7 @@ class Woo_model extends CI_Model
 
             $this->db->select('other');
             $this->db->from('univarsal_api');
-            $this->db->where('id', 60);
+            $this->db->where('id', 57);
             $query = $this->db->get();
             $settings = $query->row_array();
             $extra_config = json_decode($settings['other'], true);

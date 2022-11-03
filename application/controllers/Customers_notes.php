@@ -102,6 +102,7 @@ class Customers_notes extends CI_Controller
     public function create($relation = 0, $typrelation = 0, $typeggc = 0, $docreason = 60)
     {
         $this->load->library("Common");
+		$this->load->model('locations_model', 'locations');
         $this->load->model('plugins_model', 'plugins');
 		$this->load->model('settings_model', 'settings');
         $data['exchange'] = $this->plugins->universal_api(5);
@@ -149,15 +150,16 @@ class Customers_notes extends CI_Controller
 			}
 			$this->load->library("Related");
 			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
-			$data['csd_name'] = $data['docs_origem']['name'];
-			$data['csd_tax'] = $data['docs_origem']['taxid'];
-			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['csd_name'] = $data['docs_origem'][0]['name'];
+			$data['csd_tax'] = $data['docs_origem'][0]['taxid'];
+			$data['csd_id'] = $data['docs_origem'][0]['id'];
 			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
 		}else{
 			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
 			$data['csd_tax'] = "999999990";
 			$data['csd_id'] = "99999999";
 			$data['docs_origem'] = [];
+			$data['products'] = [];
 		}
 		
 		
@@ -228,6 +230,7 @@ class Customers_notes extends CI_Controller
 			}else{
 				$numget = $this->common->lastdoc(12,$seri_did_df);
 			}
+			$data['custom_fields'] = $this->custom->add_fields(1);
 			$data['lastinvoice'] = $numget;
 			$head['title'] = 'Novo '.$typename;
 			$head['usernm'] = $this->aauth->get_user()->username;
@@ -445,7 +448,13 @@ class Customers_notes extends CI_Controller
 			if($typ == 3 || $typ == 4){
 				$this->db->delete('geopos_draft', array('id' => $idgu));
 				$this->db->delete('geopos_draft_items', array('tid' => $idgu));
-				$this->db->where('type_log', 'notes_f_draft');
+				
+				if($typenot == 1){
+					$this->db->where('type_log', 'notes_c_draft');
+				}else{
+					$this->db->where('type_log', 'notes_d_draft');
+				}
+				
 				$this->db->delete('geopos_log', array('id_c' => $idgu));
 			}
 			
@@ -526,7 +535,12 @@ class Customers_notes extends CI_Controller
 					$striPay = $striPay.'<br>'.$yourbrowser;
 					$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
 					$striPay .= '<br>Nota Crédito Nº para o Cliente: '.$customer_name;
-					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_c', $invocieno);
+					if($typenot == 1){
+						$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_c', $invocieno);
+					}else{
+						$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_d', $invocieno);
+					}
+					echo json_encode(array('status' => 'Success', 'message' => "Nota criada com Sucesso. <a href='view?id=$invocieno&draf=0&ty=$typenot' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0&ty=$typenot' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 				}
 			} else {
 				echo json_encode(array('status' => 'Error', 'message' => "Problema ao criar a fatura. Tente mais tarde."));
@@ -640,10 +654,13 @@ class Customers_notes extends CI_Controller
 				$striPay = $striPay.'<br>'.$yourbrowser;
 				$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
 				$striPay .= '<br>Rascunho Nº (Provisório)'.$invocieno2.' para o Cliente: '.$customer_name;
-				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_c_draft', $invocieno);
-				
+				if($typenot == 1){
+					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_c_draft', $invocieno);
+				}else{
+					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_d_draft', $invocieno);
+				}
                 if ($transok) 
-					echo json_encode(array('status' => 'Success', 'message' => "Rascunho criado com Sucesso. <a href='view?id=$invocieno&ty=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+					echo json_encode(array('status' => 'Success', 'message' => "Rascunho criado com Sucesso. <a href='view?id=$invocieno&draf=1&ty=$typenot' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0&ty=$typenot' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => "Erro a criar rascunho na Fatura. Tente mais tarde."));
                 $transok = false;
@@ -720,9 +737,14 @@ class Customers_notes extends CI_Controller
 				$striPay = $striPay.'<br>'.$yourbrowser;
 				$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
 				$striPay .= '<br>Rascunho Atualizado Nº (Provisório)'.$invocieno2.' para o Cliente: '.$customer_name;
-				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_f_draft', $invocieno);
 				
-                echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&ty=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+				if($typenot == 1){
+					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_c_draft', $invocieno);
+				}else{
+					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_d_draft', $invocieno);
+				}
+				
+                echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&draf=1&ty=$typenot' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0&ty=$typenot' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 			}else {
 				echo json_encode(array('status' => 'Error', 'message' => "Erro ao guardar Rascunho!"));
 				$transok = false;
@@ -747,32 +769,50 @@ class Customers_notes extends CI_Controller
             $row = array();
             $row[] = $no;
 			$row[] = $invoices->serie_name;
-			$row[] = '<a href="' . base_url("customers_notes/view?id=$invoices->id&ty=0") . '">&nbsp; ' . $invoices->tid . '</a>';
+			$row[] = '<a href="' . base_url("customers_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '">&nbsp; ' . $invoices->tid . '</a>';
             $row[] = $invoices->name;
             $row[] = dateformat($invoices->invoicedate);
             $row[] = amountExchange($invoices->total, 0, $this->aauth->get_user()->loc);
             $row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span>';
 			$option = '';
-			if($ty == 1)
-			{
-				if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(45))
+			if($invoices->status == 'canceled'){
+				if($ty == 1)
 				{
-					$option .= '<a href="' . base_url("customers_notes/view?id=$invoices->id&ty=0") . '" class="btn btn-danger btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("customers_notes/printinvoice?id=$invoices->id&ty=0") . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(45))
+					{
+						$option .= '<a href="' . base_url("customers_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '" class="btn btn-danger btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("customers_notes/printinvoice?id=$invoices->id&draf=0&ty=".$ty) . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					}
+				}else{
+					if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(125))
+					{
+						$option .= '<a href="' . base_url("customers_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '" class="btn btn-danger btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("customers_notes/printinvoice?id=$invoices->id&draf=0&ty=".$ty) . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					}
 				}
-			}else{
-				if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(125))
-				{
-					$option .= '<a href="' . base_url("customers_notes/view?id=$invoices->id&ty=0") . '" class="btn btn-danger btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("customers_notes/printinvoice?id=$invoices->id&ty=0") . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
-				}
-			}
 			
-			if($invoices->status != 'ended'){
-				if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7)
+				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>';
+				$row[] = $option;
+			}else{
+				if($ty == 1)
 				{
-					$option .= '<a href="#" data-object-id="' . $invoices->id . '" class="btn btn-danger btn-xs delete-object"><span class="fa fa-trash"></span></a>';
+					if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(45))
+					{
+						$option .= '<a href="' . base_url("customers_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '" class="btn btn-success btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("customers_notes/printinvoice?id=$invoices->id&draf=0&ty=".$ty) . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					}
+				}else{
+					if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(125))
+					{
+						$option .= '<a href="' . base_url("customers_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '" class="btn btn-success btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("customers_notes/printinvoice?id=$invoices->id&draf=0&ty=".$ty) . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					}
 				}
+				$option .= '<a data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+				
+				if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
+					$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				}
+				$row[] = $option;
 			}
-			$row[] = $option;
             $data[] = $row;
         }
 
@@ -787,7 +827,7 @@ class Customers_notes extends CI_Controller
             $row = array();
 			$row[] = $no;
 			$row[] = $drafts->serie_name;
-            $row[] = '<a href="' . base_url("customers_notes/view?id=$drafts->id&ty=1") . '">&nbsp; ' . $textini . '</a>';
+            $row[] = '<a href="' . base_url("customers_notes/view?id=$drafts->id&draf=1&ty=".$ty) . '">&nbsp; ' . $textini . '</a>';
             $row[] = $drafts->name;
             $row[] = dateformat($drafts->invoicedate);
             $row[] = amountExchange($drafts->total, 0, $this->aauth->get_user()->loc);
@@ -797,12 +837,12 @@ class Customers_notes extends CI_Controller
 			{
 				if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(45))
 				{
-					$option .= '<a href="' . base_url("customers_notes/view?id=$drafts->id&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("customers_notes/printinvoice?id=$drafts->id&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					$option .= '<a href="' . base_url("customers_notes/view?id=$drafts->id&draf=1&ty=".$ty) . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("customers_notes/printinvoice?id=$drafts->id&draf=1&ty=".$ty) . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
 				}
 			}else{
 				if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(125))
 				{
-					$option .= '<a href="' . base_url("customers_notes/view?id=$drafts->id&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("customers_notes/printinvoice?id=$drafts->id&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					$option .= '<a href="' . base_url("customers_notes/view?id=$drafts->id&draf=1&ty=".$ty) . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("customers_notes/printinvoice?id=$drafts->id&draf=1&ty=".$ty) . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
 				}
 			}
 			
@@ -838,19 +878,48 @@ class Customers_notes extends CI_Controller
         $tid = $this->input->get('id');
 		$token = $this->input->get('token');
 		$type = $this->input->get('ty');
-		$data['invoice'] = $this->notes_model->custumers_notes_details($tid, $this->limited);
-		$data['products'] = $this->notes_model->custumers_notes_products($tid);
-		if($type == 0){
-			$data['title'] = "Nota de Crédito Cliente " . $data['invoice']['tid'];
-			$head['title'] = "Nota de Crédito Cliente " . $data['invoice']['tid'];
-			$data['attach'] = $this->notes_model->attach($tid);
-			$data['history'] = $this->common->history($tid,'notes_f');
-			$data['typeinvoice'] = 0;
-		}else{
-			$data['title'] = "Nota de Débito Cliente " . $data['invoice']['tid'];
-			$head['title'] = "Nota de Débito Cliente " . $data['invoice']['tid'];
+		$draf = $this->input->get('draf');
+		
+		if($type == 1){
 			$data['typeinvoice'] = 1;
-			$data['history'] = $this->common->history($tid,'notes_f_draft');
+			if($draf == 0){
+				$data['draft'] = 0;
+				$data['invoice'] = $this->notes_model->custumers_notes_details($tid, $this->limited);
+				$data['products'] = $this->notes_model->custumers_notes_products($tid);
+				$data['title'] = "Nota de Crédito Cliente " . $data['invoice']['tid'];
+				$head['title'] = "Nota de Crédito Cliente " . $data['invoice']['tid'];
+				$data['attach'] = $this->notes_model->attach($tid);
+				$data['history'] = $this->common->history($tid,'notes_c');
+				
+			}else{
+				$data['draft'] = 1;
+				$data['invoice'] = $this->notes_model->custumers_notes_details2($tid, $this->limited);
+				$data['products'] = $this->notes_model->custumers_notes_products2($tid);
+				$data['title'] = "Rascunho Nota de Crédito Cliente " . $data['invoice']['tid'];
+				$head['title'] = "Rascunho Nota de Crédito Cliente " . $data['invoice']['tid'];
+				$data['attach'] = $this->notes_model->attach($tid);
+				$data['history'] = $this->common->history($tid,'notes_c_draft');
+			}
+			 
+		}else{
+			$data['typeinvoice'] = 2;
+			if($draf == 0){
+				$data['draft'] = 0;
+				$data['invoice'] = $this->notes_model->custumers_notes_details($tid, $this->limited);
+				$data['products'] = $this->notes_model->custumers_notes_products($tid);
+				$data['title'] = "Nota de Crédito Cliente " . $data['invoice']['tid'];
+				$head['title'] = "Nota de Crédito Cliente " . $data['invoice']['tid'];
+				$data['attach'] = $this->notes_model->attach($tid);
+				$data['history'] = $this->common->history($tid,'notes_d');
+			}else{
+				$data['draft'] = 1;
+				$data['invoice'] = $this->notes_model->custumers_notes_details2($tid, $this->limited);
+				$data['products'] = $this->notes_model->custumers_notes_products2($tid);
+				$data['title'] = "Rascunho Nota de Débito Cliente " . $data['invoice']['tid'];
+				$head['title'] = "Rascunho Nota de Débito Cliente " . $data['invoice']['tid'];
+				$data['attach'] = $this->notes_model->attach($tid);
+				$data['history'] = $this->common->history($tid,'notes_d_draft');
+			}
 		}
 		
         $data['iddoc'] = $data['invoice']['id'];
@@ -1117,30 +1186,44 @@ class Customers_notes extends CI_Controller
 			exit($this->lang->line('translate19'));
 		}
         $id = $this->input->post('deleteid');
-		$this->db->delete('geopos_customers_notes_items', array('tid' => $id));
-		$ua=$this->aauth->getBrowser();
-		$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+		$tid = $this->input->post('deletetid');
+		$draft = $this->input->post('draft');
 		
-		$striPay = "Utilizador: ".$this->aauth->get_user()->username;
-		$striPay = $striPay.'<br>'.$yourbrowser;
-		$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-		$striPay = $striPay.'<br>Nota Apagada Nº: '.$id;
-		$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'note_c', $id);
-		
-		
-		
-        if ($this->notes_model->purchase_delete($id)) {
-            echo json_encode(array('status' => 'Success', 'message' =>
-                "Purchase Order #$id has been deleted successfully!"));
-
-        } else {
-
-            echo json_encode(array('status' => 'Error', 'message' =>
-                "There is an error! Notes has not deleted."));
-        }
-
-    }													  
-																				  
+		if($draft == 0)
+		{
+			//$this->db->delete('geopos_log', array('id_c' => $id,'type_log' => 'note_c'));
+			$this->db->delete('geopos_data_related', array('tid' => $id));
+			$this->db->delete('geopos_data_transport', array('tid' => $id));
+			$this->db->delete('geopos_customers_notes_items', array('id' => $id));
+			$this->db->delete('geopos_customers_notes', array('id' => $id));
+			// now try it
+			//$ua=$this->aauth->getBrowser();
+			//$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+			
+			//$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+			//$striPay = $striPay.'<br>'.$yourbrowser;
+			//$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+			//$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
+			//$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'note_c', $id);
+			echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso.'));
+		}else{
+			$justification = $this->input->post('justification');
+			$this->db->set('status', 'canceled');
+			$this->db->set('justification_cancel', $justification);
+			$this->db->where('id', $id);
+			$this->db->update('geopos_customers_notes');
+			
+			$ua=$this->aauth->getBrowser();
+			$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+			
+			$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+			$striPay = $striPay.'<br>'.$yourbrowser;
+			$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+			$striPay = $striPay.'<br>Nota Anulada Nº: '.$id;
+			$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'note_c', $id);
+			echo json_encode(array('status' => 'Success', 'message' => 'Documento Anulado com Sucesso.'));
+		}
+    }
 	 
 
     public function file_handling()

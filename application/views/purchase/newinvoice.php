@@ -17,24 +17,24 @@
                                             <?php echo $this->lang->line('Bill To') ?> <a href='#'
                                                                                           class="btn btn-primary btn-sm round"
                                                                                           data-toggle="modal"
-                                                                                          data-target="#addCustomer" <?php if ($quote > 0) echo ' hidden' ?>>
+                                                                                          data-target="#addCustomer" <?php if ($relationid > 0) echo ' hidden' ?>>
                                                 <?php echo $this->lang->line('Add Client') ?>
                                             </a>
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <div class="frmSearch col-sm-12"><label for="cst" class="caption" <?php if ($quote > 0) echo ' hidden' ?>><?php echo $this->lang->line('Search Client'); ?></label>
+                                    <div class="frmSearch col-sm-12"><label for="cst" class="caption" <?php if ($relationid > 0) echo ' hidden' ?>><?php echo $this->lang->line('Search Client'); ?></label>
                                         <input type="text" class="form-control round" name="cst" id="customer-box"
                                                placeholder="Enter Customer Name or Mobile Number to search"
-                                               autocomplete="off" <?php if ($quote > 0) echo ' hidden' ?>/>
-                                        <div id="customer-box-result" <?php if ($quote > 0) echo ' hidden' ?>></div>
+                                               autocomplete="off" <?php if ($relationid > 0) echo ' hidden' ?>/>
+                                        <div id="customer-box-result" <?php if ($relationid > 0) echo ' hidden' ?>></div>
                                     </div>
                                 </div>
                                 <div id="customer">
                                     <div class="clientinfo">
                                         <?php echo $this->lang->line('Client Details'); ?>
                                         <hr>
-										<input type="hidden" name="quote_tid" id="quote_tid" value="<?php if ($quote > 0) echo $quote?>" />
+										<input type="hidden" name="quote_tid" id="quote_tid" value="<?php if ($relationid > 0) echo $relationid?>" />
 										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $csd_id?>" />
 										<div id="customer_name"><strong><?php echo $csd_name; ?></strong></div>
                                     </div>
@@ -403,29 +403,43 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                             </tr>
                             </tbody>
                         </table>						
-                        <?php
-                        if(is_array($custom_fields)){
-                          echo'<div class="card">';
-                                    foreach ($custom_fields as $row) {
-                                        if ($row['f_type'] == 'text') { ?>
-                                            <div class="row mt-1">
-
-                                                <label class="col-sm-8"
-                                                       for="docid"><?php echo $row['name'] ?></label>
-
-                                                <div class="col-sm-6">
-                                                    <input type="text" placeholder="<?php echo $row['placeholder'] ?>"
-                                                           class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
-                                                           name="custom[<?php echo $row['id'] ?>]">
-                                                </div>
-                                            </div>
-
-
-                                        <?php }
-                                    }
-                                    echo'</div>';
-                        }
-                                    ?>
+                       <?php
+							if(!empty($custom_fields)){
+								foreach ($custom_fields as $row) {
+									if ($row['f_type'] == 'text') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+													   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]">
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'check') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
+												<label class="custom-control-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'textarea') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<textarea placeholder="<?php echo $row['placeholder'] ?>"
+													   class="summernote <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
+											</div>
+										</div>
+									<?php }
+								}
+							}
+						?>
                     </div>
 					<hr>
 					<div id="saman-row-buts">

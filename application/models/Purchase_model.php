@@ -411,11 +411,18 @@ class Purchase_model extends CI_Model
         }
     }
 
-    private function _get_datatables_query()
+    private function _get_datatables_query($opt = '', $ext = 0)
     {
-        $this->db->select('geopos_purchase.id,geopos_series.serie AS serie_name,geopos_purchase.tid, geopos_customers.name, geopos_purchase.invoicedate, geopos_purchase.invoiceduedate, geopos_purchase.total,geopos_purchase.status');
+		if($ext == 0){
+			$this->db->select('geopos_purchase.id,geopos_series.serie AS serie_name,geopos_purchase.tid, geopos_customers.name, geopos_purchase.invoicedate, geopos_purchase.invoiceduedate, geopos_purchase.total,geopos_purchase.status');
+		}else{
+			$this->db->select('geopos_purchase.id,geopos_series.serie AS serie_name,geopos_purchase.tid, geopos_supplier.name, geopos_purchase.invoicedate, geopos_purchase.invoiceduedate, geopos_purchase.total,geopos_purchase.status');
+		}
         $this->db->from($this->table);
-		$this->db->where('geopos_purchase.ext', 0);
+		$this->db->where('geopos_purchase.ext', $ext);
+		if ($opt) {
+            $this->db->where('geopos_purchase.eid', $opt);
+        }
         if ($this->aauth->get_user()->loc) {
             $this->db->where('geopos_purchase.loc', $this->aauth->get_user()->loc);
         }
@@ -429,7 +436,12 @@ class Purchase_model extends CI_Model
             $this->db->where('DATE(geopos_purchase.invoicedate) <=', datefordatabase($this->input->post('end_date')));
         }
 		
-		$this->db->join('geopos_customers', 'geopos_purchase.csd=geopos_customers.id', 'left');
+		if($ext == 0){
+			$this->db->join('geopos_customers', 'geopos_purchase.csd=geopos_customers.id', 'left');
+		}else{
+			$this->db->join('geopos_supplier', 'geopos_purchase.csd=geopos_supplier.id', 'left');
+		}
+		
 		$this->db->join('geopos_irs_typ_doc', 'geopos_purchase.irs_type = geopos_irs_typ_doc.id', 'left');
 		$this->db->join('geopos_series', 'geopos_series.id = geopos_purchase.serie', 'left');
         $i = 0;
@@ -463,11 +475,11 @@ class Purchase_model extends CI_Model
 	var $column_order2 = array(null, 'geopos_series.serie AS serie_name', 'geopos_draft.tid', 'geopos_customers.name', 'geopos_draft.invoicedate', null, 'geopos_draft.total', 'Rascunho as status', null);
     var $column_search2 = array('geopos_series.serie AS serie_name', 'geopos_draft.tid', 'geopos_customers.name', 'geopos_draft.invoicedate', 'geopos_draft.total', 'Rascunho as status', null);
     var $order2 = array('geopos_draft.tid' => 'DESC');
-	private function _get_datatables_query2($opt = '')
+	private function _get_datatables_query2($opt = '', $ext = 0)
     {
         $this->db->select('geopos_draft.id,geopos_series.serie AS serie_name,geopos_draft.tid,geopos_customers.name,geopos_draft.invoicedate,geopos_draft.invoiceduedate,geopos_draft.total,geopos_draft.status');
         $this->db->from('geopos_draft');
-		$this->db->where('geopos_draft.ext', 0);
+		$this->db->where('geopos_draft.ext', $ext);
         $this->db->where('geopos_draft.i_class', 3);
         if ($opt) {
             $this->db->where('geopos_draft.eid', $opt);
@@ -519,261 +531,49 @@ class Purchase_model extends CI_Model
         }
     }
 	
-	function get_datatables2($opt = '')
+	function get_datatables2($opt = '', $ext = 0)
     {
-        $this->_get_datatables_query2($opt);
+        $this->_get_datatables_query2($opt, $ext);
         if ($_POST['length'] != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
-		$this->db->where('geopos_draft.ext', 0);
-        $this->db->where('geopos_draft.i_class', 3);
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_draft.loc', 0); }
-
         return $query->result();
     }
 	
-	public function count_all2($opt = '')
+	public function count_all2($opt = '', $ext = 0)
     {
-        $this->db->select('geopos_draft.id');
-        $this->db->from('geopos_draft');
-		$this->db->where('geopos_draft.ext', 0);
-        $this->db->where('geopos_draft.i_class', 3);
-        if ($opt) {
-            $this->db->where('geopos_draft.eid', $opt);
-        }
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_draft.loc', 0); }
+		$this->_get_datatables_query2($opt, $ext);
+		$query = $this->db->get();
         return $this->db->count_all_results();
     }
 	
-	function count_filtered2($opt = '')
+	function count_filtered2($opt = '', $ext = 0)
     {
-        $this->_get_datatables_query2($opt);
-        if ($opt) {
-            $this->db->where('eid', $opt);
-        }
-		$this->db->where('geopos_draft.ext', 0);
-        $this->db->where('geopos_draft.i_class', 3);
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_draft.loc', 0); }
+        $this->_get_datatables_query2($opt, $ext);
         $query = $this->db->get();
         return $query->num_rows();
     }
-
-	function get_datatables_f()
-    {
-        $this->_get_datatables_query_f();
-        if ($_POST['length'] != -1)
-            $this->db->limit($_POST['length'], $_POST['start']);
-        $query = $this->db->get();
-        return $query->result();
-    }
 	
-    function get_datatables()
+    function get_datatables($opt = '', $ext = 0)
     {
-        $this->_get_datatables_query();
+        $this->_get_datatables_query($opt, $ext);
         if ($_POST['length'] != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
         return $query->result();
     }
 
-    function count_filtered()
+    function count_filtered($opt = '', $ext = 0)
     {
-        $this->_get_datatables_query();
-        $query = $this->db->get();
-        return $query->num_rows();
-    }
-	
-	var $column_order_f = array(null, 'geopos_series.serie AS serie_name', 'geopos_purchase.tid', 'geopos_supplier.name', 'geopos_purchase.invoicedate', null, 'geopos_purchase.total', 'geopos_purchase.status', null);
-	var $column_search_f = array('geopos_series.serie AS serie_name', 'geopos_purchase.tid', 'geopos_supplier.name', 'geopos_purchase.invoicedate', 'geopos_purchase.total', 'geopos_purchase.status', null);
-	private function _get_datatables_query_f()
-    {
-        $this->db->select('geopos_purchase.id,geopos_series.serie AS serie_name,geopos_purchase.tid, geopos_supplier.name, geopos_purchase.invoicedate, geopos_purchase.invoiceduedate, geopos_purchase.total,geopos_purchase.status');
-        $this->db->from($this->table);
-		$this->db->where('geopos_purchase.ext', 1);
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_purchase.loc', $this->aauth->get_user()->loc);
-        }
-        elseif(!BDATA){ 
-			$this->db->where('geopos_purchase.loc', 0); 
-		}
-        
-		if ($this->input->post('start_date') && $this->input->post('end_date')) // if datatable send POST for search
-        {
-            $this->db->where('DATE(geopos_purchase.invoicedate) >=', datefordatabase($this->input->post('start_date')));
-            $this->db->where('DATE(geopos_purchase.invoicedate) <=', datefordatabase($this->input->post('end_date')));
-        }
-		
-		$this->db->join('geopos_supplier', 'geopos_purchase.csd=geopos_supplier.id', 'left');
-		$this->db->join('geopos_irs_typ_doc', 'geopos_purchase.irs_type = geopos_irs_typ_doc.id', 'left');
-		$this->db->join('geopos_series', 'geopos_series.id = geopos_purchase.serie', 'left');
-        $i = 0;
-        foreach ($this->column_search_f as $item) // loop column
-        {
-            if ($this->input->post('search')['value']) // if datatable send POST for search
-            {
-                if ($i === 0) // first loop
-                {
-                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
-                    $this->db->like($item, $this->input->post('search')['value']);
-                } else {
-                    $this->db->or_like($item, $this->input->post('search')['value']);
-                }
-
-                if (count($this->column_search_f) - 1 == $i) //last loop
-                    $this->db->group_end(); //close bracket
-            }
-            $i++;
-        }
-
-        if (isset($_POST['order'])) // here order processing
-        {
-            $this->db->order_by($this->column_order_f[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
-        } else if (isset($this->order)) {
-            $order = $this->order;
-            $this->db->order_by(key($order), $order[key($order)]);
-        }
-    }
-	
-	function count_filtered_f()
-    {
-        $this->_get_datatables_query_f();
+        $this->_get_datatables_query($opt, $ext);
         $query = $this->db->get();
         return $query->num_rows();
     }
 
-    public function count_all_f()
+    public function count_all($opt = '', $ext = 0)
     {
-        $this->db->from($this->table);
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_purchase.loc', $this->aauth->get_user()->loc);
-        }
-        elseif(!BDATA) { 
-			$this->db->where('geopos_purchase.loc', 0); 
-		}
-		$this->db->where('geopos_purchase.ext', 1);
-        return $this->db->count_all_results();
-    }
-	
-	var $column_order_f2 = array(null, 'geopos_series.serie AS serie_name', 'geopos_draft.tid', 'geopos_supplier.name', 'geopos_draft.invoicedate', null, 'geopos_draft.total', 'Rascunho as status', null);
-    var $column_search_f2 = array('geopos_series.serie AS serie_name', 'geopos_draft.tid', 'geopos_supplier.name', 'geopos_draft.invoicedate', 'geopos_draft.total', 'Rascunho as status', null);
-    var $order_f2 = array('geopos_draft.tid' => 'DESC');
-	private function _get_datatables_query_f2($opt = '')
-    {
-        $this->db->select('geopos_draft.id,geopos_series.serie AS serie_name,geopos_draft.tid,geopos_supplier.name,geopos_draft.invoicedate,geopos_draft.invoiceduedate,geopos_draft.total,geopos_draft.status');
-        $this->db->from('geopos_draft');
-		$this->db->where('geopos_draft.ext', 1);
-        $this->db->where('geopos_draft.i_class', 3);
-        if ($opt) {
-            $this->db->where('geopos_draft.eid', $opt);
-        }
-		
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }
-        elseif(!BDATA) { 
-			$this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc); 
-		}
-		
-        if ($this->input->post('start_date') && $this->input->post('end_date')) // if datatable send POST for search
-        {
-            $this->db->where('DATE(geopos_draft.invoicedate) >=', datefordatabase($this->input->post('start_date')));
-            $this->db->where('DATE(geopos_draft.invoicedate) <=', datefordatabase($this->input->post('end_date')));
-        }
-        $this->db->join('geopos_supplier', 'geopos_draft.csd=geopos_supplier.id', 'left');
-		$this->db->join('geopos_irs_typ_doc', 'geopos_draft.irs_type = geopos_irs_typ_doc.id', 'left');
-		$this->db->join('geopos_series', 'geopos_series.id = geopos_draft.serie', 'left');
-		
-        $i = 0;
-
-        foreach ($this->column_search_f2 as $item) // loop column
-        {
-            if ($this->input->post('search')['value']) // if datatable send POST for search
-            {
-
-                if ($i === 0) // first loop
-                {
-                    $this->db->group_start();
-                    $this->db->like($item, $this->input->post('search')['value']);
-                } else {
-                    $this->db->or_like($item, $this->input->post('search')['value']);
-                }
-
-                if (count($this->column_search_f2) - 1 == $i) //last loop
-                    $this->db->group_end(); //close bracket
-            }
-            $i++;
-        }
-
-        if (isset($_POST['order'])) // here order processing
-        {
-            $this->db->order_by($this->column_order_f2[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
-        } else if (isset($this->order_f2)) {
-            $order = $this->order_f2;
-            $this->db->order_by(key($order), $order[key($order)]);
-        }
-    }
-	
-	function get_datatables_f2($opt = '')
-    {
-        $this->_get_datatables_query_f2($opt);
-        if ($_POST['length'] != -1)
-            $this->db->limit($_POST['length'], $_POST['start']);
-        $query = $this->db->get();
-		$this->db->where('geopos_draft.ext', 1);
-        $this->db->where('geopos_draft.i_class', 3);
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_draft.loc', 0); }
-
-        return $query->result();
-    }
-	
-	public function count_all_f2($opt = '')
-    {
-        $this->db->select('geopos_draft.id');
-        $this->db->from('geopos_draft');
-		$this->db->where('geopos_draft.ext', 1);
-        $this->db->where('geopos_draft.i_class', 3);
-        if ($opt) {
-            $this->db->where('geopos_draft.eid', $opt);
-        }
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_draft.loc', 0); }
-        return $this->db->count_all_results();
-    }
-	
-	function count_filtered_f2($opt = '')
-    {
-        $this->_get_datatables_query_f2($opt);
-        if ($opt) {
-            $this->db->where('eid', $opt);
-        }
-		$this->db->where('geopos_draft.ext', 1);
-        $this->db->where('geopos_draft.i_class', 3);
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_draft.loc', 0); }
-        $query = $this->db->get();
-        return $query->num_rows();
-    }
-
-    public function count_all()
-    {
-        $this->db->from($this->table);
-           if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_purchase.loc', $this->aauth->get_user()->loc);
-        }
-        elseif(!BDATA) { 
-			$this->db->where('geopos_purchase.loc', 0); 
-		}
-		$this->db->where('geopos_purchase.ext', 0);
+		$this->_get_datatables_query($opt, $ext);
+		$query = $this->db->get();
         return $this->db->count_all_results();
     }
 	

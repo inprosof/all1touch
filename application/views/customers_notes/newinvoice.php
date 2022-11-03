@@ -451,6 +451,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                     <input type="hidden" value="<?php echo $typenote ?>" name="typenote">
                     <input type="hidden" value="customers_notes/action" id="action-url">
 					<input type="hidden" value="customers_notes/action2" id="action-url2">
+					<input type="hidden" value="new_i" id="inv_page">
                     <input type="hidden" value="search" id="billtype">
 					<input type="hidden" value="searchtax" id="billtypetax">
                     <input type="hidden" value="<?php echo $cvalue?>" name="counter" id="ganak">

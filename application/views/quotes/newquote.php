@@ -231,8 +231,6 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 										foreach ($myArraytaxperc as $row2) {
 											$valsumperc = $row2.'%';
 										}
-										if($row['serial'] != '') 
-											$row['product'].=' - '.$row['serial'];
 										$myArraytaxname = explode(";", $row['taxaname']);
 										$myArraytaxcod = explode(";", $row['taxacod']);
 										$myArraytaxvals = explode(";", $row['taxavals']);
@@ -284,7 +282,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 										<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $cvalue . '" value="' . $row['pid'] . '">
 										<input type="hidden" name="unit[]" id="unit-' . $cvalue . '" value="' . $row['unit'] . '">
 										<input type="hidden" name="hsn[]" id="hsn-' . $cvalue . '" value="' . $row['code'] . '">
-										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="' . $row['serial'] . '"> </td>
+										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value=""> </td>
 										</tr>
 										<tr>
 											<td colspan="8">

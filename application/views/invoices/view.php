@@ -21,11 +21,11 @@
 							<div class="title-action">
 							<img src="<?php $loc = location($invoice['loc']); echo base_url('userfiles/company/' . $loc['logo']) ?>"
 									 class="img-responsive" style="max-height: 80px;">
-							<?php if ($invoice['status'] != 'paid') {
+							<!--<php if ($invoice['status'] != 'paid') {
 								echo '<a href="#part_payment" data-toggle="modal" data-remote="false" data-type="reminder"
 								   class="btn btn-large btn-info mb-1" title="Partial Payment"
 								><span class="fa fa-money"></span>'.$this->lang->line('Make Payment').'</a>';
-								}?>
+								}?>-->
 
 							<div class="btn-group">
                                 <button type="button" class="btn btn-facebook dropdown-toggle mb-1"
@@ -34,9 +34,9 @@
                             <span
                                     class="fa fa-envelope-o"></span> Email
                                 </button>
-                                <div class="dropdown-menu"><a href="#sendEmail" data-toggle="modal"
-                                                              data-remote="false" class="dropdown-item sendbill"
-                                                              data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
+                                <div class="dropdown-menu">
+										<a href="#sendEmail" data-toggle="modal" data-remote="false" class="dropdown-item sendbill"
+                                           data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
                                     <div class="dropdown-divider"></div>
                                     <?php if ($invoice['status'] != 'paid') {
 									echo '<a href="#sendEmail" data-toggle="modal" data-remote="false"
@@ -52,9 +52,8 @@
                                        class="dropdown-item sendbill" href="#"
                                        data-type="overdue">'.$this->lang->line('Payment Overdue').'</a>';
 									   }?>
-									  <a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                            class="dropdown-item sendbill"
-                                            data-type="refund"><?php echo $this->lang->line('Refund Generated') ?></a>
+									  <a href="#sendEmail" data-toggle="modal" data-remote="false" class="dropdown-item sendbill" data-type="refund">
+									  <?php echo $this->lang->line('Refund Generated') ?></a>
 
                                 </div>
 

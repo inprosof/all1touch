@@ -45,7 +45,7 @@ class Quote_model extends CI_Model
 
     }
 
-	public function quote_details($id)
+	public function quote_details($id, $draft = 0)
     {
 		if($this->aauth->get_user()->loc == 0)
 		{
@@ -136,6 +136,9 @@ class Quote_model extends CI_Model
 		$this->db->join('geopos_config as c2', 'c2.id = geopos_quotes.prop_due', 'left');
 		$this->db->where('geopos_series.predf', 1);
         $this->db->where('geopos_quotes.id', $id);
+		if($draft > 0){
+			$this->db->where('geopos_quotes.status', 'draft');
+		}
         $query = $this->db->get();
         return $query->row_array();
 

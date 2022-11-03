@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-header">
             <h4 class="card-title">Gestão de <?php echo $this->lang->line('Quotes') ?> <a
-                        href="<?php echo base_url('quote/create_typ?typ=3') ?>"
+                        href="<?php echo base_url('quote/create_c') ?>"
                         class="btn btn-primary btn-sm rounded">
                     <?php echo $this->lang->line('Add new') ?></a></h4>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>

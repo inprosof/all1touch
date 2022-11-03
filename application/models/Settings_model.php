@@ -273,12 +273,28 @@ class Settings_model extends CI_Model
         //active($output);
 		$resp = json_decode($output);
 		if($resp->stt == "ok"){
-			$this->db->update('geopos_license', array("l_stt"=>"exp")) ;
+            $this->db->where("l_stt","act");
+            $r=$this->db->get("geopos_license")->row();
+            $now = time();
+            $your_date = strtotime($r->l_date);
+            $datediff = $now - $your_date;
+            $remain	=$r->l_exp - round($datediff / (60 * 60 * 24));
+            $remain_your = 0;
+            if(numberClean($remain)	> 0 ){
+                $remain_your = numberClean($remain);
+            }else{
+                $remain_your = 0;
+            }
+
+            $this->db->update('geopos_license', array("l_stt"=>"exp")) ;
+            
 			$data = array(
 				'l_code' => $var2,
-				'l_exp' => $resp->data->ds,
+				'l_exp' => (numberClean($resp->data->ds)+numberClean($remain_your)),
 				'l_email' => $var1
 				);
+
+
 			$ltxt = "Licensed";
 			if($resp->data->ds<20)
 				$ltxt = "Licença expira em ".$resp->data->ds." dias"; 
@@ -1020,14 +1036,26 @@ class Settings_model extends CI_Model
     public function custom_fields($id = 0)
     {
         if ($id) {
-            $this->db->select('*');
+            $this->db->select("*, 
+			case when f_module = 1 then 'Clientes'
+			when f_module = 2 then 'Faturas'
+			when f_module = 3 then 'Orçamentos'
+			when f_module = 4 then 'Fornecedores'
+			when f_module = 5 then 'Produtos'
+			else 'Funcionários' end as f_module_name");
             $this->db->from('geopos_custom_fields');
             $this->db->where('id', $id);
             $query = $this->db->get();
             return $query->row_array();
         } else {
-            $this->db->select('*');
-            $this->db->from('geopos_custom_fields');
+            $this->db->select("*,
+			case when f_module = 1 then 'Clientes'
+			when f_module = 2 then 'Faturas'
+			when f_module = 3 then 'Orçamentos'
+			when f_module = 4 then 'Fornecedores'
+			when f_module = 5 then 'Produtos'
+			else 'Funcionários' end as f_module_name");
+            $this->db->from("geopos_custom_fields");
             $query = $this->db->get();
             return $query->result_array();
         }

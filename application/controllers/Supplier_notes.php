@@ -66,17 +66,19 @@ class Supplier_notes extends CI_Controller
 	
 	public function create_c()
     {
-		$this->create(0,1);
+		$this->create(0,0,1);
 	}
 	
 	public function create_d()
     {
-		$this->create(0,0);
+		$this->create(0,0,0);
 	}
 	
     //
-    public function create($relation = 0, $typrelation = 0)
+    public function create($relation = 0, $typrelation = 0, $typ = 0)
     {
+		$this->load->model('accounts_model');
+		$this->load->model('locations_model', 'locations');
 		$this->load->model('plugins_model', 'plugins');
 		$this->load->model('settings_model', 'settings');
 		$this->load->model('customers_model', 'customers');
@@ -85,8 +87,8 @@ class Supplier_notes extends CI_Controller
         $data['taxlist'] = $this->common->taxlist($this->config->item('tax'));
         $data['exchange'] = $this->plugins->universal_api(5);
         $data['currency'] = $this->notes_model->currencies();
-		$ty = $this->input->get('ty');
-		if($typrelation == 1)
+		$typename = "";
+		if($typ == 1)
 		{
 			$head['title'] = "Nova Nota de Crédito Fornecedor";
 			if(count($this->settings->billingterms(21)) == 0)
@@ -94,6 +96,7 @@ class Supplier_notes extends CI_Controller
 				exit('Deve Inserir pelo menos um Termo para o Tipo Notas de Crédito Fornecedores. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
 													class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 			}
+			$typename = "Nota de Crédito ";
 			$data['terms'] = $this->settings->billingterms(21);
 		}else{
 			$head['title'] = "Nova Nota de Débito Fornecedor";
@@ -102,6 +105,7 @@ class Supplier_notes extends CI_Controller
 				exit('Deve Inserir pelo menos um Termo para o Tipo Notas de Débito Fornecedores. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
 													class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 			}
+			$typename = "Nota de Débito ";
 			$data['terms'] = $this->settings->billingterms(20);
 		}
 		
@@ -113,19 +117,22 @@ class Supplier_notes extends CI_Controller
 		
 		if($relation > 0)
 		{
+			if($typrelation == 0){
+				$data['tiprelated'] = 1;
+			}
 			$this->load->library("Related");
 			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
-			$data['csd_name'] = $data['relation']['name'];
-			$data['csd_tax'] = $data['relation']['taxid'];
-			$data['csd_id'] = $data['relation']['id'];
+			$data['csd_name'] = $data['docs_origem'][0]['name'];
+			$data['csd_tax'] = $data['docs_origem'][0]['taxid'];
+			$data['csd_id'] = $data['docs_origem'][0]['id'];
 			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
 		}else{
-			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
-			$data['csd_tax'] = "999999990";
-			$data['csd_id'] = "99999999";
+			$data['csd_name'] = '';
+			$data['csd_tax'] = "";
+			$data['csd_id'] = "";
 			$data['docs_origem'] = [];
+			$data['products'] = [];
 		}
-		
 		
 		////////////////////////Relação entre Permissões//////////////////////
 		///////////////////////////////////////////////////////////////////////
@@ -173,13 +180,15 @@ class Supplier_notes extends CI_Controller
 			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
 		}
 		
+		$data['typenote'] = $typ;
+		$data['type_return'] = $typename;
         $head['usernm'] = $this->aauth->get_user()->username;
         $data['warehouse'] = $this->notes_model->warehouses();
         $data['taxdetails'] = $this->common->taxdetail();
 		$data['currency'] = $this->notes_model->currencies();
 		$data['taxsiva'] = $this->settings->slabscombo();		
 		$data['typesinvoices'] = "";
-		if($typrelation == 1)
+		if($typ == 1)
 		{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(21);
 		}else{
@@ -189,7 +198,7 @@ class Supplier_notes extends CI_Controller
 		
 		if($data['seriesinvoiceselect'] == NULL)
 		{
-			if($typrelation == 1)
+			if($typ == 1)
 			{
 				exit('Deve Inserir pelo menos uma Série no Tipo Notas de Crédito Fornecedores. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
@@ -199,14 +208,13 @@ class Supplier_notes extends CI_Controller
 			}
 		}else{
 			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
-			if($typrelation == 1)
+			if($typ == 1)
 			{
-				$data['type'] = 'Credito';
 				$numget = $this->common->lastdoc(21,$seri_did_df);
 			}else{
-				$data['type'] = 'Debito';
 				$numget = $this->common->lastdoc(20,$seri_did_df);
 			}
+			$data['custom_fields'] = $this->custom->add_fields(4);
 			$data['lastinvoice'] = $numget;
 			$this->load->view('fixed/header', $head);
 			$this->load->view('supplier_notes/newinvoice', $data);
@@ -466,8 +474,12 @@ class Supplier_notes extends CI_Controller
 					$striPay = "[CREATED]<br>Utilizador: ".$this->aauth->get_user()->username;
 					$striPay = $striPay.'<br>'.$yourbrowser;
 					$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+					
+					
 					$striPay .= '<br>Nota Crédito Nº para o Fornecedor: '.$customer_name;
 					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_f', $invocieno);
+					
+					echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&draf=0&ty=$typenot' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0&ty=$typenot' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 				}
 			} else {
 				echo json_encode(array('status' => 'Error', 'message' => "Problema ao criar a fatura. Tente mais tarde."));
@@ -584,7 +596,7 @@ class Supplier_notes extends CI_Controller
 				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_f_draft', $invocieno);
 				
                 if ($transok) 
-					echo json_encode(array('status' => 'Success', 'message' => "Rascunho criado com Sucesso. <a href='view?id=$invocieno&ty=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+					echo json_encode(array('status' => 'Success', 'message' => "Rascunho criado com Sucesso. <a href='view?id=$invocieno&draf=1&ty=$typenot' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=1&ty=$typenot' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => "Erro a criar rascunho na Fatura. Tente mais tarde."));
                 $transok = false;
@@ -663,7 +675,7 @@ class Supplier_notes extends CI_Controller
 				$striPay .= '<br>Rascunho Atualizado Nº (Provisório)'.$invocieno2.' para o Fornecedor: '.$customer_name;
 				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_f_draft', $invocieno);
 				
-                echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&ty=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+                echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&draf=1&ty=$typenot' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=1&ty=$typenot' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 			}else {
 				echo json_encode(array('status' => 'Error', 'message' => "Erro ao guardar Rascunho!"));
 				$transok = false;
@@ -685,17 +697,49 @@ class Supplier_notes extends CI_Controller
             $row = array();
             $row[] = $no;
 			$row[] = $invoices->serie_name;
-			$row[] = '<a href="' . base_url("supplier_notes/view?id=$invoices->id&ty=0") . '">&nbsp; ' . $invoices->tid . '</a>';
+			$row[] = '<a href="' . base_url("supplier_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '">&nbsp; ' . $invoices->tid . '</a>';
             $row[] = $invoices->name;
             $row[] = dateformat($invoices->invoicedate);
             $row[] = amountExchange($invoices->total, 0, $this->aauth->get_user()->loc);
             $row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span>';
-			if($invoices->status != 'ended'){
-				$row[] = '<a href="' . base_url("supplier_notes/view?id=$invoices->id&ty=0") . '" class="btn btn-danger btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("purchase/printinvoice?id=$invoices->id&ty=0") . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp; &nbsp;<a href="#" data-object-id="' . $invoices->id . '" class="btn btn-danger btn-xs delete-object"><span class="fa fa-trash"></span></a>';
+			$option = '';
+			if($invoices->status == 'canceled'){
+				if($ty == 1)
+				{
+					if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(57))
+					{
+						$option .= '<a href="' . base_url("supplier_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '" class="btn btn-danger btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("supplier_notes/printinvoice?id=$invoices->id&draf=0&ty=".$ty) . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					}
+				}else{
+					if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(122))
+					{
+						$option .= '<a href="' . base_url("supplier_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '" class="btn btn-danger btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("supplier_notes/printinvoice?id=$invoices->id&draf=0&ty=".$ty) . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					}
+				}
+				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>';
+				$row[] = $option;
 			}else{
-				$row[] = '<a href="' . base_url("supplier_notes/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("purchase/printinvoice?id=$invoices->id&ty=0") . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp; &nbsp;<a href="#" data-object-id="' . $invoices->id . '" class="btn btn-danger btn-xs delete-object"><span class="fa fa-trash"></span></a>';
+				if($ty == 1)
+				{
+					if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(45))
+					{
+						$option .= '<a href="' . base_url("supplier_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '" class="btn btn-success btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("supplier_notes/printinvoice?id=$invoices->id&ty=".$ty) . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					}
+				}else{
+					if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(125))
+					{
+						$option .= '<a href="' . base_url("supplier_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '" class="btn btn-success btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> &nbsp; <a href="' . base_url("supplier_notes/printinvoice?id=$invoices->id&ty=".$ty) . '&d=1" class="btn btn-info btn-xs"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+					}
+				}
+				$option .= '<a data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+				
+				if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
+					$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				}
+				$row[] = $option;
 			}
-			
             $data[] = $row;
         }
 
@@ -710,13 +754,18 @@ class Supplier_notes extends CI_Controller
             $row = array();
 			$row[] = $no;
 			$row[] = $drafts->serie_name;
-            $row[] = '<a href="' . base_url("supplier_notes/view?id=$drafts->id&ty=1") . '">&nbsp; ' . $textini . '</a>';
+            $row[] = '<a href="' . base_url("supplier_notes/view?id=$drafts->id&draf=1&ty=".$ty) . '">&nbsp; ' . $textini . '</a>';
             $row[] = $drafts->name;
             $row[] = dateformat($drafts->invoicedate);
             $row[] = amountExchange($drafts->total, 0, $this->aauth->get_user()->loc);
             $row[] = 'Rascunho';
-            $row[] = '<a href="' . base_url("supplier_notes/view?id=$drafts->id&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$drafts->id&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> <a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" data-object-draft="0" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+            $option = '<a href="' . base_url("supplier_notes/view?id=$drafts->id&draf=1&ty=".$ty) . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$drafts->id&draf=1&ty=".$ty) . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
 			
+			if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7)
+			{
+				$option .= '<a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" data-object-draft="0" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+			}
+			$row[] = $option;
             $data[] = $row;
         }
 		
@@ -740,20 +789,45 @@ class Supplier_notes extends CI_Controller
 		$this->load->library("Common");
         $tid = $this->input->get('id');
 		$token = $this->input->get('token');
+		$draf = $this->input->get('draf');
 		$type = $this->input->get('ty');
-		$data['invoice'] = $this->notes_model->supplier_notes_details($tid, $this->limited);
-		$data['products'] = $this->notes_model->supplier_notes_products($tid);
-		if($type == 0){
-			$data['title'] = "Nota de Crédito Fornecedor " . $data['invoice']['tid'];
-			$head['title'] = "Nota de Crédito Fornecedor " . $data['invoice']['tid'];
-			$data['attach'] = $this->notes_model->attach($tid);
-			$data['history'] = $this->common->history($tid,'notes_f');
-			$data['typeinvoice'] = 0;
-		}else{
-			$data['title'] = "Nota de Débito Fornecedor " . $data['invoice']['tid'];
-			$head['title'] = "Nota de Débito Fornecedor " . $data['invoice']['tid'];
+		
+		if($type == 1){
 			$data['typeinvoice'] = 1;
-			$data['history'] = $this->common->history($tid,'notes_f_draft');
+			if($draf == 0){
+				$data['draft'] = 0;
+				$data['invoice'] = $this->notes_model->supplier_notes_details($tid, $this->limited);
+				$data['products'] = $this->notes_model->supplier_notes_products($tid);
+				$data['title'] = "Nota de Crédito Fornecedor " . $data['invoice']['tid'];
+				$head['title'] = "Nota de Crédito Fornecedor " . $data['invoice']['tid'];
+				$data['attach'] = $this->notes_model->attach($tid);
+				$data['history'] = $this->common->history($tid,'notes_f');
+			}else{
+				$data['draft'] = 1;
+				$data['invoice'] = $this->notes_model->supplier_notes_details2($tid, $this->limited);
+				$data['products'] = $this->notes_model->supplier_notes_products2($tid);
+				$data['title'] = "Rascunho Nota de Crédito Fornecedor " . $data['invoice']['tid'];
+				$head['title'] = "Rascunho Nota de Crédito Fornecedor " . $data['invoice']['tid'];
+				$data['history'] = $this->common->history($tid,'notes_f_draft');
+			}
+		}else{
+			$data['typeinvoice'] = 2;
+			if($draf == 0){
+				$data['draft'] = 0;
+				$data['invoice'] = $this->notes_model->supplier_notes_details($tid, $this->limited);
+				$data['products'] = $this->notes_model->supplier_notes_products($tid);
+				$data['title'] = "Nota de Débito Fornecedor " . $data['invoice']['tid'];
+				$head['title'] = "Nota de Débito Fornecedor " . $data['invoice']['tid'];
+				$data['attach'] = $this->notes_model->attach($tid);
+				$data['history'] = $this->common->history($tid,'notes_f');
+			}else{
+				$data['draft'] = 1;
+				$data['invoice'] = $this->notes_model->supplier_notes_details2($tid, $this->limited);
+				$data['products'] = $this->notes_model->supplier_notes_products2($tid);
+				$data['title'] = "Rascunho Nota de Débito Fornecedor " . $data['invoice']['tid'];
+				$head['title'] = "Rascunho Nota de Débito Fornecedor " . $data['invoice']['tid'];
+				$data['history'] = $this->common->history($tid,'notes_f_draft');
+			}
 		}
 		
         $data['iddoc'] = $data['invoice']['id'];
@@ -1013,19 +1087,51 @@ class Supplier_notes extends CI_Controller
 
     public function delete_i()
     {
-		if (!$this->aauth->premission(11)) {
-            exit($this->lang->line('translate19'));
-        }
+		if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
+			exit($this->lang->line('translate19'));
+		}
+        $id = $this->input->post('deleteid');
+		$tid = $this->input->post('deletetid');
+		$draft = $this->input->post('draft');
+		
+		if($draft == 0)
+		{
+			//$this->db->delete('geopos_log', array('id_c' => $id,'type_log' => 'note_f'));
+			$this->db->delete('geopos_data_related', array('tid' => $id));
+			$this->db->delete('geopos_data_transport', array('tid' => $id));
+			$this->db->delete('geopos_supplier_notes_items', array('id' => $id));
+			$this->db->delete('geopos_supplier_notes', array('id' => $id));
+			// now try it
+			//$ua=$this->aauth->getBrowser();
+			//$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+			
+			//$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+			//$striPay = $striPay.'<br>'.$yourbrowser;
+			//$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+			//$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
+			//$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'note_f', $id);
+			echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso.'));
+		}else{
+			$justification = $this->input->post('justification');
+			$this->db->set('status', 'canceled');
+			$this->db->set('justification_cancel', $justification);
+			$this->db->where('id', $id);
+			$this->db->update('geopos_supplier_notes');
+			
+			$ua=$this->aauth->getBrowser();
+			$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+			
+			$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+			$striPay = $striPay.'<br>'.$yourbrowser;
+			$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+			$striPay = $striPay.'<br>Nota Apagada Nº: '.$id;
+			$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'note_f', $id);
+			echo json_encode(array('status' => 'Success', 'message' => 'Documento Anulado com Sucesso.'));
+		}
+		
         $id = $this->input->post('deleteid');
 		$this->db->delete('geopos_supplier_notes_items', array('tid' => $id));
-		$ua=$this->aauth->getBrowser();
-		$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
 		
-		$striPay = "Utilizador: ".$this->aauth->get_user()->username;
-		$striPay = $striPay.'<br>'.$yourbrowser;
-		$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-		$striPay = $striPay.'<br>Nota Apagada Nº: '.$id;
-		$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'note_f', $id);
 		
         if ($this->notes_model->purchase_delete($id)) {
             echo json_encode(array('status' => 'Success', 'message' =>

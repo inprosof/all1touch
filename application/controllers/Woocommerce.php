@@ -21,6 +21,7 @@ class Woocommerce extends CI_Controller
         $this->load->model('cronjob_model', 'cronjob');
         $this->load->model('woo_model');
         $this->load->library("Aauth");
+		$this->load->library("Common");
         if (!$this->aauth->is_loggedin()) {
             redirect('/user/', 'refresh');
         }
@@ -54,41 +55,43 @@ class Woocommerce extends CI_Controller
 
             $group_p = array("category" => $p_cat, "warehouse" => $p_warehouse, "images" => $images, "filter" => $p_status, "discount" => $discount, "tax" => $tax);
             $group_p_store = json_encode($group_p);
-
-            $this->db->set('other', $group_p_store);
-            $this->db->where('id', 60);
-            $this->db->update('univarsal_api');
-
-            $this->plugins->m_update_api(57, $key1, $key2, $url, $emp);
-
-
+            $this->plugins->m_update_api(57, $key1, $key2, $url, $emp, $group_p_store);
         } else {
             $this->load->model('categories_model');
             $this->load->model('employee_model', 'employee');
             $data['emp'] = $this->employee->list_employee();
             $head['usernm'] = $this->aauth->get_user()->username;
             $head['title'] = 'WooCommerce Integration';
-            $data['universal'] = $this->plugins->universal_api(57);
+			$extra_config = $this->plugins->universal_api(57);
+            $data['universal'] = $extra_config;
             $data['cat'] = $this->categories_model->category_list();
             $data['warehouses'] = $this->categories_model->warehouse_list();
-
-            $extra_config = $this->plugins->universal_api(60);
-
-            $data['config'] = json_decode($extra_config['other'], true);
-
-
-            $this->db->select('*');
-            $this->db->from('geopos_product_cat');
-            $this->db->where('id', $data['config']['category']);
-            $query = $this->db->get();
-            $data['productcat'] = $query->row_array();
-
-
-            $this->db->select('*');
-            $this->db->from('geopos_warehouse');
-            $this->db->where('id', $data['config']['warehouse']);
-            $query = $this->db->get();
-            $data['warehouse'] = $query->row_array();
+			$data['taxs'] = $this->common->taxsettings(0);
+			if($extra_config['other'] == ''){
+				$data['config']['warehouse'] = '0';
+				$data['config']['category'] = '0';
+				$data['config']['images'] = 'No';
+				$data['config']['filter'] = 'any';
+				$data['config']['discount'] = '0.00';
+				$data['config']['tax'] = '0';
+				
+				$data['warehouse']['title'] = 'Por favor Selecione';
+				$data['productcat']['title'] = 'Por favor Selecione';
+			}else{
+				$data['config'] = json_decode($extra_config['other'], true);
+				$this->db->select('*');
+				$this->db->from('geopos_product_cat');
+				$this->db->where('id', $data['config']['category']);
+				$query = $this->db->get();
+				$data['productcat'] = $query->row_array();
+				
+				$this->db->select('*');
+				$this->db->from('geopos_warehouse');
+				$this->db->where('id', $data['config']['warehouse']);
+				$query = $this->db->get();
+				$data['warehouse'] = $query->row_array();
+			}
+            
 
 
             $this->load->view('fixed/header', $head);

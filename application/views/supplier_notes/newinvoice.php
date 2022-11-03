@@ -67,7 +67,7 @@
                                 <div class="form-group row">
 									<div class="col-sm-8">
 										<label for="invoi_type"
-                                               class="caption">Nota de <?php echo $type ?> Nº<strong><?php echo $lastinvoice + 1 ?> (numeração provisória)</strong></label>
+                                               class="caption"><?php echo $type_return ?> Nº<strong><?php echo $lastinvoice + 1 ?> (numeração provisória)</strong></label>
 										<span class="input-group-addon" title="<?php echo "Esta numeração é atribuída com base na sequência dos documentos gerados dentro da série escolhida
 
 Os documentos do mesmo tipo dentro da mesma série têm que ter uma numeração sequêncial, a qual é mostrada aqui.
@@ -423,6 +423,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 							</tbody>
 						</table>
 					</div>
+					<input type="hidden" value="<?php echo $typenote ?>" name="typenote">
 					<input type="hidden" value="<?php echo $accountname; ?>" id="account_set" name="account_set">
 					<input type="hidden" value="<?php echo $accountid; ?>" id="account_set_id" name="account_set_id">
                     <input type="hidden" value="new_i" id="inv_page">

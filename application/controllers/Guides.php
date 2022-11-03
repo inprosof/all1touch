@@ -72,6 +72,7 @@ class Guides extends CI_Controller
     //create guide Charge
     public function create($relation = 0, $typrelation = 0)
     {
+		$this->load->model('locations_model', 'locations');
 		$this->load->model('customers_model', 'customers');
         $this->load->model('plugins_model', 'plugins');
 		$this->load->model('settings_model', 'settings');
@@ -91,9 +92,9 @@ class Guides extends CI_Controller
 			}
 			$this->load->library("Related");
 			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
-			$data['csd_name'] = $data['docs_origem']['name'];
-			$data['csd_tax'] = $data['docs_origem']['taxid'];
-			$data['csd_id'] = $data['docs_origem']['id'];
+			$data['csd_name'] = $data['docs_origem'][0]['name'];
+			$data['csd_tax'] = $data['docs_origem'][0]['taxid'];
+			$data['csd_id'] = $data['docs_origem'][0]['id'];
 			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
 		}else{
 			$data['csd_name'] = $this->lang->line('Default').": Consumidor Final";
@@ -862,24 +863,35 @@ class Guides extends CI_Controller
         $no = $this->input->post('start');
         foreach ($list as $guides) {
 			$textini = $guides->type.'-'.$guides->tid;
-			if($guides->status == 0)
+			if($guides->status < 2)
 			{
 				$textini .= '<br>(Provisório)';
 			}
             $no++;
             $row = array();
             $row[] = $no;
-            $row[] = '<a href="' . base_url("guides/view?id=$guides->id&type=$guides->typeguide&tid=$guides->tid") . '">&nbsp; ' . $textini . '</a>';
+			if($guides->status == 2)
+			{
+				$row[] = '<a href="' . base_url("guides/view?id=$guides->id&type=$guides->typeguide&draf=0") . '">&nbsp; ' . $textini . '</a>';
+			}else{
+				$row[] = '<a href="' . base_url("guides/view?id=$guides->id&type=$guides->typeguide&draf=1") . '">&nbsp; ' . $textini . '</a>';
+			}
+            
             $row[] = $guides->name;
             $row[] = dateformat($guides->invoicedate);
             $row[] = amountExchange($guides->total, 0, $this->aauth->get_user()->loc);
 			$row[] = $guides->viatura;
 			if($guides->status == 2){
-				$option = '<a href="' . base_url("guides/view?id=$guides->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("guides/printguide?id=$guides->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+				$option = '<a href="' . base_url("guides/view?id=$guides->id&tid=$guides->tid&draf=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("guides/printguide?id=$guides->id&tid=$guides->tid&draf=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
 				$option .= '<a id="choise_type_duplicate_but" name="choise_type_duplicate_but" data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$guides->serie_name.'" data-object-type="'.$guides->irs_type.'" data-object-type_n="'.$guides->irs_type_c.'" data-object-type_s="'.$guides->type.'" data-object-ext="' . $guides->ext . '" data-object-id="' . $guides->id . '" data-object-tid="' . $guides->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>';
 				$row[] = $option;
 			}else{
-				$option = '<a href="' . base_url("guides/view?id=$guides->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("guides/printguide?id=$guides->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+				if($guides->status == 2)
+				{
+					$option = '<a href="' . base_url("guides/view?id=$guides->id&type=$guides->typeguide&&draf=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("guides/printguide?id=$guides->id&draf=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+				}else{
+					$option = '<a href="' . base_url("guides/view?id=$guides->id&type=$guides->typeguide&draf=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("guides/printguide?id=$guides->id&draf=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+				}
 				$option .= '<a id="choise_type_convert_but" name="choise_type_convert_but" data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-serie="'.$guides->serie_name.'" data-object-type="'.$guides->irs_type.'" data-object-type_n="'.$guides->irs_type_c.'" data-object-type_s="'.$guides->type.'" data-object-ext="' . $guides->ext . '" data-object-id="' . $guides->id . '" data-object-tid="' . $guides->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>&nbsp;';
 				$option .= '<a id="choise_type_duplicate_but" name="choise_type_duplicate_but" data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$guides->serie_name.'" data-object-type="'.$guides->irs_type.'" data-object-type_n="'.$guides->irs_type_c.'" data-object-type_s="'.$guides->type.'" data-object-ext="' . $guides->ext . '" data-object-id="' . $guides->id . '" data-object-tid="' . $guides->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
 				$option .= '<a id="choise_docs_relateds_but" name="choise_docs_relateds_but" data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$guides->serie_name.'" data-object-type="'.$guides->irs_type.'" data-object-type_n="'.$guides->irs_type_c.'" data-object-type_s="'.$guides->type.'" data-object-ext="' . $guides->ext . '" data-object-id="' . $guides->id . '" data-object-tid="' . $guides->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
@@ -907,21 +919,50 @@ class Guides extends CI_Controller
         $this->load->model('accounts_model');
         $data['acclist'] = $this->accounts_model->accountslist((integer)$this->aauth->get_user()->loc);
         $tid = $this->input->get('id');
-		$type = $this->input->get('type');
         $data['guide'] = $this->guides->guide_details($tid, $this->limited);
-		$type = "";
-		if($data['guide']['typeguide'] == 1)
+		$typename = "";
+		$draf = $this->input->get('draf');
+		if($draf == 0)
 		{
-			if (!$this->aauth->premission(13) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-				exit($this->lang->line('translate19'));
+			if($data['guide']['typeguide'] == 1)
+			{
+				if (!$this->aauth->premission(13) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+					exit($this->lang->line('translate19'));
+				}
+				$typename = 'Guia de Remessa ';
+			}else{
+				if (!$this->aauth->premission(16) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+					exit($this->lang->line('translate19'));
+				}
+				$typename = 'Guia de Transporte ';
 			}
-			$type = 'Guia de Remessa ';
+			if($data['guide']['typeguide'] == 1)
+			{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,4,0);
+			}else{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,5,0);
+			}
 		}else{
-			if (!$this->aauth->premission(16) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-				exit($this->lang->line('translate19'));
+			if($data['guide']['typeguide'] == 1)
+			{
+				if (!$this->aauth->premission(13) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+					exit($this->lang->line('translate19'));
+				}
+				$typename = 'Rascunho Guia de Remessa ';
+			}else{
+				if (!$this->aauth->premission(16) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+					exit($this->lang->line('translate19'));
+				}
+				$typename = 'Rascunho Guia de Transporte ';
 			}
-			$type = 'Guia de Transporte ';
+			if($data['guide']['typeguide'] == 1)
+			{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,4,1);
+			}else{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,5,1);
+			}
 		}
+		
 		
 		///////////////////////////////////////////////////////////////////////
 		////////////////////////Relação entre documentos//////////////////////
@@ -930,22 +971,9 @@ class Guides extends CI_Controller
 		{
 			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
 			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
-			if($data['guide']['typeguide'] == 1)
-			{
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,4,1);
-			}else{
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,5,1);
-			}
-			
 		}else{
 			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
 			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
-			if($data['guide']['typeguide'] == 1)
-			{
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,4,0);
-			}else{
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,5,0);
-			}
 		}
 		
 		$data['history'] = $this->common->history($tid,'guide');
@@ -953,8 +981,8 @@ class Guides extends CI_Controller
         $data['attach'] = $this->guides->attach($tid);
         $head['usernm'] = $this->aauth->get_user()->username;
 		
-		$head['title'] = $type . $data['guide']['tid'];
-		$data['guide']['type'] = $type;
+		$head['title'] = $typename . $data['guide']['tid'];
+		$data['guide']['type'] = $typename;
         $data['type_guide'] = $data['guide']['typeguide'];
         $this->load->view('fixed/header', $head);
         $data['employee'] = $this->guides->employee($data['guide']['eid']);
@@ -986,8 +1014,8 @@ class Guides extends CI_Controller
 			$type = 'Guia de Transporte';
 		}
 		$data['type_guide'] = $data['invoice']['typeguide'];
-        if (CUSTOM) $data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
-		
+        if (CUSTOM) 
+			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
 		
         $data['general'] = array('title' => $type, 'person' => $this->lang->line('Customer'), 'prefix' => $pref, 't_type' => 0);
         ini_set('memory_limit', '64M');
@@ -1223,27 +1251,30 @@ class Guides extends CI_Controller
 		if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
 			exit($this->lang->line('translate19'));
 		}
-		
-		$id = $this->input->post('deleteid');
+        $id = $this->input->post('deleteid');
+		$tid = $this->input->post('deletetid');
 		$draft = $this->input->post('draft');
 		
 		if($draft == 0)
 		{
-			if ($this->guides->guide_delete($id, $this->limited)) {
-				// now try it
-				$ua=$this->aauth->getBrowser();
-				$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
-				
-				$striPay = "Utilizador: ".$this->aauth->get_user()->username;
-				$striPay = $striPay.'<br>'.$yourbrowser;
-				$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-				$striPay = $striPay.'<br>Rascunho da Guia Removido: '.$tid;
-				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'guide', $id);
-				echo json_encode(array('status' => 'Success', 'message' => 'Rascunho da Guia Removido com Sucesso.'));
-			} else {
-				echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
-			}
+			//$this->db->delete('geopos_log', array('id_c' => $id,'type_log' => 'guide'));
+			$this->db->delete('geopos_data_related', array('tid' => $id));
+			$this->db->delete('geopos_data_transport', array('tid' => $id));
+			$this->db->delete('geopos_guides_items', array('id' => $id));
+			$this->db->delete('geopos_guides', array('id' => $id));
+			// now try it
+			//$ua=$this->aauth->getBrowser();
+			//$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+			
+			//$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+			//$striPay = $striPay.'<br>'.$yourbrowser;
+			//$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+			//$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
+			//$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'guide', $id);
+			echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso.'));
 		}else{
+			$justification = $this->input->post('justification');
+			$this->db->set('justification_cancel', $justification);
 			$this->db->set('status', 2);
 			$this->db->where('id', $id);
 			$this->db->update('geopos_guides');
@@ -1258,14 +1289,6 @@ class Guides extends CI_Controller
 			$striPay = $striPay.'<br>Guia Anulada: '.$tid;
 			$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'guide', $id);
 			echo json_encode(array('status' => 'Success', 'message' => 'Documento Anulado com Sucesso.'));
-			
-		}
-		if ($this->guides->invoice_delete($id, $this->limited)) {
-			echo json_encode(array('status' => 'Success', 'message' =>
-				$this->lang->line('DELETED')));
-		} else {
-			echo json_encode(array('status' => 'Error', 'message' =>
-				$this->lang->line('ERROR')));
 		}
     }
 

@@ -27,11 +27,11 @@
 				<div class="form-group row">
 
                     <label class="col-sm-2 col-form-label"
-                           for="f_module"><?php echo $this->lang->line('Type') ?></label>
+                           for="f_type"><?php echo $this->lang->line('Type') ?></label>
 
                     <div class="col-sm-6">
-                        <select class="form-control" name="f_module">
-							<option value="<?php echo $customfields['f_module']?>">**<?php echo $customfields['f_module']?>**</option>
+                        <select class="form-control" name="f_type">
+							<option value="<?php echo $customfields['f_type']?>">**<?php echo $customfields['f_type']?>**</option>
                             <option value="text">Text</option>
 							<option value="check">Check</option>
 							<option value="textarea">Textarea</option>
@@ -41,11 +41,11 @@
                 <div class="form-group row">
 
                     <label class="col-sm-2 col-form-label"
-                           for="f_type"><?php echo $this->lang->line('Module') ?></label>
+                           for="f_module"><?php echo $this->lang->line('Module') ?></label>
 
                     <div class="col-sm-6">
-                        <select class="form-control" name="f_type">
-							<option value="<?php echo $customfields['f_type']?>">**Selecionado**</option>
+                        <select class="form-control" name="f_module">
+							<option value="<?php echo $customfields['f_module']?>">**<?php echo $customfields['f_module_name']?>**</option>
                             <option value="1">Clientes</option>
                             <option value="2">Faturas</option>
 							<option value="3">Orçamentos</option>

@@ -110,57 +110,58 @@
                 </div>
 
                 <div class="form-group row">
-   <div class="col-sm-6">
-                    <label class="col-sm-6" for="terms">Import Images</label>
+					<div class="col-sm-6">
+						<label class="col-sm-6" for="terms">Import Images</label>
 
-                    <div class="col-sm-8">
-                        <select name="images" class="form-control">
-                            <option value='<?php echo $config['images'] ?>'>-<?php echo $config['images'] ?>-</option>
-                            <option value="Yes"><?php echo $this->lang->line('Yes') ?></option>
-                            <option value="No"><?php echo $this->lang->line('No') ?></option>
-                        </select>
-                    </div>
-                </div>
-<div class="col-sm-6">
-                <div class="form-group row">
+						<div class="col-sm-8">
+							<select name="images" class="form-control">
+								<option value='<?php echo $config['images'] ?>'>-<?php echo $config['images'] ?>-</option>
+								<option value="Yes"><?php echo $this->lang->line('Yes') ?></option>
+								<option value="No"><?php echo $this->lang->line('No') ?></option>
+							</select>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group row">
 
-                    <label class="col-sm-6" for="terms">Product Status</label>
+							<label class="col-sm-6" for="terms">Product Status</label>
 
-                    <div class="col-sm-8">
-                        <select name="p_status" class="form-control">
-                            <option value='<?php echo $config['filter'] ?>'>-<?php echo $config['filter'] ?>-</option>
-                            <option value='any'>Any</option>
-                            <option value="publish">Publish</option>
-                            <option value="draft">Draft</option>
-                            <option value="pending">Pending</option>
-                            <option value="pending">Private</option>
-                        </select>
-                    </div>
-                </div>
-</div>
-</div>             <div class="form-group row">
-   <div class="col-sm-6">
-                    <label class="col-sm-6" for="terms">Default Discount</label>
+							<div class="col-sm-8">
+								<select name="p_status" class="form-control">
+									<option value='<?php echo $config['filter'] ?>'>-<?php echo $config['filter'] ?>-</option>
+									<option value='any'>Todos</option>
+									<option value="publish">Publicados</option>
+									<option value="draft">Rascunhos</option>
+									<option value="pending">Pendentes</option>
+									<option value="pending">Privados</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>          
+				<div class="form-group row">
+					<div class="col-sm-6">
+						<label class="col-sm-6" for="terms">Desconto Por defeito</label>
 
-                    <div class="col-sm-8">
-                           <input type="number"
-                               class="form-control margin-bottom  required" name="discount"
-                               value="<?php echo $config['discount'] ?>">
-                    </div>
-                </div>
-<div class="col-sm-6">
-                <div class="form-group row">
-
-                    <label class="col-sm-6" for="terms">Default Tax</label>
-
-                    <div class="col-sm-8">
-                        <input type="number"
-                               class="form-control margin-bottom  required" name="tax"
-                               value="<?php echo $config['tax'] ?>">
-                    </div>
-                </div>
-</div>
-</div>
+						<div class="col-sm-8">
+							   <input type="number"
+								   class="form-control margin-bottom  required" name="discount"
+								   value="<?php echo $config['discount'] ?>">
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group row">
+							<label class="col-sm-6" for="terms">Taxa por defeito</label>
+							<div class="col-sm-8 required">
+								<select name="tax" class="form-control">
+									<?php
+										echo $taxs;
+									?>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
                 <hr>
                 <div class="form-group row">
 

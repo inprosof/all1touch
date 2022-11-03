@@ -802,6 +802,25 @@ function removeObject(action, action_url) {
 }
 
 //universal create
+$("#submit-data-save").on("click", function (e) {
+    e.preventDefault();
+    $(this).hide();
+    var o_data = $("#data_form").serialize();
+    var action_url = $('#action-url').val();
+    addObject(o_data, action_url);
+    setTimeout(function(){  $("#submit-data-product").show(); }, 1000);
+});
+
+$("#submit-data-draft").on("click", function (e) {
+    e.preventDefault();
+    $(this).hide();
+    var o_data = $("#data_form").serialize();
+    var action_url = $('#action-url2').val();
+    addObject(o_data, action_url);
+    setTimeout(function(){  $("#submit-data-product-2").show(); }, 1000);
+});
+
+//universal create
 $("#submit-data").on("click", function (e) {
     e.preventDefault();
     $(this).hide();
@@ -810,12 +829,13 @@ $("#submit-data").on("click", function (e) {
     addObject(o_data, action_url);
     setTimeout(function(){  $("#submit-data").show(); }, 1000);
 });
+
+
 $("#submit-data1").on("click", function (e) {
     e.preventDefault();
 	$(this).hide();
     var o_data = $("#data_form1").serialize();
-    var action_url = $('#action-url1').val();
-	console.log('Url: '+action_url);
+    var action_url = $('#action-url1').val();7
     addObject(o_data, action_url);
 	setTimeout(function(){  $("#submit-data1").show(); }, 1000);
 });
@@ -1199,7 +1219,9 @@ $(document).on('click', ".apply_coupon", function (e) {
 ////////////////////////////////////////////////////
 $(document).on('click', ".related-object", function (e) {
     e.preventDefault();
-	$('#relations-id').val($(this).attr('data-object-id'));
+	$("#relations-id").val($(this).attr('data-object-id'));
+	$("#relations-type").val($(this).attr('data-object-type'));
+	$("#relations-ext").val($(this).attr('data-object-ext'));
 	$('#relations-type_n').val($(this).attr('data-object-type_n'));
 	
     $('#titulo_relationt').text('O documento '+$(this).attr('data-object-type_n')+' '+$(this).attr('data-object-type_s')+' '+$(this).attr('data-object-serie')+'/'+$(this).attr('data-object-tid')+' teve origem nos documentos abaixo (Está conciliado com)');
@@ -1207,22 +1229,22 @@ $(document).on('click', ".related-object", function (e) {
 	
 	var table = document.getElementById("relationsdview");
 		table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
-		draw_data_relation('relationsdview', $(this).attr('data-object-id'), 0, '', 0,0,-1,'Não existe nenhum documento que desse origem a este documento!');
+		draw_data_relation('relationsdview', $(this).attr('data-object-id'), 0, '', 0,$(this).attr('data-object-ext'),-1,'Não existe nenhum documento que desse origem a este documento!');
 		
 	var table = document.getElementById("relationstview");
 		table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
-		draw_data_relation('relationstview', 0, $(this).attr('data-object-id'), '', 0,0,-1,'Não existe nenhum documento que tenha origem neste documento!');
+		draw_data_relation('relationstview', 0, $(this).attr('data-object-id'), '', 0,$(this).attr('data-object-ext'),-1,'Não existe nenhum documento que tenha origem neste documento!');
 });
 
 
-$("#convert-choise_type_convert_but").on("click", function (e) {
+$(document).on('click', ".convert-object", function (e) {
     e.preventDefault();
-    $('#convert-id').val($(this).attr('data-object-id'));
-	$('#convert-type').val($(this).attr('data-object-type_n'));
-	
+	$("#convert-id").val($(this).attr('data-object-id'));
+	$("#convert-type").val($(this).attr('data-object-type'));
+	$("#convert-ext").val($(this).attr('data-object-ext'));
 	var table = document.getElementById("convertersview");
 		table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
-		draw_data_relation('convertersview', $(this).attr('data-object-id'), 0, '', 0,0,1,'Este documento ainda não foi convertido');
+		draw_data_relation('convertersview', $(this).attr('data-object-id'), 0, '', 0,$(this).attr('data-object-ext'),-1,'Este documento ainda não foi convertido');
 });
 
 $("#convert-confirm").on("click", function (e) {
@@ -1234,20 +1256,19 @@ $("#convert-confirm").on("click", function (e) {
 });
 
 $("#choise_type_convert_but").on("click", function (e) {
-	e.preventDefault();
+	//e.preventDefault();
+	console.log('Val1: '+$(this).attr('data-object-id'));
 	$("#convert-id").val($(this).attr('data-object-id'));
 	$("#convert-type").val($(this).attr('data-object-type'));
 	$("#convert-ext").val($(this).attr('data-object-ext'));
-	console.log('Val1: '+$("#convert-id").val());
-	console.log('Val2: '+$("#convert-type").val());
-	console.log('Val3: '+$("#convert-ext").val());
 });
 
 
 $(document).on('click', ".duplicate-object", function (e) {
     e.preventDefault();
 	$('#duplicate-id').val($(this).attr('data-object-id'));
-	$('#duplicate-type').val($(this).attr('data-object-type'));
+	$('#duplicate-type_n').val($(this).attr('data-object-type'));
+	$("#duplicate-ext").val($(this).attr('data-object-ext'));
 });
 
 
@@ -1299,15 +1320,17 @@ $('#searchdocbut').click(function (e) {
 	var start_date = $('#startdaterel').val();
 	var end_date = $('#enddaterel').val();
 	var searchdoc = $('#searchdoc').val();
+	var related_ext = $('#related-ext').val();
 	var el = $("#choise-doc-type option:selected").val();
+	
 	
 	if (el == -1)
 	{
 		alert("Selecione um Tipo pelo menos.");
 	}else{
 		var table = document.getElementById("relationssearch");
-		table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
-		draw_data_relation('relationssearch',start_date, end_date, searchdoc, el,0,0,'Não há informação para apresentar.');
+		table.innerHTML = '<thead><tr><th width="20%">Configurações</th><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="10%">Valor a Conciliar</th></tr></thead>';
+		draw_data_relation('relationssearch',start_date, end_date, searchdoc, el,related_ext,0,'Não há informação para apresentar.');
 	}
 });
 

@@ -47,9 +47,36 @@ class Invoices_supli extends CI_Controller
 		//exit('Em desenvolvimento. Obrigado pela Compreensão.');
 
     }
+	
+	
+	////////////////////////Funcões Get convert//////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+	public function duplicate()
+	{
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$ext = $this->input->get('ext');
+		$this->create($tid, 0, $typ, $ext);
+	}
+	
+	
+	public function convert()
+	{
+		$tid = $this->input->get('id');
+		$typ = $this->input->get('typ');
+		$ext = $this->input->get('ext');
+		$this->create($tid, $typ, 0, $ext);
+	}
+	
+	public function create_typ()
+	{
+		//$typ = $this->input->get('typ');
+		$this->create(0, 0, 0);
+	}
 
     //create invoice
-    public function create($order = 0)
+    public function create($relation = 0, $typrelation = 0, $order = 0)
     {
 		if (!$this->aauth->premission(52) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 			exit($this->lang->line('translate19'));
@@ -57,7 +84,6 @@ class Invoices_supli extends CI_Controller
 		$this->load->model('locations_model', 'locations');
         $this->load->library("Common");
 		$this->load->model('settings_model', 'settings');
-        $data['custom_fields_c'] = $this->custom->add_fields(1);
 		$data['csd_name'] = "Fornecedor";
 		$data['csd_tax'] = "";
 		$data['csd_id'] = "";
@@ -68,6 +94,38 @@ class Invoices_supli extends CI_Controller
 			$data['csd_name'] = $csdorder['name'];
 			$data['csd_tax'] = $csdorder['taxid'];
 			$data['csd_id'] = $csdorder['id'];
+		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['typrelation'] = $typrelation;
+		$data['relationid'] = $relation;
+		
+		if($relation > 0)
+		{
+			if($typrelation == 0){
+				$data['tiprelated'] = 1;
+			}
+			$this->load->library("Related");
+			$data['docs_origem'][] = $this->related->detailsAfterRelation($relation,$typrelation);
+			$data['csd_name'] = $data['docs_origem'][0]['name'];
+			$data['csd_tax'] = $data['docs_origem'][0]['taxid'];
+			$data['csd_id'] = $data['docs_origem'][0]['id'];
+			$data['products'] = $this->related->detailsAfterRelationProducts($relation,$typrelation,0);
+		}else if($order > 0)
+		{
+			$csdorder = $this->invocies->detailsFromOrder($order);
+			$data['csd_name'] = $csdorder['name'];
+			$data['csd_tax'] = $csdorder['taxid'];
+			$data['csd_id'] = $csdorder['id'];
+			$data['docs_origem'] = [];
+			$data['products'] = [];
+		}else{
+			$data['csd_name'] = "";
+			$data['csd_tax'] = "";
+			$data['csd_id'] = "";
+			$data['docs_origem'] = [];
+			$data['products'] = [];
 		}
 		
 		////////////////////////Relação entre Permissões//////////////////////
@@ -603,7 +661,7 @@ class Invoices_supli extends CI_Controller
             $no++;
 			$row = array();
 			$row[] = $invoices->serie_name;
-            $row[] = '<a href="' . base_url("invoices_supli/view?id=$invoices->id&ty=0") . '">&nbsp; ' . $invoices->tid . '</a>';
+            $row[] = '<a href="' . base_url("invoices_supli/view?id=$invoices->id&draf=0") . '">&nbsp; ' . $invoices->tid . '</a>';
 			$row[] = dateformat($invoices->invoicedate);
             $row[] = $invoices->name;
             $row[] = $invoices->taxid;
@@ -611,16 +669,22 @@ class Invoices_supli extends CI_Controller
 			$row[] = amountExchange($invoices->tax, 0, $this->aauth->get_user()->loc);
 			$row[] = amountExchange($invoices->total, 0, $this->aauth->get_user()->loc);
 			$row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span>';
-            if($invoices->status == 'canceled'){
-				$row[] = '<a href="' . base_url("invoices_supli/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices_supli/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+			$option = '';
+			if($invoices->status == 'canceled'){
+				$option = '<a href="' . base_url("invoices_supli/view?id=$invoices->id&draf=0") . '" class="btn btn-danger btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices_supli/printinvoice?id=$invoices->id&draf=0") . '&d=1" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>';
+				$row[] = $option;
 			}else{
-				$option = '<a href="' . base_url("invoices_supli/view?id=$invoices->id&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices_supli/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+				$option = '<a href="' . base_url("invoices_supli/view?id=$invoices->id&draf=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices_supli/printinvoice?id=$invoices->id&draf=0") . '&d=1" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+				
 				if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
-					$option .= '<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" data-object-draft="1" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+					$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
 				}
 				$row[] = $option;
 			}
-			
             $data[] = $row;
         }
 		
@@ -632,7 +696,7 @@ class Invoices_supli extends CI_Controller
 			$textini = $drafts->tid;
 			$textini .= '<br>(Provisório)';
 			$row[] = $drafts->serie_name;
-            $row[] = '<a href="' . base_url("invoices_supli/view?id=$drafts->id&ty=1") . '">&nbsp; ' . $textini . '</a>';
+            $row[] = '<a href="' . base_url("invoices_supli/view?id=$drafts->id&draf=1") . '">&nbsp; ' . $textini . '</a>';
 			$row[] = dateformat($drafts->invoicedate);
             $row[] = $drafts->name;
             $row[] = $drafts->taxid;
@@ -640,7 +704,7 @@ class Invoices_supli extends CI_Controller
 			$row[] = amountExchange($drafts->tax, 0, $this->aauth->get_user()->loc);
 			$row[] = amountExchange($drafts->total, 0, $this->aauth->get_user()->loc);
 			$row[] = 'Rascunho';
-			$option = '<a href="' . base_url("invoices_supli/view?id=$drafts->id&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices_supli/printinvoice?id=$drafts->id&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+			$option = '<a href="' . base_url("invoices_supli/view?id=$drafts->id&draf=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices_supli/printinvoice?id=$drafts->id&draf=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
 			if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
 				$option .= '<a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" data-object-draft="0" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
 			}
@@ -668,9 +732,9 @@ class Invoices_supli extends CI_Controller
 		}
         $tid = $this->input->get('id');
 		$token = $this->input->get('token');
-		$type = $this->input->get('ty');
-		if($type == 0){
-			
+		$draf = $this->input->get('draf');
+		if($draf == 0){
+			$data['draft'] = 0;
 			$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
 			$data['products'] = $this->invocies->invoice_products($tid);
 			$head['title'] = "Fatura Fornecedor " . $data['invoice']['tid'];
@@ -678,6 +742,7 @@ class Invoices_supli extends CI_Controller
 			$data['history'] = $this->common->history($tid,'faf');
 			$data['typeinvoice'] = 0;
 		}else{
+			$data['draft'] = 1;
 			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
 			$data['products'] = $this->invocies->invoice_products2($tid);
 			$head['title'] = "Rascunho " . $data['invoice']['tid'];
@@ -692,7 +757,7 @@ class Invoices_supli extends CI_Controller
         $data['custom_fields'] = $this->custom->view_fields_data($tid, 2);
         if ($data['invoice']['id']) {
             $data['invoice']['id'] = $tid;
-			if($type == 0){
+			if($draf == 0){
 				$this->load->view('invoices_supli/view', $data);
 			}else{
 				$this->load->view('invoices_supli/viewdraft', $data);
@@ -955,20 +1020,25 @@ class Invoices_supli extends CI_Controller
 		
 		if($draft == 0)
 		{
+			$this->db->delete('geopos_log', array('id_c' => $id,'type_log' => 'fa'));
+			$this->db->delete('geopos_data_related', array('tid' => $id));
+			$this->db->delete('geopos_data_transport', array('tid' => $id));
 			$this->db->delete('geopos_draft_items', array('id' => $id));
 			$this->db->delete('geopos_draft', array('id' => $id));
 			// now try it
-			$ua=$this->aauth->getBrowser();
-			$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+			//$ua=$this->aauth->getBrowser();
+			//$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
 			
-			$striPay = "Utilizador: ".$this->aauth->get_user()->username;
-			$striPay = $striPay.'<br>'.$yourbrowser;
-			$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-			$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
-			$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'draft_f', $id);
+			//$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+			//$striPay = $striPay.'<br>'.$yourbrowser;
+			//$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+			//$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
+			//$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'draft_f', $id);
 			echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso.'));
 		}else{
+			$justification = $this->input->post('justification');
 			$this->db->set('status', 'canceled');
+			$this->db->set('justification_cancel', $justification);
 			$this->db->where('id', $id);
 			$this->db->update('geopos_invoices');
 			

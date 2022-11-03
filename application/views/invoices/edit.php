@@ -6,7 +6,7 @@
                 <div class="message"></div>
             </div>
             <div class="card-body">
-                <form method="post" id="data_form">
+                <form method="post" id="product_action" class="form-horizontal">
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
                             <div id="customerpanel" class="inner-cmp-pnl">
@@ -39,8 +39,6 @@
 									<div class="clientinfo">
 										<?php echo $this->lang->line('Client Details'); ?>
 										<hr>
-										<input type="hidden" name="typrelation" id="typrelation" value="<?php echo $typrelation?>" />
-										<input type="hidden" name="relationid" id="relationid" value="<?php echo $relationid?>" />
 										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $invoice['csd']; ?>">
 										<div id="customer_name"><strong><?php echo $invoice['name']; ?></strong></div>
 									</div>
@@ -82,7 +80,7 @@
 								<div class="form-group row">
 									<div class="col-sm-8">
 										<label for="invoi_type"
-											   class="caption"><?php echo $this->lang->line('Edit').' '.$invoice['irs_type_s'].' nº (numeração provisória)' ?> <strong><?php echo $invoice['tid']; ?></strong></label>
+											   class="caption"><?php echo $this->lang->line('Edit').' '.$invoice['irs_type_n'].' nº (numeração provisória)' ?> <strong><?php echo $invoice['tid']; ?></strong></label>
 									</div>
 								</div>
 								<div class="form-group row">
@@ -134,16 +132,14 @@
 									</div>
 								</div>
 								<div class="form-group row">
-									<div class="col-sm-6"><label for="invoicedate"
-																 class="caption"><?php echo $invoice['type'].' Data de Emissão'; ?></label>
-
+									<div class="col-sm-6"><label for="invoicedate" class="caption">Data de Emissão</label>
 										<div class="input-group">
 											<div class="input-group-addon"><span class="icon-calendar4"
 																				 aria-hidden="true"></span></div>
 											<input type="text" class="form-control round required"
 												   placeholder="Billing Date" name="invoicedate"
 												   data-toggle="datepicker"
-												   autocomplete="false" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?> value="<?php echo dateformat($invoice['guidedate']) ?>">
+												   autocomplete="false" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?> value="<?php echo dateformat($invoice['invoicedate']) ?>">
 											<span class="input-group-addon" title="<?php echo 'A data inserida tem que ser no formato: dd-mm-aaaa';?>"><i class="fa fa-info fa-2x"></i></span>
 										</div>
 									</div>
@@ -470,58 +466,6 @@
 						</div>
 					</div>
 					<hr>
-					<div id="accordionWrapap" role="tablist" aria-multiselectable="true">
-						<div id="headingp" class="card-header">
-							<a data-toggle="collapse" data-parent="#accordionWrapap" href="#accordionp"
-							   aria-expanded="false" aria-controls="accordionp"
-							   class="card-title lead collapsed">
-								<i class="fa fa-plus-circle"></i>Pagamentos
-							</a>
-						</div>
-						<div id="accordionp" role="tabpanel" aria-labelledby="headingp"
-							 class="card-collapse collapse" aria-expanded="false">
-							<div id="saman-row-payments">
-								<table id="myTablePayments" class="table-responsive tfr my_stripe">
-									<thead>
-									<tr class="item_header bg-gradient-directional-blue white">
-										<th width="40%" class="text-center">Método de Pagamento</th>
-										<th width="12%" class="text-center">Data</th>
-										<th width="10%" class="text-center">Valor (€)</th>
-										<th width="28%" class="text-center">Observações</th>
-										<th width="10%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
-									</tr>
-									</thead>
-									<tbody>
-									
-									<?php 
-									$cvaluepay = 0;
-									foreach ($payments as $row2) {
-										echo '<tr><input type="hidden" class="pdPaymen"/><td><select name="pay_met[]" id="pay_met-'.$cvaluepay.'" class="form-control round payment">';
-										if($row2['pay_met'] == null || $row2['pay_met'] == "") echo '<option value="">Escolha uma Opção</option>'; else echo '<option value="' . $row2['pay_met'] . '" data-type="'.$row2['datapay'].'">-' . $row2['methodname'] . '-</option>';
-										echo $metodos_pagamentos;
-										echo '</select></td><td><input type="text" class="form-control required" placeholder="00-00-0000" name="pay_date[]" id="pay_date-'.$cvaluepay.'" data-toggle="datepicker" autocomplete="true" value="'.$row2['pay_date'].'"/></td>
-										<td><div class="input-group"><input type="text" class="form-control req prc" name="pay_tot[]" value="'.$row2['pay_tot'].'" id="pay_tot-'.$cvaluepay.'" onkeypress="return isNumber(event)" onkeyup="rowTotalPayments('.$cvaluepay.')" autocomplete="off" inputmode="numeric">
-										<a title="€" class="btn btn-blue btn-sm pay_but_tot" name="pay_but_tot[]" id="pay_but_tot-'.$cvaluepay.'"><span class="fa fa-edit" aria-hidden="false"></span></a></div></td>
-										<td><input type="text" class="form-control" name="pay_obs[]" id="pay_obs-'.$cvaluepay.'" value="'.$row2['pay_obs'].'"></td>
-										<td class="text-center"><button type="button" data-rowid="' .$cvaluepay. '" class="btn btn-danger removePayment" title="Remove" > <i class="fa fa-minus-square"></i></button></td></tr>';
-										
-										$cvaluepay++;
-									} ?>
-									
-									<tr class="last-item-row-payments sub_c_payment">
-										<td class="add-row-payment">
-											<button type="button" class="btn btn-success" aria-label="Left Align" id="addpayment">
-												<i class="fa fa-plus-square"></i> <?php echo $this->lang->line('Add Row') ?>
-											</button>
-										</td>
-										<td colspan="5"></td>
-									</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-					<hr>
 					<div id="accordionWrapa1" role="tablist" aria-multiselectable="true">
 						<div id="heading2" class="card-header">
 							<a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion2"
@@ -654,6 +598,58 @@
 						</div>
 					</div>
 					<hr>
+					<div id="accordionWrapap" role="tablist" aria-multiselectable="true">
+						<div id="headingp" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapap" href="#accordionp"
+							   aria-expanded="false" aria-controls="accordionp"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Pagamentos
+							</a>
+						</div>
+						<div id="accordionp" role="tabpanel" aria-labelledby="headingp"
+							 class="card-collapse <?php if (count($payments) == 0) echo 'collapse' ?>" aria-expanded="false">
+							<div id="saman-row-payments">
+								<table id="myTablePayments" class="table-responsive tfr my_stripe">
+									<thead>
+									<tr class="item_header bg-gradient-directional-blue white">
+										<th width="40%" class="text-center">Método de Pagamento</th>
+										<th width="12%" class="text-center">Data</th>
+										<th width="10%" class="text-center">Valor (€)</th>
+										<th width="28%" class="text-center">Observações</th>
+										<th width="10%" class="text-center"><?php echo $this->lang->line('Action') ?></th>
+									</tr>
+									</thead>
+									<tbody>
+									
+									<?php 
+									$cvaluepay = 0;
+									foreach ($payments as $row2) {
+										echo '<tr><input type="hidden" class="pdPaymen"/><td><select name="pay_met[]" id="pay_met-'.$cvaluepay.'" class="form-control round payment">';
+										if($row2['pay_met'] == null || $row2['pay_met'] == "") echo '<option value="">Escolha uma Opção</option>'; else echo '<option value="' . $row2['pay_met'] . '" data-type="'.$row2['datapay'].'">-' . $row2['methodname'] . '-</option>';
+										echo $metodos_pagamentos;
+										echo '</select></td><td><input type="text" class="form-control required" placeholder="00-00-0000" name="pay_date[]" id="pay_date-'.$cvaluepay.'" data-toggle="datepicker" autocomplete="true" value="'.$row2['pay_date'].'"/></td>
+										<td><div class="input-group"><input type="text" class="form-control req prc" name="pay_tot[]" value="'.$row2['pay_tot'].'" id="pay_tot-'.$cvaluepay.'" onkeypress="return isNumber(event)" onkeyup="rowTotalPayments('.$cvaluepay.')" autocomplete="off" inputmode="numeric">
+										<a title="€" class="btn btn-blue btn-sm pay_but_tot" name="pay_but_tot[]" id="pay_but_tot-'.$cvaluepay.'"><span class="fa fa-edit" aria-hidden="false"></span></a></div></td>
+										<td><input type="text" class="form-control" name="pay_obs[]" id="pay_obs-'.$cvaluepay.'" value="'.$row2['pay_obs'].'"></td>
+										<td class="text-center"><button type="button" data-rowid="' .$cvaluepay. '" class="btn btn-danger removePayment" title="Remove" > <i class="fa fa-minus-square"></i></button></td></tr>';
+										
+										$cvaluepay++;
+									} ?>
+									
+									<tr class="last-item-row-payments sub_c_payment">
+										<td class="add-row-payment">
+											<button type="button" class="btn btn-success" aria-label="Left Align" id="addpayment">
+												<i class="fa fa-plus-square"></i> <?php echo $this->lang->line('Add Row') ?>
+											</button>
+										</td>
+										<td colspan="5"></td>
+									</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<hr>
 					<div id="accordionWrapa3" role="tablist" aria-multiselectable="true">
 						<div id="heading3" class="card-header">
 							<a data-toggle="collapse" data-parent="#accordionWrapa3" href="#accordion3"
@@ -677,10 +673,10 @@
 							<tbody>
 							<tr class="last-item-row-buts sub_c_buts">
 								<td>
-									<?php echo $invoice['type'].' Termos' ?> 
+									<?php echo $this->lang->line('Payment Terms') ?> 
 									<select name="pterms" class="selectpicker form-control">
-									<option value="<?php echo $invoice['termid']; ?>"><?php echo '--'.$invoice['termtit'].'--'; ?></option>
-									<?php foreach ($terms as $row) {
+										<option value="<?php echo $invoice['termid']; ?>"><?php echo '--'.$invoice['termtit'].'--'; ?></option>
+										<?php foreach ($terms as $row) {
 											echo '<option value="' . $row['id'] . '">' . $row['title'] . '</option>';
 										} ?>
 
@@ -688,8 +684,8 @@
 								</td>
 								<td colspan="4"></td>
 								<td>
-									<input type="submit" class="btn btn-success sub-btn" value="Atualizar Rascunho" id="submit-data3" data-loading-text="Creating...">
-									<input type="submit" class="btn btn-success sub-btn btn-lg" value="Guardar e finalizar Documento" id="submit-data" data-loading-text="Creating...">
+									<input type="submit" class="btn btn-success sub-btn" value="Atualizar Rascunho" id="edit_button1" data-loading-text="Creating...">
+									<input type="submit" class="btn btn-success sub-btn btn-lg" value="Guardar e finalizar Documento" id="edit_button0" data-loading-text="Creating...">
 								</td>
 							</tr>
 							</tbody>
@@ -698,8 +694,6 @@
 					<input type="hidden" value="<?php echo $accountname; ?>" id="account_set" name="account_set">
 					<input type="hidden" value="<?php echo $accountid; ?>" id="account_set_id" name="account_set_id">
                     <input type="hidden" value="new_i" id="inv_page">
-                    <input type="hidden" value="invoices/editaction" id="action-url">
-					<input type="hidden" value="invoices/editaction2" id="action-url2">
                     <input type="hidden" value="search" id="billtype">
 					<input type="hidden" value="searchtax" id="billtypetax">
                     <input type="hidden" value="<?php echo $cvalue?>" name="counter" id="ganak">
@@ -707,7 +701,7 @@
 					<input type="hidden" name="tota_items" id="tota_items" value="<?php echo $invoice['items']?>">
                     <input type="hidden" value="<?php echo currency($this->aauth->get_user()->loc); ?>" name="currency">
                     <input type="hidden" value="<?php echo $taxdetails['handle']; ?>" name="taxformat" id="tax_format">
-                    <input type="hidden" value="<?php echo $invoice['tax_status']?>" name="tax_handle" id="tax_status">
+                    <input type="hidden" value="<?php echo $invoice['taxstatus']?>" name="tax_handle" id="tax_status">
                     <input type="hidden" value="yes" name="applyDiscount" id="discount_handle">
                     <input type="hidden" value="<?php echo $invoice['format_discount']?>" name="discountFormat" id="discount_format">
                     <input type="hidden" value="<?php echo $invoice['ship_tax']?>" name="ship_rate" id="ship_rate">
@@ -1033,6 +1027,17 @@
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js'); ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 <script>
+	$("#edit_button1").click(function (e) {
+        e.preventDefault();
+        var actionurl = baseurl + 'invoices/editaction2';
+        actionProduct(actionurl);
+    });
+	$("#edit_button0").click(function (e) {
+        e.preventDefault();
+        var actionurl = baseurl + 'invoices/editaction';
+        actionProduct(actionurl);
+    });
+	
 	$("#invoi_serie").select2();
 	$('select[name="exped_se"]').change(function (){
         let selectedCategoryType = $(this).find('option:selected').data('type');

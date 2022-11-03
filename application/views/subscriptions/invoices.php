@@ -93,9 +93,9 @@
 				<input type="hidden" id="convert-type" name="convert-type" value="">
 				<input type="hidden" id="convert-ext" name="convert-ext" value="0">
 				<select class="form-control b_input required" id="doc-convert-type" name="doc-convert-type">
-					<option value="0" data-url="invoices/convert"><i class='fa fa-pencil'></i> Fatura</option>
-					<option value="1" data-url="invoices/convert"><i class='fa fa-pencil'></i> Fatura Simplificada</option>
-					<option value="2" data-url="invoices/convert"><i class='fa fa-pencil'></i> Fatura Recibo</option>
+					<option value="0" data-url="customers_notes/convert"><i class='fa fa-pencil'></i>Nota de Débito</option>
+					<option value="1" data-url="customers_notes/convert"><i class='fa fa-pencil'></i>Nota de Crédito</option>
+					<option value="0" data-url="receipts/convert"><i class='fa fa-pencil'></i>Recibo</option>
 				</select>
             </div>
 			<h6 id="titulo_converters" name="titulo_converters"></h6>
@@ -113,6 +113,7 @@
         <div class="modal-content">
 			<input type="hidden" id="relations-id" name="relations-id" value="">
 			<input type="hidden" id="relations-type" name="relations-type" value="">
+			<input type="hidden" id="relations-type_n" name="relations-type_n" value="">
 			<input type="hidden" id="relations-ext" name="relations-ext" value="0">
             <div class="modal-header">
                 <h4 class="modal-title">Documentos relacionados</h4>
@@ -130,7 +131,6 @@
 		</div>
     </div>
 </div>
-
 <div id="delete_model" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">

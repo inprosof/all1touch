@@ -98,35 +98,12 @@
     </div>
 </div>
 
-<div class="modal fade" id="choise_type_duplicate" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Em que tipo de Documento pretende Duplicar?</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">
-				<input type="hidden" id="duplicate-id" value="">
-				<input type="hidden" id="duplicate-ext" name="duplicate-ext" value="0">
-				<select name="duplicate-type" class="form-control b_input required" id="duplicate-type">
-					<option value="1" data-url="invoices/duplicate"><i class='fa fa-pencil'></i>Fatura</option>
-					<option value="2" data-url="invoices/duplicate"><i class='fa fa-pencil'></i>Fatura Recibo</option>
-					<option value="3" data-url="invoices/duplicate"><i class='fa fa-pencil'></i>Fatura Simplificada</option>
-				</select>
-            </div>
-            <div class="modal-footer">
-				<button type="button" data-dismiss="modal" class="btn btn-primary" id="duplicate-confirm">Duplicar Agora</button>
-                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="choise_docs_related" role="dialog">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
 			<input type="hidden" id="relations-id" name="relations-id" value="">
 			<input type="hidden" id="relations-type" name="relations-type" value="">
+			<input type="hidden" id="relations-type_n" name="relations-type_n" value="">
 			<input type="hidden" id="relations-ext" name="relations-ext" value="0">
             <div class="modal-header">
                 <h4 class="modal-title">Documentos relacionados</h4>
@@ -144,27 +121,6 @@
 		</div>
     </div>
 </div>
-
-<div class="modal fade" id="choise_type" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Que tipo de Documento pretende Criar?</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">
-				<a href="<?php echo base_url("invoices/create?ty=1")?>" class='btn btn-blue'><i class='fa fa-pencil'></i> Fatura</a>
-                <a href="<?php echo base_url("invoices/create?ty=2")?>" class='btn btn-blue'><i class='fa fa-pencil'></i> Fatura Recibo</a>
-				<a href="<?php echo base_url("invoices/create?ty=3")?>" class='btn btn-blue'><i class='fa fa-pencil'></i> Fatura Simplificada</a>
-            </div>
-            <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div id="delete_model" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -217,6 +173,51 @@
                         id="delete-confirm2"><?php echo $this->lang->line('Delete') ?></button>
                 <button type="button" data-dismiss="modal"
                         class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="choise_type_duplicate" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Em que tipo de Documento pretende Duplicar?</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+				<input type="hidden" id="duplicate-id" name="duplicate-id" value="">
+				<input type="hidden" id="duplicate-type_n" name="duplicate-type_n" value="">
+				<input type="hidden" id="duplicate-ext" name="duplicate-ext" value="0">
+				<select name="duplicate-type" class="form-control b_input required" id="duplicate-type">
+					<option value="1" data-url="invoices/duplicate"><i class='fa fa-pencil'></i>Fatura</option>
+					<option value="2" data-url="invoices/duplicate"><i class='fa fa-pencil'></i>Fatura Recibo</option>
+					<option value="3" data-url="invoices/duplicate"><i class='fa fa-pencil'></i>Fatura Simplificada</option>
+				</select>
+            </div>
+            <div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn btn-primary" id="duplicate-confirm">Duplicar Agora</button>
+                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="choise_type" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Que tipo de Documento pretende Criar?</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+				<a href="<?php echo base_url("invoices/create?ty=1")?>" class='btn btn-blue'><i class='fa fa-pencil'></i> Fatura</a>
+                <a href="<?php echo base_url("invoices/create?ty=2")?>" class='btn btn-blue'><i class='fa fa-pencil'></i> Fatura Recibo</a>
+				<a href="<?php echo base_url("invoices/create?ty=3")?>" class='btn btn-blue'><i class='fa fa-pencil'></i> Fatura Simplificada</a>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
             </div>
         </div>
     </div>
@@ -280,6 +281,8 @@
 			'rowCallback': function ( row, data, cell) {
 				if(data.status == 'canceled'){
 					$(row).css('background-color', ' rgba(255, 0, 39, 0.22)');
+				}else if(data.status == 'draft'){
+					$(row).css('background-color', ' rgba(250, 255, 70, 0.8)');
 				}
 			},
 			'columnDefs': [

@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-header">
             <h4 class="card-title"><?php echo $this->lang->line('Manage Invoices Suppliers') ?> <a
-                        href="<?php echo base_url('invoices_supli/create') ?>"
+                        href="<?php echo base_url('invoices_supli/create_typ') ?>"
                         class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(52) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
                     <?php echo $this->lang->line('Add new') ?></a></h4>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
@@ -107,6 +107,34 @@
     </div>
 </div>
 
+<div id="delete_model2" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h4 class="modal-title">Apagar Documento</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+				<label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
+					<strong>Atenção:</strong> Esta ferramenta permite-lhe remover este documento por estar ainda em estado Rascunho.</strong>
+				</label>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="object-id2" value="">
+				<input type="hidden" id="object-tid2" value="">
+				<input type="hidden" id="object-tdraft2" value="0">
+                <input type="hidden" id="action-url2" value="invoices_supli/delete_i">
+                <button type="button" data-dismiss="modal" class="btn btn-primary"
+                        id="delete-confirm2"><?php echo $this->lang->line('Delete') ?></button>
+                <button type="button" data-dismiss="modal"
+                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="choise_type_convert" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -134,7 +162,29 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="choise_docs_related" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+			<input type="hidden" id="relations-id" name="relations-id" value="">
+			<input type="hidden" id="relations-type" name="relations-type" value="">
+			<input type="hidden" id="relations-type_n" name="relations-type_n" value="">
+			<input type="hidden" id="relations-ext" name="relations-ext" value="0">
+            <div class="modal-header">
+                <h4 class="modal-title">Documentos relacionados</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+			<div class="modal-body">
+                <h6 id="titulo_relationt" name="titulo_relationt"></h6>
+				<table id="relationstview" name="relationsview" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
+				<h6 id="titulo_relationd" name="titulo_relationd"></h6>
+				<table id="relationsdview" name="relationsview" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
+            </div>
+            <div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+			</div>
+		</div>
+    </div>
+</div>
 <script type="text/javascript">
     $(document).ready(function () {
         draw_data();

@@ -216,14 +216,13 @@
 							</div>
 						</div>
 						<div class="form-group row">
-
 							<label class="col-sm-2 col-form-label"><?php echo $this->lang->line('Description') ?></label>
-
-							<div class="col-sm-8">
-								<textarea placeholder="Description"
+							<div class="col-sm-12">
+								<textarea maxlength="250" placeholder="Description"
 										  class="form-control margin-bottom required" name="product_desc"
 								></textarea>
 							</div>
+							<span class="input-group-addon" title="<?php echo 'Máximo 250 Caracteres';?>"><i class="fa fa-info fa-2x"></i></span>
 						</div>
 						<div class="form-group row">
 

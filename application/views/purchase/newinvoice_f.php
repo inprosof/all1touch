@@ -10,33 +10,33 @@
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
                             <div id="customerpanel" class="inner-cmp-pnl">
-								
-                                <div class="form-group row">
+								<div class="form-group row">
                                     <div class="fcol-sm-12">
                                         <h3 class="title">
                                             <?php echo $this->lang->line('Order') ?> <?php echo $this->lang->line('From') ?><a href='#'
                                                                                           class="btn btn-primary btn-sm round"
                                                                                           data-toggle="modal"
-                                                                                          data-target="#addCustomer">
+                                                                                          data-target="#addCustomer" <?php if ($relationid > 0) echo ' hidden' ?>>
                                                 <?php echo $this->lang->line('Add Supplier') ?>
                                             </a>
                                     </div>
                                 </div>
 								<div class="form-group row">
-                                    <div class="frmSearch col-sm-12"><label for="cst" class="caption"><?php echo $this->lang->line('Search Supplier') ?> </label>
+                                    <div class="frmSearch col-sm-12"><label for="cst" class="caption" <?php if ($relationid > 0) echo ' hidden' ?>><?php echo $this->lang->line('Search Supplier') ?> </label>
                                         <input type="text" class="form-control" name="cst" id="supplier-box"
                                                placeholder="Enter Supplier Name or Mobile Number to search"
-                                               autocomplete="off"/>
-                                        <div id="supplier-box-result"></div>
+                                               autocomplete="off" <?php if ($relationid > 0) echo ' hidden' ?>/>
+
+                                        <div id="supplier-box-result" <?php if ($relationid > 0) echo ' hidden' ?>></div>
                                     </div>
                                 </div>
-								
                                 <div id="customer">
                                     <div class="clientinfo">
                                         <?php echo $this->lang->line('Supplier Details'); ?>
                                         <hr>
-										<input type="hidden" name="customer_id" id="customer_id" value="" />
-										<div id="customer_name"><strong>Por favor Selecione um Fornecedor</strong></div>
+										<input type="hidden" name="order_id" id="order_id" value="<?php echo $relationid?>" />
+										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $csd_id?>" />
+										<div id="customer_name"><strong><?php echo $csd_name; ?></strong></div>
                                     </div>
                                     <div class="clientinfo">
                                         <div id="customer_address1"></div>
@@ -404,29 +404,42 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
                             </tbody>
                         </table>						
                         <?php
-						if(!empty($custom_fields))
-							if(is_array($custom_fields)){
-							  echo'<div class="card">';
-										foreach ($custom_fields as $row) {
-											if ($row['f_type'] == 'text') { ?>
-												<div class="row mt-1">
-
-													<label class="col-sm-8"
-														   for="docid"><?php echo $row['name'] ?></label>
-
-													<div class="col-sm-6">
-														<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
-															   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
-															   name="custom[<?php echo $row['id'] ?>]">
-													</div>
-												</div>
-
-
-											<?php }
-										}
-										echo'</div>';
+							if(!empty($custom_fields)){
+								foreach ($custom_fields as $row) {
+									if ($row['f_type'] == 'text') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+													   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]">
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'check') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
+												<label class="custom-control-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'textarea') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<textarea placeholder="<?php echo $row['placeholder'] ?>"
+													   class="summernote <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
+											</div>
+										</div>
+									<?php }
+								}
 							}
-                        ?>
+						?>
                     </div>
 					<hr>
 					<div id="saman-row-buts">
