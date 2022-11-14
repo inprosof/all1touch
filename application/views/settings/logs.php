@@ -1,15 +1,17 @@
-<div class="card card-block">
+<div class="card card-block yellow-top">
     <div id="notify" class="alert alert-success" style="display:none;">
         <a href="#" class="close" data-dismiss="alert">&times;</a>
 
         <div class="message"></div>
     </div>
+    <div class="card-header">
+        <h5 class="title"><?php echo $this->lang->line('Application Activity Log') ?></h5>
+    </div>
     <div class="card-body">
-        <h4 class="title">
-            Application Activity Log
-        </h4>
 
-        <p class="text-danger">Application Activity Log cleanup can be managed in Cron Job Settings.</p>
+        <div class="alert alert-info" id="alert-info-text">
+            <p class="text-danger"><?php echo $this->lang->line('Application Activity Log cleanup can be managed in Cron Job Settings.') ?></p>
+        </div>
         <table class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%">
             <thead>
             <tr>

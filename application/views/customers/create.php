@@ -1,7 +1,9 @@
-<div class="content-body">
+<div class="content-body yellow-top">
     <div class="card card-block bg-white">
         <div class="card-header">
-            <h4 class="card-title"><?php echo $this->lang->line('Add New Customer') ?></h4>
+            <h5 class="title"><a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a><?php echo $this->lang->line('Add New Customer') ?></h5>
 
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
@@ -12,10 +14,10 @@
                 </ul>
             </div>
         </div>
-		<div id="notify" class="alert alert-success" style="display:none;">
-		  <a href="#" class="close" data-dismiss="alert">&times;</a>
-		  <div class="message"></div>
-		</div>
+        <div id="notify" class="alert alert-success" style="display:none;">
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
+            <div class="message"></div>
+        </div>
         <div class="card-body">
             <form method="post" id="data_form" class="form-horizontal">
                 <div class="card">
@@ -34,7 +36,7 @@
                                        href="#tab2" role="tab"
                                        aria-selected="false"><?php echo $this->lang->line('Shipping Address') ?></a>
                                 </li>
-                                  <li class="nav-item">
+                                <li class="nav-item">
                                     <a class="nav-link" id="base-tab3" data-toggle="tab" aria-controls="tab3"
                                        href="#tab3" role="tab"
                                        aria-selected="false"><?php echo $this->lang->line('CustomFields') ?></a>
@@ -48,39 +50,49 @@
                             </ul>
                             <div class="tab-content px-1 pt-1">
                                 <div class="tab-pane active show" id="tab1" role="tabpanel" aria-labelledby="base-tab1">
-									<hr>
-									<div class="form-group row">
+
+                                    <div class="form-group row">
                                         <label class="col-sm-2 col-form-label" for="taxid">Contribuinte</label>
                                         <div class="col-sm-6">
-										<label class="col-sm-12" for="taxid">Deve ser um valor único</label>
-                                            <input type="text" placeholder="<?php echo $this->lang->line('IRS Number') ?>"
+                                            <label class="col-sm-12" for="taxid">Deve ser um valor único</label>
+                                            <input type="text"
+                                                   placeholder="<?php echo $this->lang->line('IRS Number') ?>"
                                                    class="form-control margin-bottom b_input" name="taxid" id="taxid">
                                         </div>
                                     </div>
-									
-									<div class="form-group row">
-                                        <label class="col-sm-12" for="taxid">Verificar contribuinte no sistema VIES</label>
+
+                                    <div class="form-group row">
+                                        <label class="col-sm-12" for="taxid">Verificar contribuinte no sistema
+                                            VIES</label>
                                         <div class="col-sm-12">
-											<label class="col-sm-12" for="taxid">Nota: A verificação dos contribuintes no Sistema VIES só é possível para as empresas da União Europeia! Esta verificação é opcional!
-Escolha o país de origem da empresa que deseja verificar e carregue em "Verificar Contribuinte".</label>
-											<div class="form-group row">
-												<label class="col-sm-2 col-form-label"
-													   for="mcustomer_vies"><?php echo $this->lang->line('Country') ?></label>
+                                            <div class="alert alert-info" id="alert-info-text" for="taxid">
+                                                <p>Nota: A verificação dos contribuintes
+                                                    no Sistema VIES só é possível para as empresas da União Europeia!
+                                                    Esta
+                                                    verificação é opcional!
+                                                    Escolha o país de origem da empresa que deseja verificar e carregue
+                                                    em
+                                                    "Verificar Contribuinte". </p>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label"
+                                                       for="mcustomer_vies"><?php echo $this->lang->line('Country') ?></label>
 
-												<div class="col-sm-6">
-													<select name="mcustomer_vies" class="form-control b_input" id="mcustomer_cont_vies">
-														<?php
-														echo $countrys;
-														?>
+                                                <div class="col-sm-6">
+                                                    <select name="mcustomer_vies" class="form-control b_input"
+                                                            id="mcustomer_cont_vies">
+                                                        <?php
+                                                        echo $countrys;
+                                                        ?>
 
-													</select>
-												</div>
-											</div>
-											<input type="submit" class="btn btn-primary btn-md" id="calculate_due"
-													   value="Verificar NIF VIES">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <input type="submit" class="btn btn-primary btn-md" id="calculate_due"
+                                                   value="Verificar NIF VIES">
                                         </div>
                                     </div>
-									<hr>
+                                    <hr>
                                     <div class="form-group row mt-1">
 
                                         <label class="col-sm-2 col-form-label"
@@ -99,7 +111,8 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
 
                                         <div class="col-sm-8">
                                             <input type="text" placeholder="Company"
-                                                   class="form-control margin-bottom b_input" name="company" id="company_1">
+                                                   class="form-control margin-bottom b_input" name="company"
+                                                   id="company_1">
                                         </div>
                                     </div>
 
@@ -157,7 +170,7 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
                                                    id="region">
                                         </div>
                                     </div>
-									<div class="form-group row">
+                                    <div class="form-group row">
 
                                         <label class="col-sm-2 col-form-label"
                                                for="country"><?php echo $this->lang->line('Country') ?></label>
@@ -268,13 +281,14 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
                                                    id="region_s">
                                         </div>
                                     </div>
-									<div class="form-group row">
+                                    <div class="form-group row">
 
                                         <label class="col-sm-2 col-form-label"
                                                for="country_s"><?php echo $this->lang->line('Country') ?></label>
 
                                         <div class="col-sm-6">
-                                            <select name="country_s" class="form-control b_input" id="mcustomer_country_s">
+                                            <select name="country_s" class="form-control b_input"
+                                                    id="mcustomer_country_s">
                                                 <?php
                                                 echo $countrys;
                                                 ?>
@@ -294,42 +308,46 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
                                         </div>
                                     </div>
                                 </div>
-								<div class="tab-pane show" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
-                                 <?php
-									foreach ($custom_fields as $row) {
-										if ($row['f_type'] == 'text') { ?>
-											<div class="form-group row">
-												<label class="col-sm-10 col-form-label"
-													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
-												<div class="col-sm-8">
-													<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
-														   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
-														   name="custom[<?php echo $row['id'] ?>]">
-												</div>
-											</div>
-										<?php }else if ($row['f_type'] == 'check') { ?>
-											<div class="form-group row">
-												<label class="col-sm-10 col-form-label"
-													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
-												<div class="custom-control custom-checkbox">
-													<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
-													<label class="custom-control-label"
-													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
-												</div>
-											</div>
-										<?php }else if ($row['f_type'] == 'textarea') { ?>
-											<div class="form-group row">
-												<label class="col-sm-10 col-form-label"
-													   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
-												<div class="col-sm-8">
+                                <div class="tab-pane show" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
+                                    <?php
+                                    foreach ($custom_fields as $row) {
+                                        if ($row['f_type'] == 'text') { ?>
+                                            <div class="form-group row">
+                                                <label class="col-sm-10 col-form-label"
+                                                       for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+                                                           class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+                                                           name="custom[<?php echo $row['id'] ?>]">
+                                                </div>
+                                            </div>
+                                        <?php } else if ($row['f_type'] == 'check') { ?>
+                                            <div class="form-group row">
+                                                <label class="col-sm-10 col-form-label"
+                                                       for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox"
+                                                           class="custom-control-input <?php echo $row['other'] ?>"
+                                                           id="custom[<?php echo $row['id'] ?>]"
+                                                           name="custom[<?php echo $row['id'] ?>]">
+                                                    <label class="custom-control-label"
+                                                           for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+                                                </div>
+                                            </div>
+                                        <?php } else if ($row['f_type'] == 'textarea') { ?>
+                                            <div class="form-group row">
+                                                <label class="col-sm-10 col-form-label"
+                                                       for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+                                                <div class="col-sm-8">
 													<textarea placeholder="<?php echo $row['placeholder'] ?>"
-														   class="summernote <?php echo $row['other'] ?>"
-														   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
-												</div>
-											</div>
-										<?php }
-									}
-									?>
+                                                              class="summernote <?php echo $row['other'] ?>"
+                                                              name="custom[<?php echo $row['id'] ?>]"
+                                                              rows="1"></textarea>
+                                                </div>
+                                            </div>
+                                        <?php }
+                                    }
+                                    ?>
                                 </div>
                                 <div class="tab-pane" id="tab4" role="tabpanel" aria-labelledby="base-tab4">
                                     <div class="form-group row"><label class="col-sm-2 col-form-label"
@@ -339,7 +357,7 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
                                                    class="form-control margin-bottom b_input" name="discount">
                                         </div>
                                     </div>
-									
+
                                     <div class="form-group row">
 
                                         <label class="col-sm-2 col-form-label"
@@ -413,12 +431,12 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
 
 
                                 </div>
-                                
-                                <div id="mybutton">
+
+                                <div class="col-sm-10 " id="paiCompanyUpdate">
                                     <input type="submit" id="submit-data"
-                                           class="btn btn-lg btn btn-primary margin-bottom round float-xs-right mr-2"
+                                           class="btn btn-primary margin-bottom float-xs-right mr-2"
                                            value="<?php echo $this->lang->line('Add customer') ?>"
-                                           data-loading-text="Adding...">
+                                           data-loading-text="Adicionando...">
                                 </div>
                             </div>
                         </div>
@@ -433,70 +451,68 @@ Escolha o país de origem da empresa que deseja verificar e carregue em "Verific
 </div>
 
 <script type="text/javascript">
-        $("#calculate_due").click(function (e) {
-            e.preventDefault();
-            var actionurl = baseurl + 'customers/searchVIES';
-            t_actionCaculate(actionurl);
-        });
-		
-		function t_actionCaculate(actionurl) {
-            $.ajax({url: actionurl,
-                    type: 'POST',
-					data: 'taxid=' + $('#taxid').val() + '&' + 'country=' + $('#mcustomer_cont_vies').val() + '&' + crsf_token + '=' + crsf_hash,
-                    dataType: 'json',
-                    success: function (data) {
-						if(!data['valid']) {
-							$("#notify .message").html("<strong>Erro </strong>Não encontramos o contribuinte no sistema VIES.<br><br>Isto pode ter ocorrido porque:<br>- O contribuinte é de um particular;<br>- Ainda não está inserido no sistema VIES;<br>- Não é de uma empresa europeia.");
-							$("#notify").removeClass("alert-success").addClass("alert-warning").fadeIn();
-							$("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
-						}else if(data['valid'])
-						{
-							$("#notify").hide();
-							$('#company_1').html(data.name);
-							$('#company_1').val(data.name);
-							$Savename1 = "";
-							$Saveadrr1 = "";
-							$Saveadrr2 = "";
-							$Saveadrr3 = "";
-							$Saveadrr4 = "";
-							$line = data.address.split('\n');
-							if($line.length > 1)
-							{
-								$Saveadrr1 = $line[0];
-								$Saveadrr2 = $line[1];
-								$line2 = $line[2].split(' ');
-								if($line2.length > 1)
-								{
-									$Saveadrr3 = $line2[0];
-									//$Saveadrr4 = $line2[1];
-								}
-							}else{
-								$Saveadrr1 = $data['address'];
-							}
-							
-							
-							$('#mcustomer_address1').val($Saveadrr1);
-							$("#mcustomer_address1").html($Saveadrr1);
-							
-							$('#mcustomer_city').val($Saveadrr2);
-							$("#mcustomer_city").html($Saveadrr2);
-							
-							$('#postbox').val($Saveadrr3);
-							$("#postbox").html($Saveadrr3);
-							
-							$('#region').val($Saveadrr2);
-							$("#region").html($Saveadrr2);
-						}else{
-							$("#notify .message").html("<strong>Erro </strong>Não encontramos o contribuinte no sistema VIES.<br><br>Isto pode ter ocorrido porque:<br>- O contribuinte é de um particular;<br>- Ainda não está inserido no sistema VIES;<br>- Não é de uma empresa europeia.");
-							$("#notify").removeClass("alert-success").addClass("alert-warning").fadeIn();
-							$("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
-						}
-                    },
-                    error: function (data) {
-                        $("#notify .message").html("<strong>" + data.status + "</strong>: Não encontramos o contribuinte no sistema VIES.<br><br>Isto pode ter ocorrido porque:<br>- O contribuinte é de um particular;<br>- Ainda não está inserido no sistema VIES;<br>- Não é de uma empresa europeia.");
-                        $("#notify").removeClass("alert-success").addClass("alert-warning").fadeIn();
-                        $("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
+    $("#calculate_due").click(function (e) {
+        e.preventDefault();
+        var actionurl = baseurl + 'customers/searchVIES';
+        t_actionCaculate(actionurl);
+    });
+
+    function t_actionCaculate(actionurl) {
+        $.ajax({
+            url: actionurl,
+            type: 'POST',
+            data: 'taxid=' + $('#taxid').val() + '&' + 'country=' + $('#mcustomer_cont_vies').val() + '&' + crsf_token + '=' + crsf_hash,
+            dataType: 'json',
+            success: function (data) {
+                if (!data['valid']) {
+                    $("#notify .message").html("<strong>Erro </strong>Não encontramos o contribuinte no sistema VIES.<br><br>Isto pode ter ocorrido porque:<br>- O contribuinte é de um particular;<br>- Ainda não está inserido no sistema VIES;<br>- Não é de uma empresa europeia.");
+                    $("#notify").removeClass("alert-success").addClass("alert-warning").fadeIn();
+                    $("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
+                } else if (data['valid']) {
+                    $("#notify").hide();
+                    $('#company_1').html(data.name);
+                    $('#company_1').val(data.name);
+                    $Savename1 = "";
+                    $Saveadrr1 = "";
+                    $Saveadrr2 = "";
+                    $Saveadrr3 = "";
+                    $Saveadrr4 = "";
+                    $line = data.address.split('\n');
+                    if ($line.length > 1) {
+                        $Saveadrr1 = $line[0];
+                        $Saveadrr2 = $line[1];
+                        $line2 = $line[2].split(' ');
+                        if ($line2.length > 1) {
+                            $Saveadrr3 = $line2[0];
+                            //$Saveadrr4 = $line2[1];
+                        }
+                    } else {
+                        $Saveadrr1 = $data['address'];
                     }
-                });
-        }
-    </script>
+
+
+                    $('#mcustomer_address1').val($Saveadrr1);
+                    $("#mcustomer_address1").html($Saveadrr1);
+
+                    $('#mcustomer_city').val($Saveadrr2);
+                    $("#mcustomer_city").html($Saveadrr2);
+
+                    $('#postbox').val($Saveadrr3);
+                    $("#postbox").html($Saveadrr3);
+
+                    $('#region').val($Saveadrr2);
+                    $("#region").html($Saveadrr2);
+                } else {
+                    $("#notify .message").html("<strong>Erro </strong>Não encontramos o contribuinte no sistema VIES.<br><br>Isto pode ter ocorrido porque:<br>- O contribuinte é de um particular;<br>- Ainda não está inserido no sistema VIES;<br>- Não é de uma empresa europeia.");
+                    $("#notify").removeClass("alert-success").addClass("alert-warning").fadeIn();
+                    $("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
+                }
+            },
+            error: function (data) {
+                $("#notify .message").html("<strong>" + data.status + "</strong>: Não encontramos o contribuinte no sistema VIES.<br><br>Isto pode ter ocorrido porque:<br>- O contribuinte é de um particular;<br>- Ainda não está inserido no sistema VIES;<br>- Não é de uma empresa europeia.");
+                $("#notify").removeClass("alert-success").addClass("alert-warning").fadeIn();
+                $("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
+            }
+        });
+    }
+</script>

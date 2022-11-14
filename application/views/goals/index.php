@@ -1,7 +1,7 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Set Goals') ?>
+            <h5 class="title"><?php echo $this->lang->line('Set Goals') ?>
                 <small>(in <?php echo $this->config->item('currency') ?>)</small>
             </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
@@ -78,9 +78,9 @@
 
                         <label class="col-sm-2 col-form-label"></label>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" id="paiCompanyUpdate">
                             <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
-                                   value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Adding...">
+                                   value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                             <input type="hidden" value="tools/setgoals" id="action-url">
                         </div>
                     </div>

@@ -1,16 +1,19 @@
-<div class="card card-block">
+<div class="card card-block yellow-top">
     <div id="notify" class="alert alert-success" style="display:none;">
         <a href="#" class="close" data-dismiss="alert">&times;</a>
 
         <div class="message"></div>
     </div>
-    <div class="card-body">
+    <div class="card-header">
         <h5 class="title"> <?php echo $this->lang->line('Variations') ?> <a
                     href="<?php echo base_url('units/create_va') ?>"
-                    class="btn btn-primary btn-sm rounded">
+                    class="btn btn-primary btn-sm btn-new">
                 <?php echo $this->lang->line('Add new') ?>
             </a>
         </h5>
+    </div>
+    <div class="card-body">
+
 
         <hr>
         <table id="catgtable" class="table table-striped table-bordered zero-configuration" cellspacing="0"

@@ -1,17 +1,15 @@
-<article class="content-body">
+<article class="content-body yellow-top">
     <div class="card card-block">
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
         </div>
+        <div class="card-header">
+            <h5 class="title"><?php echo $this->lang->line('Support Tickets') ?></h5>
+        </div>
         <form method="post" id="product_action" class="form-horizontal">
             <div class="card-body">
-
-                <h5><?php echo $this->lang->line('Support Tickets') ?></h5>
-                <hr>
-
-
                 <div class="form-group row">
 
                     <label class="col-sm-2 col-form-label"
@@ -82,9 +80,9 @@
 
                     <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-8" id="paiCompanyUpdate">
                         <input type="submit" id="billing_update" class="btn btn-success margin-bottom"
-                               value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Updating...">
+                               value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                     </div>
                 </div>
 

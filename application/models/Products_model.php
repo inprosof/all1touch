@@ -164,28 +164,36 @@ class Products_model extends CI_Model
 
 
 
-    function count_filtered($id, $w = '', $sub = '')
+    function count_filtered($id, $w = '', $sub = '', $forn = '')
     {
-        if ($id > 0) {
-            $this->_get_datatables_query($id, $w, $sub);
+        if ($forn > 0) {
+            $this->_get_datatables_query('', '', '', $forn);
+        }else if ($id > 0) {
+            $this->_get_datatables_query($id, $w, '', '');
+        }else if ($sub > 0) {
+            $this->_get_datatables_query($id, $w, $sub, '');
         } else {
             $this->_get_datatables_query();
         }
+
+        if ($this->input->post('length') != -1)
+            $this->db->limit($this->input->post('length'), $this->input->post('start'));
         $query = $this->db->get();
         return $query->num_rows();
     }
 
 
 
-    public function count_all()
+    public function count_all($id, $w = '', $sub = '', $forn = '')
     {
-        $this->db->from($this->table);
-        $this->db->join('geopos_warehouse', 'geopos_warehouse.id = geopos_products.warehouse');
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_warehouse.loc', $this->aauth->get_user()->loc);
-            if (BDATA) $this->db->or_where('geopos_warehouse.loc', 0);
-        } elseif (!BDATA) {
-            $this->db->where('geopos_warehouse.loc', 0);
+		if ($forn > 0) {
+            $this->_get_datatables_query('', '', '', $forn);
+        }else if ($id > 0) {
+            $this->_get_datatables_query($id, $w, '', '');
+        }else if ($sub > 0) {
+            $this->_get_datatables_query($id, $w, $sub, '');
+        } else {
+            $this->_get_datatables_query();
         }
         return $this->db->count_all_results();
     }

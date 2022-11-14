@@ -1,17 +1,16 @@
-<article class="content">
+<article class="content yellow-top">
     <div class="card card-block">
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
         </div>
+        <div class="card-header">
+            <h5 class="title"><?php echo $this->lang->line('Edit Printer') ?></h5>
+        </div>
         <div class="card card-block">
 
-
             <form method="post" id="data_form" class="card-body">
-
-                <h5>Edit Printer</h5>
-                <hr>
 
                 <div class="form-group row">
 
@@ -100,9 +99,9 @@
 
                     <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-4" id="paiCompanyUpdate">
                         <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
-                               value="Add" data-loading-text="Adding...">
+                               value="<?php echo $this->lang->line('Add') ?>" data-loading-text="Adicionando...">
                         <input type="hidden" value="printer/edit" id="action-url">
                         <input type="hidden" value="<?php echo $printer['id'] ?>" name="p_id">
                     </div>

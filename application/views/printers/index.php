@@ -1,19 +1,20 @@
-<article class="content">
+<article class="content yellow-top">
     <div class="card card-block">
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
         </div>
-        <div class="card-body">
-            <h5 class="title"> Printers <a
+        <div class="card-header">
+            <h5 class="title"> <?php echo $this->lang->line('Printers') ?> <a
                         href="<?php echo base_url('printer/add') ?>"
-                        class="btn btn-primary btn-sm rounded">
+                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
+        </div>
+        <div class="card-body">
 
-            <hr>
             <table id="catgtable" class="table table-striped table-bordered zero-configuration" cellspacing="0"
                    width="100%">
                 <thead>

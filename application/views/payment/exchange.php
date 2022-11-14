@@ -1,24 +1,23 @@
-<div class="card card-block">
+<div class="card card-block yellow-top">
     <div id="notify" class="alert alert-success" style="display:none;">
         <a href="#" class="close" data-dismiss="alert">&times;</a>
 
         <div class="message"></div>
     </div>
+    <div class="card-header">
+        <h5 class="title"><?php echo $this->lang->line('Currency Exchange') ?></h5>
+
+    </div>
     <form method="post" id="data_form" class="form-horizontal">
         <div class="card-body">
 
-            <h5><?php echo $this->lang->line('Currency Exchange') ?></h5>
-            <hr>
-
-            <p>Application has integrated currencylayer.com API. It offers a real-time currency conversion for your
+            <p><?php echo $this->lang->line('Application has integrated currencylayer.com API. It offers a real-time currency conversion for your
                 invoices. Accurate Exchange Rates for 168 World Currencies with data updates ranging from every 60
-                minutes down to stunning 60 seconds. Please visit <a
-                        href="https://currencylayer.com/">currencylayer.com</a>
-                to get API key.
+                minutes down to stunning 60 seconds. Please visit currencylayer.com to get API key.') ?>
             <p>
-            <p> Please do not forget set the CRON job for automatic base rate updates in background.</p>
-            <p> API Integration and Cron Job are optionals, you can manually set exchange rates here <a
-                        href="<?php echo base_url() ?>paymentgateways/currencies"><?php echo base_url() ?>
+            <p> <?php echo $this->lang->line('Please do not forget set the CRON job for automatic base rate updates in background.') ?></p>
+            <p> <?php echo $this->lang->line('API Integration and Cron Job are optionals, you can manually set exchange rates here: ') ?>
+                <a href="<?php echo base_url() ?>paymentgateways/currencies"><?php echo base_url() ?>
                     paymentgateways/currencies</a></p>
 
 
@@ -97,9 +96,11 @@
                             <span class="custom-control-description ml-0"><?php echo $this->lang->line('No') ?></span>
                         </label>
                     </div>
-                    <small> Recommended : No | With this option input during bill creation will be considered as per
-                        selected currency.
-                    </small>
+                    <div class="alert alert-info" id="alert-info-text">
+                        <small>
+                            <?php echo $this->lang->line('Recommended : No | With this option input during bill creation will be considered as per selected currency.') ?>
+                        </small>
+                    </div>
                 </div>
 
             </div>
@@ -107,9 +108,9 @@
 
                 <label class="col-sm-4 col-form-label"></label>
 
-                <div class="col-sm-4">
+                <div class="col-sm-4" id="paiCompanyUpdate">
                     <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
-                           value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Updating...">
+                           value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                     <input type="hidden" value="paymentgateways/exchange" id="action-url">
                 </div>
             </div>

@@ -1,5 +1,5 @@
 <article class="content-body">
-    <div class="card card-block">
+    <div class="card card-block yellow-top">
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
@@ -7,30 +7,29 @@
         </div>
         <div class="card-body">
             <h5 class="title">C.A.E.s da Empresa<a href="<?php echo base_url('settings/caes_new') ?>"
-                        class="btn btn-primary btn-sm rounded">
+                                                   class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
 
-            <p>&nbsp;</p>
             <table class="table display" cellspacing="0" width="100%">
                 <thead>
                 <tr>
-					<th>#</th>
+                    <th>#</th>
                     <th><?php echo $this->lang->line('Name') ?></th>
                     <th><?php echo $this->lang->line('Code') ?></th>
                     <th><?php echo $this->lang->line('Action') ?></th>
                 </tr>
                 </thead>
                 <tbody>
-                <?php 
-					$ii=1;
-					foreach ($caes as $row) {
-						$cid = $row['id'];
-						echo "<tr><td>".$ii."</td><td>" . $row['name'] . "</td><td>" . $row['cod'] . "</td>
+                <?php
+                $ii = 1;
+                foreach ($caes as $row) {
+                    $cid = $row['id'];
+                    echo "<tr><td>" . $ii . "</td><td>" . $row['name'] . "</td><td>" . $row['cod'] . "</td>
 						<td><a href='" . base_url("settings/caes_edit?id=$cid") . "' class='btn btn-warning btn-sm'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;<a href='#' data-object-id='" . $cid . "' class='btn btn-danger btn-sm delete-object' title='Delete'><i class='fa fa-trash'></i></a></td></tr>";
-						$ii++;
-					}
+                    $ii++;
+                }
                 ?>
                 </tbody>
 

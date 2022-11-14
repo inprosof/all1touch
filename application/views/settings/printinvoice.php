@@ -1,15 +1,14 @@
-<div class="card card-block">
+<div class="card card-block yellow-top">
     <div id="notify" class="alert alert-success" style="display:none;">
         <a href="#" class="close" data-dismiss="alert">&times;</a>
 
         <div class="message"></div>
     </div>
+    <div class="card-header">
+        <h5 class="title"><?php echo $this->lang->line('Print Invoice') ?> Style</h5>
+    </div>
     <form method="post" id="product_action" class="card-body">
         <div class="card card-block">
-
-            <h5><?php echo $this->lang->line('Print Invoice') ?> Style</h5>
-            <hr>
-
 
             <div class="form-group row">
 
@@ -47,16 +46,35 @@
 
 
         </div>
-        <div class="font-size-large">
-            <div class="col-md-6"> 1. Standard Version <br><img alt="image" id="dpic"
-                                                                class="img-responsive img-md img-md"
-                                                                src="<?php echo assets_url() ?>assets/images/v1.png">
-            </div>
-            <div class="col-md-6"> 2. Compact Version<br><img alt="image" id="dpic" class="img-md"
-                                                              src="<?php echo assets_url() ?>assets/images/v2.png">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="card-group">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>1. Standard Version</h5>
+                        </div>
+                        <div class="card-body">
+                            <img alt="image" id="dpic"
+                                 class="img-responsive img-md img-md"
+                                 src="<?php echo assets_url() ?>assets/images/v1.png">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5> 2. Compact Version</h5>
+                        </div>
+                        <div class="card-body">
+                            <img alt="image" id="dpic" class="img-md"
+                                 src="<?php echo assets_url() ?>assets/images/v2.png">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </form>
+</div>
+
+</form>
 </div>
 
 

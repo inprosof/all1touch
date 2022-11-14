@@ -1,4 +1,7 @@
-<div class="card card-block">
+<div class="card card-block yellow-top">
+    <div class="card-header">
+        <h5 class="title"><?php echo $this->lang->line('Auto Email SMS') ?></h5>
+    </div>
     <div class="card-body">
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
@@ -8,9 +11,9 @@
         <form method="post" id="product_action" class="card card-block">
             <div class="card">
 
-                <h5><?php echo $this->lang->line('Auto Email SMS') ?></h5>
-                <p><?php echo $this->lang->line('Auto Email Send') ?></p>
-                <hr>
+                <div class="alert alert-info" id="alert-info-text">
+                    <p><?php echo $this->lang->line('Auto Email Send') ?></p>
+                </div>
 
 
                 <div class="form-group row">
@@ -60,9 +63,9 @@
 
                     <label class="col-sm-4 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-4" id="paiCompanyUpdate">
                         <input type="submit" id="time_update" class="btn btn-success margin-bottom"
-                               value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Updating...">
+                               value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                     </div>
                 </div>
 

@@ -22,7 +22,7 @@ class Guides_model extends CI_Model
 {
 	var $table = 'geopos_guides';
     var $column_order = array(null, 'geopos_guides.tid', 'geopos_customers.name', 'geopos_guides.invoicedate', 'geopos_guides.total','geopos_guides.status', null);
-    var $column_search = array('geopos_guides.tid', 'geopos_customers.name', 'geopos_guides.invoicedate', 'geopos_guides.total','geopos_guides.status');
+    var $column_search = array('geopos_series.serie', 'geopos_customers.name', 'geopos_guides.invoicedate', 'geopos_guides.total','geopos_guides.status');
     var $order = array('geopos_guides.tid' => 'desc');
 
 

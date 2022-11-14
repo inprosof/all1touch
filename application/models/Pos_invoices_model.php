@@ -22,7 +22,7 @@ class Pos_invoices_model extends CI_Model
 {
     var $table = 'geopos_invoices';
 	var $column_order = array(null, 'geopos_series.serie AS serie_name', 'geopos_invoices.tid', 'geopos_invoices.invoicedate' , 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_invoices.subtotal', 'geopos_invoices.tax', 'geopos_invoices.total', 'geopos_invoices.status', null, null);
-    var $column_search = array('geopos_series.serie AS serie_name', 'geopos_invoices.tid', 'geopos_invoices.invoicedate' , 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_invoices.subtotal', 'geopos_invoices.tax', 'geopos_invoices.total', 'geopos_invoices.status');
+    var $column_search = array('geopos_series.serie', 'geopos_invoices.tid', 'geopos_invoices.invoicedate' , 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_invoices.subtotal', 'geopos_invoices.tax', 'geopos_invoices.total', 'geopos_invoices.status');
     var $order = array('geopos_invoices.tid' => 'DESC');
 
     public function __construct()

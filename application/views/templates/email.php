@@ -1,14 +1,14 @@
-<div class="card card-block">
+<div class="card card-block yellow-top">
     <div id="notify" class="alert alert-success" style="display:none;">
         <a href="#" class="close" data-dismiss="alert">&times;</a>
 
         <div class="message"></div>
     </div>
+    <div class="card-header">
+        <h5 class="title"><?php echo $this->lang->line('Manage Email Templates') ?> </h5>
+    </div>
     <div class="card-body">
-        <h5 class="title"><?php echo $this->lang->line('Manage Email Templates') ?>
-        </h5>
 
-        <hr>
         <table id="catgtable" class="table table-striped table-bordered zero-configuration" cellspacing="0"
                width="100%">
             <thead>

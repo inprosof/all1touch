@@ -22,7 +22,7 @@ class Invoices_model extends CI_Model
 {
     var $table = 'geopos_invoices';
     var $column_order = array(null, 'geopos_series.serie AS serie_name', 'geopos_invoices.tid', 'geopos_invoices.invoicedate' , 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_invoices.subtotal', 'geopos_invoices.tax', 'geopos_invoices.total',  null, null, null, null, null);
-    var $column_search = array('geopos_series.serie AS serie_name', 'geopos_invoices.tid', 'geopos_invoices.invoicedate' , 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_invoices.subtotal', 'geopos_invoices.tax', 'geopos_invoices.total');
+    var $column_search = array('geopos_series.serie', 'geopos_invoices.tid', 'geopos_invoices.invoicedate' , 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_invoices.subtotal', 'geopos_invoices.tax', 'geopos_invoices.total');
     var $order = array('geopos_invoices.tid' => 'DESC');
 
     public function __construct()
@@ -493,23 +493,26 @@ class Invoices_model extends CI_Model
 		$this->db->join('geopos_warehouse as w2', 'geopos_invoices.loc=w2.id', 'left');
         $i = 0;
 
-        foreach ($this->column_search as $item) // loop column
-        {
-            if ($this->input->post('search')['value']) // if datatable send POST for search
-            {
-                if ($i === 0) // first loop
-                {
-                    $this->db->group_start();
-                    $this->db->like($item, $this->input->post('search')['value']);
-                } else {
-                    $this->db->or_like($item, $this->input->post('search')['value']);
-                }
+		if (isset($_POST['search']))
+		{
+			 foreach ($this->column_search as $item) // loop column
+			{
+				if ($this->input->post('search')['value']) // if datatable send POST for search
+				{
+					if ($i === 0) // first loop
+					{
+						$this->db->group_start();
+						$this->db->like($item, $this->input->post('search')['value']);
+					} else {
+						$this->db->or_like($item, $this->input->post('search')['value']);
+					}
 
-                if (count($this->column_search) - 1 == $i) //last loop
-                    $this->db->group_end(); //close bracket
-            }
-            $i++;
-        }
+					if (count($this->column_search) - 1 == $i) //last loop
+						$this->db->group_end(); //close bracket
+				}
+				$i++;
+			}
+		}
 
         if (isset($_POST['order'])) // here order processing
         {
@@ -521,7 +524,7 @@ class Invoices_model extends CI_Model
     }
 	
 	var $column_order2 = array(null, 'geopos_series.serie AS serie_name', 'geopos_draft.tid', 'geopos_draft.invoicedate', 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_draft.subtotal', 'geopos_draft.tax', 'geopos_draft.total', null, null, null, null, null);
-    var $column_search2 = array('geopos_series.serie AS serie_name', 'geopos_draft.tid', 'geopos_draft.invoicedate', 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_draft.subtotal', 'geopos_draft.tax', 'geopos_draft.total');
+    var $column_search2 = array('geopos_series.serie', 'geopos_draft.invoicedate', 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_draft.subtotal', 'geopos_draft.tax', 'geopos_draft.total');
     var $order2 = array('geopos_draft.tid' => 'DESC');
 	private function _get_datatables_query2($opt = '')
     {
@@ -563,25 +566,28 @@ class Invoices_model extends CI_Model
 		$this->db->join('geopos_warehouse as w2', 'geopos_draft.loc=w2.id', 'left');
 		
         $i = 0;
-
-        foreach ($this->column_search2 as $item) // loop column
+		
+		if (isset($_POST['search'])) // here order processing
         {
-            if ($this->input->post('search')['value']) // if datatable send POST for search
-            {
+			foreach ($this->column_search2 as $item) // loop column
+			{
+				if ($this->input->post('search')['value']) // if datatable send POST for search
+				{
 
-                if ($i === 0) // first loop
-                {
-                    $this->db->group_start();
-                    $this->db->like($item, $this->input->post('search')['value']);
-                } else {
-                    $this->db->or_like($item, $this->input->post('search')['value']);
-                }
+					if ($i === 0) // first loop
+					{
+						$this->db->group_start();
+						$this->db->like($item, $this->input->post('search')['value']);
+					} else {
+						$this->db->or_like($item, $this->input->post('search')['value']);
+					}
 
-                if (count($this->column_search2) - 1 == $i) //last loop
-                    $this->db->group_end(); //close bracket
-            }
-            $i++;
-        }
+					if (count($this->column_search2) - 1 == $i) //last loop
+						$this->db->group_end(); //close bracket
+				}
+				$i++;
+			}
+		}
 
         if (isset($_POST['order'])) // here order processing
         {
@@ -595,7 +601,7 @@ class Invoices_model extends CI_Model
 	function get_datatables2($opt = '')
     {
         $this->_get_datatables_query2($opt);
-        if ($_POST['length'] != -1)
+		if (isset($_POST['length']) != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
         if ($this->aauth->get_user()->loc) {
@@ -637,7 +643,7 @@ class Invoices_model extends CI_Model
     function get_datatables($opt = '')
     {
         $this->_get_datatables_query($opt);
-        if ($_POST['length'] != -1)
+		if (isset($_POST['length']) != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
         if ($this->aauth->get_user()->loc) {

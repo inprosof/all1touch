@@ -1,9 +1,13 @@
 <div class="content-body">
-    <div class="card">
+    <div id="notify" class="alert alert-success" style="display:none;">
+        <a href="#" class="close" data-dismiss="alert">&times;</a>
+        <div class="message"></div>
+    </div>
+    <div class="card yellow-top">
         <div class="card-header">
             <h5 class="title"> <?php echo $this->lang->line('Billing Terms') ?> <a
                         href="<?php echo base_url('settings/add_term') ?>"
-                        class="btn btn-primary btn-sm rounded">
+                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
@@ -18,11 +22,7 @@
             </div>
         </div>
         <div class="card-content">
-            <div id="notify" class="alert alert-success" style="display:none;">
-                <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-                <div class="message"></div>
-            </div>
+            
             <div class="card-body">
                 <table id="htable" class="table table-striped table-bordered zero-configuration" cellspacing="0"
                        width="100%">
@@ -40,7 +40,7 @@
                     <tr>
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
-						<th><?php echo $this->lang->line('Type') ?></th>
+                        <th><?php echo $this->lang->line('Type') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
                     </tr>
                     </tfoot>

@@ -1,8 +1,10 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h4 class="card-title"><?php echo $this->lang->line('Customer Details') ?>
-                : <?php echo $details['name'] ?></h4>
+            <h5 class="title"><a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a><?php echo $this->lang->line('Customer Details') ?>
+                : <?php echo $details['name'] ?></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -22,7 +24,7 @@
 
 
                 <div class="row">
-                    <div class="col-md-4 border-right border-right-grey">
+                    <div class="col-md-3 border-right">
 
 
                         <div class="ibox-content mt-2">
@@ -31,7 +33,7 @@
                         </div>
                         <hr>
                         <h6><?php echo $this->lang->line('Client Group') ?>
-                            <small><?php if($customergroup != null) echo $customergroup['title']; ?></small>
+                            <small><?php if ($customergroup != null) echo $customergroup['title']; ?></small>
                         </h6>
                         <div class="row mt-3">
                             <div class="col-md-12">
@@ -77,7 +79,7 @@
 
 
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <div id="mybutton">
 
                             <div class="">
@@ -86,7 +88,7 @@
                                             class="fa fa-briefcase"></i> <?php echo $this->lang->line('Wallet') ?>
                                 </a>
 
-                                 <a href="<?php echo base_url('customers/bulkpayment?id=' . $details['id']) ?>"
+                                <a href="<?php echo base_url('customers/bulkpayment?id=' . $details['id']) ?>"
                                    class="btn btn-grey-blue btn-md"><i
                                             class="fa fa-money"></i> <?php echo $this->lang->line('Bulk Payment') ?>
                                 </a>
@@ -313,135 +315,136 @@
                                                     <?php echo $details['custom1'] ?>
                                                 </div>
                                             </div>
-											</div>
                                         </div>
                                     </div>
-									
-									<hr>
-									<div id="heading10" class="card-header">
-										<a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion10"
-										   aria-expanded="false" aria-controls="accordion10"
-										   class="card-title lead collapsed">
-											<i class="fa  fa-plus-circle"></i> <?php echo $this->lang->line('Extra') ?></a>
-									</div>
-									<div id="accordion10" role="tabpanel" aria-labelledby="heading3"
-										 class="card-collapse collapse" aria-expanded="false">
-										<div class="card-body">
-											<div class="card-block">
-												<?php foreach ($custom_fields as $row) {
-												if ($row['f_type'] == 'text') { ?>
-													<div class="row m-t-lg">
-														<div class="col-md-10">
-															<strong><?php echo $row['name'] ?></strong>
-														</div>
-														<div class="col-md-10">
-															<?php echo $row['data'] ?>
-														</div>
-													</div>
-												<?php }else if ($row['f_type'] == 'check') { ?>
-													<div class="row m-t-lg">
-														<div class="col-md-10">
-															<strong><?php echo $row['name'] ?></strong>
-														</div>
-														<div class="col-md-10">
-															<?php if($row['data'] == 'on') echo 'Sim'; else 'Não' ?>
-														</div>
-													</div>
-												<?php }else if ($row['f_type'] == 'textarea') { ?>
-													<div class="row m-t-lg">
-														<div class="col-md-10">
-															<strong><?php echo $row['name'] ?></strong>
-														</div>
-														<div class="col-md-10">
-															<?php echo $row['data'] ?>
-														</div>
-													</div>
-												<?php }
-												}?>
-											</div>
-										 </div>
-									</div>
                                 </div>
-
-                                <h5 class="bg-blue bg-lighten-4  p-1 mt-2"><?php echo $this->lang->line('Wallet') . ' ' . $this->lang->line('Balance') . ': ' . amountExchange($details['balance'], 0, $this->aauth->get_user()->loc) ?></h5>
 
                                 <hr>
-                                <h5><?php echo $this->lang->line('Summary') ?></h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">
-                                        <span class="badge tag-default tag-pill bg-success float-xs-right"><?php echo amountExchange($money['credit'], 0, $this->aauth->get_user()->loc) ?></span>
-                                        <?php echo $this->lang->line('Income') ?>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="badge tag-default tag-pill bg-danger float-xs-right"><?php echo amountExchange($money['debit'], 0, $this->aauth->get_user()->loc) ?></span>
-                                        <?php echo $this->lang->line('Expenses') ?>
-                                    </li>
-
-                                    <li class="list-group-item">
-                                        <span class="badge tag-default tag-pill bg-pink float-xs-right"><?php echo amountExchange($due['total'] - $due['pamnt']) ?></span>
-                                        <?php echo $this->lang->line('Total Due') ?>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="badge tag-default tag-pill bg-blue float-xs-right"><?php echo amountExchange($due['discount'], 0, $this->aauth->get_user()->loc) ?></span>
-                                        <?php echo $this->lang->line('Total Discount') ?>
-                                    </li>
-                                </ul>
-								
-								<div id="heading6" class="card-header">
-                                    <a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion6"
-                                       aria-expanded="false" aria-controls="accordion6"
+                                <div id="heading10" class="card-header">
+                                    <a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion10"
+                                       aria-expanded="false" aria-controls="accordion10"
                                        class="card-title lead collapsed">
-                                        <i class="fa  fa-plus-circle"></i>Recargas da Conta/<?php echo $this->lang->line('Payment History') ?></a>
+                                        <i class="fa  fa-plus-circle"></i> <?php echo $this->lang->line('Extra') ?></a>
                                 </div>
-                                <div id="accordion6" role="tabpanel" aria-labelledby="heading6"
+                                <div id="accordion10" role="tabpanel" aria-labelledby="heading3"
                                      class="card-collapse collapse" aria-expanded="false">
                                     <div class="card-body">
                                         <div class="card-block">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                <tr>
-                                                    <th><?php echo $this->lang->line('Amount') ?></th>
-                                                    <th><?php echo $this->lang->line('Note') ?></th>
-                                                </tr>
-                                                </thead>
-                                                <tbody id="activity">
-                                                <?php foreach ($activity as $row) {
-                                                    echo '<tr>
-														<td>' . amountExchange($row['col1'], 0, $this->aauth->get_user()->loc) . '</td><td>' . $row['col2'] . '</td>
-													   
-													</tr>';
-                                                } ?>
-
-                                                </tbody>
-                                            </table>
+                                            <?php foreach ($custom_fields as $row) {
+                                                if ($row['f_type'] == 'text') { ?>
+                                                    <div class="row m-t-lg">
+                                                        <div class="col-md-10">
+                                                            <strong><?php echo $row['name'] ?></strong>
+                                                        </div>
+                                                        <div class="col-md-10">
+                                                            <?php echo $row['data'] ?>
+                                                        </div>
+                                                    </div>
+                                                <?php } else if ($row['f_type'] == 'check') { ?>
+                                                    <div class="row m-t-lg">
+                                                        <div class="col-md-10">
+                                                            <strong><?php echo $row['name'] ?></strong>
+                                                        </div>
+                                                        <div class="col-md-10">
+                                                            <?php if ($row['data'] == 'on') echo 'Sim'; else 'Não' ?>
+                                                        </div>
+                                                    </div>
+                                                <?php } else if ($row['f_type'] == 'textarea') { ?>
+                                                    <div class="row m-t-lg">
+                                                        <div class="col-md-10">
+                                                            <strong><?php echo $row['name'] ?></strong>
+                                                        </div>
+                                                        <div class="col-md-10">
+                                                            <?php echo $row['data'] ?>
+                                                        </div>
+                                                    </div>
+                                                <?php }
+                                            } ?>
                                         </div>
                                     </div>
                                 </div>
-
-
                             </div>
 
+                            <h5 class="bg-blue bg-lighten-4  p-1 mt-2"><?php echo $this->lang->line('Wallet') . ' ' . $this->lang->line('Balance') . ': ' . amountExchange($details['balance'], 0, $this->aauth->get_user()->loc) ?></h5>
 
-                            <div id="progress" class="progress1">
-                                <div class="progress-bar progress-bar-success"></div>
+                            <hr>
+                            <h5><?php echo $this->lang->line('Summary') ?></h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <span class="badge tag-default tag-pill bg-success float-xs-right"><?php echo amountExchange($money['credit'], 0, $this->aauth->get_user()->loc) ?></span>
+                                    <?php echo $this->lang->line('Income') ?>
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="badge tag-default tag-pill bg-danger float-xs-right"><?php echo amountExchange($money['debit'], 0, $this->aauth->get_user()->loc) ?></span>
+                                    <?php echo $this->lang->line('Expenses') ?>
+                                </li>
+
+                                <li class="list-group-item">
+                                    <span class="badge tag-default tag-pill bg-pink float-xs-right"><?php echo amountExchange($due['total'] - $due['pamnt']) ?></span>
+                                    <?php echo $this->lang->line('Total Due') ?>
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="badge tag-default tag-pill bg-blue float-xs-right"><?php echo amountExchange($due['discount'], 0, $this->aauth->get_user()->loc) ?></span>
+                                    <?php echo $this->lang->line('Total Discount') ?>
+                                </li>
+                            </ul>
+
+                            <div id="heading6" class="card-header">
+                                <a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion6"
+                                   aria-expanded="false" aria-controls="accordion6"
+                                   class="card-title lead collapsed">
+                                    <i class="fa  fa-plus-circle"></i>Recargas da
+                                    Conta/<?php echo $this->lang->line('Payment History') ?></a>
                             </div>
+                            <div id="accordion6" role="tabpanel" aria-labelledby="heading6"
+                                 class="card-collapse collapse" aria-expanded="false">
+                                <div class="card-body">
+                                    <div class="card-block">
+                                        <table class="table table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo $this->lang->line('Amount') ?></th>
+                                                <th><?php echo $this->lang->line('Note') ?></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="activity">
+                                            <?php foreach ($activity as $row) {
+                                                echo '<tr>
+														<td>' . amountExchange($row['col1'], 0, $this->aauth->get_user()->loc) . '</td><td>' . $row['col2'] . '</td>
+													   
+													</tr>';
+                                            } ?>
 
-                            <div class="col-md-12"><br>
-                                <h5><?php echo $this->lang->line('Change Customer Picture') ?></h5><input
-                                        id="fileupload"
-                                        type="file"
-                                        name="files[]"></div>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
 
 
                         </div>
+
+
+                        <div id="progress" class="progress1">
+                            <div class="progress-bar progress-bar-success"></div>
+                        </div>
+
+                        <div class="col-md-12"><br>
+                            <h5><?php echo $this->lang->line('Change Customer Picture') ?></h5><input
+                                    id="fileupload"
+                                    type="file"
+                                    name="files[]"></div>
+
+
                     </div>
                 </div>
-
-
             </div>
-        </div>
 
+
+        </div>
     </div>
+
+</div>
 </div>
 <div id="sendMail" class="modal fade">
     <div class="modal-dialog">

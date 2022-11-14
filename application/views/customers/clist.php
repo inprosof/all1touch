@@ -7,32 +7,41 @@ $inac = false;
 if ($this->input->get('inac')) {
     $inac = true;
 }
- ?>
+?>
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h4 class="card-title"><a href="<?php echo base_url('customers') ?>" class="mr-5"> <?php echo $this->lang->line('Clients') ?></a></h4>
-			<a href="<?php echo base_url('customers/create') ?>" class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(37) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
-				<?php echo $this->lang->line('Add new') ?></a> 
-			<a href="<?php echo base_url('customers?due=true') ?>" class="btn btn-danger btn-sm rounded" <?php if($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
-				<?php echo $this->lang->line('Clients') ?> Com <?php echo $this->lang->line('Invoices') ?> <?php echo $this->lang->line('Due') ?></a>
-			<a href="<?php echo base_url('customers?inac=true') ?>" class="btn btn-success btn-sm rounded" <?php if($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
-                    <?php echo $this->lang->line('Clients') ?> Inactivos</a>
+            <h5 class="title"><a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a><?php echo $this->lang->line('Clients') ?></h5>
+            <a href="<?php echo base_url('customers/create') ?>"
+               class="btn btn-primary btn-sm" <?php if ($this->aauth->premission(37) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                <?php echo $this->lang->line('Add new') ?></a>
+            <a href="<?php echo base_url('customers?due=true') ?>"
+               class="btn btn-danger btn-sm " <?php if ($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                <?php echo $this->lang->line('Clients') ?>
+                Com <?php echo $this->lang->line('Invoices') ?> <?php echo $this->lang->line('Due') ?></a>
+            <a href="<?php echo base_url('customers?inac=true') ?>"
+               class="btn btn-success btn-sm " <?php if ($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                <?php echo $this->lang->line('Clients') ?> Inactivos</a>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
-					<li>     <a href="#sendMail" data-toggle="modal" data-remote="false"
-                           class="btn btn-info btn-sm rounded"
-                           data-lang="<?php echo $this->lang->line('Email Selected') ?>" <?php if($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>> <span class="fa fa-envelope"></span>
+                    <li><a href="#sendMail" data-toggle="modal" data-remote="false"
+                           class="btn btn-info btn-sm "
+                           data-lang="<?php echo $this->lang->line('Email Selected') ?>" <?php if ($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                            <span class="fa fa-envelope"></span>
                             <?php echo $this->lang->line('Email Selected') ?></a></li>
-                       <li>     <a href="#sendSmsS" data-toggle="modal" data-remote="false"
-                           class="btn btn-success btn-sm rounded"
-                           data-lang="<?php echo $this->lang->line('SMS Selected') ?>" <?php if($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>> <span class="fa fa-mobile"></span>
+                    <li><a href="#sendSmsS" data-toggle="modal" data-remote="false"
+                           class="btn btn-success btn-sm "
+                           data-lang="<?php echo $this->lang->line('SMS Selected') ?>" <?php if ($this->aauth->premission(120) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                            <span class="fa fa-mobile"></span>
                             <?php echo $this->lang->line('SMS Selected') ?></a></li>
                     <li><a id="delete_selected"
                            href="#"
-                           class="btn btn-danger btn-sm rounded"
-                           data-lang="<?php echo $this->lang->line('Delete Selected') ?>" <?php if($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>  <span class="fa fa-trash-o"></span>
+                           class="btn btn-danger btn-sm "
+                           data-lang="<?php echo $this->lang->line('Delete Selected') ?>" <?php if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                            <span class="fa fa-trash-o"></span>
                             <?php echo $this->lang->line('Delete Selected') ?></a></li>
 
                     <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
@@ -101,11 +110,13 @@ if ($this->input->get('inac')) {
                 <p><?php echo $this->lang->line('are_you_sure_delete_customer') ?></p>
             </div>
             <div class="modal-footer">
-                   <input type="hidden" class="form-control"
-                           id="object-id" name="deleteid" value="0">
+                <input type="hidden" class="form-control"
+                       id="object-id" name="deleteid" value="0">
                 <input type="hidden" id="action-url" value="customers/delete_i">
-                <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete-confirm"><?php echo $this->lang->line('Delete') ?></button>
-                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                <button type="button" data-dismiss="modal" class="btn btn-primary"
+                        id="delete-confirm"><?php echo $this->lang->line('Delete') ?></button>
+                <button type="button" data-dismiss="modal"
+                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
             </div>
         </div>
     </div>
@@ -124,7 +135,6 @@ if ($this->input->get('inac')) {
                 <form id="sendmail_form"><input type="hidden"
                                                 name="<?php echo $this->security->get_csrf_token_name(); ?>"
                                                 value="<?php echo $this->security->get_csrf_hash(); ?>">
-
 
 
                     <div class="row">
@@ -149,9 +159,9 @@ if ($this->input->get('inac')) {
             </div>
         </div>
     </div>
-    </div>
+</div>
 
-        <div id="sendSmsS" class="modal fade">
+<div id="sendSmsS" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -162,9 +172,8 @@ if ($this->input->get('inac')) {
 
             <div class="modal-body">
                 <form id="sendsms_form"><input type="hidden"
-                                                name="<?php echo $this->security->get_csrf_token_name(); ?>"
-                                                value="<?php echo $this->security->get_csrf_hash(); ?>">
-
+                                               name="<?php echo $this->security->get_csrf_token_name(); ?>"
+                                               value="<?php echo $this->security->get_csrf_hash(); ?>">
 
 
                     <div class="row">
@@ -188,9 +197,9 @@ if ($this->input->get('inac')) {
         </div>
     </div>
 
-      </div>
+</div>
 
-    <script type="text/javascript">
+<script type="text/javascript">
     $(document).ready(function () {
         $('.summernote').summernote({
             height: 100,
@@ -206,7 +215,6 @@ if ($this->input->get('inac')) {
                 ['codeview', ['codeview']]
             ]
         });
-
 
 
         $('#clientstable').DataTable({
@@ -241,19 +249,19 @@ if ($this->input->get('inac')) {
 
         $(document).on('click', "#delete_selected", function (e) {
             e.preventDefault();
-                if ($("#notify").length == 0) {
-        $("#c_body").html('<div id="notify" class="alert" style="display:none;"><a href="#" class="close" data-dismiss="alert">&times;</a><div class="message"></div></div>');
-    }
+            if ($("#notify").length == 0) {
+                $("#c_body").html('<div id="notify" class="alert" style="display:none;"><a href="#" class="close" data-dismiss="alert">&times;</a><div class="message"></div></div>');
+            }
             alert($(this).attr('data-lang'));
             jQuery.ajax({
                 url: "<?php echo site_url('customers/delete_i')?>",
                 type: 'POST',
                 data: $("input[name='cust[]']:checked").serialize() + '&<?php echo $this->security->get_csrf_token_name() ?>=' + crsf_hash + '<?php if ($due) echo "&due=true" ?>' + '<?php if ($inac) echo "&inac=true" ?>',
-                  dataType: 'json',
+                dataType: 'json',
                 success: function (data) {
                     $("input[name='cust[]']:checked").closest('tr').remove();
-                       $("#notify .message").html("<strong>" + data.status + "</strong>: " + data.message);
-                            $("#notify").removeClass("alert-danger").addClass("alert-success").fadeIn();
+                    $("#notify .message").html("<strong>" + data.status + "</strong>: " + data.message);
+                    $("#notify").removeClass("alert-danger").addClass("alert-success").fadeIn();
                     $("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
                 }
             });
@@ -261,44 +269,43 @@ if ($this->input->get('inac')) {
 
 
         //uni sender
-$('#sendMail').on('click', '#sendNowSelected', function (e) {
-       e.preventDefault();
-         $("#sendMail").modal('hide');
-                     if ($("#notify").length == 0) {
-        $("#c_body").html('<div id="notify" class="alert" style="display:none;"><a href="#" class="close" data-dismiss="alert">&times;</a><div class="message"></div></div>');
-    }
+        $('#sendMail').on('click', '#sendNowSelected', function (e) {
+            e.preventDefault();
+            $("#sendMail").modal('hide');
+            if ($("#notify").length == 0) {
+                $("#c_body").html('<div id="notify" class="alert" style="display:none;"><a href="#" class="close" data-dismiss="alert">&times;</a><div class="message"></div></div>');
+            }
             jQuery.ajax({
                 url: "<?php echo site_url('customers/sendSelected')?>",
                 type: 'POST',
-                data: $("input[name='cust[]']:checked").serialize() + '&'+$("#sendmail_form").serialize(),
-                  dataType: 'json',
+                data: $("input[name='cust[]']:checked").serialize() + '&' + $("#sendmail_form").serialize(),
+                dataType: 'json',
                 success: function (data) {
-                   $("#notify .message").html("<strong>" + data.status + "</strong>: " + data.message);
-                        $("#notify").removeClass("alert-danger").addClass("alert-success").fadeIn();
+                    $("#notify .message").html("<strong>" + data.status + "</strong>: " + data.message);
+                    $("#notify").removeClass("alert-danger").addClass("alert-success").fadeIn();
                     $("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
                 }
             });
-});
+        });
 
-$('#sendSmsS').on('click', '#sendSmsSelected', function (e) {
-       e.preventDefault();
-         $("#sendSmsS").modal('hide');
-                     if ($("#notify").length == 0) {
-        $("#c_body").html('<div id="notify" class="alert" style="display:none;"><a href="#" class="close" data-dismiss="alert">&times;</a><div class="message"></div></div>');
-    }
+        $('#sendSmsS').on('click', '#sendSmsSelected', function (e) {
+            e.preventDefault();
+            $("#sendSmsS").modal('hide');
+            if ($("#notify").length == 0) {
+                $("#c_body").html('<div id="notify" class="alert" style="display:none;"><a href="#" class="close" data-dismiss="alert">&times;</a><div class="message"></div></div>');
+            }
             jQuery.ajax({
                 url: "<?php echo site_url('customers/sendSmsSelected')?>",
                 type: 'POST',
-                data: $("input[name='cust[]']:checked").serialize() + '&'+$("#sendsms_form").serialize(),
-                  dataType: 'json',
+                data: $("input[name='cust[]']:checked").serialize() + '&' + $("#sendsms_form").serialize(),
+                dataType: 'json',
                 success: function (data) {
-                   $("#notify .message").html("<strong>" + data.status + "</strong>: " + data.message);
-                        $("#notify").removeClass("alert-danger").addClass("alert-success").fadeIn();
+                    $("#notify .message").html("<strong>" + data.status + "</strong>: " + data.message);
+                    $("#notify").removeClass("alert-danger").addClass("alert-success").fadeIn();
                     $("html, body").animate({scrollTop: $('#notify').offset().top}, 1000);
                 }
             });
-});
-
+        });
 
 
     });

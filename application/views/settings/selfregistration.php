@@ -1,17 +1,15 @@
-<article class="content-body">
+<article class="content-body yellow-top">
     <div class="card card-block">
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
         </div>
+        <div class="card-header">
+            <h5 class="title"><?php echo $this->lang->line('CRM') ?><?php echo $this->lang->line('Settings') ?></h5>
+        </div>
         <form method="post" id="product_action" class="form-horizontal">
             <div class="card-body">
-
-                <h5><?php echo $this->lang->line('CRM') ?><?php echo $this->lang->line('Settings') ?></h5>
-                <hr>
-
-
                 <div class="form-group row">
 
                     <label class="col-sm-4 col-form-label"
@@ -65,10 +63,13 @@
 
                 <hr>
 
-                <div class="form-group row"><p class="m-1">Send automatic Email during customer registration by
+                <div class="form-group row">
+                    <div class="alert alert-info" id="alert-info-text">
+                        <p><?php echo $this->lang->line('Send automatic email during customer registration by
                         employee. Please do not enable this feature unnecessarily, it may slow the customer registration
-                        process as the application will connect to email server if your email is slow.
-                    </p>
+                        process as the application will connect to email server if your email is slow.') ?>
+                        </p>
+                    </div>
                     <label class="col-sm-4 col-form-label"
                            for="product_name">Auto Email Customer Details (Registration by Employee) </label>
 
@@ -97,9 +98,9 @@
 
                     <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-4" id="paiCompanyUpdate">
                         <input type="submit" id="billing_update" class="btn btn-success margin-bottom"
-                               value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Updating...">
+                               value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                     </div>
                 </div>
 

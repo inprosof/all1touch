@@ -1,16 +1,19 @@
 <article class="content-body">
-    <div class="card card-block">
+    <div class="card card-block yellow-top">
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
+
+        </div>
+        <div class="card-header">
+            <h5 class="title"><?php echo $this->lang->line('Product search settings') ?> </h5>
         </div>
         <form method="post" id="product_action" class="form-horizontal">
             <div class="card-body">
-       <hr>
-  <h5><?php echo $this->lang->line('product_search_settings') ?> </h5>
-                  <p>Allow Sales Person to bill with 0 stock, helpful to use products as a service.</p>
-
+                <div class="alert alert-info" id="alert-info-text">
+                    <p><?php echo $this->lang->line('search_serial_with_not_available') ?></p>
+                </div>
                 <div class="form-group row">
 
                     <label class="col-sm-2 col-form-label"
@@ -25,27 +28,25 @@
                                 case '1' :
                                     echo '<option value="1">**' . $this->lang->line('search_serial_with') . '**</option>';
                                     break;
-                                    case '2' :
+                                case '2' :
                                     echo '<option value="2">**' . $this->lang->line('search_serial_only') . '**</option>';
                                     break;
 
                             } ?>
                             <option value="0"><?php echo $this->lang->line('search_default') ?></option>
                             <option value="1"><?php echo $this->lang->line('search_serial_with') ?></option>
-                             <option value="2"><?php echo $this->lang->line('search_serial_only') ?></option>
+                            <option value="2"><?php echo $this->lang->line('search_serial_only') ?></option>
 
 
                         </select>
 
                     </div>
 
-                </div><p><?php echo $this->lang->line('search_serial_with_not_available') ?></p>
-                <hr>
+                </div>
 
-                <h5><?php echo $this->lang->line('Billing Settings') ?> Service / Product
-                    As A Service</h5>
-                <hr>
-                <p>Allow Sales Person to bill with 0 stock, helpful to use products as a service.</p>
+                <div class="alert alert-info" id="alert-info-text">
+                    <p><?php echo $this->lang->line('Allow sales person to bill with 0 stock, helpful to use products as a service.') ?></p>
+                </div>
 
                 <div class="form-group row">
 
@@ -70,15 +71,14 @@
                         </select>
 
                     </div>
-                </div>       <hr>
-                     <h5><?php echo $this->lang->line('disable_expired_products') ?> </h5>
-                <hr>
+                </div>
 
 
                 <div class="form-group row">
 
                     <label class="col-sm-2 col-form-label"
-                           for="product_name">   <h5><?php echo $this->lang->line('disable_expired_products') ?> </h5></label>
+                           for="product_name"><h5><?php echo $this->lang->line('disable_expired_products') ?> </h5>
+                    </label>
 
                     <div class="col-sm-6"><select name="expired" class="form-control">
 
@@ -101,14 +101,13 @@
                 </div>
 
 
-
                 <div class="form-group row">
 
                     <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-4" id="paiCompanyUpdate">
                         <input type="submit" id="billing_update" class="btn btn-success margin-bottom"
-                               value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Updating...">
+                               value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                     </div>
                 </div>
 

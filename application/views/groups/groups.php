@@ -1,9 +1,13 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
             <h5 class="title">
-                <?php echo $this->lang->line('Client Groups') ?> 
-					<a href="<?php echo base_url('clientgroup/create') ?>" class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(40) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Client Groups') ?>
+                <a href="<?php echo base_url('clientgroup/create') ?>"
+                   class="btn btn-primary btn-sm btn-new" <?php if ($this->aauth->premission(40) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
@@ -29,7 +33,7 @@
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
                         <th><?php echo $this->lang->line('Total Clients') ?></th>
-						<th><?php echo $this->lang->line('Discount') ?></th>
+                        <th><?php echo $this->lang->line('Discount') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
                     </tr>
                     </thead>
@@ -40,7 +44,7 @@
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
                         <th><?php echo $this->lang->line('Total Clients') ?></th>
-						<th><?php echo $this->lang->line('Discount') ?></th>
+                        <th><?php echo $this->lang->line('Discount') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
                     </tr>
                     </tfoot>
@@ -49,39 +53,39 @@
         </div>
     </div>
     <script type="text/javascript">
-		$(document).ready(function () {
-			$('#cgrtable').DataTable({
-					'processing': true,
-					'serverSide': true,
-					'stateSave': true,
-					<?php datatable_lang();?>
-					responsive: true,
-					'order': [],
-					'ajax': {
-						'url': "<?php echo site_url('clientgroup/group_clientlist')?>",
-						'type': 'POST',
-						'data': {
-							'<?php echo $this->security->get_csrf_token_name()?>': crsf_hash
-						}
-					},
-					'columnDefs': [
-						{
-							'targets': [0],
-							'orderable': false,
-						},
-					],
-					dom: 'Blfrtip',
-					buttons: [
-						{
-							extend: 'excelHtml5',
-							footer: true,
-							exportOptions: {
-								columns: [2, 3]
-							}
-						}
-					],
-				});
-			});
+        $(document).ready(function () {
+            $('#cgrtable').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'stateSave': true,
+                <?php datatable_lang();?>
+                responsive: true,
+                'order': [],
+                'ajax': {
+                    'url': "<?php echo site_url('clientgroup/group_clientlist')?>",
+                    'type': 'POST',
+                    'data': {
+                        '<?php echo $this->security->get_csrf_token_name()?>': crsf_hash
+                    }
+                },
+                'columnDefs': [
+                    {
+                        'targets': [0],
+                        'orderable': false,
+                    },
+                ],
+                dom: 'Blfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        footer: true,
+                        exportOptions: {
+                            columns: [2, 3]
+                        }
+                    }
+                ],
+            });
+        });
     </script>
 
     <div id="pop_model" class="modal fade">
@@ -117,7 +121,8 @@
                                     data-dismiss="modal"><?php echo $this->lang->line('Close'); ?></button>
                             <input type="hidden" id="action-url" value="clientgroup/discount_update">
                             <button type="button" class="btn btn-primary"
-                                    id="submit_model">Alterar Desconto</button>
+                                    id="submit_model">Alterar Desconto
+                            </button>
                         </div>
                     </form>
                 </div>

@@ -1,8 +1,10 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h4 class="card-title"><?php echo $this->lang->line('Customer Details') ?>
-                : <?php echo $details['name'] ?></h4>
+            <h5 class="title"><a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a><?php echo $this->lang->line('Customer Details') ?>
+                : <?php echo $details['name'] ?></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -22,11 +24,11 @@
 
 
                 <div class="row">
-                    <div class="col-md-4 border-right border-right-grey">
+                    <div class="col-md-3 border-right border-right-grey">
 
 
                         <div class="ibox-content mt-2">
-                            <img alt="image" id="dpic" class="rounded-circle img-border height-150"
+                            <img alt="image" id="dpic" class="card-img-top img-fluid"
                                  src="<?php echo base_url('userfiles/customers/') . $details['picture'] ?>">
                         </div>
                         <hr>
@@ -76,7 +78,7 @@
 
 
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <div id="mybutton" class="mb-1">
 
                             <div class="">
@@ -122,7 +124,7 @@
                                 <div class="col-sm-9">
                                     <select name="trans_type" class="form-control">
                                         <option value='All'><?php echo $this->lang->line('All Transactions') ?></option>
-										<option value='Subscription'>Assinaturas</option>
+                                        <option value='Subscription'>Assinaturas</option>
                                         <option value='Expense'><?php echo $this->lang->line('Debit') ?></option>
                                         <option value='Income'><?php echo $this->lang->line('Credit') ?></option>
                                     </select>

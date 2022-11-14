@@ -22,7 +22,7 @@ class Supplier_notes_model extends CI_Model
 {
     var $table = 'geopos_supplier_notes';
     var $column_order = array(null, 'geopos_series.serie AS serie_name', 'geopos_supplier_notes.tid', 'geopos_supplier.name', 'geopos_supplier_notes.invoicedate', null, 'geopos_supplier_notes.total', 'geopos_supplier_notes.status', null);
-	var $column_search = array('geopos_series.serie AS serie_name', 'geopos_supplier_notes.tid', 'geopos_supplier.name', 'geopos_supplier_notes.invoicedate', 'geopos_supplier_notes.total', 'geopos_supplier_notes.status', null);
+	var $column_search = array('geopos_series.serie', 'geopos_supplier_notes.tid', 'geopos_supplier.name', 'geopos_supplier_notes.invoicedate', 'geopos_supplier_notes.total', 'geopos_supplier_notes.status');
     var $order = array('geopos_supplier_notes.tid' => 'desc');
 
     public function __construct()
@@ -326,7 +326,7 @@ class Supplier_notes_model extends CI_Model
 	
 	
 	var $column_order2 = array(null, 'geopos_series.serie AS serie_name', 'geopos_draft.tid', 'geopos_supplier.name', 'geopos_draft.invoicedate', null, 'geopos_draft.total', 'Rascunho as status', null);
-    var $column_search2 = array('geopos_series.serie AS serie_name', 'geopos_draft.tid', 'geopos_supplier.name', 'geopos_draft.invoicedate', 'geopos_draft.total', 'Rascunho as status', null);
+    var $column_search2 = array('geopos_series.serie', 'geopos_draft.tid', 'geopos_supplier.name', 'geopos_draft.invoicedate', 'geopos_draft.total');
     var $order2 = array('geopos_draft.tid' => 'DESC');
 	private function _get_datatables_query2($opt = '')
     {

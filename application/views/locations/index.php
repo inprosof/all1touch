@@ -1,9 +1,9 @@
-<div class="content-body">
+<div class="content-body yellow-top">
     <div class="card">
         <div class="card-header">
             <h5 class="title"> <?php echo $this->lang->line('Business Locations') ?> <a
                         href="<?php echo base_url('locations/create') ?>"
-                        class="btn btn-primary btn-sm rounded">
+                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>

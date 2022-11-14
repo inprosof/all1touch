@@ -1,17 +1,18 @@
 <article class="content-body">
-    <div class="card card-block">
+    <div class="card card-block yellow-top">
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
+        </div>
+        <div class="card-header">
+            <h5 class="title"><?php echo $this->lang->line('Add Custom Field') ?></h5>
         </div>
         <div class="card card-block">
 
 
             <form method="post" id="data_form" class="card-body">
 
-                <h5><?php echo $this->lang->line('Add') ?><?php echo $this->lang->line('Custom') ?><?php echo $this->lang->line('Field') ?> </h5>
-                <hr>
 
                 <div class="form-group row">
 
@@ -31,8 +32,8 @@
                     <div class="col-sm-6">
                         <select class="form-control" name="f_type">
                             <option value="text">Text</option>
-							<option value="check">Check</option>
-							<option value="textarea">Textarea</option>
+                            <option value="check">Check</option>
+                            <option value="textarea">Textarea</option>
                         </select>
                     </div>
                 </div>
@@ -45,10 +46,10 @@
                         <select class="form-control" name="f_module">
                             <option value="1">Clientes</option>
                             <option value="2">Faturas</option>
-							<option value="3">Orçamentos</option>
-							<option value="4">Fornecedores</option>
+                            <option value="3">Orçamentos</option>
+                            <option value="4">Fornecedores</option>
                             <option value="5">Produtos</option>
-							<option value="6">Funcionários</option>
+                            <option value="6">Funcionários</option>
                         </select>
                     </div>
                 </div>
@@ -101,9 +102,9 @@
 
                     <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-4" id="paiCompanyUpdate">
                         <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
-                               value="<?php echo $this->lang->line('Add') ?>" data-loading-text="Adding...">
+                               value="<?php echo $this->lang->line('Add') ?>" data-loading-text="Adicionando...">
                         <input type="hidden" value="settings/add_custom_field" id="action-url">
                     </div>
                 </div>

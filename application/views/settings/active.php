@@ -26,10 +26,8 @@
                            for="invoiceprefix"><?php echo $this->lang->line('Email') ?></label>
 
                     <div class="col-sm-6">
-                        <div class="input-group mb3">
-                            <span class="input-group-text">
-                                <i class="bi bi-envelope"></i>
-                            </span>
+                        <div class="input-group">
+                            <span class="input-group-text">@</span>
                             <input type="text" class="form-control margin-bottom  required" name="email"
                                    placeholder="">
                         </div>
@@ -40,21 +38,21 @@
 
                     <label class="col-sm-2 col-form-label"
                            for="currency"><?php echo $this->lang->line('Code') ?></label>
-
                     <div class="col-sm-6">
-                        <input type="text" placeholder="code"
-                               class="form-control margin-bottom  required" name="code"
-                        >
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="text" placeholder="code" class="form-control margin-bottom  required"
+                                   name="code">
+                        </div>
                     </div>
                 </div>
-
                 <div class="form-group row">
 
                     <label class="col-sm-2 col-form-label"
                            for="currency"><?php echo $this->lang->line('License') ?></label>
 
                     <div class="col-sm-6">
-                        <p>Single Use Standard License. <!--Read The Full License Here 
+                        <p>Single Use Standard License. <!--Read The Full License Here
 							<a href="licenca1">Licença 1</a>.
                            <a href="licenca2">Licença 2</a>.
 						   <a href="licenca3">Licença 3</a>. -->

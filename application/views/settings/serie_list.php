@@ -1,7 +1,8 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5>Series <a href="<?php echo base_url('settings/serie') ?>" class="btn btn-primary btn-sm rounded">
+            <h5 class="title">Series <a href="<?php echo base_url('settings/serie') ?>"
+                                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?></a></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
@@ -27,11 +28,11 @@
                     <tr>
                         <th>#</th>
                         <th>Serie</th>
-						<th>C.A.E</th>
-						<th>Classe</th>
-						<th>Localização</th>
-						<th><?php echo $this->lang->line('Inicial') ?></th>
-						<th><?php echo $this->lang->line('Ended') ?></th>
+                        <th>C.A.E</th>
+                        <th>Classe</th>
+                        <th>Localização</th>
+                        <th><?php echo $this->lang->line('Inicial') ?></th>
+                        <th><?php echo $this->lang->line('Ended') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
                     </tr>
                     </thead>
@@ -42,11 +43,11 @@
                     <tr>
                         <th>#</th>
                         <th>Serie</th>
-						<th>C.A.E</th>
-						<th>Classe</th>
-						<th>Localização</th>
-						<th><?php echo $this->lang->line('Inicial') ?></th>
-						<th><?php echo $this->lang->line('Ended') ?></th>
+                        <th>C.A.E</th>
+                        <th>Classe</th>
+                        <th>Localização</th>
+                        <th><?php echo $this->lang->line('Inicial') ?></th>
+                        <th><?php echo $this->lang->line('Ended') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
                     </tr>
                     </tfoot>

@@ -22,7 +22,7 @@ class Quote_model extends CI_Model
 {
     var $table = 'geopos_quotes';
     var $column_order = array(null, 'geopos_series.serie AS serie_name', 'geopos_quotes.tid', 'geopos_customers.name', 'geopos_quotes.invoicedate', 'geopos_quotes.total', 'geopos_quotes.status', null);
-    var $column_search = array('geopos_series.serie AS serie_name', 'geopos_quotes.tid', 'geopos_customers.name', 'geopos_quotes.invoicedate', 'geopos_quotes.total','geopos_quotes.status',);
+    var $column_search = array('geopos_series.serie', 'geopos_quotes.tid', 'geopos_customers.name', 'geopos_quotes.invoicedate','geopos_customers.taxid', 'geopos_quotes.subtotal', 'geopos_quotes.tax', 'geopos_quotes.total','geopos_quotes.status');
     var $order = array('geopos_quotes.tid' => 'desc');
 
     public function __construct()

@@ -608,7 +608,7 @@ class Products extends CI_Controller
 			exit($this->lang->line('translate19'));
 		}
         $catid = $this->input->get('id');
-        $list = $this->products->get_datatables($catid, true);
+        $list = $this->products->get_datatables($catid, $catid);
         $data = array();
         $no = $this->input->post('start');
         foreach ($list as $prd) {
@@ -627,8 +627,8 @@ class Products extends CI_Controller
 
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => $this->products->count_all($catid, true),
-            "recordsFiltered" => $this->products->count_filtered($catid, true),
+            "recordsTotal" => $this->products->count_all($catid, $catid),
+            "recordsFiltered" => $this->products->count_filtered($catid, $catid),
             "data" => $data,
         );
 

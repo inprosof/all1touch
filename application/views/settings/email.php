@@ -1,16 +1,15 @@
 <article class="content-body">
-    <div class="card card-block">
+    <div class="card card-block yellow-top">
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
         </div>
         <form method="post" id="product_action" class="form-horizontal">
+            <div class="card-header">
+                <h5 class="title"><?php echo $this->lang->line('Edit Email Configuration') ?></h5>
+            </div>
             <div class="card-body">
-
-                <h5>Edit Email Configuration</h5>
-                <hr>
-
 
                 <div class="form-group row">
 
@@ -110,9 +109,9 @@
 
                     <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-6">
+                    <div class="col-sm-6" id="paiCompanyUpdate">
                         <input type="submit" id="email_update" class="btn btn-success margin-bottom"
-                               value="Update" data-loading-text="Updating...">
+                               value="<?php echo $this->lang->line("Update") ?>" data-loading-text=" Atualizando...">
 
                     </div>
                     <div class="col-sm-12"><span id="email_update_m"></span></div>
@@ -121,9 +120,11 @@
             </div>
         </form>
 
-        <pre class="mt-3">
-            Note: #Refer to documentation to configure email templates.
-        </pre>
+        <div class="col-sm-8">
+            <div class="alert alert-info" id="alert-info-text">
+                <p><?php echo $this->lang->line('Refer to documentation to configure email templates.') ?></p>
+            </div>
+        </div>
     </div>
 </article>
 

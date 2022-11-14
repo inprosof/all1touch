@@ -1,8 +1,10 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h4 class="card-title"><?php echo $this->lang->line('Customer Details') ?>
-                : <?php echo $details['name'] ?></h4>
+            <h5 class="title"><a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a><?php echo $this->lang->line('Customer Details') ?>
+                : <?php echo $details['name'] ?></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -22,11 +24,11 @@
 
 
                 <div class="row">
-                    <div class="col-md-4 border-right border-right-grey">
+                    <div class="col-md-3 border-right ">
 
 
                         <div class="ibox-content mt-2">
-                            <img alt="image" id="dpic" class="rounded-circle img-border height-150"
+                            <img alt="image" id="dpic" class="card-img-top img-fluid"
                                  src="<?php echo base_url('userfiles/customers/') . $details['picture'] ?>">
                         </div>
                         <hr>
@@ -76,7 +78,7 @@
 
 
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <div id="mybutton" class="mb-1">
 
                             <div class="">
@@ -120,7 +122,7 @@
                                        for="pay_cat"><?php echo $this->lang->line('Type') ?></label>
 
                                 <div class="col-sm-4">
-                                    <select name="trans_type"  id="trans_type" class="form-control">
+                                    <select name="trans_type" id="trans_type" class="form-control">
                                         <option value='due'><?php echo $this->lang->line('Due') ?></option>
                                         <option value='partial'><?php echo $this->lang->line('Partial') ?></option>
                                     </select>
@@ -173,7 +175,8 @@
 
                                 <div class="col-sm-4">
                                     <input type="text" class="form-control"
-                                           placeholder="Amount" name="amount" id="amount" autocomplete="false" value="0">
+                                           placeholder="Amount" name="amount" id="amount" autocomplete="false"
+                                           value="0">
                                 </div>
                             </div>
 
@@ -190,24 +193,27 @@
 
                                 </div>
                             </div>
-                                               <div class="form-group row">
-                      <label class="col-sm-3 col-form-label"
-                                    for="pmethod"><?php echo $this->lang->line('Payment Method') ?></label> <div class="col-sm-4">
-                            <select name="pmethod" class="form-control mb-1 required">
-                               <option value="">Escolha uma Opção</option>
-                                <?php echo $metodos_pagamentos;?>
-                            </select></div>  </div> 
-							<div class="form-group row">
-								<label class="col-sm-3 col-form-label" for="account"><?php echo $this->lang->line('Account') ?></label>
-								<div class="col-sm-4">
-										<select name="account" class="form-control">
-											<?php foreach ($acclist as $row) {
-												echo '<option value="' . $row['id'] . '">' . $row['holder'] . ' / ' . $row['acn'] . '</option>';
-											}
-											?>
-										</select>
-								</div>   
-							</div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label"
+                                       for="pmethod"><?php echo $this->lang->line('Payment Method') ?></label>
+                                <div class="col-sm-4">
+                                    <select name="pmethod" class="form-control mb-1 required">
+                                        <option value="">Escolha uma Opção</option>
+                                        <?php echo $metodos_pagamentos; ?>
+                                    </select></div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label"
+                                       for="account"><?php echo $this->lang->line('Account') ?></label>
+                                <div class="col-sm-4">
+                                    <select name="account" class="form-control">
+                                        <?php foreach ($acclist as $row) {
+                                            echo '<option value="' . $row['id'] . '">' . $row['holder'] . ' / ' . $row['acn'] . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="form-group row">
 
                                 <label class="col-sm-3 control-label"
@@ -230,14 +236,15 @@
                                            data-toggle="datepicker" autocomplete="false">
                                 </div>
                             </div>
-                                        <div class="form-group row">
+                            <div class="form-group row">
 
                                 <label class="col-sm-3 control-label"
                                        for="sdate"><?php echo $this->lang->line('Note') ?></label>
 
                                 <div class="col-sm-4">
                                     <input type="text" class="form-control"
-                                           placeholder="Note" name="note" autocomplete="false" value="<?php echo $this->lang->line('Bulk Payment Invoices'); ?>">
+                                           placeholder="Note" name="note" autocomplete="false"
+                                           value="<?php echo $this->lang->line('Bulk Payment Invoices'); ?>">
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -329,7 +336,7 @@
             t_actionCaculate(actionurl);
             $("#sdate_2").val($("#sdate").val());
             $("#edate_2").val($("#t_date").val());
-             $("#trans_type_2").val($("#trans_type").val());
+            $("#trans_type_2").val($("#trans_type").val());
 
         });
 

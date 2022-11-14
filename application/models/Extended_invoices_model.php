@@ -22,7 +22,7 @@ class Extended_invoices_model extends CI_Model
 {
     var $table = 'geopos_invoice_items';
     var $column_order = array(null, 'geopos_invoices.tid', 'geopos_customers.name', 'geopos_invoices.invoicedate', 'geopos_invoice_items.subtotal', 'geopos_invoice_items.qty', 'geopos_invoice_items.discount','geopos_invoice_items.tax');
-    var $column_search = array('geopos_invoices.tid', 'geopos_customers.name', 'geopos_invoices.invoicedate', 'geopos_invoice_items.subtotal','geopos_invoice_items.qty','geopos_invoice_items.tax');
+    var $column_search = array('geopos_series.serie', 'geopos_customers.name', 'geopos_invoices.invoicedate', 'geopos_invoice_items.subtotal','geopos_invoice_items.qty','geopos_invoice_items.tax');
     var $order = array('geopos_invoices.tid' => 'desc');
 	
     public function __construct()

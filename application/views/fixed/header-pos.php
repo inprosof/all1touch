@@ -17,7 +17,8 @@
           rel="stylesheet">
     <!-- BEGIN VENDOR CSS-->
     <link rel="stylesheet" type="text/css" href="<?php echo assets_url() ?>app-assets/<?php echo LTR ?>/vendors.css">
-    <link rel="stylesheet" type="text/css" href="<?php echo assets_url() ?>app-assets/vendors/css/extensions/unslider.css">
+    <link rel="stylesheet" type="text/css"
+          href="<?php echo assets_url() ?>app-assets/vendors/css/extensions/unslider.css">
     <link rel="stylesheet" type="text/css"
           href="<?php echo assets_url() ?>app-assets/vendors/css/weather-icons/climacons.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo assets_url() ?>app-assets/fonts/meteocons/style.css">
@@ -31,10 +32,12 @@
           href="<?php echo assets_url() ?>app-assets/<?php echo LTR ?>/core/menu/menu-types/horizontal-menu.css">
     <link rel="stylesheet" type="text/css"
           href="<?php echo assets_url() ?>app-assets/<?php echo LTR ?>/core/colors/palette-gradient.css">
-    <link rel="stylesheet" type="text/css" href="<?php echo assets_url() ?>app-assets/fonts/simple-line-icons/style.css">
+    <link rel="stylesheet" type="text/css"
+          href="<?php echo assets_url() ?>app-assets/fonts/simple-line-icons/style.css">
     <link rel="stylesheet" type="text/css"
           href="<?php echo assets_url() ?>app-assets/<?php echo LTR ?>/core/colors/palette-gradient.css">
-    <link rel="stylesheet" type="text/css" href="<?php echo assets_url() ?>app-assets/<?php echo LTR ?>/pages/chat-application.css">
+    <link rel="stylesheet" type="text/css"
+          href="<?php echo assets_url() ?>app-assets/<?php echo LTR ?>/pages/chat-application.css">
     <!-- END Page Level CSS-->
     <!-- BEGIN Custom CSS-->
     <link rel="stylesheet" type="text/css" href="<?php echo assets_url() ?>assets/css/style.css<?php echo APPVER ?>">
@@ -55,7 +58,7 @@
     <script src="<?php echo assets_url('assets/myjs/mousetrap.min.js') . APPVER; ?>"></script>
     <script src="<?php echo assets_url('assets/myjs/datepicker.min.js') . APPVER; ?>"></script>
     <script src="<?php echo assets_url(); ?>assets/portjs/accounting.min.js" type="text/javascript"></script>
-      <script src="<?php echo assets_url(); ?>assets/portjs/printThis.js" type="text/javascript"></script>
+    <script src="<?php echo assets_url(); ?>assets/portjs/printThis.js" type="text/javascript"></script>
     <?php accounting() ?>
 </head>
 <body class="horizontal-layout horizontal-menu content-left-sidebar <?php if ($s_mode) echo 'chat-application'; ?>  menu-expanded"
@@ -71,38 +74,48 @@
         <div class="navbar-header">
             <ul class="nav navbar-nav flex-row">
                 <li class="nav-item mobile-menu d-md-none mr-auto">
-					<a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i class="ft-menu font-large-1"></i></a>
-				</li>
+                    <a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i
+                                class="ft-menu font-large-1"></i></a>
+                </li>
                 <li class="nav-item d-md-none">
-					<a class="navbar-brand" href="<?php echo base_url() ?>dashboard/"><img class="brand-logo" alt="logo" src="<?php echo base_url(); ?>userfiles/theme/logo-header.png"></a>
-				</li>
+                    <a class="navbar-brand" href="<?php echo base_url() ?>dashboard/"><img class="brand-logo" alt="logo"
+                                                                                           src="<?php echo base_url(); ?>userfiles/theme/logo-header.png"></a>
+                </li>
                 <li class="nav-item d-md-none">
-					<a class="nav-link open-navbar-container" data-toggle="collapse" data-target="#navbar-mobile"><i class="fa fa-ellipsis-v"></i></a>
-				</li>
+                    <a class="nav-link open-navbar-container" data-toggle="collapse" data-target="#navbar-mobile"><i
+                                class="fa fa-ellipsis-v"></i></a>
+                </li>
             </ul>
         </div>
         <div class="navbar-container content">
             <div class="collapse navbar-collapse" id="navbar-mobile">
                 <ul class="nav navbar-nav mr-auto float-left">
                     <li class="nav-item d-none d-md-block">
-						<a class="nav-link nav-link-expand" data-toggle="modal" data-target="#shortFullScreen"><i class="ficon ft-maximize"></i></a>
-					</li>
-                    <li class="nav-item d-none d-md-block nav-link ">
-						<a href="<?php echo base_url() ?>dashboard" class="btn btn-amber btn-md t_tooltip" title="Access POS"><i class="icon-speedometer"></i><?php echo $this->lang->line('Dashboard') ?> </a>
+                        <a class="nav-link nav-link-expand" data-toggle="modal" data-target="#shortFullScreen"><i
+                                    class="ficon ft-maximize"></i></a>
                     </li>
                     <li class="nav-item d-none d-md-block nav-link ">
-						<a class="btn btn-blue btn-md t_tooltip" title="View Register" data-toggle="modal" data-target="#register"><i class="icon-drawer"></i><?php echo $this->lang->line('Register') ?> </a>
+                        <a href="<?php echo base_url() ?>dashboard" class="btn btn-amber btn-md t_tooltip"
+                           title="Access POS"><i
+                                    class="icon-speedometer"></i><?php echo $this->lang->line('Dashboard') ?> </a>
                     </li>
                     <li class="nav-item d-none d-md-block nav-link ">
-						<a data-toggle="modal" data-target="#close_register" class="btn btn-danger btn-md t_tooltip" title="Close Register"> <i class="icon-close"></i></a>
+                        <a class="btn btn-blue btn-md t_tooltip" title="View Register" data-toggle="modal"
+                           data-target="#register"><i
+                                    class="icon-drawer"></i><?php echo $this->lang->line('Register') ?> </a>
+                    </li>
+                    <li class="nav-item d-none d-md-block nav-link ">
+                        <a data-toggle="modal" data-target="#close_register" class="btn btn-danger btn-md t_tooltip"
+                           title="Close Register"> <i class="icon-close"></i></a>
                     </li>
 
                 </ul>
 
                 <ul class="nav navbar-nav float-right">
                     <li class=" nav-item">
-						<a class="nav-link" data-toggle="modal" data-target="#shortkeyboard"><i class="fa fa-keyboard-o"></i></a>
-					</li>
+                        <a class="nav-link" data-toggle="modal" data-target="#shortkeyboard"><i
+                                    class="fa fa-keyboard-o"></i></a>
+                    </li>
                     <li class="dropdown dropdown-notification nav-item"><a class="nav-link nav-link-label" href="#"
                                                                            data-toggle="dropdown"><i
                                     class="ficon ft-bell"></i><span
@@ -116,26 +129,29 @@
                                 </h6>
                             </li>
                             <li class="scrollable-container media-list" id="tasklist">
-							</li>
+                            </li>
                             <li class="dropdown-menu-footer">
-								<a class="dropdown-item text-muted text-center" href="<?php echo base_url('manager/todo') ?>"><?php echo $this->lang->line('Manage tasks') ?></a>
+                                <a class="dropdown-item text-muted text-center"
+                                   href="<?php echo base_url('manager/todo') ?>"><?php echo $this->lang->line('Manage tasks') ?></a>
                             </li>
                         </ul>
                     </li>
                     <li class="dropdown dropdown-notification nav-item"><a class="nav-link nav-link-label" href="#"
                                                                            data-toggle="dropdown"><i
                                     class="ficon ft-mail"></i><span
-                                    class="badge badge-pill badge-default badge-info badge-default badge-up" id="messagecount">0</span></a>
+                                    class="badge badge-pill badge-default badge-info badge-default badge-up"
+                                    id="messagecount">0</span></a>
                         <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right">
                             <li class="dropdown-menu-header">
                                 <h6 class="dropdown-header m-0"><span
                                             class="grey darken-2"><?php echo $this->lang->line('Messages') ?></span><span
-                                            class="notification-tag badge badge-default badge-warning float-right m-0" id="messagecount2">0<?php echo $this->lang->line('new') ?></span>
+                                            class="notification-tag badge badge-default badge-warning float-right m-0"
+                                            id="messagecount2">0<?php echo $this->lang->line('new') ?></span>
                                 </h6>
                             </li>
                             <li class="scrollable-container media-list">
-                                <?php 
-									$list_pm = $this->aauth->list_pms(6, 0, $this->aauth->get_user()->id, false);
+                                <?php
+                                $list_pm = $this->aauth->list_pms(6, 0, $this->aauth->get_user()->id, false);
 
                                 foreach ($list_pm as $row) {
                                     echo '<a href="' . base_url('messages/view?id=' . $row->pid) . '">
@@ -149,7 +165,8 @@
 									  </div></a>';
                                 } ?>    </li>
                             <li class="dropdown-menu-footer">
-								<a class="dropdown-item text-muted text-center" href="<?php echo base_url('messages') ?>"><?php echo $this->lang->line('Read all messages') ?></a>
+                                <a class="dropdown-item text-muted text-center"
+                                   href="<?php echo base_url('messages') ?>"><?php echo $this->lang->line('Read all messages') ?></a>
                             </li>
                         </ul>
                     </li>
@@ -193,10 +210,10 @@
                             <a href="<?php echo base_url(); ?>user/holiday"
                                class="dropdown-item"><i
                                         class="fa fa-hotel"></i><?php echo $this->lang->line('Holidays') ?></a>
-							<a href="<?php echo base_url(); ?>user/vacation"
+                            <a href="<?php echo base_url(); ?>user/vacation"
                                class="dropdown-item"><i
                                         class="fa fa-hotel"></i><?php echo $this->lang->line('Vacations') ?></a>
-							<a href="<?php echo base_url(); ?>user/fault"
+                            <a href="<?php echo base_url(); ?>user/fault"
                                class="dropdown-item"><i
                                         class="fa fa-list-ol"></i><?php echo $this->lang->line('Faults') ?></a>
                             <div class="dropdown-divider"></div>
