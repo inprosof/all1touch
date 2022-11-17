@@ -1,13 +1,15 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h3 class="title">
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
                 <?php echo $this->lang->line('Documents') ?> <a href="<?php echo base_url('tools/adddocument') ?>"
-                                                                class="btn btn-primary btn-sm rounded">
+                                                                class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
-            </h3>
-            <hr>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -29,14 +31,14 @@
                 <table id="doctable" class="table table-striped table-bordered zero-configuration" cellspacing="0"
                        width="100%">
                     <thead>
-						<tr>
-							<th>#</th>
-							<th><?php echo $this->lang->line('Added') ?></th>
-							<th><?php echo $this->lang->line('Title') ?></th>
-							<th>Funcionário</th>
-							<th>Tipo/Cliente</th>
-							<th><?php echo $this->lang->line('Action') ?></th>
-						</tr>
+                    <tr>
+                        <th>#</th>
+                        <th><?php echo $this->lang->line('Added') ?></th>
+                        <th><?php echo $this->lang->line('Title') ?></th>
+                        <th>Funcionário</th>
+                        <th>Tipo/Cliente</th>
+                        <th><?php echo $this->lang->line('Action') ?></th>
+                    </tr>
                     </thead>
                     <tbody>
                     </tbody>

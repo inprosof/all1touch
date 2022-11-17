@@ -115,20 +115,21 @@ class Reports extends CI_Controller
         $edate = datefordatabase($this->input->post('edate'));
         $ttype = $this->input->post('ttype');
         $customer = $this->customer->details($cid);
-        $data['filter'] = array($cid, $trans_type, $sdate, $edate, $ttype, $customer['name']);
+		if($customer != null){
+			$data['filter'] = array($cid, $trans_type, $sdate, $edate, $ttype, $customer['name']);
 
-        //  print_r( $data['statement']);
-        $head['title'] = "Customer Account Statement";
-        $head['usernm'] = $this->aauth->get_user()->username;
-        $this->load->view('fixed/header', $head);
-        $this->load->view('reports/customerstatement_list', $data);
-        $this->load->view('fixed/footer');
-
-
+			//  print_r( $data['statement']);
+			$head['title'] = "Customer Account Statement";
+			$head['usernm'] = $this->aauth->get_user()->username;
+			$this->load->view('fixed/header', $head);
+			$this->load->view('reports/customerstatement_list', $data);
+			$this->load->view('fixed/footer');
+		}else{
+			echo json_encode(array('status' => 'Error', 'message' => 'Por favor selecione um Cliente.'));
+		}
     }
 
     public function supplierviewstatement()
-
     {
         $this->load->model('supplier_model', 'supplier');
         $cid = $this->input->post('supplier');
@@ -137,16 +138,18 @@ class Reports extends CI_Controller
         $edate = datefordatabase($this->input->post('edate'));
         $ttype = $this->input->post('ttype');
         $customer = $this->supplier->details($cid);
-        $data['filter'] = array($cid, $trans_type, $sdate, $edate, $ttype, $customer['name']);
+		if($customer != null){
+			$data['filter'] = array($cid, $trans_type, $sdate, $edate, $ttype, $customer['name']);
 
-        //  print_r( $data['statement']);
-        $head['title'] = "Supplier Account Statement";
-        $head['usernm'] = $this->aauth->get_user()->username;
-        $this->load->view('fixed/header', $head);
-        $this->load->view('reports/supplierstatement_list', $data);
-        $this->load->view('fixed/footer');
-
-
+			//  print_r( $data['statement']);
+			$head['title'] = "Supplier Account Statement";
+			$head['usernm'] = $this->aauth->get_user()->username;
+			$this->load->view('fixed/header', $head);
+			$this->load->view('reports/supplierstatement_list', $data);
+			$this->load->view('fixed/footer');
+		}else{
+			echo json_encode(array('status' => 'Error', 'message' => 'Por favor selecione um Fornecedor.'));
+		}
     }
 
 
@@ -154,7 +157,6 @@ class Reports extends CI_Controller
 
     public function statements()
     {
-
         $pay_acc = $this->input->post('ac');
         $trans_type = $this->input->post('ty');
         $sdate = datefordatabase($this->input->post('sd'));
@@ -171,14 +173,11 @@ class Reports extends CI_Controller
 
     public function customerstatements()
     {
-
-
         $pay_acc = $this->input->post('ac');
         $trans_type = $this->input->post('ty');
         $sdate = datefordatabase($this->input->post('sd'));
         $edate = datefordatabase($this->input->post('ed'));
-
-
+		
         $list = $this->reports->get_customer_statements($pay_acc, $trans_type, $sdate, $edate);
         $balance = 0;
 
@@ -191,13 +190,10 @@ class Reports extends CI_Controller
 
     public function supplierstatements()
     {
-
-
         $pay_acc = $this->input->post('ac');
         $trans_type = $this->input->post('ty');
         $sdate = datefordatabase($this->input->post('sd'));
         $edate = datefordatabase($this->input->post('ed'));
-
 
         $list = $this->reports->get_supplier_statements($pay_acc, $trans_type, $sdate, $edate);
         $balance = 0;
@@ -206,7 +202,6 @@ class Reports extends CI_Controller
             $balance += $row['debit'] - $row['credit'];
             echo '<tr><td>' . $row['date'] . '</td><td>' . $row['note'] . '</td><td>' . amountExchange($row['debit'], 0, $this->aauth->get_user()->loc) . '</td><td>' . amountExchange($row['credit'], 0, $this->aauth->get_user()->loc) . '</td><td>' . amountExchange($balance, 0, $this->aauth->get_user()->loc) . '</td></tr>';
         }
-
     }
 
 

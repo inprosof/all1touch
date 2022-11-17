@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Transaction Details') ?> </h5><?php echo '<a href="' . base_url() . 'transactions/print_t?id=' . $trans['id'] . '" class="btn btn-info btn-xs"  title="Print"><span class="fa fa-print"></span></a>'; ?>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Transaction Details') ?>
+            </h5><?php echo '<a href="' . base_url() . 'transactions/print_t?id=' . $trans['id'] . '" class="btn btn-secondary btn-xs"  title="Print"><span class="bi bi-printer"></span></a>'; ?>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">

@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $employee['name'] ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $employee['name'] ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -21,7 +26,7 @@
 
 
                 <div class="row">
-                    <div class="col-md-4 border-right">
+                    <div class="col-md-3 border-right">
 
 
                         <div class="">
@@ -77,7 +82,7 @@
                             </div>
                             <div class="row m-t-lg">
                                 <div class="col-md-12">
-                                    <strong><?php echo $this->lang->line('Salary').' '.$this->lang->line('Base')?></strong> <?php
+                                    <strong><?php echo $this->lang->line('Salary') . ' ' . $this->lang->line('Base') ?></strong> <?php
                                     echo ' ' . amountExchange($employee['basic_salary'], 0, $this->aauth->get_user()->loc); ?>
                                 </div>
 

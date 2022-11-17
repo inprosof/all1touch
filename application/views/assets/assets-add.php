@@ -1,8 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header pb-0">
-            <h5><?php echo $this->lang->line('Add New Asset') ?></h5>
-            <hr>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Add New Asset') ?></h5>
+
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -23,22 +27,26 @@
                 <input type="hidden" name="act" value="add_product">
                 <div class="form-group row">
                     <div class="col-sm-6">
-                        <label class="col-form-label"  for="product_name"><?php echo $this->lang->line('Asset Name') ?>*</label>
-                        <input type="text" placeholder="Product Name" class="form-control margin-bottom required" name="product_name">
+                        <label class="col-form-label" for="product_name"><?php echo $this->lang->line('Asset Name') ?>
+                            *</label>
+                        <input type="text" placeholder="Product Name" class="form-control margin-bottom required"
+                               name="product_name">
                     </div>
                     <div class="col-sm-6">
-                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Assets Category') ?>*</label>
+                        <label class="col-form-label"
+                               for="product_cat"><?php echo $this->lang->line('Assets Category') ?>*</label>
                         <select name="product_cat" id="product_cat" class="form-control required">
-							<option value=""><?php echo $this->lang->line('Please Select Category') ?></option>
-								<?php
-									echo $cats;
-								?>
+                            <option value=""><?php echo $this->lang->line('Please Select Category') ?></option>
+                            <?php
+                            echo $cats;
+                            ?>
                         </select>
                     </div>
                     <div class="col-sm-6">
-                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Warehouse') ?></label>
+                        <label class="col-form-label"
+                               for="product_cat"><?php echo $this->lang->line('Warehouse') ?></label>
                         <select name="product_warehouse" class="form-control required">
-                           <option value="0"><?php echo 'Todos';?></option>
+                            <option value="0"><?php echo 'Todos'; ?></option>
                             <?php
                             foreach ($warehouse as $row) {
                                 $cid = $row['id'];
@@ -49,47 +57,52 @@
                         </select>
                     </div>
                     <div class="col-sm-6">
-                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Stock Units') ?>*</label>
+                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Stock Units') ?>
+                            *</label>
                         <input type="text" placeholder="<?php echo $this->lang->line('Stock Units') ?>*"
                                class="form-control margin-bottom required" name="product_qty"
                                onkeypress="return isNumber(event)">
                     </div>
                     <div class="col-sm-12">
-                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Assign to') ?></label>
+                        <label class="col-form-label"
+                               for="product_cat"><?php echo $this->lang->line('Assign to') ?></label>
                         <select name="employee_id" class="form-control required">
-							<option value="0"><?php echo 'Empresa';?></option>
-							<?php
-								foreach ($employees as $employee) {
-									$eid = $employee['id'];
-									$name = $employee['name'];
-									echo "<option value='$eid'>$name</option>";
-								}
-								?>
+                            <option value="0"><?php echo 'Empresa'; ?></option>
+                            <?php
+                            foreach ($employees as $employee) {
+                                $eid = $employee['id'];
+                                $name = $employee['name'];
+                                echo "<option value='$eid'>$name</option>";
+                            }
+                            ?>
                         </select>
                     </div>
                 </div>
                 <div class="row insuranceRow">
                     <div class="col-sm-6">
-                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Insurance date') ?></label>
+                        <label class="col-form-label"
+                               for="product_cat"><?php echo $this->lang->line('Insurance date') ?></label>
                         <input type="date" placeholder="<?php echo $this->lang->line('Insurance date') ?>"
                                class="form-control margin-bottom" name="insurance_date"
                                value="">
                     </div>
                     <div class="col-sm-6">
-                        <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Inspection date') ?></label>
+                        <label class="col-form-label"
+                               for="product_cat"><?php echo $this->lang->line('Inspection date') ?></label>
                         <input type="date" placeholder="<?php echo $this->lang->line('Inspection date') ?>"
                                class="form-control margin-bottom" name="inspection_date"
                                value="">
                     </div>
                 </div>
-				<div class="col-sm-12">
-					<label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Description') ?>*</label>
-					<textarea placeholder="Description"
-							  class="form-control margin-bottom" name="product_desc"
-					></textarea>
-				</div>
-				<div class="form-group row">
-					<label class="col-sm-2 col-form-label"><?php echo $this->lang->line('Image') ?></label>
+                <div class="col-sm-12">
+                    <label class="col-form-label" for="product_cat"><?php echo $this->lang->line('Description') ?>
+                        *</label>
+                    <textarea placeholder="Description"
+                              class="form-control margin-bottom" name="product_desc"
+                    ></textarea>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label"><?php echo $this->lang->line('Image') ?></label>
                     <div class="col-sm-6">
                         <div id="progress" class="progress">
                             <div class="progress-bar progress-bar-success"></div>
@@ -100,7 +113,7 @@
                         <span class="btn btn-success fileinput-button">
 							<i class="glyphicon glyphicon-plus"></i>
 							<span>Select files...</span>
-							<!-- The file input field used as target for the file upload widget -->
+                            <!-- The file input field used as target for the file upload widget -->
 							<input id="fileupload" type="file" name="files[]">
 						</span>
                         <br>
@@ -110,13 +123,14 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-4">
-                        <input type="submit" id="submit-data" class="btn btn-lg btn-blue margin-bottom"
-                               value="<?php echo $this->lang->line('Add New Asset') ?>" data-loading-text="Adding...">
+                    <div class="col-sm-12" id="paiCompanyUpdate">
+                        <input type="submit" id="submit-data" class="btn btn-success btn-md margin-bottom"
+                               value="<?php echo $this->lang->line('Add New Asset') ?>"
+                               data-loading-text="Adicionando...">
                         <input type="hidden" value="assests/addasset" id="action-url">
                     </div>
                 </div>
-				<input type="hidden" name="image" id="image" value="default.png">
+                <input type="hidden" name="image" id="image" value="default.png">
             </form>
         </div>
     </div>
@@ -125,15 +139,15 @@
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 
 <script>
-    $(document).ready(function (){
-        if($('select[name="product_cat"]').find('option:selected').data('type') !== 1){
+    $(document).ready(function () {
+        if ($('select[name="product_cat"]').find('option:selected').data('type') !== 1) {
             $('.insuranceRow').addClass('hidden')
         }
     })
-    $('select[name="product_cat"]').change(function (){
+    $('select[name="product_cat"]').change(function () {
         let selectedCategoryType = $(this).find('option:selected').data('type')
         $('.insuranceRow').addClass('hidden')
-        if(selectedCategoryType == 1){
+        if (selectedCategoryType == 1) {
             $('.insuranceRow').removeClass('hidden')
         }
     })
@@ -194,19 +208,19 @@
         var n_row = $('#v_var').find('tbody').find("tr:last").clone();
         $('#v_var').find('tbody').find("tr:last").after(n_row);
     });
-	
+
     $(document).on('click', ".tr_clone_add_w", function (e) {
         e.preventDefault();
         var n_row = $('#w_var').find('tbody').find("tr:last").clone();
 
         $('#w_var').find('tbody').find("tr:last").after(n_row);
     });
-	
+
     $(document).on('click', ".tr_delete", function (e) {
         e.preventDefault();
         $(this).closest('tr').remove();
     });
-	
+
     $(document).on('click', ".v_delete_serial", function (e) {
         e.preventDefault();
         $(this).closest('div .serial').remove();

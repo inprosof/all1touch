@@ -1,7 +1,13 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Customer') . ' ' . $this->lang->line('Account Statement') ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+
+                <?php echo $this->lang->line('Customer') . ' ' . $this->lang->line('Account Statement') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -18,12 +24,13 @@
                 <div class="message"></div>
             </div>
             <div class="card-body">
+                <div class="alert alert-info" id="alert-info-text">
+                      <span class="text-bold-600"><span class="icon-file-pdf"></span> To Export Data Check <a
+                                  href="<?php echo base_url() ?>export/account">HERE</a></span>
+                </div>
 
-            <span class="text-bold-600"><span class="icon-file-pdf"></span> To Export Data Check <a
-                        href="<?php echo base_url() ?>export/account">HERE</a></span>
-                <hr>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="card card-block sameheight-item">
 
                             <form action="<?php echo base_url() ?>reports/customerviewstatement" method="post"
@@ -31,10 +38,10 @@
                                 <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>"
                                        value="<?php echo $this->security->get_csrf_hash(); ?>">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label"
+                                    <label class="col-sm-2 col-form-label"
                                            for="pay_cat"><?php echo $this->lang->line('Customer') ?></label>
 
-                                    <div class="col-sm-9">
+                                    <div class="col-sm-6">
                                         <select name="customer" class="form-control" id="customer_statement">
 
                                         </select>
@@ -44,10 +51,10 @@
 
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label"
+                                    <label class="col-sm-2 col-form-label"
                                            for="pay_cat"><?php echo $this->lang->line('Type') ?></label>
 
-                                    <div class="col-sm-9">
+                                    <div class="col-sm-6">
                                         <select name="trans_type" class="form-control">
                                             <option value='All'><?php echo $this->lang->line('All Transactions') ?></option>
                                             <option value='Expense'><?php echo $this->lang->line('Debit') ?></option>
@@ -59,10 +66,10 @@
                                 </div>
                                 <div class="form-group row">
 
-                                    <label class="col-sm-3 control-label"
+                                    <label class="col-sm-2 control-label"
                                            for="sdate"><?php echo $this->lang->line('From Date') ?></label>
 
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-6">
                                         <input type="text" class="form-control required"
                                                placeholder="Start Date" name="sdate" id="sdate"
                                                data-toggle="datepicker" autocomplete="false">
@@ -70,19 +77,19 @@
                                 </div>
                                 <div class="form-group row">
 
-                                    <label class="col-sm-3 control-label"
+                                    <label class="col-sm-2 control-label"
                                            for="edate"><?php echo $this->lang->line('To Date') ?></label>
 
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-6">
                                         <input type="text" class="form-control required"
                                                placeholder="End Date" name="edate"
                                                data-toggle="datepicker" autocomplete="false">
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label" for="pay_cat"></label>
+                                    <label class="col-sm-2 col-form-label" for="pay_cat"></label>
 
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-6">
                                         <input type="submit" class="btn btn-primary btn-md" value="View">
 
 

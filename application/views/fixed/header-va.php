@@ -650,39 +650,45 @@
 				<a href="<?php echo base_url(); ?>dashboard/"><i class="icon-speedometer"></i><span><?php echo $this->lang->line('Dashboard') ?></span></a>
 			</li>
             <?php
-            if ($this->aauth->premission(1) || $this->aauth->premission(4) || $this->aauth->premission(7) || $this->aauth->premission(10) || $this->aauth->premission(13) || $this->aauth->premission(16) || $this->aauth->premission(19) || $this->aauth->premission(42) || $this->aauth->premission(125) || $this->aauth->premission(130) || $this->aauth->premission(136)) { ?>
+            if ($this->aauth->premission(1) || $this->aauth->premission(4) || $this->aauth->premission(7) || $this->aauth->premission(10) 
+				|| $this->aauth->premission(13) || $this->aauth->premission(16) || $this->aauth->premission(148) 
+			|| $this->aauth->premission(19) || $this->aauth->premission(42) || $this->aauth->premission(125) 
+			|| $this->aauth->premission(130) || $this->aauth->premission(136) || $this->aauth->premission(48) 
+			|| $this->aauth->premission(139) || $this->aauth->premission(151) || $this->aauth->premission(154)) { ?>
                 <li class="nav-item has-sub <?php if ($this->li_a == "sales" || $this->li_a == "promo" || $this->li_a == "guides") {
                     echo ' open';
                 } ?>"><a href="#"><i class="icon-basket-loaded"></i><span>Documentos</span></a>
                     <ul class="menu-content">
-						<?php if ($this->aauth->premission(1) || $this->aauth->premission(4) || $this->aauth->premission(125) || $this->aauth->premission(130)) {?>
+						<?php if ($this->aauth->premission(1) || $this->aauth->premission(4) || $this->aauth->premission(125)) {?>
 						<li class="menu-item" ><a href="#"><i class="icon-handbag"></i>Vendas</a>
                             <ul class="menu-content">
 								<?php if ($this->aauth->premission(1)) {?>
 									<li class="menu-item">
-										<a href="<?php echo base_url(); ?>invoices"><i class="icon-basket"></i>Faturas</a>
+										<a href="<?php echo base_url(); ?>invoices/index?ty=1"><i class="icon-basket"></i> Faturas</a>
+									</li>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>invoices/index?ty=2"><i class="icon-basket"></i> Fat. Recibo</a>
+									</li>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>invoices/index?ty=3"><i class="icon-basket"></i> Fat. Simplificadas</a>
 									</li>
 								<?php }?>
 								<?php if ($this->aauth->premission(4)) {?>
 									<li class="menu-item">
-										<a href="<?php echo base_url(); ?>pos_invoices"><i class="icon-paper-plane"></i>POS</a>
+										<a href="<?php echo base_url(); ?>pos_invoices"><i class="icon-paper-plane"></i> Fat. POS</a>
 									</li>
 								<?php }?>
 								
 								<?php if ($this->aauth->premission(125)) {?>
 									<li class="menu-item">
-										<a href="<?php echo base_url(); ?>customers_notes/index?ty=0"><i class="icon-screen-tablet"></i> Notas de Débito</a>
-									</li>
-								<?php }?>
-								<?php if ($this->aauth->premission(130)) {?>
-									<li class="menu-item">
-										<a href="<?php echo base_url(); ?>receipts/index?ty=0"><i class="icon-puzzle"></i> Recibos</a>
+										<a href="<?php echo base_url(); ?>customers_notes/index?ty=0"><i class="icon-screen-tablet"></i> Not. Débito</a>
 									</li>
 								<?php }?>
 							</ul>
                         </li>
 						<?php }?>
-						<?php if ($this->aauth->premission(7) || $this->aauth->premission(10) || $this->aauth->premission(42) || $this->aauth->premission(136)){?>
+						<?php if ($this->aauth->premission(7) || $this->aauth->premission(10) || $this->aauth->premission(42) 
+							|| $this->aauth->premission(136) || $this->aauth->premission(139)){?>
 						<li class="menu-item" ><a href="#"><i class="ft-list"></i>Outros Documentos</a>
                             <ul class="menu-content">
 								<?php if ($this->aauth->premission(7)) {?>
@@ -692,33 +698,78 @@
 								<?php }?>
 								<?php if ($this->aauth->premission(10)) {?>
 									<li class="menu-item">
-										<a href="<?php echo base_url(); ?>subscriptions"><i class="ft-radio"></i>Avenças</a>
+										<a href="<?php echo base_url(); ?>subscriptions"><i class="ft-radio"></i> Avenças</a>
 									</li>
 								<?php }?>
 								<?php if ($this->aauth->premission(42)) {?>
 								<li class="menu-item">
-									<a href="<?php echo base_url(); ?>purchase/index?ty=0"><i class="icon-handbag"></i> Notas de Encomenda</a>
+									<a href="<?php echo base_url(); ?>purchase/index?ty=0"><i class="icon-handbag"></i> Not. Encomenda</a>
 								</li>
 								<?php }?>
 								<?php if ($this->aauth->premission(136)) {?>
 									<li class="menu-item">
-										<a href="<?php echo base_url(); ?>quote/index?ty=1"><i class="icon-paper-plane"></i>Faturas pró-Forma</a>
+										<a href="<?php echo base_url(); ?>quote/index?ty=1"><i class="icon-paper-plane"></i> Fat. Pró-Forma</a>
+									</li>
+								<?php }?>								
+								<?php if ($this->aauth->premission(139)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>docs_intern/index?ty=0"><i class="ft-sliders"></i> Doc. Internos</a>
 									</li>
 								<?php }?>
 							</ul>
                         </li>
-						<?php }?>						
-						<?php if ($this->aauth->premission(13) || $this->aauth->premission(16)) {?>
+						<?php }?>
+						
+						<?php if ($this->aauth->premission(130) || $this->aauth->premission(45) || $this->aauth->premission(151) 
+							|| $this->aauth->premission(154)){?>
+						<li class="menu-item" ><a href="#"><i class="ft-list"></i> Liquidações</a>
+                            <ul class="menu-content">
+								<?php if ($this->aauth->premission(130)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>receipts/index?ext=0ty=0"><i class="icon-puzzle"></i> Recibos</a>
+									</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(151)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>receipts/index?ext=0ty=1"><i class="icon-puzzle"></i> Not. Liquidação</a>
+									</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(154)) {?>
+									<li class="menu-item">
+										<a href="<?php echo base_url(); ?>receipts/index?ext=0ty=2"><i class="icon-puzzle"></i> Dev. Pagamentos</a>
+									</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(45)) {?>
+								<li class="menu-item">
+									<a href="<?php echo base_url(); ?>customers_notes/index?ty=1"><i class="icon-screen-tablet"></i> Not. Crédito</a>
+								</li>
+								<?php }?>
+							</ul>
+                        </li>
+						<?php }?>
+								
+						<?php if ($this->aauth->premission(13) || $this->aauth->premission(16) || $this->aauth->premission(148) 
+							|| $this->aauth->premission(48)) {?>
                         <li class="menu-item" ><a href="#"><i class="fa fa-barcode"></i>Transporte</a>
                             <ul class="menu-content">
 								<?php if ($this->aauth->premission(13)) {?>
 								<li class="menu-item">
-									<a href="<?php echo base_url(); ?>guides/index?ty=1"><i class="ft-target"></i>Guias de Remessa</a>
+									<a href="<?php echo base_url(); ?>guides/index?ty=1"><i class="ft-target"></i> Gui. Remessa</a>
 								</li>
 								<?php }?>
 								<?php if ($this->aauth->premission(16)) {?>
 								<li class="menu-item">
-									<a href="<?php echo base_url(); ?>guides/index?ty=2"><i class="icon-handbag"></i>Guias de Transporte</a>
+									<a href="<?php echo base_url(); ?>guides/index?ty=2"><i class="icon-handbag"></i> Gui. Transporte</a>
+								</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(148)) {?>
+								<li class="menu-item">
+									<a href="<?php echo base_url(); ?>guides/index?ty=3"><i class="icon-paper-plane"></i> Gui. Consignação</a>
+								</li>
+								<?php }?>
+								<?php if ($this->aauth->premission(48)) {?>
+								<li class="menu-item">
+									<a href="<?php echo base_url(); ?>stockreturn/index?ty=0"><i class="icon-puzzle"></i> Not. Devolução</a>
 								</li>
 								<?php }?>
 							</ul>
@@ -726,7 +777,7 @@
 						<?php }?>
 						<?php if ($this->aauth->premission(19)) {?>
 						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>promo"><i class="icon-energy"></i> <span><?php echo $this->lang->line('Promo Codes') ?></span></a>
+							<a href="<?php echo base_url(); ?>promo"><i class="icon-energy"></i> <span> <?php echo $this->lang->line('Promo Codes') ?></span></a>
 						</li>
 						<?php }?>
                     </ul>
@@ -744,24 +795,24 @@
 						<?php }?>
 						<?php if ($this->aauth->premission(25)) {?>
                         <li class="menu-item"><a href="<?php echo base_url(); ?>productcategory"><i
-                                        class="ft-umbrella"></i><?php echo $this->lang->line('Product Categories'); ?>
+                                        class="ft-umbrella"></i> Cat. Produtos
                             </a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(28)) {?>
                         <li class="menu-item"><a href="<?php echo base_url(); ?>productcategory/warehouse"><i
-                                        class="ft-sliders"></i><?php echo $this->lang->line('Warehouses'); ?></a>
+                                        class="ft-sliders"></i> <?php echo $this->lang->line('Warehouses'); ?></a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(31)) {?>
                         <li class="menu-item"><a class="dropdown-item"
                                                  href="<?php echo base_url(); ?>products/stock_transfer"><i
-                                        class="ft-wind"></i><?php echo $this->lang->line('Stock Transfer'); ?></a>
+                                        class="ft-wind"></i> Trans. Stock</a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(32)) {?>
 						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>products/classes"><i class="ft-list"></i> <?php echo $this->lang->line('Product Classes') ?></a>
+							<a href="<?php echo base_url(); ?>products/classes"><i class="ft-list"></i> Cla. Produto</a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(35)) {?>
@@ -770,16 +821,16 @@
                                         class="fa fa-barcode"></i><?php echo $this->lang->line('ProductsLabel'); ?></a>
                             <ul class="menu-content">
                                 <li  class="menu-item"><a href="<?php echo base_url(); ?>products/custom_label"
-                                                   ><?php echo $this->lang->line('custom_label'); ?></a></li>
+                                                   > <?php echo $this->lang->line('custom_label'); ?></a></li>
                                 <li  class="menu-item"><a href="<?php echo base_url(); ?>products/standard_label"
-                                                ><?php echo $this->lang->line('standard_label'); ?></a></li>
+                                                > <?php echo $this->lang->line('standard_label'); ?></a></li>
                             </ul>
                         </li>
 						<?php }?>
                     </ul>
                 </li>
             <?php }
-			if ($this->aauth->premission(36) || $this->aauth->premission(39) || $this->aauth->premission(45) || $this->aauth->premission(48) || $this->aauth->premission(49) || $this->aauth->premission(125) || $this->aauth->premission(139)) { ?>
+			if ($this->aauth->premission(36) || $this->aauth->premission(39) || $this->aauth->premission(49) || $this->aauth->premission(125)) { ?>
                 <li class="nav-item has-sub <?php if ($this->li_a == "crm") {
                     echo ' open';
                 } ?>"><a href="#"><i class="icon-diamond"></i> <span><?php echo $this->lang->line('CRM') ?></span></a>
@@ -791,32 +842,18 @@
 						<?php }?>
 						<?php if ($this->aauth->premission(39)) {?>
                         <li class="menu-item">
-                            <a href="<?php echo base_url(); ?>clientgroup"><i class="icon-grid"></i> <?php echo $this->lang->line('Client Groups'); ?></a>
+                            <a href="<?php echo base_url(); ?>clientgroup"><i class="icon-grid"></i> <?php echo 'Grup. Clientes'; ?></a>
                         </li>
 						<?php }?>
-						<?php if ($this->aauth->premission(45)) {?>
-						<li class="menu-item">
-                            <a href="<?php echo base_url(); ?>customers_notes/index?ty=1"><i class="icon-screen-tablet"></i> Notas de Crédito</a>
-                        </li>
-						<?php }?>
-						<?php if ($this->aauth->premission(48)) {?>
-						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>stockreturn/index?ty=0"><i class="icon-puzzle"></i> Notas de Devolução</a>
-                        </li>
-						<?php }?>
-						<?php if ($this->aauth->premission(139)) {?>
-							<li class="menu-item">
-								<a href="<?php echo base_url(); ?>docs_intern/index?ty=0"><i class="ft-sliders"></i> Documentos Internos</a>
-							</li>
-						<?php }?>
+						
 						<?php if ($this->aauth->premission(49)) {?>
                         <li class="menu-item"><a href="#"><i class="fa fa-ticket"></i> <?php echo $this->lang->line('Support Tickets') ?></a>
                             <ul class="menu-content">
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>tickets/?filter=unsolved"><?php echo $this->lang->line('UnSolved') ?></a>
+                                            href="<?php echo base_url(); ?>tickets/?filter=unsolved"> <?php echo $this->lang->line('UnSolved') ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>tickets"><?php echo $this->lang->line('Manage Tickets'); ?></a>
+                                            href="<?php echo base_url(); ?>tickets"> <?php echo $this->lang->line('Manage Tickets'); ?></a>
                                 </li>
                             </ul>
                         </li>
@@ -824,7 +861,7 @@
                     </ul>
                 </li>
             <?php }
-			if ($this->aauth->premission(50) || $this->aauth->premission(51) || $this->aauth->premission(54) || $this->aauth->premission(57) || $this->aauth->premission(60) || $this->aauth->premission(122) || $this->aauth->premission(133) || $this->aauth->premission(142)) {?>
+			if ($this->aauth->premission(50) || $this->aauth->premission(51) || $this->aauth->premission(54) || $this->aauth->premission(57) || $this->aauth->premission(60) || $this->aauth->premission(122) || $this->aauth->premission(133) || $this->aauth->premission(142) || $this->aauth->premission(145) || $this->aauth->premission(157)) {?>
 				<li class="nav-item has-sub <?php if ($this->li_a == "suppliers") {
                     echo ' open';
                 } ?>"><a href="#"><i class="ft-layers"></i><span><?php echo $this->lang->line('Suppliers') ?></span></a>
@@ -836,37 +873,47 @@
 						<?php }?>
 						<?php if ($this->aauth->premission(51)) {?>
 						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>invoices_supli"><i class="icon-basket"></i> <?php echo $this->lang->line('Invoices') ?></a>
+							<a href="<?php echo base_url(); ?>invoices_supli/index?ty=f"><i class="icon-basket"></i> <?php echo 'Faturas'; ?></a>
+						</li>
+						<?php }?>
+						<?php if ($this->aauth->premission(157)) {?>
+						<li class="menu-item">
+							<a href="<?php echo base_url(); ?>invoices_supli/index?ty=s"><i class="icon-basket"></i> <?php echo 'Fat. Simplificadas'; ?></a>
 						</li>
 						<?php }?>
 						<?php if ($this->aauth->premission(54)) {?>
 						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>purchase/index?ty=1"><i class="icon-handbag"></i> Notas de Encomenda</a>
+							<a href="<?php echo base_url(); ?>purchase/index?ty=1"><i class="icon-handbag"></i> Not. Encomenda</a>
 						</li>
 						<?php }?>
 						<?php if ($this->aauth->premission(57)) {?>
 						<li class="menu-item">
-                            <a href="<?php echo base_url(); ?>supplier_notes/index?ty=c"><i class="icon-screen-tablet"></i> Notas de Crédito</a>
+                            <a href="<?php echo base_url(); ?>supplier_notes/index?ty=c"><i class="icon-screen-tablet"></i> Not. Crédito</a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(122)) {?>
 						<li class="menu-item">
-                            <a href="<?php echo base_url(); ?>supplier_notes/index?ty=d"><i class="fa fa-ticket"></i> Notas de Débito</a>
+                            <a href="<?php echo base_url(); ?>supplier_notes/index?ty=d"><i class="fa fa-ticket"></i> Not. Débito</a>
+                        </li>
+						<?php }?>
+						<?php if ($this->aauth->premission(145)) {?>
+						<li class="menu-item">
+                            <a href="<?php echo base_url(); ?>supplier_notes/index?ty=p"><i class="fa fa-ticket"></i> Ped. Garantia</a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(60)) {?>
 						<li class="menu-item">
-							<a href="<?php echo base_url(); ?>stockreturn/index?ty=1"><i class="icon-puzzle"></i> Notas de Devolução</a>
+							<a href="<?php echo base_url(); ?>stockreturn/index?ty=1"><i class="icon-puzzle"></i> Not. Devolução</a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(133)) {?>
 							<li class="menu-item">
-								<a href="<?php echo base_url(); ?>receipts/index?ty=1"><i class="icon-grid"></i> Recibos</a>
+								<a href="<?php echo base_url(); ?>receipts/index?ext=1ty=0"><i class="icon-grid"></i> Recibos</a>
 							</li>
 						<?php }?>
 						<?php if ($this->aauth->premission(142)) {?>
 							<li class="menu-item">
-								<a href="<?php echo base_url(); ?>docs_intern/index?ty=1"><i class="ft-sliders"></i> Documentos Internos</a>
+								<a href="<?php echo base_url(); ?>docs_intern/index?ty=1"><i class="ft-sliders"></i> Doc. Internos</a>
 							</li>
 						<?php }?>
 					</ul>
@@ -881,7 +928,7 @@
                     <ul class="menu-content">
 						<?php if ($this->aauth->premission(61) && $this->aauth->premission(62)) {?>
                         <li class="menu-item">
-							<a href="<?php echo base_url(); ?>projects"><i class="icon-calendar"></i><?php echo $this->lang->line('Project Management') ?></a>
+							<a href="<?php echo base_url(); ?>projects"><i class="icon-calendar"></i> <?php echo $this->lang->line('Project Management') ?></a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(65)) {?>
@@ -917,12 +964,12 @@
                             <ul class="menu-content">
 								<?php if ($this->aauth->premission(68)) {?>
                                 <li data-menu="">
-									<a href="<?php echo base_url(); ?>accounts"><?php echo $this->lang->line('Manage Accounts') ?></a>
+									<a href="<?php echo base_url(); ?>accounts"> <?php echo $this->lang->line('Manage Accounts') ?></a>
                                 </li>
 								<?php }?>
 								<?php if ($this->aauth->premission(71)) {?>
                                 <li class="menu-item">
-									<a href="<?php echo base_url(); ?>accounts/balancesheet"><?php echo $this->lang->line('Balance Sheet'); ?></a>
+									<a href="<?php echo base_url(); ?>accounts/balancesheet"> <?php echo $this->lang->line('Balance Sheet'); ?></a>
                                 </li>
 								<?php }?>
                             </ul>
@@ -933,11 +980,11 @@
                             <ul class="menu-content">
 								<?php if ($this->aauth->premission(76)) {?>
 								<li class="menu-item">
-									<a href="<?php echo base_url(); ?>transactions/categories"><?php echo $this->lang->line('Transaction Categories') ?></a>
+									<a href="<?php echo base_url(); ?>transactions/categories"> <?php echo $this->lang->line('Transaction Categories') ?></a>
                                 </li>
 								<?php }?>
 								<li class="menu-item">
-									<a href="<?php echo base_url(); ?>transactions"><?php echo $this->lang->line('View Transactions') ?></a>
+									<a href="<?php echo base_url(); ?>transactions"> <?php echo $this->lang->line('View Transactions') ?></a>
                                 </li>
                             </ul>
                         </li>
@@ -980,12 +1027,12 @@
 							<ul class="menu-content">
 								<?php if ($this->aauth->premission(92)) {?>
 								<li class="menu-item">
-									<a href="<?php echo base_url(); ?>assests"><?php echo $this->lang->line('Manage Assets'); ?></a>
+									<a href="<?php echo base_url(); ?>assests"> <?php echo $this->lang->line('Manage Assets'); ?></a>
 								</li>
 								<?php }?>
 								<?php if ($this->aauth->premission(95)) {?>
 								<li class="menu-item">
-									<a href="<?php echo base_url(); ?>assests/cats"><i class="ft-umbrella"></i><?php echo $this->lang->line('Assets Categories'); ?></a>
+									<a href="<?php echo base_url(); ?>assests/cats"><i class="ft-umbrella"></i> <?php echo $this->lang->line('Assets Categories'); ?></a>
 								</li>
 								<?php }?>
 							</ul>
@@ -1005,32 +1052,32 @@
                         <ul class="menu-content">
 							<?php if ($this->aauth->premission(98)) {?>
                             <li class="menu-item">
-								<a href="<?php echo base_url(); ?>employee"><?php echo $this->lang->line('Employees') ?></a>
+								<a href="<?php echo base_url(); ?>employee"> <?php echo $this->lang->line('Employees') ?></a>
                             </li>
 							<?php }?>
 							<?php if ($this->aauth->premission(101)) {?>
                             <li class="menu-item">
-								<a href="<?php echo base_url(); ?>employee/permissions"><?php echo $this->lang->line('Permissions'); ?></a>
+								<a href="<?php echo base_url(); ?>employee/permissions"> <?php echo $this->lang->line('Permissions'); ?></a>
                             </li>
 							<?php }?>
 							<?php if ($this->aauth->premission(102)) {?>
                             <li class="menu-item">
-								<a href="<?php echo base_url(); ?>employee/salaries"><?php echo $this->lang->line('Salaries'); ?></a>
+								<a href="<?php echo base_url(); ?>employee/salaries"> <?php echo $this->lang->line('Salaries'); ?></a>
                             </li>
 							<?php }?>
 							<?php if ($this->aauth->premission(103)) {?>
 							<li class="menu-item">
-								<a href="<?php echo base_url(); ?>employee/faults"><?php echo $this->lang->line('Faults'); ?></a>
+								<a href="<?php echo base_url(); ?>employee/faults"> <?php echo $this->lang->line('Faults'); ?></a>
                             </li>
 							<?php }?>
 							<?php if ($this->aauth->premission(106)) {?>
 							<li class="menu-item">
-								<a href="<?php echo base_url(); ?>employee/attendances"><?php echo $this->lang->line('Attendance'); ?></a>
+								<a href="<?php echo base_url(); ?>employee/attendances"> <?php echo $this->lang->line('Attendance'); ?></a>
                             </li>
 							<?php }?>
 							<?php if ($this->aauth->premission(108)) {?>
                             <li class="menu-item">
-								<a href="<?php echo base_url(); ?>employee/vacations"><?php echo $this->lang->line('Vacations'); ?></a>
+								<a href="<?php echo base_url(); ?>employee/vacations"> <?php echo $this->lang->line('Vacations'); ?></a>
                             </li>
 							<?php }?>
                         </ul>
@@ -1056,7 +1103,7 @@
                     <ul class="menu-content">
 						<?php if ($this->aauth->premission(114)) {?>
                         <li class="menu-item">
-                            <a href="<?php echo base_url(); ?>register"><i class="icon-eyeglasses"></i> Caixa POS</a>
+                            <a href="<?php echo base_url(); ?>register"> <i class="icon-eyeglasses"></i> Caixa POS</a>
                         </li>
 						<?php }?>
 						<?php if ($this->aauth->premission(115) || $this->aauth->premission(72)) {?>
@@ -1064,21 +1111,21 @@
                             <ul class="menu-content">
                                 <?php if ($this->aauth->premission(72)) {?>
 									<li class="menu-item"><a
-												href="<?php echo base_url(); ?>reports/accountstatement"><?php echo $this->lang->line('Account Statements'); ?></a>
+												href="<?php echo base_url(); ?>reports/accountstatement"> <?php echo $this->lang->line('Account Statements'); ?></a>
 									</li>
 									<li class="menu-item"><a
-												href="<?php echo base_url(); ?>reports/customerstatement"><?php echo $this->lang->line('Customer_Account_Statements') ?></a>
+												href="<?php echo base_url(); ?>reports/customerstatement"> <?php echo $this->lang->line('Customer_Account_Statements') ?></a>
 									</li>
 									<li class="menu-item"><a
-												href="<?php echo base_url(); ?>reports/supplierstatement"><?php echo $this->lang->line('Supplier_Account_Statements') ?></a>
+												href="<?php echo base_url(); ?>reports/supplierstatement"> <?php echo $this->lang->line('Supplier_Account_Statements') ?></a>
 									</li>
 									<li class="menu-item"><a
-												href="<?php echo base_url(); ?>pos_invoices/extended"><?php echo $this->lang->line('ProductSales') ?></a>
+												href="<?php echo base_url(); ?>pos_invoices/extended"> <?php echo $this->lang->line('ProductSales') ?></a>
 									</li>
 								<?php }?>
                                 <?php if ($this->aauth->premission(115)) {?>
 									 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>reports/taxstatement"><?php echo $this->lang->line('TAX_Statements'); ?></a></li>
+                                            href="<?php echo base_url(); ?>reports/taxstatement"> <?php echo $this->lang->line('TAX_Statements'); ?></a></li>
 								<?php }?>
                             </ul>
                         </li>
@@ -1089,25 +1136,25 @@
                             </a>
                             <ul class="menu-content">
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>chart/product_cat"><?php echo $this->lang->line('Product Categories'); ?></a>
+                                            href="<?php echo base_url(); ?>chart/product_cat"> <?php echo $this->lang->line('Product Categories'); ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>chart/trending_products"><?php echo $this->lang->line('Trending Products'); ?></a>
+                                            href="<?php echo base_url(); ?>chart/trending_products"> <?php echo $this->lang->line('Trending Products'); ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>chart/profit"><?php echo $this->lang->line('Profit'); ?></a>
+                                            href="<?php echo base_url(); ?>chart/profit"> <?php echo $this->lang->line('Profit'); ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>chart/topcustomers"><?php echo $this->lang->line('Top_Customers') ?></a>
+                                            href="<?php echo base_url(); ?>chart/topcustomers"> <?php echo $this->lang->line('Top_Customers') ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>chart/incvsexp"><?php echo $this->lang->line('income_vs_expenses') ?></a>
+                                            href="<?php echo base_url(); ?>chart/incvsexp"> <?php echo $this->lang->line('income_vs_expenses') ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>chart/income"><?php echo $this->lang->line('Income'); ?></a>
+                                            href="<?php echo base_url(); ?>chart/income"> <?php echo $this->lang->line('Income'); ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>chart/expenses"><?php echo $this->lang->line('Expenses'); ?></a>
+                                            href="<?php echo base_url(); ?>chart/expenses"> <?php echo $this->lang->line('Expenses'); ?></a>
 								</li>
                             </ul>
                         </li>
@@ -1118,25 +1165,25 @@
                             </a>
                             <ul class="menu-content">
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>reports/statistics"><?php echo $this->lang->line('Statistics') ?></a>
+                                            href="<?php echo base_url(); ?>reports/statistics"> <?php echo $this->lang->line('Statistics') ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>reports/profitstatement"><?php echo $this->lang->line('Profit'); ?></a>
+                                            href="<?php echo base_url(); ?>reports/profitstatement"> <?php echo $this->lang->line('Profit'); ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>reports/incomestatement"><?php echo $this->lang->line('Calculate Income'); ?></a>
+                                            href="<?php echo base_url(); ?>reports/incomestatement"> <?php echo $this->lang->line('Calculate Income'); ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>reports/expensestatement"><?php echo $this->lang->line('Calculate Expenses') ?></a>
+                                            href="<?php echo base_url(); ?>reports/expensestatement"> <?php echo $this->lang->line('Calculate Expenses') ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>reports/sales"><?php echo $this->lang->line('Sales') ?></a>
+                                            href="<?php echo base_url(); ?>reports/sales"> <?php echo $this->lang->line('Sales') ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>reports/products"><?php echo $this->lang->line('Products') ?></a>
+                                            href="<?php echo base_url(); ?>reports/products"> <?php echo $this->lang->line('Products') ?></a>
                                 </li>
                                 <li class="menu-item"><a
-                                            href="<?php echo base_url(); ?>reports/commission"><?php echo $this->lang->line('Employee'); ?> <?php echo $this->lang->line('Commission'); ?></a>
+                                            href="<?php echo base_url(); ?>reports/commission"> <?php echo $this->lang->line('Employee'); ?> <?php echo $this->lang->line('Commission'); ?></a>
                                 </li>
 
                             </ul>
@@ -1198,24 +1245,24 @@
 							<a href="#"><i class="fa fa-caret-right"></i> A. Tributária</a>
 							<ul class="menu-content">
 								<li class="menu-item">
-									<a href="#"><i class="fa fa-caret-right"></i> Comunicação automática</a>
+									<a href="#"><i class="fa fa-caret-right"></i> Com. automática</a>
 									<ul class="menu-content">
 										<li class="menu-item">
-											<a href="<?php echo base_url(); ?>settings/company?id=4">Configuração da Ligação</a>
+											<a href="<?php echo base_url(); ?>settings/company?id=4">Conf. Ligação</a>
 										</li>
 										<li class="menu-item">
-											<a href="<?php echo base_url(); ?>saft/pendentes">Listagem de pendentes</a>
+											<a href="<?php echo base_url(); ?>saft/pendentes">List. pendentes</a>
 										</li>
 										<li class="menu-item">
-											<a href="<?php echo base_url(); ?>saft/sucesso">Listagem de Envios com Sucesso</a>
+											<a href="<?php echo base_url(); ?>saft/sucesso">List. Sucesso</a>
 										</li>
 									</ul>
 								</li>
 								<li class="menu-item">
-									<a href="#"><i class="fa fa-caret-right"></i> Outras Configurações</a>
+									<a href="#"><i class="fa fa-caret-right"></i> Out. Configurações</a>
 									<ul class="menu-content">
 										<li class="menu-item">
-											<a href="<?php echo base_url(); ?>settings/company?id=5">Configuração do IVA de Caixa</a>
+											<a href="<?php echo base_url(); ?>settings/company?id=5">Conf. IVA de Caixa</a>
 										</li>
 									</ul>
 								</li>
@@ -1226,7 +1273,7 @@
 											<a href="<?php echo base_url(); ?>saft/atconfigs?id=1">Ficheiro SAF-T(PT)</a>
 										</li>
 										<li class="menu-item">
-											<a href="<?php echo base_url(); ?>saft/atconfigs?id=2">Inventário de existências</a>
+											<a href="<?php echo base_url(); ?>saft/atconfigs?id=2">Inv. existências</a>
 										</li>
 									</ul>
 								</li>

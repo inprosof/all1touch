@@ -283,7 +283,7 @@
                                     <a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion9"
                                        aria-expanded="false" aria-controls="accordion9"
                                        class="card-title lead collapsed">
-                                        <i class="fa  fa-plus-circle"></i> <?php echo $this->lang->line('Extra') ?></a>
+                                        <i class="fa  fa-plus-circle"></i> <?php echo $this->lang->line('Extra') ?> Internos</a>
                                 </div>
                                 <div id="accordion9" role="tabpanel" aria-labelledby="heading3"
                                      class="card-collapse collapse" aria-expanded="false">
@@ -306,15 +306,6 @@
                                                     <?php echo $details['docid'] ?>
                                                 </div>
                                             </div>
-                                            <hr>
-                                            <div class="row m-t-lg">
-                                                <div class="col-md-4">
-                                                    <strong><?php echo $this->lang->line('Other') ?></strong>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <?php echo $details['custom1'] ?>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -324,7 +315,7 @@
                                     <a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion10"
                                        aria-expanded="false" aria-controls="accordion10"
                                        class="card-title lead collapsed">
-                                        <i class="fa  fa-plus-circle"></i> <?php echo $this->lang->line('Extra') ?></a>
+                                        <i class="fa  fa-plus-circle"></i> <?php echo $this->lang->line('Extra') ?> Globais</a>
                                 </div>
                                 <div id="accordion10" role="tabpanel" aria-labelledby="heading3"
                                      class="card-collapse collapse" aria-expanded="false">

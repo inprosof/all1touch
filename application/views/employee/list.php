@@ -3,7 +3,7 @@
         <div class="card-header">
             <h5 class="title">
                 <?php echo $this->lang->line('Employee') ?> <a href="<?php echo base_url('employee/add') ?>"
-                                                               class="btn btn-primary btn-sm rounded">
+                                                               class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
@@ -50,10 +50,10 @@
 
                         if ($status == 1) {
                             $status = 'Deactive';
-                            $btn = "<a href='#' data-object-id='" . $aid . "'  data-object1-id='" . $aid . "'  class='btn btn-blue btn-xs delete-object' title='Enable'><i class='icon-eye-slash'></i> Enable</a>";
+                            $btn = "<div class='action-btn'><a href='#' data-object-id='" . $aid . "'  data-object1-id='" . $aid . "'  class='btn btn-outline-blue btn-sm delete-object' title=" . $this->lang->line('Enable') . "><i class='icon-eye-slash'></i> Enable</a></div>";
                         } else {
                             $status = 'Active';
-                            $btn = "<a href='#' data-object-id='" . $aid . "' class='btn btn-amber btn-xs delete-object' title='Disable'><i class='fa fa-chain-broken'></i> " . $this->lang->line('Disable') . "</a>";
+                            $btn = "<div class='action-btn'><a href='#' data-object-id='" . $aid . "' class='btn btn-outline-amber btn-sm delete-object' title=" . $this->lang->line('Disable') . "><i class='fa fa-chain-broken'></i></a></div>";
                         }
 
                         echo "<tr>
@@ -61,20 +61,10 @@
                     <td>$name</td>
                     <td>$role</td>                 
                     <td>$status</td>
-                    <td><a href='" . base_url("employee/view?id=$aid") . "' class='btn btn-success btn-xs'><i class='fa fa-eye'></i> " . $this->lang->line('View') . "</a>&nbsp;&nbsp;$btn&nbsp;&nbsp;<a href='#pop_model' data-toggle='modal' data-remote='false' data-object-id='" . $aid . "' class='btn btn-danger btn-xs delemp' title='Delete'><i class='fa fa-trash'></i></a></td></tr>";
+                    <td><div class='action-btn'><a href='" . base_url("employee/view?id=$aid") . "' class='btn btn-outline-success btn-sm' title=" . $this->lang->line('View') . "><i class='bi bi-eye'></i> " . "</a>$btn<a href='#pop_model' data-toggle='modal' data-remote='false' data-object-id='" . $aid . "' class='btn btn-outline-danger btn-sm delemp' title=" . $this->lang->line('Delete') . "><i class='bi bi-trash'></i></a></div></td></tr>";
                         $i++;
                     }
                     ?>
-                    </tbody>
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Name') ?></th>
-                        <th>Role</th>
-                        <th><?php echo $this->lang->line('Status') ?></th>
-                        <th><?php echo $this->lang->line('Actions') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

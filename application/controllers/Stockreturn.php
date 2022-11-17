@@ -196,8 +196,12 @@ class Stockreturn extends CI_Controller
 			$this->load->view('fixed/header', $head);
 			if($type == 1)
 			{
+				$data['custom_fields'] = [];
+				$data['c_custom_fields'] = $this->custom->add_fields(4);
 				$this->load->view('stockreturn/newinvoice', $data);
 			}else{
+				$data['custom_fields'] = [];
+				$data['c_custom_fields'] = $this->custom->add_fields(1);
 				$this->load->view('stockreturn/c_newinvoice', $data);
 				
 			}
@@ -224,6 +228,91 @@ class Stockreturn extends CI_Controller
         $data['warehouse'] = $this->stockreturn->warehouses();
         $this->load->library("Common");
         $data['taxlist'] = $this->common->taxlist_edit($data['invoice']['taxstatus']);
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['iddoc'] = $data['invoice']['id'];
+		$data['csd_name'] = $data['invoice']['name'];
+		$data['csd_tax'] = $data['invoice']['taxid'];
+		$data['csd_id'] = $data['invoice']['id'];
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$this->load->library("Related");
+		
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
+			if($data['invoice']['i_class'] == 1)
+			{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,17,0);
+			}else{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,18,0);
+			}
+			
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
+			if($data['invoice']['i_class'] == 1)
+			{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,17,1);
+			}else{
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,18,1);
+			}
+		}
+		if($data['docs_deu_origem'] != null){
+			if(count($data['docs_deu_origem']) > 0)
+			{
+				if($data['docs_deu_origem'][0] != null)
+				{
+					for($i = 0; $i < count($data['docs_deu_origem']); $i++)
+					{
+						if($data['docs_deu_origem'][$i]['tipologia'] == 1){
+							$data['tiprelated'] = $data['docs_deu_origem'][$i]['doc'];
+							break;
+						}
+					}
+				}
+			}
+		}
+		$data['iddoc'] = $data['invoice']['id'];
+		$data['csd_name'] = $data['invoice']['name'];
+		$data['csd_tax'] = $data['invoice']['taxid'];
+		$data['csd_id'] = $data['invoice']['id'];
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['custom_fields'] = [];
+		if($data['invoice']['i_class'] == 2)
+		{
+			$data['terms'] = $this->settings->billingterms(18);
+			$data['c_custom_fields'] = $this->custom->view_edit_fields($data['invoice']['cid'], 4);
+		}else{
+			$data['terms'] = $this->settings->billingterms(6);
+			$data['c_custom_fields'] = $this->custom->view_edit_fields($data['invoice']['cid'], 1);
+		}
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		
+		$data['typesinvoices'] = [];
+		$data['typesinvoicesdefault'] = $this->common->default_typ_doc($data['invoice']['irs_type']);
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+		
         $this->load->view('fixed/header', $head);
         $this->load->view('stockreturn/edit', $data);
         $this->load->view('fixed/footer');
@@ -386,8 +475,7 @@ class Stockreturn extends CI_Controller
                 $transok = false;
             }
 
-            echo json_encode(array('status' => 'Success', 'message' =>
-                $this->lang->line('ADDED') . " <a href='view?id=$invocieno' class='btn btn-info btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . " </a>   <a href='" . $new_u . "' class='btn btn-pink btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>"));
+            echo json_encode(array('status' => 'Success', 'message' =>"Documento Criado com Sucesso. <a href='view?id=$invocieno&draf=0' class='btn btn-info btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . " </a>   <a href='" . $new_u . "' class='btn btn-pink btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a>"));
         } else {
             echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             $transok = false;
@@ -443,6 +531,17 @@ class Stockreturn extends CI_Controller
         $data['attach'] = $this->stockreturn->attach($tid);
         $data['employee'] = $this->stockreturn->employee($data['invoice']['eid']);
         $head['usernm'] = $this->aauth->get_user()->username;
+		
+		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
+        if (CUSTOM) 
+			if($data['invoice']['ext'] == 0)
+			{
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+			}else{
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 4, 1);
+			}
+			
         $head['title'] = "Stock return Order " . $data['invoice']['iid'];
         if (($data['invoice']['i_class'] != 2 && $this->aauth->premission(2)) or ($data['invoice']['i_class'] == 2 && $this->aauth->premission(1))) {
             $this->load->view('fixed/header', $head);

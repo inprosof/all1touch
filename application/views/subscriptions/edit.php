@@ -10,8 +10,8 @@
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
                             <div id="customerpanel" class="inner-cmp-pnl">
+								<input type="hidden" value="<?php echo $invoice['factura_duplicada']; ?>" name="relationid" id="relationid">
 								<input type="hidden" name="iddoc" value="<?php echo $invoice['iddoc'] ?>">
-								<input type="hidden" name="vers" value="<?php echo $invoice['version'] ?>">
 								<input type="hidden" value="<?php echo $invoice['loc_adress']; ?>" name="compa_adr" id="compa_adr">
 								<input type="hidden" value="<?php echo $invoice['loc_postbox']; ?>" name="compa_post" id="compa_post">
 								<input type="hidden" value="<?php echo $invoice['loc_city']; ?>" name="compa_city" id="compa_city">
@@ -380,31 +380,156 @@
 							</tr>
 							</tbody>
 						</table>
+                        <?php if($configs['pac'] == 1){
+							echo'<div class="card">'; ?>
+									<div class="row mt-1">
+										<label class="col-sm-8"
+											   for="s_accounts">Conta para Creditar</label>
+
+										<div class="col-sm-6">
+											<select name="s_accounts" id="s_accounts"
+													class="form-control round">
+													<option value="0">Escolha uma Conta</option>'
+												<?php 
+													foreach ($accounts as $rowa) {
+														echo '<option value="' . $rowa['id'] . '" data-serie="' . $rowa['holder'] . '">' . $rowa['holder'] . ' / ' . $rowa['acn'] . '</option>';
+													}
+												?>
+											</select>
+										</div>
+									</div>
+						<?php echo'</div>';} ?>
+						
                         <?php
-							if(is_array($custom_fields)){
-							foreach ($custom_fields as $row) {
-											if ($row['f_type'] == 'text') { ?>
-												<div class="form-group row">
-
-													<label class="col-sm-2 col-form-label"
-														   for="docid"><?php echo $row['name'] ?></label>
-
-													<div class="col-sm-8">
-														<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
-															   class="form-control margin-bottom b_input"
-															   name="custom[<?php echo $row['id'] ?>]"
-															   value="<?php echo @$row['data'] ?>">
-													</div>
-												</div>
-
-
-											<?php }
-
-
-										}
-							}
-										?>
+							if(!empty($custom_fields)){
+								foreach ($custom_fields as $row) {
+									if ($row['f_type'] == 'text') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+													   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]" value="<?php echo $row['data'] ?>">
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'check') { ?>
+										<div class="input-group mt-1">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]" value="<?php echo $row['data'] ?>" <?php if ($row['data'] == 'on') echo 'checked="checked"' ?>>
+												<label class="custom-control-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'textarea') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<textarea placeholder="<?php echo $row['placeholder'] ?>"
+													   class="summernote <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]" rows="1"><?php echo $row['data'] ?></textarea>
+											</div>
+										</div>
+									<?php }
+								}
+							}?>
+						</div>
+						<hr>
+						<div id="accordionWrapar" role="tablist" aria-multiselectable="true">
+							<div id="headingr" class="card-header">
+								<a data-toggle="collapse" data-parent="#accordionWrapar" href="#accordionr"
+								   aria-expanded="false" aria-controls="accordionr"
+								   class="card-title lead collapsed">
+									<i class="fa fa-plus-circle"></i>Documentos relacionados
+								</a>
+							</div>
+							<div id="accordionr" role="tabpanel" aria-labelledby="headingr"
+								 class="card-collapse <?php if ($docs_origem == null) echo 'collapse'?>" aria-expanded="false">
+								<div class="card-body">
+									<table id="myTableAddRelations" class="table-responsive">
+										<thead>
+											<tr>
+												<th></th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Relacionar este documento com outros</td>
+												<td><button type="button" class="btn btn-default" id="choise_docs_related_but">Escolher Documentos</button></td>
+											</tr>
+										</tbody>
+									</table>
+									<hr>
+									<table id="relationsdocs" name="relationsdocs" class="table-responsive <?php if ($docs_origem == null) echo 'hidden'?>">
+										<thead>
+											<tr>
+												<th width="20%">Série</th>
+												<th width="10%">Nº</th>
+												<th width="15%">Data Emissão</th>
+												<th width="15%">Cliente</th>
+												<th width="20%">Total Liq.</th>
+												<th width="20%">Valor Conciliado</th>
+											</tr>
+										</thead>
+										<tbody>
+											<?php 
+												$valdocrela = 0;
+												foreach ($docs_origem as $row) {
+													$tiiid = $row['iddoc'];
+													echo '<tr class="last-item-row-related sub_related">';
+													echo '<input type="hidden" value="'.$row['iddoc'].'" name="idtyprelation[]" id="idtyprelation-'.$valdocrela.'">';
+													echo '<input type="hidden" value="'.$row['type_related'].'" name="typrelation[]" id="typrelation-'.$valdocrela.'">';
+													echo "<td><strong>".$row['serie_name']."</strong></td>";
+													if($row['type_related'] == "0" || $row['type_related'] == "2"){
+														if($row['draft'] == "0"){
+															echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																	<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+														}else{
+															echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																	<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+														}
+													}else if($row['type_related'] == "1"){
+														echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																	<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+													}else if($row['type_related'] == "3"){
+														echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																	<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+													}
+													echo "<td>".$row['invoicedate']."</td>";
+													echo "<td>".$row['taxid']."</td>";
+													echo '<td><input type="text" disabled readonly value="'.$row['total'].'" id="val_tot_rel-'.$valdocrela.'"></td>';
+													echo '<td><input type="text" disabled readonly value="'.$row['total'].'" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+													echo '</tr>';
+													$valdocrela++;
+												}
+											?>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<hr>
                     </div>
+					<hr>
+					<div id="accordionWrapa3" role="tablist" aria-multiselectable="true">
+						<div id="heading3" class="card-header">
+							<a data-toggle="collapse" data-parent="#accordionWrapa3" href="#accordion3"
+							   aria-expanded="false" aria-controls="accordion3"
+							   class="card-title lead collapsed">
+								<i class="fa fa-plus-circle"></i>Observações
+							</a>
+						</div>
+						<div id="accordion3" role="tabpanel" aria-labelledby="heading3"
+							 class="card-collapse <?php if ($invoice['notes'] == null || $invoice['notes'] == '') echo 'collapse' ?>" aria-expanded="false">
+							<div class="card-body">
+								<textarea class="form-control round" name="notes" rows="2"><?php echo $invoice['notes'] ?></textarea></div>
+							</div>
+						</div>
+					</div>
 					<hr>
 					<div id="saman-row-buts">
 						<table id="myTablebuts" class="table-responsive tfr my_stripe">
@@ -413,24 +538,27 @@
 							<tbody>
 							<tr class="last-item-row-buts sub_c_buts">
 								<td>
-									Termos da Subscrição
+									<?php echo $this->lang->line('Payment Terms') ?> 
 									<select name="pterms" class="selectpicker form-control">
-									<option value="<?php echo $invoice['termid']; ?>"><?php echo '--'.$invoice['termtit'].'--'; ?></option>
+										<option value="<?php echo $invoice['termid']; ?>"><?php echo '--'.$invoice['termtit'].'--'; ?></option>
+										<?php foreach ($terms as $row) {
+											echo '<option value="' . $row['id'] . '">' . $row['title'] . '</option>';
+										} ?>
+
 									</select>
 								</td>
-								<td colspan="5"></td>
+								<td colspan="4"></td>
 								<td>
-									<input type="submit" class="btn btn-default" value="Voltar" data-dismiss="modal">
-									<input type="submit" class="btn btn-success sub-btn" value="Atualizar Rascunho" id="submit-data3" data-loading-text="Creating...">
-									<input type="submit" class="btn btn-success sub-btn btn-lg" value="Guardar e finalizar Documento" id="submit-data" data-loading-text="Creating...">
+									<input type="submit" class="btn btn-success sub-btn" value="Atualizar Rascunho" id="edit_button1" data-loading-text="Creating...">
+									<input type="submit" class="btn btn-success sub-btn btn-lg" value="Guardar e finalizar Documento" id="edit_button0" data-loading-text="Creating...">
 								</td>
 							</tr>
 							</tbody>
 						</table>
 					</div>
+					<input type="hidden" value="<?php echo $accountname; ?>" id="account_set" name="account_set">
+					<input type="hidden" value="<?php echo $accountid; ?>" id="account_set_id" name="account_set_id">
                     <input type="hidden" value="new_i" id="inv_page">
-                    <input type="hidden" value="subscriptions/editaction" id="action-url">
-					<input type="hidden" value="subscriptions/editaction2" id="action-url2">
                     <input type="hidden" value="search" id="billtype">
 					<input type="hidden" value="searchtax" id="billtypetax">
                     <input type="hidden" value="<?php echo $cvalue?>" name="counter" id="ganak">
@@ -438,7 +566,7 @@
 					<input type="hidden" name="tota_items" id="tota_items" value="<?php echo $invoice['items']?>">
                     <input type="hidden" value="<?php echo currency($this->aauth->get_user()->loc); ?>" name="currency">
                     <input type="hidden" value="<?php echo $taxdetails['handle']; ?>" name="taxformat" id="tax_format">
-                    <input type="hidden" value="<?php echo $invoice['tax_status']?>" name="tax_handle" id="tax_status">
+                    <input type="hidden" value="<?php echo $invoice['taxstatus']?>" name="tax_handle" id="tax_status">
                     <input type="hidden" value="yes" name="applyDiscount" id="discount_handle">
                     <input type="hidden" value="<?php echo $invoice['format_discount']?>" name="discountFormat" id="discount_format">
                     <input type="hidden" value="<?php echo $invoice['ship_tax']?>" name="ship_rate" id="ship_rate">
@@ -729,27 +857,62 @@
                         </div>
 
                     </div>
-                                   <?php
-                                   if(is_array($custom_fields_c)){
-                                    foreach ($custom_fields_c as $row) {
-                                        if ($row['f_type'] == 'text') { ?>
-                                            <div class="form-group row">
+					<?php if($configs['pac'] == 1){
+							echo'<div class="card">'; ?>
+									<div class="row mt-1">
+										<label class="col-sm-8"
+											   for="s_accounts">Conta para Creditar</label>
 
-                                                <label class="col-sm-2 col-form-label"
-                                                       for="docid"><?php echo $row['name'] ?></label>
-
-                                                <div class="col-sm-8">
-                                                    <input type="text" placeholder="<?php echo $row['placeholder'] ?>"
-                                                           class="form-control margin-bottom b_input"
-                                                           name="custom[<?php echo $row['id'] ?>]">
-                                                </div>
-                                            </div>
-
-
-                                        <?php }
-                                    }
-                                   }
-                                    ?>
+										<div class="col-sm-6">
+											<select name="s_accounts" id="s_accounts"
+													class="form-control round">
+													<option value="0">Escolha uma Conta</option>'
+												<?php 
+													foreach ($accounts as $rowa) {
+														echo '<option value="' . $rowa['id'] . '" data-serie="' . $rowa['holder'] . '">' . $rowa['holder'] . ' / ' . $rowa['acn'] . '</option>';
+													}
+												?>
+											</select>
+										</div>
+									</div>
+						<?php echo'</div>';} ?>
+						<?php
+							if(!empty($custom_fields)){
+								foreach ($custom_fields as $row) {
+									if ($row['f_type'] == 'text') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+													   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]">
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'check') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
+												<label class="custom-control-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+											</div>
+										</div>
+									<?php }else if ($row['f_type'] == 'textarea') { ?>
+										<div class="form-group row">
+											<label class="col-sm-10 col-form-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+											<div class="col-sm-8">
+												<textarea placeholder="<?php echo $row['placeholder'] ?>"
+													   class="summernote <?php echo $row['other'] ?>"
+													   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
+											</div>
+										</div>
+									<?php }
+								}
+							}
+						?>
                 </div>
                 <!-- Modal Footer -->
                 <div class="modal-footer">
@@ -764,6 +927,16 @@
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js'); ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 <script>
+	$("#edit_button1").click(function (e) {
+        e.preventDefault();
+        var actionurl = baseurl + 'subscriptions/editaction2';
+        actionProduct(actionurl);
+    });
+	$("#edit_button0").click(function (e) {
+        e.preventDefault();
+        var actionurl = baseurl + 'subscriptions/editaction';
+        actionProduct(actionurl);
+    });
 	$("#invoi_serie").select2();
 	$('select[name="exped_se"]').change(function (){
         let selectedCategoryType = $(this).find('option:selected').data('type');
@@ -910,6 +1083,13 @@
 			].join('-');                                   // Glue the pieces together
 		}
 	};
+	
+	$("#s_accounts").on('change', function () {
+		var tips = $('#s_accounts').val();
+		var accountaaa = $("#s_accounts option:selected").attr('data-serie');
+		$("#account_set").val(accountaaa);
+		$("#account_set_id").val(tips);
+	});
 </script>
 <script type="text/javascript"> $('.editdate').datepicker({
         autoHide: true,

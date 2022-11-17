@@ -75,11 +75,12 @@
 
             <div class="message"></div>
         </div>
-        <div class="card-body">
+        <div class="card-body yellow-top">
             <div class="header-block">
-                <h3 class="title">
-                    <?php echo $this->lang->line('Support Tickets') ?>
-                </h3></div>
+                <h5 class="title"><a class="btn-back" onclick=history.go(-1)>
+                        <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                    </a><?php echo $this->lang->line('Support Tickets') ?></h5>
+            </div>
 
 
             <p>&nbsp;</p>

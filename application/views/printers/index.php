@@ -1,17 +1,30 @@
-<article class="content yellow-top">
-    <div class="card card-block">
-        <div id="notify" class="alert alert-success" style="display:none;">
-            <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-            <div class="message"></div>
-        </div>
+<article class="content">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5 class="title"> <?php echo $this->lang->line('Printers') ?> <a
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Printers') ?> <a
                         href="<?php echo base_url('printer/add') ?>"
                         class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
+            <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+            <div class="heading-elements">
+                <ul class="list-inline mb-0">
+                    <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                    <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                    <li><a data-action="close"><i class="ft-x"></i></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="notify" class="alert alert-success" style="display:none;">
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
+
+            <div class="message"></div>
         </div>
         <div class="card-body">
 
@@ -38,20 +51,11 @@
                     <td>" . $loc['cname'] . "</td>
                     <td>" . $row['val2'] . "</td>
                    
-                    <td><a href='" . base_url('printer/view?id=' . $row['id']) . "' class='btn btn-success btn-xs'><i class='icon-file-text'></i> " . $this->lang->line('View') . "</a>&nbsp;<a href='" . base_url('printer/edit?id=' . $row['id']) . "' class='btn btn-warning btn-xs'><i class='icon-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;<a href='#' data-object-id='" . $row['id'] . "' class='btn btn-danger btn-xs delete-object' title='Delete'><i class='fa fa-trash'></i></a></td></tr>";
+                    <td><div class='action-btn'> <a href='" . base_url('printer/view?id=' . $row['id']) . "' class='btn btn-outline-success btn-sm' title=' " . $this->lang->line('View') . "'><i class='bi bi-eye'></i></a><a href='" . base_url('printer/edit?id=' . $row['id']) . "' class='btn btn-outline-primary btn-sm' title=' " . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i></a><a href='#' data-object-id='" . $row['id'] . "' class='btn btn-outline-danger btn-sm delete-object' title=' " . $this->lang->line('Delete') . "'><i class='bi bi-trash'></i></a></div></td></tr>";
                     $i++;
                 }
                 ?>
                 </tbody>
-                <tfoot>
-                <tr>
-                    <th>#</th>
-                    <th><?php echo $this->lang->line('Name') ?></th>
-                    <th><?php echo $this->lang->line('Location') ?></th>
-                    <th><?php echo $this->lang->line('Type') ?></th>
-                    <th><?php echo $this->lang->line('Action') ?></th>
-                </tr>
-                </tfoot>
             </table>
         </div>
     </div>
@@ -68,9 +72,9 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
             </div>
             <div class="modal-body">
                 <p>Delete this printer ? </strong></p>

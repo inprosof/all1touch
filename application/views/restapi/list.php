@@ -1,19 +1,32 @@
-<div class="card card-block">
+<div class="card yellow-top">
+    <div class="card-header">
+        <h5 class="title">
+            <a class="btn-back" onclick=history.go(-1)>
+                <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+            </a>
+            <?php echo $this->lang->line('Access Key List') ?> <a href="<?php echo base_url('restapi/add') ?>"
+                                                                  class="btn btn-primary btn-sm btn-new">
+                <?php echo $this->lang->line('Add new') ?>
+            </a>
+        </h5>
+        <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+        <div class="heading-elements">
+            <ul class="list-inline mb-0">
+                <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                <li><a data-action="close"><i class="ft-x"></i></a></li>
+            </ul>
+        </div>
+    </div>
     <?php if ($message) {
 
         echo '<div id = "notify" class="alert alert-success"  >
-            <a href = "#" class="close" data - dismiss = "alert" >&times;</a >
+            <a href = "#" class="close" data-dismiss = "alert" >&times;</a >
 
             <div class="message" >Api key added successfully!</div >
         </div >';
     } ?>
     <div class="card-body">
-        <h5><?php echo $this->lang->line('Access Key List') ?> <a href="<?php echo base_url('restapi/add') ?>"
-                                                                  class="btn btn-primary btn-sm rounded">
-                <?php echo $this->lang->line('Add new') ?>
-            </a></h5>
-
-        <hr>
         <table id="acctable" class="table table-striped table-bordered zero-configuration" cellspacing="0"
                width="100%">
             <thead>
@@ -40,19 +53,11 @@
                     <td>$datec</td>
                  
                     
-                    <td><a href='#' data-object-id='" . $id . "' class='btn btn-danger btn-xs delete-object' title='Delete'><i class='fa fa-trash'></i></a></td></tr>";
+                    <td><div class='action-btn'> <a href='#' data-object-id='" . $id . "' class='btn btn-outline-danger btn-sm delete-object' title='Delete'><i class='bi bi-trash'></i></a></div></td></tr>";
                 $i++;
             }
             ?>
             </tbody>
-            <tfoot>
-            <tr>
-                <th>#</th>
-                <th><?php echo $this->lang->line('Key') ?></th>
-                <th><?php echo $this->lang->line('Created On') ?></th>
-                <th><?php echo $this->lang->line('Action') ?></th>
-            </tr>
-            </tfoot>
         </table>
     </div>
 </div>
@@ -69,9 +74,10 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
+
             </div>
             <div class="modal-body">
                 <p><?php echo $this->lang->line('delete this key') ?></p>

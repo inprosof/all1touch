@@ -10,6 +10,7 @@
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
                             <div id="customerpanel" class="inner-cmp-pnl">
+								<input type="hidden" value="<?php echo $relationid ?>" name="relationid" id="relationid">
 								<input type="hidden" name="typeinvoice" value="<?php echo $typeinvoice ?>">
 								<input type="hidden" name="iddoc" value="<?php echo $invoice['iddoc'] ?>">
 								<input type="hidden" value="<?php echo $invoice['loc_adress']; ?>" name="compa_adr" id="compa_adr">

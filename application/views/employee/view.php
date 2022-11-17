@@ -1,7 +1,11 @@
 <div class="content-body">
     <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Employee Details') ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Employee Details') ?></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -21,7 +25,7 @@
 
 
                 <div class="row">
-                    <div class="col-md-4 border-right">
+                    <div class="col-md-3 border-right">
 
                         <img alt="image" class="img-responsive col"
                              src="<?php echo base_url('userfiles/employee/' . $employee['picture']); ?>">
@@ -104,7 +108,7 @@
                                             <div class="options">
                                                 <a href="<?php echo base_url('employee/invoices?id=' . $eid) ?>"
                                                    class="btn btn-primary btn-block"><i
-                                                            class="icon-eye"></i> <?php echo $this->lang->line('Invoices') ?> <?php echo $this->lang->line('View') ?>
+                                                            class="bi bi-eye"></i> <?php echo $this->lang->line('Invoices') ?> <?php echo $this->lang->line('View') ?>
                                                 </a>
                                             </div>
                                         </div>
@@ -121,7 +125,7 @@
                                             <div class="options">
                                                 <a href="<?php echo base_url('employee/transactions?id=' . $eid) ?>"
                                                    class="btn btn-purple btn-block"><i
-                                                            class="icon-eye"></i> <?php echo $this->lang->line('Transactions') ?> <?php echo $this->lang->line('View') ?>
+                                                            class="bi bi-eye"></i> <?php echo $this->lang->line('Transactions') ?> <?php echo $this->lang->line('View') ?>
                                                 </a>
                                             </div>
                                         </div>
@@ -142,7 +146,7 @@
                                             <div class="options">
                                                 <a href="<?php echo base_url('quote?eid=' . $eid) ?>"
                                                    class="btn btn-pink btn-block"><i
-                                                            class="icon-eye"></i> <?php echo $this->lang->line('Quotes') ?> <?php echo $this->lang->line('View') ?>
+                                                            class="bi bi-eye"></i> <?php echo $this->lang->line('Quotes') ?> <?php echo $this->lang->line('View') ?>
                                                 </a>
                                             </div>
                                         </div>
@@ -159,7 +163,7 @@
                                             <div class="options">
                                                 <a href="<?php echo base_url('projects?eid=' . $eid) ?>"
                                                    class="btn btn-success btn-block"><i
-                                                            class="icon-eye"></i> <?php echo $this->lang->line('Projects') ?> <?php echo $this->lang->line('View') ?>
+                                                            class="bi bi-eye"></i> <?php echo $this->lang->line('Projects') ?> <?php echo $this->lang->line('View') ?>
                                                 </a>
                                             </div>
                                         </div>
@@ -180,7 +184,7 @@
                                             <div class="options">
                                                 <a href="#pop_model" data-toggle="modal" data-remote="false"
                                                    class="btn btn-purple btn-block"><i
-                                                            class="icon-eye"></i> <?php echo $this->lang->line('Sales') ?> <?php echo $this->lang->line('View') ?>
+                                                            class="bi bi-eye"></i> <?php echo $this->lang->line('Sales') ?> <?php echo $this->lang->line('View') ?>
                                                 </a>
                                             </div>
                                         </div>
@@ -197,7 +201,7 @@
                                             <div class="options">
                                                 <a href="#pop_model2" data-toggle="modal" data-remote="false"
                                                    class="btn btn-blue btn-block"><i
-                                                            class="icon-eye"></i> <?php echo $this->lang->line('Total Income') ?> <?php echo $this->lang->line('View') ?>
+                                                            class="bi bi-eye"></i> <?php echo $this->lang->line('Total Income') ?> <?php echo $this->lang->line('View') ?>
                                                 </a>
                                             </div>
                                         </div>
@@ -214,7 +218,7 @@
                                             <div class="options">
                                                 <a href="<?php echo base_url('employee/update?id=' . $eid) ?>"
                                                    class="btn btn-info btn-block"><i
-                                                            class="fa fa-user"></i> <?php echo $this->lang->line('Edit') ?> <?php echo $this->lang->line('Account') ?>
+                                                            class="bi bi-person-lines-fill"></i> <?php echo $this->lang->line('Edit') ?> <?php echo $this->lang->line('Account') ?>
                                                 </a>
                                             </div>
                                         </div>
@@ -226,7 +230,7 @@
                                             <div class="options">
                                                 <a href="<?php echo base_url('employee/updatepassword?id=' . $eid) ?>"
                                                    class="btn btn-primary btn-block"><i
-                                                            class="fa fa-key"></i> <?php echo $this->lang->line('Change Password') ?>
+                                                            class="bi bi-key"></i> <?php echo $this->lang->line('Change Password') ?>
                                                 </a>
                                             </div>
                                         </div>

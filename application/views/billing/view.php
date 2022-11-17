@@ -11,11 +11,11 @@
             <div id="invoice-template" class="card-body">
                 <div class="row wrapper white-bg page-heading">
                     <div class="col">
-                        <?php 
-							$rming = $invoice['total'] - $invoice['pamnt'];
-							if ($invoice['status'] == 'due' || $invoice['status'] == 'partial') { 
-							?>
                             <div class="row">
+								<?php 
+									$rming = $invoice['total'] - $invoice['pamnt'];
+									if ($invoice['status'] == 'due' || $invoice['status'] == 'partial') { 
+									?>
                                 <div class="col-md-8">
                                     <div class="form-group mt-2"><?php echo $this->lang->line('Payment') ?>:
                                         <?php 
@@ -33,36 +33,32 @@
                                         ?>
                                     </div>
                                 </div>
-
-
-                                <div class="col-md-4 text-right">
-                                    <div class="btn-group mt-2">
-                                        <button type="button" class="btn btn-primary btn-min-width dropdown-toggle"
-                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-                                                    class="fa fa-print"></i> <?php echo $this->lang->line('Print Invoice') ?>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item"
-                                               href="<?php echo 'printinvoice?id=' . $invoice['iid'] . '&token=' . $token; ?>"><?php echo $this->lang->line('Print') ?></a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item"
-                                               href="<?php echo 'printinvoice?id=' . $invoice['iid'] . '&token=' . $token; ?>&d=1"><?php echo $this->lang->line('PDF Download') ?></a>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="title-action ">
 								<?php } 
 									else if($invoice['status'] == 'paid') {
-										echo '<h2 class="btn btn-oval btn-danger">' . $this->lang->line('Paid') . '</h2>';
+										echo '<div class="form-group mt-2"><h2 class="btn btn-oval btn-danger">' . $this->lang->line('Paid') . '</h2></div>';
 									 ?>
 								<?php
 									} else {
-										echo '<h2 class="btn btn-oval btn-danger">' . $this->lang->line('Cancelled') . '</h2>';
+										echo '<div class="form-group mt-2"><h2 class="btn btn-oval btn-danger">' . $this->lang->line('Cancelled') . '</h2></div>';
 									} ?>
-							</div>
+								<div class="col-md-4 text-right">
+									<div class="btn-group mt-2">
+										<button type="button" class="btn btn-primary btn-min-width dropdown-toggle"
+												data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+													class="fa fa-print"></i> <?php echo $this->lang->line('Print Invoice') ?>
+										</button>
+										<div class="dropdown-menu">
+											<a class="dropdown-item"
+											   href="<?php echo 'printinvoice?id=' . $invoice['iid'] . '&draf='.$draf. '&temp='.$temp.'&token=' . $token; ?>"><?php echo $this->lang->line('Print') ?></a>
+											<div class="dropdown-divider"></div>
+											<a class="dropdown-item"
+											   href="<?php echo 'printinvoice?id=' . $invoice['iid'] . '&draf='.$draf. '&temp='.$temp.'&token=' . $token; ?>&d=1"><?php echo $this->lang->line('PDF Download') ?></a>
+
+										</div>
+									</div>
+								</div>
+                            </div>
+							<hr>
                     </div>
                 </div>
 

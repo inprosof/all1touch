@@ -240,12 +240,13 @@ class Purchase extends CI_Controller
 			exit('Ainda não definiu nenhuma série para esta Localização. <a class="match-width match-height"  href="'.base_url().'settings/series"><i class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
 			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
+			$data['custom_fields'] = [];
 			if($ty == 1)
 			{
-				$data['custom_fields'] = $this->custom->add_fields(4);
+				$data['c_custom_fields'] = $this->custom->add_fields(4);
 				$numget = $this->common->lastdoc(17,$seri_did_df);
 			}else{
-				$data['custom_fields'] = $this->custom->add_fields(1);
+				$data['c_custom_fields'] = $this->custom->add_fields(1);
 				$numget = $this->common->lastdoc(5,$seri_did_df);
 			}
 			$data['lastinvoice'] = $numget;
@@ -280,41 +281,104 @@ class Purchase extends CI_Controller
 		
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
         $data['currency'] = $this->purchase->currencies();
-		$type = $this->input->get('ty');
-		if($type == 0){
-			$head['title'] = "Alterar Nota de Encomenda #$tid";
-			$data['title'] = "Alterar Nota de Encomenda #$tid";
-			$data['typeinvoice'] = 'Nota de Encomenda';
-			$data['invoice'] = $this->purchase->purchase_details($tid, 0, $this->limited);
-			$data['products'] = $this->purchase->items_with_product($tid);
-		}else if($type == 1){
+		$draf = $this->input->get('draf');
+		if($draf == 0){
 			$head['title'] = "Alterar Rascunho #$tid";
 			$data['title'] = "Alterar Rascunho #$tid";
 			$data['typeinvoice'] = 'Rascunho';
 			$data['invoice'] = $this->purchase->purchase_details2($tid, 0, $this->limited);
-			$data['products'] = $this->purchase->items_with_product2($tid);
-		}else if($type == 2){
-			$head['title'] = "Alterar Nota de Encomenda Fornecedor #$tid";
-			$data['title'] = "Alterar Nota de Encomenda Fornecedor #$tid";
-			$data['typeinvoice'] = 'Nota de Encomenda';
-			$data['invoice'] = $this->purchase->purchase_details($tid, 1, $this->limited);
-			$data['products'] = $this->purchase->items_with_product($tid);
-		}else if($type == 3){
+		}else{
 			$head['title'] = "Alterar Rascunho #$tid";
 			$data['title'] = "Alterar Rascunho #$tid";
 			$data['typeinvoice'] = 'Rascunho';
 			$data['invoice'] = $this->purchase->purchase_details2($tid, 1, $this->limited);
-			$data['products'] = $this->purchase->items_with_product2($tid);
 		}
-		$data['quote'] = $data['invoice']['pmethod'];
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['iddoc'] = $data['invoice']['id'];
+		$data['csd_name'] = $data['invoice']['name'];
+		$data['csd_tax'] = $data['invoice']['taxid'];
+		$data['csd_id'] = $data['invoice']['id'];
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 5)
+		{
+			$typerelatset = 6;
+		}else
+		{
+			$typerelatset = 7;
+		}
+		
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		
+		
+		if($data['docs_deu_origem'] != null){
+			if(count($data['docs_deu_origem']) > 0)
+			{
+				if($data['docs_deu_origem'][0] != null)
+				{
+					for($i = 0; $i < count($data['docs_deu_origem']); $i++)
+					{
+						if($data['docs_deu_origem'][$i]['tipologia'] == 1){
+							$data['tiprelated'] = $data['docs_deu_origem'][$i]['doc'];
+							break;
+						}
+					}
+				}
+			}
+		}
+		
         $head['usernm'] = $this->aauth->get_user()->username;
 		$data['countrys'] = $this->common->countrys();
         $data['warehouse'] = $this->purchase->warehouses();
         $data['exchange'] = $this->plugins->universal_api(5);
 		$data['taxsiva'] = $this->settings->slabscombo();
-        $data['custom_fields_c'] = $this->custom->add_fields(1);
-        $data['custom_fields'] = $this->custom->add_fields(2);
+		$data['typesinvoices'] = [];
+		$data['typesinvoicesdefault'] = $this->common->default_typ_doc($data['invoice']['irs_type']);
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+		$data['custom_fields'] = [];
+		if($type == 0 || $type == 1){
+			$data['c_custom_fields'] = $this->custom->view_edit_fields($data['invoice']['cid'], 1);
+		}else{
+			$data['c_custom_fields'] = $this->custom->view_edit_fields($data['invoice']['cid'], 4);
+		}
 		$data['taxdetails'] = $this->common->taxdetail();
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		
+		
 		if($data['invoice']['status'] == 'paid') 
 			redirect(base_url('invoices'));
         $this->load->view('fixed/header', $head);
@@ -565,7 +629,7 @@ class Purchase extends CI_Controller
 					{
 						echo json_encode(array('status' => 'Success', 'message' => "Converteu com sucesso em Nota de Encomenda o Orçamento. <a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 					}else{
-						echo json_encode(array('status' => 'Success', 'message' => "Inseriu com sucesso a Nota de Encomenda. <a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+						echo json_encode(array('status' => 'Success', 'message' => "Documento Criado com Sucesso. <a href='view?id=$invocieno&draf=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 					}
 				}
 			} else {
@@ -797,6 +861,7 @@ class Purchase extends CI_Controller
         foreach ($list as $invoices) {
             $no++;
             $row = array();
+			$row['status'] = $invoices->status;
             $row[] = $no;
 			$row[] = $invoices->serie_name;
 			$row[] = '<a href="' . base_url("purchase/view?id=$invoices->id&draf=0&ext=".$invoices->ext) . '">&nbsp; ' . $invoices->tid . '</a>';
@@ -833,6 +898,7 @@ class Purchase extends CI_Controller
 			$textini .= '<br>(Provisório)';
 			$width = round(0,2);
             $row = array();
+			$row['status'] = 'draft';
 			$row[] = $no;
 			$row[] = $drafts->serie_name;
             $row[] = '<a href="' . base_url("purchase/view?id=$drafts->id&draf=1&ext=".$drafts->ext) . '">&nbsp; ' . $textini . '</a>';
@@ -876,7 +942,6 @@ class Purchase extends CI_Controller
 		$ext = $this->input->get('ext');
 		if($draf == 0){
 			$data['draft'] = 0;
-			$data['products'] = $this->purchase->items_with_product($tid);
 			if($ext == 0){
 				$data['typeinvoice'] = 0;
 				$data['invoice'] = $this->purchase->purchase_details($tid, 0, $this->limited);
@@ -892,7 +957,6 @@ class Purchase extends CI_Controller
 			}
 		}else{
 			$data['draft'] = 1;
-			$data['products'] = $this->purchase->items_with_product2($tid);
 			if($ext == 0){
 				$data['typeinvoice'] = 0;
 				$data['invoice'] = $this->purchase->purchase_details2($tid, 0, $this->limited);
@@ -907,6 +971,43 @@ class Purchase extends CI_Controller
 				$data['history'] = $this->common->history($tid,'purchase_draft_f');
 			}
 		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 5)
+		{
+			$typerelatset = 6;
+		}else
+		{
+			$typerelatset = 7;
+		}
+		
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		
+		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
+        if (CUSTOM) 
+			if($data['invoice']['ext'] == 0)
+			{
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+			}else{
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 4, 1);
+			}
 		
 		$data['attach'] = $this->purchase->attach($tid);
         $data['iddoc'] = $data['invoice']['id'];
@@ -934,29 +1035,61 @@ class Purchase extends CI_Controller
         }
         $tid = $this->input->get('id');
 		$token = $this->input->get('token');
-		$type = $this->input->get('ty');
+		$draf = $this->input->get('draf');
 		$data['id'] = $tid;
 		
-		if($type == 0){
+		if($draf == 0){
 			$data['typeinvoice'] = 'Invoice';
 			$data['invoice'] = $this->purchase->purchase_details($tid, $this->limited);
-			$data['products'] = $this->purchase->purchase_products($tid);
 			if($data['invoice']['status'] == 'canceled')
 			{
 				$data['ImageBackGround'] = 'assets/images/anulada.png';
 			}
 		}else{
 			$data['invoice'] = $this->purchase->purchase_details2($tid, $this->limited);
-			$data['products'] = $this->purchase->purchase_products2($tid);
 			$data['typeinvoice'] = 'Rascunho';
 			$data['invoice']['status'] = 'Rascunho';
 			$data['ImageBackGround'] = 'assets/images/rascunho.png';
 		}
 		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 5)
+		{
+			$typerelatset = 6;
+		}else
+		{
+			$typerelatset = 7;
+		}
+		
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		
 		$pref = '';
 		$data['employee'] = $this->invocies->employee($data['invoice']['eid']);
+		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
         if (CUSTOM) 
-			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+			if($data['invoice']['ext'] == 0)
+			{
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+			}else{
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 4, 1);
+			}
         $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Customer'), 'prefix' => $pref, 't_type' => 0);
         ini_set('memory_limit', '64M');
 		

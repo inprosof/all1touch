@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h6><?php echo $this->lang->line('ProductsAccount Statements') ?></h6>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('ProductsAccount Statements') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -25,7 +30,8 @@
                     <div class="col-md-6">
                         <div class="card card-block sameheight-item">
 
-                            <form action="<?php echo base_url() ?>export/cust_products_o" method="post" role="form"><input
+                            <form action="<?php echo base_url() ?>export/cust_products_o" method="post" role="form">
+                                <input
                                         type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>"
                                         value="<?php echo $this->security->get_csrf_hash(); ?>">
                                 <div class="form-group row">
@@ -49,8 +55,8 @@
 
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control required"
-                                               placeholder="Start Date" name="sdate" id="sdate"
-                                               data-toggle="datepicker" autocomplete="false">
+                                               placeholder="Start Date" name="sdate"
+                                               data-toggle="datepicker" autocomplete="false" id="input-date">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -61,13 +67,13 @@
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control required"
                                                placeholder="End Date" name="edate"
-                                               data-toggle="datepicker" autocomplete="false">
+                                               data-toggle="datepicker" autocomplete="false" id="input-date">
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label" for="pay_cat"></label>
 
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-9" id="paiCompanyUpdate">
                                         <input type="submit" class="btn btn-primary btn-md"
                                                value="<?php echo $this->lang->line('Export') ?>">
 
@@ -80,11 +86,11 @@
                     </div>
 
 
-
                     <div class="col-md-6">
                         <div class="card card-block sameheight-item">
 
-                            <form action="<?php echo base_url() ?>export/sup_products_o" method="post" role="form"><input
+                            <form action="<?php echo base_url() ?>export/sup_products_o" method="post" role="form">
+                                <input
                                         type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>"
                                         value="<?php echo $this->security->get_csrf_hash(); ?>">
                                 <div class="form-group row">
@@ -109,7 +115,7 @@
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control date30 required"
                                                placeholder="Start Date" name="sdate"
-                                               data-toggle="datepicker" autocomplete="false">
+                                               data-toggle="datepicker" autocomplete="false" id="input-date">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -120,13 +126,13 @@
                                     <div class="col-sm-4">
                                         <input type="text" class="form-control required"
                                                placeholder="End Date" name="edate"
-                                               data-toggle="datepicker" autocomplete="false">
+                                               data-toggle="datepicker" autocomplete="false" id="input-date">
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label" for="pay_cat"></label>
 
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-9" id="paiCompanyUpdate">
                                         <input type="submit" class="btn btn-primary btn-md"
                                                value="<?php echo $this->lang->line('Export') ?>">
 

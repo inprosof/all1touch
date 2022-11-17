@@ -1,9 +1,13 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5 class="title"> <?php echo $this->lang->line('Products') ?> <a
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Products') ?> <a
                         href="<?php echo base_url('products/add') ?>"
-                        class="btn btn-primary btn-sm rounded">
+                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
@@ -38,18 +42,6 @@
                     <tbody>
                     </tbody>
 
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Name') ?></th>
-                        <th><?php echo $this->lang->line('Stock') ?></th>
-                        <th><?php echo $this->lang->line('Code') ?></th>
-                        <th><?php echo $this->lang->line('Category') ?></th>
-                        <th><?php echo $this->lang->line('Price') ?></th>
-                        <th><?php echo $this->lang->line('Settings') ?></th>
-
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

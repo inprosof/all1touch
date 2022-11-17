@@ -1,10 +1,15 @@
 <?php
 $loc = location(0);
 ?>
-<div class="content-body yellow-top">
-    <div class="card">
+<div class="content-body">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5 class="title"><?php echo $this->lang->line('Edit Company Details') ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Edit Company Details') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -392,7 +397,7 @@ $loc = location(0);
                                                    href="#accordioncomunicationat"
                                                    aria-expanded="false" aria-controls="accordioncomunicationat"
                                                    class="card-title lead <?php if ($param4 == 0) echo 'collapsed' ?>">
-                                                    <i class="fa fa-plus-circle"></i>Comunicação AT
+                                                    Comunicação AT
                                                 </a>
                                             </div>
                                             <div id="accordioncomunicationat" role="tabpanel" aria-labelledby="headingr"
@@ -456,9 +461,16 @@ $loc = location(0);
                                                                        aria-describedby="sizing-addon1"
                                                                        onkeypress="return isNumber(event)"
                                                                        value="<?php if ($activation['username'] == '' || $activation['username'] == null) echo '0'; else echo $activation['username']; ?>">
-                                                                <span class="input-group-addon"
-                                                                      title="<?php echo 'Deve ser um número inteiro'; ?>"><i
-                                                                            class="fa fa-info fa-2x"></i></span>
+                                                                <div class="input-group-addon" id="info-text"
+                                                                     data-container="body"
+                                                                     data-toggle="popover" data-placement="top"
+                                                                     data-content="<?php echo $this->lang->line('Must be an integer') ?>">
+                                                                    <i class="bi bi-info-circle"></i>
+                                                                </div>
+                                                                <!--                                                                <span class="input-group-addon"-->
+                                                                <!--                                                                      title="-->
+                                                                <?php //echo 'Deve ser um número inteiro'; ?><!--"><i-->
+                                                                <!--                                                                            class="fa fa-info fa-2x"></i></span>-->
                                                             </div>
                                                         </div>
 
@@ -496,7 +508,7 @@ $loc = location(0);
                                                    href="#accordionIvaCaix"
                                                    aria-expanded="false" aria-controls="accordionIvaCaix"
                                                    class="card-title lead <?php if ($param44 == 0) echo 'collapsed' ?>">
-                                                    <i class="fa fa-plus-circle"></i>Regime de IVA de Caixa
+                                                    Regime de IVA de Caixa
                                                 </a>
                                             </div>
                                             <div id="accordionIvaCaix" role="tabpanel" aria-labelledby="headingr"
@@ -588,7 +600,7 @@ $loc = location(0);
                                                    href="#accordionEMAILGGW"
                                                    aria-expanded="false" aria-controls="accordionEMAILGGW"
                                                    class="card-title lead <?php if ($param6 == 0) echo 'collapsed' ?>">
-                                                    <i class="fa fa-plus-circle"></i>1. Geral
+                                                    1. Geral
                                                 </a>
                                             </div>
                                             <div id="accordionEMAILGGW" role="tabpanel" aria-labelledby="headingr"
@@ -655,7 +667,7 @@ $loc = location(0);
                                                    href="#accordionEMAILSTGW"
                                                    aria-expanded="false" aria-controls="accordionEMAILSTGW"
                                                    class="card-title lead <?php if ($param7 == 0) echo 'collapsed' ?>">
-                                                    <i class="fa fa-plus-circle"></i>2. Artigos e Stocks
+                                                    2. Artigos e Stocks
                                                 </a>
                                             </div>
                                             <div id="accordionEMAILSTGW" role="tabpanel" aria-labelledby="headingr"
@@ -707,7 +719,7 @@ $loc = location(0);
                                                    href="#accordionConfGW"
                                                    aria-expanded="false" aria-controls="accordionConfGW"
                                                    class="card-title lead collapsed">
-                                                    <i class="fa fa-plus-circle"></i>1 - Painel Principal
+                                                    1 - Painel Principal
                                                 </a>
                                             </div>
                                             <div id="accordionConfGW" role="tabpanel" aria-labelledby="headingr"
@@ -727,7 +739,7 @@ $loc = location(0);
                                                    href="#accordionSearGW"
                                                    aria-expanded="false" aria-controls="accordionSearGW"
                                                    class="card-title lead collapsed">
-                                                    <i class="fa fa-plus-circle"></i>2 - Pesquisas
+                                                    2 - Pesquisas
                                                 </a>
                                             </div>
                                             <div id="accordionSearGW" role="tabpanel" aria-labelledby="headingr"
@@ -754,13 +766,58 @@ $loc = location(0);
                                                    href="#accordionGERW"
                                                    aria-expanded="false" aria-controls="accordionGERW"
                                                    class="card-title lead <?php if ($param77 == 0) echo 'collapsed' ?>">
-                                                    <i class="fa fa-plus-circle"></i>3 - Configurações por defeito (Se
+                                                    3 - Configurações por defeito (Se
                                                     não selecionada Localização)
                                                 </a>
                                             </div>
                                             <div id="accordionGERW" role="tabpanel" aria-labelledby="headingr"
                                                  class="card-collapse <?php if ($param7 == 0) echo 'collapse' ?>"
                                                  aria-expanded="false">
+
+                                                <div class="form-group row">
+                                                    <div class="col-sm-12">
+                                                        <label class="col-form-label"
+                                                               for="n_praz_venc"><?php echo 'Prazo de Vencimento ' ?><?php echo $this->lang->line('Default') ?></label>
+                                                        <div class="input-group">
+                                                            <select name="n_praz_venc" class="form-control">
+                                                                <?php
+                                                                if ($online_pay['prazo_ve'] == null || $online_pay['prazo_ve'] == "") echo '<option value="0">Escolha uma Opção</option>'; else echo '<option value="' . $online_pay['prazo_ve'] . '">-' . $online_pay['prazo_ve_name'] . '-</option>';
+                                                                echo $prazos_vencimento;
+                                                                ?>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <div class="col-sm-12">
+                                                        <label class="col-form-label"
+                                                               for="n_met_exp"><?php echo 'Método de Expedição ' ?><?php echo $this->lang->line('Default') ?></label>
+                                                        <div class="input-group">
+                                                            <select name="n_met_exp" class="form-control">
+                                                                <?php
+                                                                if ($online_pay['metod_exp'] == null || $online_pay['metod_exp'] == "") echo '<option value="0">Escolha uma Opção</option>'; else echo '<option value="' . $online_pay['metod_exp'] . '">-' . $online_pay['metod_exp_name'] . '-</option>';
+                                                                echo $expeditions;
+                                                                ?>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <div class="col-sm-12">
+                                                        <label class="col-form-label"
+                                                               for="n_met_pag"><?php echo 'Método Pagamento ' ?><?php echo $this->lang->line('Default') ?></label>
+                                                        <div class="input-group">
+                                                            <select name="n_met_pag" class="form-control">
+                                                                <?php
+                                                                if ($online_pay['metod_pag'] == null || $online_pay['metod_pag'] == "") echo '<option value="0">Escolha uma Opção</option>'; else echo '<option value="' . $online_pay['metod_pag'] . '">-' . $online_pay['metod_pag_name'] . '-</option>';
+                                                                echo $metodos_pagamentos;
+                                                                ?>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="form-group row">
                                                     <div class="col-sm-12">
                                                         <label class="col-form-label"
@@ -942,13 +999,13 @@ $loc = location(0);
                                                     <div class="col-sm-12">
                                                         <label class="col-form-label"
                                                                for="dual_entry"><?php echo $this->lang->line('Dual Entry') ?></label>
-                                                        <label class='btn-blue' style="display: block;"><span
-                                                                    class='fa fa-plus-circle'></span>
+
+                                                        <div class="alert alert-info" id="alert-info-text">
                                                             <strong>Atenção:</strong>Por favor, não habilite este
                                                             recurso sem o devido entendimento do sistema de
                                                             contabilidade
                                                             de dupla entrada.
-                                                        </label>
+                                                        </div>
                                                         <div class="input-group">
                                                             <select name="dual_entry" class="form-control">
                                                                 <option value="<?php echo $online_pay['dual_entry']; ?>">

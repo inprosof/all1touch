@@ -215,19 +215,40 @@ class Pos_invoices extends CI_Controller
 		$head['title'] = "Draft POS Invoice #$tid";
 		$data['custom_fields_c'] = $this->custom->add_fields(1);
 		
-		$discship = $this->plugins->universal_api(65);
-		if($data['invoice']['loc'] == 0)
+		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['autos'] = $this->common->guide_autos_company();
+		if($this->aauth->get_user()->loc == 0)
 		{
-			$data['accounts'] = $this->locations->accountslist();
-			$data['accountid'] = $discship['key2'];
-			$data['accountname'] = "Conta Por Defeito";
+			$discship = $this->settings->online_pay_settings_main();
 		}else{
-			$accountin = $this->accounts_model->details($discship['key2'],false);
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		if($discship['ac_id_d'] == 0 && $discship['pac'] == 0)
+		{
+			if($this->aauth->get_user()->loc == 0)
+			{
+				exit('Defina a conta Por defeito para os Documentos na Empresa! <a class="match-width match-height" href="'.base_url().'settings/company?id=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}else{
+				exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}
+		}else{
+			if($discship['ac_id_d'] == 0)
+			{
+				if($this->aauth->get_user()->loc){
+					exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+				}
+			}
+			$accountin = $this->accounts_model->details($discship['ac_id_d'],false);
 			$accountincome = ((integer)$accountin['id']);
 			$accountincomename = $accountin['holder'];
 			$data['accountid'] = $accountincome;
 			$data['accountname'] = $accountincomename;
 		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
 		
         $data['gateway'] = $this->invocies->gateway_list('Yes');
         $data['exchange'] = $this->plugins->universal_api(5);
@@ -360,6 +381,130 @@ class Pos_invoices extends CI_Controller
         $this->load->view('pos/extended');
         $this->load->view('fixed/footer');
     }
+	
+	
+	public function exportpdf()
+    {
+		if (!$this->input->post()) {
+            exit();
+        }
+		$start_date = $this->input->post('start_date');
+		$end_date = $this->input->post('end_date');
+		$typ = $this->input->get('typ');
+		$loc = $this->aauth->get_user()->loc;
+		
+		$locvals = location($loc);
+		$file_name = $locvals['taxid'].'_'.$typ.'_'.$start_date.'_'.$end_date;
+		$data['name_file'] = $file_name;		
+		$data['Tipodoc'] = $typ;
+		$data['date_extract'] = date('Y-m-d H:i:s');
+		$this->load->library("Related");
+		$docsexport = $this->related->get_export_pdf($loc,$start_date,$end_date);
+		
+		
+		$arraydocs = [];
+		$arrayvValreum = [];
+		$objres = null;
+		$objres['data_list'] = 'De '.$start_date.' até '.$end_date;
+		$coundocs = 0;
+		$couniliqu = 0;
+		$counliq = 0;
+		$countax = 0;
+		$counttot = 0;
+		$coundesc = 0;
+		$counretenc = 0;
+		$coundescfina = 0;
+		$counacumulat = 0;
+		$multi = 0;
+		$locc = 0;
+		$counttrans = 0;
+		foreach ($docsexport as $row) {
+			$objdoc = null;
+			$multi = $row['multi'];
+			$locc = $row['loc'];
+			$objdoc['multi'] = $multi;
+			$objdoc['loc'] = $locc;
+			$objdoc['tid'] = $row['tid'];
+			$objdoc['refer'] = $row['refer'];
+			$objdoc['irs_type_n'] = $row['irs_type_n'];
+			$objdoc['serie_name'] = $row['serie_name'];
+			$objdoc['datedoc'] = $row['datedoc'];
+			$objdoc['cliente'] = $row['cliente'];
+			$objdoc['zone'] = $row['zone'];
+			$objdoc['taxid'] = $row['tax_id'];
+			$objdoc['vend_employe'] = $row['vend_employe'];
+			$objdoc['iliquido'] = $row['subtotal'];
+			$objdoc['total'] = $row['total'];
+			$objdoc['taxs'] = $row['tax'];
+			$objdoc['desconto_financ'] = $row['discount'];
+			$objdoc['total_discount_tax'] = $row['total_discount_tax'];
+			$objdoc['liquido'] = 0;
+			$objdoc['metpag_vales'] = '';
+			$objdoc['desconto'] = 0;
+			
+			$coundescfina += $row['discount'];
+			$counttot += $row['total'];
+			$couniliqu += $row['subtotal'];
+			$countax += $row['tax'];
+			$counacumulat += $objdoc['total_discount_tax'];
+			
+			
+			$docsitems = $this->related->get_export_items_pdf($row['id_doc']);
+			foreach ($docsitems as $rowitems) {
+				$counliq += $rowitems['liquido'];
+				$objdoc['liquido'] = $rowitems['liquido'];
+				$coundesc += $rowitems['discount'];
+				$objdoc['desconto'] = $rowitems['discount'];
+				
+			}
+			$docstransit = $this->related->get_export_transitions_pdf($row['id_doc'],$locc);
+			foreach ($docstransit as $rowtrans) {
+				$counttrans += $rowtrans['credit'];
+				$objdoc['metpag_vales'] = '<strong>'.$rowtrans['metpag'].'</strong><br>'.$rowtrans['credit'];
+			}
+			
+			$objdoc['acumulate'] = $counacumulat;
+			$arraydocs[] = $objdoc;
+			$coundocs++;
+		}
+		
+		$objres['acumulate'] = $counacumulat;
+		$objres['multi'] = $multi;
+		$objres['loc'] = $locc;
+		$objres['docs'] = $coundocs;
+		$objres['iliquido'] = $couniliqu;
+		$objres['liquido'] = $counliq;
+		$objres['taxs'] = $countax;
+		$objres['total'] = $counttot;
+		$objres['totaltransitions'] = $counttrans;
+		$objres['desconto'] = $coundesc;
+		$objres['retencao'] = $counretenc;
+		$objres['desconto_financ'] = $coundescfina;
+		$arrayvValreum[] = $objres;
+		$data['resumo'] = $arrayvValreum;
+		$data['docs'] = $arraydocs;
+		$data['localisation'] = $locc;
+		
+		$html = $this->load->view('print_files/extract_pdf_v1', $data, true);
+		ini_set('memory_limit', '64M');
+		ini_set('max_execution_time', '300');
+		ini_set("pcre.backtrack_limit", "5000000");
+		$this->load->library('pdf');
+        $pdf = $this->pdf->load_split(array('margin_top' => 10));
+		$loc2 = location(0);
+		
+		$footer = '<hr><div style="text-align: right;font-family: serif; font-size: 6pt; color: #5C5C5C; font-style: italic;margin-top:-20pt;">';
+		$footer .= 'Processado por Programa Certificado nº '.$loc2['certification'].' {PAGENO}/{nbpg} </div>';
+		
+		$pdf->WriteHTML($html);
+		$pdf->SetHTMLFooter($footer);
+		if ($this->input->get('d')) {
+            $pdf->Output($file_name . '.pdf', 'D');
+        } else {
+            $pdf->Output($file_name . '.pdf', 'I');
+        }
+	}
+	
 
     //action
     public function action()
@@ -551,7 +696,8 @@ class Pos_invoices extends CI_Controller
 				$taxaperc = $this->input->post('taxaperc');
 				$taxavals = $this->input->post('taxavals');	
 				$taxacomo = $this->input->post('taxacomo');
-			
+				
+				$total_discount = 0;
                 if (is_array($pid)) {
                     foreach ($pid as $key => $value) {
                         $total_discount += numberClean(@$ptotal_disc[$key]);
@@ -998,7 +1144,7 @@ class Pos_invoices extends CI_Controller
             $bill_date = datefordatabase($invoicedate);
             $bill_due_date = datefordatabase($invocieduedate);
             $promo_flag = false;
-			$data = array('tid' => $invocieno, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'pmethod' => $metretnotqo, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'loc' => $warehouse, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 1, 'ext' => 0, 'irs_type' => $invoi_type);
+			$data = array('tid' => $invocieno, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'pmethod' => 0, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'loc' => $warehouse, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 1, 'ext' => 0, 'irs_type' => $invoi_type);
 			if ($this->db->insert('geopos_draft', $data)) {
                 $invocieno2 = $invocieno;
                 $invocieno = $this->db->insert_id();
@@ -1028,7 +1174,8 @@ class Pos_invoices extends CI_Controller
 				$taxaperc = $this->input->post('taxaperc');
 				$taxavals = $this->input->post('taxavals');	
 				$taxacomo = $this->input->post('taxacomo');
-
+				
+				$total_discount = 0;
                 foreach ($pid as $key => $value) {
                     $total_discount += numberClean(@$ptotal_disc[$key]);
                     $total_tax += numberClean($ptotal_tax[$key]);
@@ -1168,6 +1315,7 @@ class Pos_invoices extends CI_Controller
 			}
 			
             $row = array();
+			$row['status'] = $invoices->status;
 			$row[] = $invoices->serie_name;
             $row[] = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '">'.$invoices->type. $invoices->tid . '</a>';
 			$row[] = dateformat($invoices->invoicedate);
@@ -1178,12 +1326,16 @@ class Pos_invoices extends CI_Controller
 			$row[] = amountExchange($invoices->total, 0, $this->aauth->get_user()->loc);
 			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='$invoices->pamnt' aria-valuemin='0' aria-valuemax='$invoices->total' style='width:$width%;'>$width%</div></div>";
             $row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span><br>'.$invoices->loc_cname;
-            if($invoices->status == 'canceled'){
-				$row[] = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+            $option = '';
+			if($invoices->status == 'canceled'){
+				$option = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
 			}else{
-				$row[] = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> <a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" data-object-draft="1" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				$option = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+				if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
+					$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				}
 			}
-			
+			$row[] = $option;
             $data[] = $row;
         }
 
@@ -1220,24 +1372,38 @@ class Pos_invoices extends CI_Controller
 				$width = round(($invoices->pamnt/$invoices->total)*100,2);
 			}
 			
+			$subtotal = $invoices->subtotal;
+			$tax = $invoices->tax;
+			$total = $invoices->total;
             $row = array();
+			$row['status'] = $invoices->status;
+			$row['qty'] = $invoices->qty;
+			$row['multi'] = 0;
+			$row['loc'] = $this->aauth->get_user()->loc;
+			$row['subtotal'] = $subtotal;
+			$row['tax'] = $tax;
+			$row['total'] = $total;
 			$row[] = $invoices->serie_name;
             $row[] = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '">'.$invoices->type. $invoices->tid . '</a>';
 			$row[] = dateformat($invoices->invoicedate);
             $row[] = $invoices->name;
             $row[] = $invoices->taxid;
 			$row[] = $invoices->qty;
-			$row[] = amountExchange($invoices->subtotal, 0, $this->aauth->get_user()->loc);
-			$row[] = amountExchange($invoices->tax, 0, $this->aauth->get_user()->loc);
-			$row[] = amountExchange($invoices->total, 0, $this->aauth->get_user()->loc);
+			$row[] = amountExchange($subtotal, 0, $this->aauth->get_user()->loc);
+			$row[] = amountExchange($tax, 0, $this->aauth->get_user()->loc);
+			$row[] = amountExchange($total, 0, $this->aauth->get_user()->loc);
 			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='$invoices->pamnt' aria-valuemin='0' aria-valuemax='$invoices->total' style='width:$width%;'>$width%</div></div>";
             $row[] = '<span class="st-' . $invoices->status . '">' . $this->lang->line(ucwords($invoices->status)) . '</span>';
-            if($invoices->status == 'canceled'){
-				$row[] = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+            $option = '';
+			if($invoices->status == 'canceled'){
+				$option = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
 			}else{
-				$row[] = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> <a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" data-object-draft="1" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				$option = '<a href="' . base_url("pos_invoices/view?id=$invoices->id") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>';
+				if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
+					$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+				}
 			}
-			
+			$row[] = $option;
             $data[] = $row;
         }
 
@@ -1266,8 +1432,6 @@ class Pos_invoices extends CI_Controller
         $data['attach'] = $this->invocies->attach($tid);
 		$data['history'] = $this->invocies->history($tid,'fa');
         if ($data['invoice']['id']) 
-			$data['products'] = $this->invocies->invoice_products($tid);
-        if ($data['invoice']['id']) 
 			$data['activity'] = $this->invocies->invoice_transactions($tid);
 		$data['c_custom_fields'] = [];
 		$data['custom_fields'] = [];
@@ -1286,9 +1450,18 @@ class Pos_invoices extends CI_Controller
 		///////////////////////////////////////////////////////////////////////
 		////////////////////////Relação entre documentos//////////////////////
 		$this->load->library("Related");
-		$data['docs_origem'] = $this->related->getRelated($tid,0,0);
-		$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
-		$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,0);
+		$data['docs_origem'] = [];
+		$data['docs_deu_origem'] = [];
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 1){
+			$typerelatset = 0;
+		}else if($data['invoice']['irs_type'] == 2){
+			$typerelatset = 100;
+		}else{
+			$typerelatset = 200;
+		}
+		
+		$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
 		///////////////////////////////////////////////////////////////////////
 		////////////////////////Relação entre documentos//////////////////////
 		
@@ -1313,32 +1486,39 @@ class Pos_invoices extends CI_Controller
 			
 			if($draft == 0)
 			{
+				$this->db->delete('geopos_log', array('id_c' => $id,'type_log' => 'fa'));
+				$this->db->delete('geopos_data_related', array('tid' => $id));
+				$this->db->delete('geopos_data_transport', array('tid' => $id));
 				$this->db->delete('geopos_draft_items', array('id' => $id));
 				$this->db->delete('geopos_draft', array('id' => $id));
 				// now try it
-				$ua=$this->aauth->getBrowser();
-				$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
+				//$ua=$this->aauth->getBrowser();
+				//$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
 				
-				$striPay = "Utilizador: ".$this->aauth->get_user()->username;
-				$striPay = $striPay.'<br>'.$yourbrowser;
-				$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-				$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
-				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'draft', $id);
-				echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso. Faça Refresh para ele desaparecer.'));
+				//$striPay = "Utilizador: ".$this->aauth->get_user()->username;
+				//$striPay = $striPay.'<br>'.$yourbrowser;
+				//$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
+				//$striPay = $striPay.'<br>Rascunho Removido: '.$tid;
+				//$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'draft', $id);
+				echo json_encode(array('status' => 'Success', 'message' => 'Rascunho removido com Sucesso. Atualize a página para verificar as Alterações.'));
 			}else{
+				$justification = $this->input->post('justification');
 				$this->db->set('status', 'canceled');
+				$this->db->set('justification_cancel', $justification);
 				$this->db->where('id', $id);
 				$this->db->update('geopos_invoices');
-				echo json_encode(array('status' => 'Success', 'message' => 'Fatura Anulada com Sucesso'));
+				
 				// now try it
 				$ua=$this->aauth->getBrowser();
 				$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
-				
-				$striPay = "Utilizador: ".$this->aauth->get_user()->username;
-				$striPay = $striPay.'<br>'.$yourbrowser;
-				$striPay = $striPay.'<br>Ip: '.$this->aauth->get_user()->ip_address;
-				$striPay = $striPay.'<br>Fatura Anulada: '.$tid;
+				$striPay = '>Colocar documento em estado anulado';
+				$striPay .= '<br>Utilizador: '.$this->aauth->get_user()->username;
+				$striPay .= '<br>Email: '.$this->aauth->get_user()->email;
+				$striPay .= '<br>Ip: '.$this->aauth->get_user()->ip_address;
+				$striPay .= '<br>'.$yourbrowser;
+				$striPay .= '<br>Observações:'.$justification;
 				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'fa', $id);
+				echo json_encode(array('status' => 'Success', 'message' => 'Documento Anulado com Sucesso. Atualize a página para verificar as Alterações'));
 			}
 			
 			

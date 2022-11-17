@@ -1,14 +1,19 @@
-<?php 
+<?php
 $wid = $this->input->get('id');
 ?>
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5 class="title"> <?php echo $this->lang->line('Products') ?> <a
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Products') ?> <a
                         href="<?php echo base_url('products/add') ?>"
-                        class="btn btn-primary btn-sm rounded">
+                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
-                </a> <a href="<?php echo base_url('productcategory/add_sub?id='.$wid) ?>" class="btn btn-blue btn-sm rounded">
+                </a> <a href="<?php echo base_url('productcategory/add_sub?id=' . $wid) ?>"
+                        class="btn btn-blue btn-sm rounded">
                     <?php echo $this->lang->line('Add new') . ' - ' . $this->lang->line('Sub') . ' ' . $this->lang->line('Category') ?>
                 </a>
             </h5>
@@ -64,22 +69,12 @@ $wid = $this->input->get('id');
 									<td>$total</td>
 									<td>$qty</td>
 									<td>$salessum/$worthsum</td>
-									<td><a href='" . base_url("productcategory/view?id=$cid&sub=true") . "' class='btn btn-success btn-sm'><i class='fa fa-eye'></i> " . $this->lang->line('View') . "</a>&nbsp; <a class='btn btn-pink  btn-sm' href='" . base_url() . "productcategory/report_product?id=" . $cid . "&sub=true' target='_blank'> <span class='fa fa-pie-chart'></span>" . $this->lang->line('Sales') . "</a>&nbsp;  <a href='" . base_url("productcategory/edit?id=$cid") . "' class='btn btn-warning btn-sm'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;<a href='#' data-object-id='" . $cid . "' class='btn btn-danger btn-sm delete-object2' title='Delete'><i class='fa fa-trash'></i></a></td>
+									<td><div class='action-btn'><a href='" . base_url("productcategory/view?id=$cid&sub=true") . "' class='btn btn-success btn-sm'><i class='bi bi-eye'></i> " . $this->lang->line('View') . "</a><a class='btn btn-pink  btn-sm' href='" . base_url() . "productcategory/report_product?id=" . $cid . "&sub=true' target='_blank'> <span class='fa fa-pie-chart'></span>" . $this->lang->line('Sales') . "</a><a href='" . base_url("productcategory/edit?id=$cid") . "' class='btn btn-outline-warning btn-sm' title='" . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i> </a>&nbsp;<a href='#' data-object-id='" . $cid . "' class='btn btn-outline-danger btn-sm delete-object2' title='" . $this->lang->line('Delete') . "'><i class='bi bi-trash'></i></a></div></td>
 									</tr>";
                             $i++;
                         }
                         ?>
                         </tbody>
-                        <tfoot>
-                        <tr>
-                            <th>#</th>
-                            <th><?php echo $this->lang->line('Name') ?></th>
-                            <th><?php echo $this->lang->line('Total Products') ?></th>
-                            <th><?php echo $this->lang->line('Stock Quantity') ?></th>
-                            <th><?php echo $this->lang->line('Worth (Sales/Stock)') ?></th>
-                            <th><?php echo $this->lang->line('Action') ?></th>
-                        </tr>
-                        </tfoot>
                     </table>
                 <?php } ?>
                 <div class="card-body">
@@ -104,19 +99,6 @@ $wid = $this->input->get('id');
                         <tbody>
                         </tbody>
 
-                        <tfoot>
-                        <tr>
-                            <th>#</th>
-                            <th><?php echo $this->lang->line('Name') ?></th>
-                            <th><?php echo $this->lang->line('Stock') ?></th>
-                            <th><?php echo $this->lang->line('Code') ?></th>
-                            <th><?php echo $this->lang->line('Category') ?></th>
-                            <th><?php echo $this->lang->line('Warehouse') ?></th>
-                            <th><?php echo $this->lang->line('Price') ?></th>
-                            <th><?php echo $this->lang->line('Settings') ?></th>
-
-                        </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>

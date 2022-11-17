@@ -1,6 +1,7 @@
 <link rel="stylesheet" type="text/css"
       href="<?php echo assets_url() ?>app-assets/vendors/css/calendars/fullcalendar.min.css?v=<?php echo APPVER ?>">
-<link href="<?php echo assets_url(); ?>assets/c_portcss/bootstrapValidator.min.css?v=<?php echo APPVER ?>" rel="stylesheet"/>
+<link href="<?php echo assets_url(); ?>assets/c_portcss/bootstrapValidator.min.css?v=<?php echo APPVER ?>"
+      rel="stylesheet"/>
 <link href="<?php echo assets_url(); ?>assets/c_portcss/bootstrap-colorpicker.min.css?v=<?php echo APPVER ?>"
       rel="stylesheet"/>
 <!-- Custom css  -->
@@ -11,7 +12,23 @@
 <script src="<?php echo assets_url() ?>app-assets/vendors/js/extensions/fullcalendar.min.js?v=<?php echo APPVER ?>"></script>
 <script src='<?php echo assets_url(); ?>assets/c_portjs/main.js?v=<?php echo APPVER ?>'></script>
 
-<div class="card card-block">
+<div class="card card-block yellow-top">
+    <div class="card-header">
+        <h5 class="title">
+            <a class="btn-back" onclick=history.go(-1)>
+                <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+            </a>
+            <?php echo $this->lang->line('Edit Project') ?>
+        </h5>
+        <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+        <div class="heading-elements">
+            <ul class="list-inline mb-0">
+                <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                <li><a data-action="close"><i class="ft-x"></i></a></li>
+            </ul>
+        </div>
+    </div>
     <div id="notify" class="alert alert-success" style="display:none;">
         <a href="#" class="close" data-dismiss="alert">&times;</a>
 
@@ -21,9 +38,7 @@
 
 
         <form method="post" id="data_form" class="form-horizontal">
-
-            <h5><?php echo $this->lang->line('Edit Project') ?></h5>
-            <hr>
+            
 
             <div class="form-group row">
 
@@ -42,12 +57,14 @@
 
                 <div class="col-sm-4">
                     <select name="status" class="form-control">
-						<option value="<?php echo $project['status'] ?>">--<?php echo $this->lang->line($project['status']) ?>--</option>
-						<option value='Waiting'><?php echo $this->lang->line('Waiting') ?></option>
-						<option value='Pending'><?php echo $this->lang->line('Pending') ?></option>
-						<option value='Terminated'><?php echo $this->lang->line('Terminated') ?></option>
-						<option value='Finished'><?php echo $this->lang->line('Finished') ?></option>
-						<option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
+                        <option value="<?php echo $project['status'] ?>">
+                            --<?php echo $this->lang->line($project['status']) ?>--
+                        </option>
+                        <option value='Waiting'><?php echo $this->lang->line('Waiting') ?></option>
+                        <option value='Pending'><?php echo $this->lang->line('Pending') ?></option>
+                        <option value='Terminated'><?php echo $this->lang->line('Terminated') ?></option>
+                        <option value='Finished'><?php echo $this->lang->line('Finished') ?></option>
+                        <option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
                     </select>
                 </div>
             </div>
@@ -71,11 +88,13 @@
 
                 <div class="col-sm-4">
                     <select name="priority" class="form-control">
-						<option value="<?php echo $project['priority'] ?>">--<?php echo $this->lang->line($project['priority']) ?>--</option>
-						<option value='Low'><?php echo $this->lang->line('Low') ?></option>
-						<option value='Average'><?php echo $this->lang->line('Average') ?></option>
-						<option value='High'><?php echo $this->lang->line('High') ?></option>
-						<option value='Urgent'><?php echo $this->lang->line('Urgent') ?></option>
+                        <option value="<?php echo $project['priority'] ?>">
+                            --<?php echo $this->lang->line($project['priority']) ?>--
+                        </option>
+                        <option value='Low'><?php echo $this->lang->line('Low') ?></option>
+                        <option value='Average'><?php echo $this->lang->line('Average') ?></option>
+                        <option value='High'><?php echo $this->lang->line('High') ?></option>
+                        <option value='Urgent'><?php echo $this->lang->line('Urgent') ?></option>
                     </select>
 
 

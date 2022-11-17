@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Add') . ' ' . $this->lang->line('Payroll') . ' ' . $this->lang->line('Transactions') ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Add') . ' ' . $this->lang->line('Payroll') . ' ' . $this->lang->line('Transactions') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -19,10 +24,8 @@
             </div>
             <div class="card-body">
 
-
                 <form method="post" id="data_form" class="form-horizontal">
 
-                    <hr>
                     <input type="hidden" name="ty_p" value="4">
                     <div class="form-group row">
                         <label for="cst"
@@ -93,21 +96,22 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <input type="hidden" name="pay_type" value="Salaries" />
+                        <input type="hidden" name="pay_type" value="Salaries"/>
                         <label class="col-sm-2 control-label"
                                for="product_price"><?php echo $this->lang->line('Type') ?></label>
                         <div class="col-sm-6">
                             <div class="input-group">
                                 <select name="pay_type" class="form-control" disabled="disabled">
-									<option value="Salaries">Salários</option>
+                                    <option value="Salaries">Salários</option>
                                 </select>
 
                             </div>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <input type="hidden" name="pay_cat" value="1" />
-                        <label class="col-sm-2 col-form-label" for="pay_cat"><?php echo $this->lang->line('Category') ?></label>
+                        <input type="hidden" name="pay_cat" value="1"/>
+                        <label class="col-sm-2 col-form-label"
+                               for="pay_cat"><?php echo $this->lang->line('Category') ?></label>
                         <div class="col-sm-6">
                             <select name="pay_cat" class="form-control" disabled="disabled">
                                 <option value='1'>Salários Funcionários</option>
@@ -123,8 +127,8 @@
                         <div class="col-sm-6">
                             <div class="input-group">
                                 <select name="paymethod" class="form-control">
-									<option value="">Escolha uma Opção</option>
-                                    <?php echo $metodos_pagamentos;?>
+                                    <option value="">Escolha uma Opção</option>
+                                    <?php echo $metodos_pagamentos; ?>
                                 </select>
 
                             </div>
@@ -156,14 +160,16 @@
                                     ?>
                                 </select>
                             </div>
-                            <div class="col-sm-4"><label class="col-form-label" for="f_pay_cat"><?php echo $this->lang->line('From') . ' ' . $this->lang->line('Category') ?></label>
+                            <div class="col-sm-4"><label class="col-form-label"
+                                                         for="f_pay_cat"><?php echo $this->lang->line('From') . ' ' . $this->lang->line('Category') ?></label>
                                 <select name="f_pay_cat" class="form-control">
-                                   <option value='1'>Salários Funcionários</option>
+                                    <option value='1'>Salários Funcionários</option>
                                 </select>
                             </div>
-                            <div class="col-sm-4"><label class="col-form-label" for="f_paymethod"><?php echo $this->lang->line('From') . ' ' . $this->lang->line('Method') ?> </label>
+                            <div class="col-sm-4"><label class="col-form-label"
+                                                         for="f_paymethod"><?php echo $this->lang->line('From') . ' ' . $this->lang->line('Method') ?> </label>
                                 <select name="f_paymethod" class="form-control">
-                                    <?php echo $metodos_pagamentos;?>
+                                    <?php echo $metodos_pagamentos; ?>
                                 </select>
                             </div>
                         </div>
@@ -181,10 +187,10 @@
 
                         <label class="col-sm-2 col-form-label"></label>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-6" id="paiCompanyUpdate">
                             <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
                                    value="<?php echo $this->lang->line('Add transaction') ?>"
-                                   data-loading-text="Adding...">
+                                   data-loading-text="Adicionando...">
                             <input type="hidden" value="transactions/save_trans" id="action-url">
                         </div>
                     </div>

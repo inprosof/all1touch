@@ -111,30 +111,20 @@ class Extended_invoices_model extends CI_Model
         $this->_get_datatables_query($opt);
         if ($_POST['length'] != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
-
-        $query = $this->db->get();
-
-      //  $this->db->join('geopos_invoices', 'geopos_invoices.id=geopos_invoice_items.tid', 'left');
+		$query = $this->db->get();
         return $query->result();
     }
 
     function count_filtered($opt = '')
     {
         $this->_get_datatables_query($opt);
-        if ($opt) {
-            $this->db->where('eid', $opt);
-
-        }
-
- //       $this->db->join('geopos_invoices', 'geopos_invoices.id=geopos_invoice_items.tid', 'left');
         $query = $this->db->get();
         return $query->num_rows();
     }
 
     public function count_all($opt = '')
     {
-        $this->db->select('geopos_invoice_items.id');
-        $this->db->from($this->table);
+        $this->_get_datatables_query($opt);
         return $this->db->count_all_results();
     }
 

@@ -745,6 +745,74 @@ p.card-text {
     border-top: 4px solid #F6BB42;
 }
 
+.menu-secondary {
+    display: flex;
+    column-gap: 1rem;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 2rem;
+    text-decoration: none;
+}
+
+.menu-buttons-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 2rem;
+
+}
+
+.menu-secondary a:after {
+    content: "|";
+    padding-left: 1rem;
+}
+
+.menu-buttons-secondary button:after {
+    content: "|";
+    padding-left: 1rem;
+}
+
+.menu-buttons-secondary button {
+    color: #009c9f;
+    border: none !important;
+    background-color: transparent !important;
+}
+
+.menu-buttons-secondary button:focus {
+    outline: none;
+}
+
+.action-table {
+    display: flex;
+    column-gap: 0.7rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-table span {
+    font-size: 1.7rem;
+}
+
+.action-table i {
+    font-size: 1.7rem;
+}
+
+.action-btn {
+    display: flex;
+    column-gap: .5rem;
+    row-gap: .5rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn span {
+    font-size: 1.2rem;
+}
+
+.action-btn i {
+    font-size: 1.2rem;
+}
+
 .card .blue-top {
     border-top: 4px solid grey;
 
@@ -778,7 +846,8 @@ h4.title {
 .alert {
     border-width: 4px !important;
     position: relative;
-    padding-left: 5rem !important;
+    padding-left: 3rem !important;
+    margin-top: 0.5rem;
 }
 
 .alert-info {
@@ -786,12 +855,71 @@ h4.title {
     border-color: #5bc0de !important;
     color: #31708f !important;
     padding-bottom: 0;
+
+}
+
+#input-date {
+    text-align: center;
+}
+
+.card-title.lead.collapsed:before {
+    content: url('https://api.iconify.design/simple-line-icons/plus.svg?color=white');
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    background: #0AA699;
+    color: white;
+    height: 19px;
+    width: 19px;
+    border-radius: 50%;
+}
+
+.card-title.lead:before {
+    content: url('https://api.iconify.design/simple-line-icons/minus.svg?color=white');
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    background: #891B26;
+    color: white;
+    height: 19px;
+    width: 19px;
+    border-radius: 50%;
+
 }
 
 .alert-info:before {
     content: "\f05a";
     color: white;
     background-color: #5bc0de;
+}
+
+#table-block {
+    display: block;
+}
+
+.input-group-addon#info-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #5bc0de;
+    border-color: #5bc0de;
+    border-style: solid;
+    border-width: 1px;
+    border-left: none;
+    width: 2rem;
+
+}
+
+.input-group-addon i {
+    pointer-events: none;
+    font-size: 1.3rem;
+    color: white;
+}
+
+.left-inner-addon input.form-control {
+    padding-right: 2rem;
 }
 
 .alert:before {

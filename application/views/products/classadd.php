@@ -1,12 +1,15 @@
 <div class="content-body">
 
-    <div class="card">
+    <div class="card yellow-top">
 
         <div class="card-header">
 
-            <h5><?php echo $this->lang->line('Add new').' '.$this->lang->line('Product Classes') ?></h5>
-
-            <hr>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Add new') . ' ' . $this->lang->line('Product Classes') ?>
+            </h5>
 
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
 
@@ -33,7 +36,6 @@
                 <a href="#" class="close" data-dismiss="alert">&times;</a>
 
 
-
                 <div class="message"></div>
 
             </div>
@@ -45,14 +47,12 @@
                     <div class="form-group row">
 
 
-
                         <label class="col-sm-2 col-form-label"
 
                                for="name"><?php echo $this->lang->line('Title') ?></label>
 
 
-
-                        <div class="col-sm-10">
+                        <div class="col-sm-6">
 
                             <input type="text" placeholder="Class Title"
 
@@ -66,20 +66,18 @@
 
                         <label class="col-sm-2 col-form-label"></label>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" id="paiCompanyUpdate">
 
                             <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
 
-                                   value="<?php echo $this->lang->line('Add new') ?>" data-loading-text="Adding...">
+                                   value="<?php echo $this->lang->line('Add new') ?>"
+                                   data-loading-text="Adicionando...">
 
                             <input type="hidden" value="products/addclasses" id="action-url">
 
                         </div>
 
                     </div>
-
-
-
 
 
                 </form>

@@ -1,5 +1,5 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-content">
             <div id="notify" class="alert alert-success" style="display:none;">
                 <a href="#" class="close" data-dismiss="alert">&times;</a>
@@ -16,127 +16,150 @@
 					<div class="">
 						<?php
 						$validtoken = hash_hmac('ripemd160', $invoice['iid'], $this->config->item('encryption_key'));
-
-						$link = base_url('billing/view?id=' . $invoice['iid'] . '&token=' . $validtoken);
-						if ($invoice['status'] != 'canceled') { ?>
-							<div class="title-action">
-							<img src="<?php $loc = location($invoice['loc']); echo base_url('userfiles/company/' . $loc['logo']) ?>"
-									 class="img-responsive" style="max-height: 80px;">
-							
-							<?php if ($invoice['status'] != 'paid') {
-								echo '<a href="#part_payment" data-toggle="modal" data-remote="false" data-type="reminder"
-								   class="btn btn-large btn-success mb-1" title="Partial Payment">
-								   <span class="fa fa-money"></span>'.$this->lang->line('Make Payment').'</a>';
-							}?>
-							<div class="btn-group">
-                                <button type="button" class="btn btn-facebook dropdown-toggle mb-1"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
-                            <span
-                                    class="fa fa-envelope-o"></span> Email
-                                </button>
-                                <div class="dropdown-menu"><a href="#sendEmail" data-toggle="modal"
-                                                              data-remote="false" class="dropdown-item sendbill"
-                                                              data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
-                                    <div class="dropdown-divider"></div>
-                                    <?php if ($invoice['status'] != 'paid') {
-									echo '<a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendbill"
-                                       data-type="reminder">'.$this->lang->line('Payment Reminder').'</a>';
-									  }?>
-									
-                                    <a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                            class="dropdown-item sendbill" data-type="received"><?php echo $this->lang->line('Payment Received') ?></a>
-                                    <div class="dropdown-divider"></div>
-									<?php if ($invoice['status'] != 'paid') {
-										echo '<a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendbill" href="#"
-                                       data-type="overdue">'.$this->lang->line('Payment Overdue').'</a>';
-									   }?>
-									  <a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                            class="dropdown-item sendbill"
-                                            data-type="refund"><?php echo $this->lang->line('Refund Generated') ?></a>
-
-                                </div>
-
-                            </div>
-
-                            <!-- SMS -->
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-blue dropdown-toggle mb-1"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
-                            <span
-                                    class="fa fa-mobile"></span> SMS
-                                </button>
-                                <div class="dropdown-menu"><a href="#sendSMS" data-toggle="modal"
-                                                              data-remote="false" class="dropdown-item sendsms"
-                                                              data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
-                                    <div class="dropdown-divider"></div>
-                                    <?php if ($invoice['status'] != 'paid') {
-									echo '<a href="#sendSMS" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendsms"
-                                       data-type="reminder">'.$this->lang->line('Payment Reminder').'</a>';
-									}?>
-                                    <a href="#sendSMS" data-toggle="modal" data-remote="false"
-                                            class="dropdown-item sendsms"
-                                            data-type="received"><?php echo $this->lang->line('Payment Received') ?></a>
-                                    <div class="dropdown-divider"></div>
-									<?php if ($invoice['status'] != 'paid') {
-										echo '<a href="#sendSMS" data-toggle="modal" data-remote="false"
-										   class="dropdown-item sendsms" href="#"
-										   data-type="overdue">'.$this->lang->line('Payment Overdue').'</a>';
-										   
-										}?>
-									<a href="#sendSMS" data-toggle="modal" data-remote="false"
-                                            class="dropdown-item sendsms" data-type="refund"><?php echo $this->lang->line('Refund Generated') ?></a>
-
-                                </div>
-
-                            </div>
-
+						$link = base_url('billing/view?id=' . $invoice['iid'] . '&token=' . $validtoken);?>
+						<div class="title-action">
+							<img src="<?php $loc = location($invoice['loc']); echo base_url('userfiles/company/' . $loc['logo']) ?>" class="img-responsive" style="max-height: 80px;">
 							<div class="btn-group ">
-								<button type="button" class="btn btn-success mb-1 btn-min-width dropdown-toggle"
+								<button type="button" class="btn btn-primary mb-1 btn-min-width dropdown-toggle"
 										data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
 											class="fa fa-print"></i> <?php echo $this->lang->line('Print') ?>
 								</button>
 								<div class="dropdown-menu">
 									<a class="dropdown-item"
-									   href="<?php echo base_url('billing/printinvoice?id=' . $invoice['iid'] . '&token=' . $validtoken); ?>"><?php echo $this->lang->line('Print') ?></a>
-
-
+									   href="<?php echo base_url('subscriptions/printinvoice?id=' . $invoice['iid'] . '&temp='.INVV.'&draf=0&token=' . $validtoken); ?>"><?php echo $this->lang->line('Print') ?></a>
 									<div class="dropdown-divider"></div>
 									<a class="dropdown-item"
-									   href="<?php echo base_url('billing/printinvoice?id=' . $invoice['iid'] . '&token=' . $validtoken); ?>&d=1"><?php echo $this->lang->line('PDF Download') ?></a>
-
+									   href="<?php echo base_url('subscriptions/printinvoice?id=' . $invoice['iid'] . '&temp='.INVV.'&draf=0&token=' . $validtoken); ?>&d=1"><?php echo $this->lang->line('PDF Download') ?></a>
 								</div>
 							</div>
-							<a href="<?php echo $link; ?>" class="btn btn-purple mb-1"><i class="fa fa-globe"></i> <?php echo $this->lang->line('Preview') ?></a>
-							<div class="btn-group ">
-								<button type="button" class="btn btn-primary mb-1 btn-min-width dropdown-toggle"
-										data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-											class="icon-anchor"></i> <?php echo $this->lang->line('Extra') ?>
-								</button>
-								<div class="dropdown-menu">
-									<a class="dropdown-item"
-									   href="<?php echo 'delivery?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('Delivery Note') ?></a>
-									<div class="dropdown-divider"></div>
-									<a class="dropdown-item"
-									   href="<?php echo 'proforma?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('Proforma Invoice') ?></a>
+							<?php 
+								$validtoken = hash_hmac('ripemd160', $invoice['iid'], $this->config->item('encryption_key'));
+								$textbut = 'https://api.whatsapp.com/send?phone='.$invoice['phone'].'&text=';
+								$codebase64 = $invoice['iid'] . '&0&'.INVV.'&' . $validtoken;
+								$codebase64 = base64_encode($codebase64);
+								$endefact = base_url('billing/viewwhat?invoice='.$codebase64);
+								$textbut .= 'Caríssimo(a)+Cliente+Nova+Fatura+'.$invoice['irs_type_s'] . '-' . $invoice['serie_name'] . '/' . $invoice['tid'].'+gerada.+'.$endefact.'+Cumprimentos';							
+							?>
+							<a href="<?php echo $textbut; ?>" target="_blank" class="btn btn-success mb-1"><i class="fa fa-whatsapp"></i>WhatsApp</a>
+							<?php if ($invoice['status'] != 'canceled') { ?>
+								<!--<php if ($invoice['status'] != 'paid') {
+									echo '<a href="#part_payment" data-toggle="modal" data-remote="false" data-type="reminder"
+									   class="btn btn-large btn-info mb-1" title="Partial Payment"
+									><span class="fa fa-money"></span>'.$this->lang->line('Make Payment').'</a>';
+									}?>-->
+								<div class="btn-group">
+									<button type="button" class="btn btn-facebook dropdown-toggle mb-1"
+											data-toggle="dropdown"
+											aria-haspopup="true" aria-expanded="false">
+								<span
+										class="fa fa-envelope-o"></span> Email
+									</button>
+									<div class="dropdown-menu"><a href="#sendEmail" data-toggle="modal"
+																  data-remote="false" class="dropdown-item sendbill"
+																  data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
+										<div class="dropdown-divider"></div>
+										<?php if ($invoice['status'] != 'paid') {
+										echo '<a href="#sendEmail" data-toggle="modal" data-remote="false"
+										   class="dropdown-item sendbill"
+										   data-type="reminder">'.$this->lang->line('Payment Reminder').'</a>';
+										  }?>
+										
+										<a href="#sendEmail" data-toggle="modal" data-remote="false"
+												class="dropdown-item sendbill" data-type="received"><?php echo $this->lang->line('Payment Received') ?></a>
+										<div class="dropdown-divider"></div>
+										<?php if ($invoice['status'] != 'paid') {
+											echo '<a href="#sendEmail" data-toggle="modal" data-remote="false"
+										   class="dropdown-item sendbill" href="#"
+										   data-type="overdue">'.$this->lang->line('Payment Overdue').'</a>';
+										   }?>
+										  <a href="#sendEmail" data-toggle="modal" data-remote="false"
+												class="dropdown-item sendbill"
+												data-type="refund"><?php echo $this->lang->line('Refund Generated') ?></a>
+
+									</div>
 
 								</div>
-							</div>
+
+								<!-- SMS -->
+								<div class="btn-group">
+									<button type="button" class="btn btn-blue dropdown-toggle mb-1"
+											data-toggle="dropdown"
+											aria-haspopup="true" aria-expanded="false">
+								<span
+										class="fa fa-mobile"></span> SMS
+									</button>
+									<div class="dropdown-menu"><a href="#sendSMS" data-toggle="modal"
+																  data-remote="false" class="dropdown-item sendsms"
+																  data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
+										<div class="dropdown-divider"></div>
+										<?php if ($invoice['status'] != 'paid') {
+										echo '<a href="#sendSMS" data-toggle="modal" data-remote="false"
+										   class="dropdown-item sendsms"
+										   data-type="reminder">'.$this->lang->line('Payment Reminder').'</a>';
+										}?>
+										<a href="#sendSMS" data-toggle="modal" data-remote="false"
+												class="dropdown-item sendsms"
+												data-type="received"><?php echo $this->lang->line('Payment Received') ?></a>
+										<div class="dropdown-divider"></div>
+										<?php if ($invoice['status'] != 'paid') {
+											echo '<a href="#sendSMS" data-toggle="modal" data-remote="false"
+											   class="dropdown-item sendsms" href="#"
+											   data-type="overdue">'.$this->lang->line('Payment Overdue').'</a>';
+											   
+											}?>
+										<a href="#sendSMS" data-toggle="modal" data-remote="false"
+												class="dropdown-item sendsms" data-type="refund"><?php echo $this->lang->line('Refund Generated') ?></a>
+
+									</div>
+
+								</div>
+
+								<div class="btn-group ">
+									<button type="button" class="btn btn-success mb-1 btn-min-width dropdown-toggle"
+											data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+												class="fa fa-print"></i> <?php echo $this->lang->line('Print') ?>
+									</button>
+									<div class="dropdown-menu">
+										<a class="dropdown-item"
+										   href="<?php echo $link; ?>"><?php echo $this->lang->line('Print') ?></a>
+
+
+										<div class="dropdown-divider"></div>
+										<a class="dropdown-item"
+										   href="<?php echo $link; ?>&d=1"><?php echo $this->lang->line('PDF Download') ?></a>
+
+									</div>
+								</div>
+								<a href="<?php echo $link; ?>" class="btn btn-purple mb-1"><i class="fa fa-globe"></i> <?php echo $this->lang->line('Preview') ?></a>
+								<div class="btn-group ">
+									<button type="button" class="btn btn-primary mb-1 btn-min-width dropdown-toggle"
+											data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+												class="icon-anchor"></i> <?php echo $this->lang->line('Extra') ?>
+									</button>
+									<div class="dropdown-menu">
+										<a class="dropdown-item"
+										   href="<?php echo 'delivery?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('Delivery Note') ?></a>
+										<div class="dropdown-divider"></div>
+										<a class="dropdown-item"
+										   href="<?php echo 'proforma?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('Proforma Invoice') ?></a>
+
+									</div>
+								</div>
+								
+								<?php if ($invoice['status'] != 'paid') {
+									echo '<a href="#pop_model2" data-toggle="modal" data-remote="false" class="btn btn-large btn-vimeo  mb-1" title="Change Status">
+										<span class="fa fa-superscript"></span>'.$this->lang->line('Subscription').'</a>';
+								}
+							?>
 							
-							<?php if ($invoice['status'] != 'paid') {
-								echo '<a href="#pop_model2" data-toggle="modal" data-remote="false" class="btn btn-large btn-vimeo  mb-1" title="Change Status">
-									<span class="fa fa-superscript"></span>'.$this->lang->line('Subscription').'</a>';
+							<?php
+							/*if ($invoice['multi'] > 0) {
+								echo '<div class="badge bg-blue text-xs-center mt-2 white">' . $this->lang->line('Payment currency is different') . '</div>';
+							}*/
+							} else {
+								echo '<a href="#" class="btn btn-oval btn-danger">ANULADA</a>';
 							} ?>
-							</div><?php if ($invoice['multi'] > 0) {
-								//echo '<div class="tag tag-info text-xs-center mt-2">' . $this->lang->line('Payment currency is different') . '</div>';
-							}
-						} else {
-							echo '<h2 class="btn btn-oval btn-danger">' . $this->lang->line('Cancelled') . '</h2>';
-						} ?>
+						</div>
 					</div>
                 </div>
 

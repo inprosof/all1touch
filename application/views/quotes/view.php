@@ -21,11 +21,6 @@
 					<div class="title-action">
 						<img src="<?php $loc = location($invoice['loc']); echo base_url('userfiles/company/' . $loc['logo']) ?>"
 									 class="img-responsive" style="max-height: 80px;">
-						<?php if ($invoice['status'] == 'draft' || $invoice['status'] == 'pending') {
-						echo '<a href="edit?id=' . $invoice['iid'].'" class="btn btn-warning mb-1"><i
-									class="fa fa-pencil"></i>'.$this->lang->line('Edit Quote').'</a>';
-						}?>
-						
 						<?php if ($invoice['status'] == 'draft' || $invoice['status'] == 'pending' || $invoice['status'] == 'accepted' || $invoice['status'] == 'customer_approved') {
 						echo '<a href="#pop_model" data-toggle="modal" data-remote="false"
 						   class="btn btn-large btn-success mb-1" title="Change Status"
@@ -249,11 +244,11 @@
 											</code>
 										</div>
 										<div class="text-xs-center">
-											<p><?php echo $this->lang->line('Authorized person') ?></p>
-											<?php echo '<img src="' . base_url('userfiles/employee_sign/' . $employee['sign']) . '" alt="signature" class="height-100"/>
+                                            <p><?php echo $this->lang->line('Authorized person') ?></p>
+                                            <?php echo '<img src="' . base_url('userfiles/employee_sign/' . $employee['sign']) . '" alt="signature" class="height-100"/>
 												<h6>(' . $employee['name'] . ')</h6>
 												<p class="text-muted">' . user_role($employee['roleid']) . '</p>'; ?>
-										</div>
+                                        </div>
 										
 										
 									</div>
@@ -440,21 +435,20 @@
 											echo "<td>".amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc)."</td>";
 											echo "<td>".amountExchange($row['tax'], 0, $this->aauth->get_user()->loc)."</td>";
 											echo "<td>".amountExchange($row['total'], 0, $this->aauth->get_user()->loc)."</td>";
-											if($row['type_related'] == "0" || $row['type_related'] == "2"){
-												if($row['draft'] == "0"){
-													echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-												}else{
-													echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-												}
-											}else if($row['type_related'] == "1"){
-												echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-											}else if($row['type_related'] == "3"){
-												echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-											}
+											$extaa = $row['ext'];
+                                            if ($row['type_related'] == "0" || $row['type_related'] == "2") {
+                                                echo '<td><a href="' . base_url("invoices/view?id=$tiiid&draf=0&ext=$extaa") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("invoices/printinvoice?id=$tiiid&draf=0&ext=$extaa") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                            } else if ($row['type_related'] == "1") {
+                                                echo '<td><a href="' . base_url("invoices/view?id=$tiiid&draf=0&ext=$extaa") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiid&draf=0&ext=$extaa") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                            } else if ($row['type_related'] == "3") {
+                                                echo '<td><a href="' . base_url("quote/view?id=$tiiid&draf=0&ext=$extaa") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("quote/printquote?id=$tiiid&draf=0&ext=$extaa") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                            } else if ($row['type_related'] == "13" || $row['type_related'] == "14") {
+                                                echo '<td><a href="' . base_url("receipts/view?id=$tiiid&draf=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("receipts/printinvoice?id=$tiiid&draf=0&ext=$extaa") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                            }
 											echo '</tr>';
 										}
 										echo "</tbody>";
@@ -753,8 +747,6 @@
         </div>
     </div>
 </div>
-</div>
-</div>
 
 <!-- Modal HTML -->
 <div id="sendEmail" class="modal fade">
@@ -902,15 +894,11 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-
                 <h4 class="modal-title"><?php echo $this->lang->line('Change Status') ?></h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
-
             <div class="modal-body">
                 <form id="form_model">
-
-
                     <div class="row">
                         <div class="col mb-1"><label for="pmethod"><?php echo $this->lang->line('Mark As') ?></label>
                             <select name="status" class="form-control mb-1">
@@ -926,12 +914,12 @@
 
                     <div class="modal-footer">
                         <input type="hidden" class="form-control required"
-                               name="tid" id="invoiceid" value="<?php echo $invoice['iid'] ?>">
+                               name="tid" id="invoiceidstatus" value="<?php echo $invoice['iid'] ?>">
                         <button type="button" class="btn btn-default"
                                 data-dismiss="modal"><?php echo $this->lang->line('Close') ?></button>
                         <input type="hidden" id="action-url" value="quote/update_status">
                         <button type="button" class="btn btn-primary"
-                                id="submit_model"><?php echo $this->lang->line('Change Status') ?></button>
+                                id="submitchange"><?php echo $this->lang->line('Change Status') ?></button>
                     </div>
                 </form>
             </div>
@@ -941,6 +929,13 @@
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js') ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 <script>
+	$('#submitchange').on('click', function (e) {
+		e.preventDefault();
+		var o_data = $("#form_model").serialize();
+		var action_url = 'quote/update_status';
+		$("#pop_model").modal('hide');
+		saveMData(o_data, action_url);
+	});
     /*jslint unparam: true */
     /*global window, $ */
     $(function () {
@@ -1002,12 +997,8 @@
 
         $('#sendM').on('click', function (e) {
             e.preventDefault();
-
             sendBill($('.summernote').summernote('code'));
-
         });
-
-
     });
 
 

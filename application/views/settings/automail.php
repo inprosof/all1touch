@@ -1,6 +1,20 @@
-<div class="card card-block yellow-top">
+<div class="card yellow-top">
     <div class="card-header">
-        <h5 class="title"><?php echo $this->lang->line('Auto Email SMS') ?></h5>
+        <h5 class="title">
+            <a class="btn-back" onclick=history.go(-1)>
+                <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+            </a>
+            <?php echo $this->lang->line('Auto Email SMS') ?>
+            <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+            <div class="heading-elements">
+                <ul class="list-inline mb-0">
+                    <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                    <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                    <li><a data-action="close"><i class="ft-x"></i></a></li>
+                </ul>
+            </div>
+
+        </h5>
     </div>
     <div class="card-body">
         <div id="notify" class="alert alert-success" style="display:none;">
@@ -18,10 +32,10 @@
 
                 <div class="form-group row">
 
-                    <label class="col-sm-4 col-form-label"
+                    <label class="col-sm-2 col-form-label"
                            for="tzone"><?php echo $this->lang->line('Email') ?></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-6">
                         <select name="email" class="form-control">
 
                             <?php
@@ -39,10 +53,10 @@
 
                 <div class="form-group row">
 
-                    <label class="col-sm-4 col-form-label"
+                    <label class="col-sm-2 col-form-label"
                            for="tzone">SMS</label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-6">
                         <select name="sms" class="form-control">
 
                             <?php
@@ -61,9 +75,9 @@
 
                 <div class="form-group row">
 
-                    <label class="col-sm-4 col-form-label"></label>
+                    <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4" id="paiCompanyUpdate">
+                    <div class="col-sm-6" id="paiCompanyUpdate">
                         <input type="submit" id="time_update" class="btn btn-success margin-bottom"
                                value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                     </div>

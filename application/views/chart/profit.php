@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Profit') . ' ' . $this->lang->line('Graphical Reports') ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Profit') . ' ' . $this->lang->line('Graphical Reports') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -17,33 +22,35 @@
 
                 <div class="message"></div>
             </div>
-            <div class="card-body">
-
-
+            <div class="menu-buttons-secondary">
                 <div class="form-group">
                     <!-- basic buttons -->
                     <button type="button"
-                            class="update_chart btn btn-primary btn-min-width btn-lg mr-1 mb-1"
+                            class="update_chart"
                             data-val="week"><i
-                                class="fa fa-clock-o"></i> <?php echo $this->lang->line('This') . ' ' . $this->lang->line('Week') ?>
+                                class="bi bi-clock"></i> <?php echo $this->lang->line('This') . ' ' . $this->lang->line('Week') ?>
                     </button>
                     <button type="button"
-                            class="update_chart btn btn-secondary btn-min-width  btn-lg mr-1 mb-1"
+                            class="update_chart"
                             data-val="month"><i
-                                class="fa fa-calendar"></i> <?php echo $this->lang->line('This') . ' ' . $this->lang->line('Month') ?>
+                                class="bi bi-calendar"></i> <?php echo $this->lang->line('This') . ' ' . $this->lang->line('Month') ?>
                     </button>
                     <button type="button"
-                            class="update_chart btn btn-success btn-min-width  btn-lg mr-1 mb-1"
+                            class="update_chart"
                             data-val="year"><i
-                                class="fa fa-book"></i> <?php echo $this->lang->line('This') . ' ' . $this->lang->line('Year') ?>
+                                class="bi bi-book"></i> <?php echo $this->lang->line('This') . ' ' . $this->lang->line('Year') ?>
                     </button>
                     <button type="button"
-                            class="update_chart btn btn-info btn-min-width  btn-lg mr-1 mb-1"
+                            class="update_chart"
                             data-val="custom"><i
-                                class="fa fa-address-book"></i> <?php echo $this->lang->line('Custom Range') . ' ' . $this->lang->line('Date') ?>
+                                class="bi bi-journals"></i> <?php echo $this->lang->line('Custom Range') . ' ' . $this->lang->line('Date') ?>
                     </button>
 
                 </div>
+            </div>
+            <div class="card-body">
+
+
                 <form id="chart_custom">
                     <div id="custom_c" style="display: none ">
                         <div class="row">
@@ -63,12 +70,12 @@
                                            data-toggle="datepicker" autocomplete="false">
                                 </fieldset>
                             </div>
-                            <div class="col-xl-3 col-lg-6 col-md-12 mb-1"><span class="mt-2"><br></span>
+                            <div class="col-xl-3 col-lg-6 col-md-12 mb-1 mt-2">
                                 <fieldset class="form-group">
                                     <input type="hidden" name="p"
                                            value="custom">
                                     <button type="button" id="custom_update_chart"
-                                            class="btn btn-blue-grey">Submit
+                                            class="btn btn-success btn-md"><?php echo $this->lang->line('Submit') ?>
                                     </button>
                                 </fieldset>
                             </div>

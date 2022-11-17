@@ -1,24 +1,38 @@
 <article class="content-body">
-    <div class="card card-block">
+    <div class="card yellow-top">
+        <div class="card-header">
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                Woo Commerce Integration Using REST
+            </h5>
+            <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+            <div class="heading-elements">
+                <ul class="list-inline mb-0">
+                    <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                    <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                    <li><a data-action="close"><i class="ft-x"></i></a></li>
+                </ul>
+            </div>
+        </div>
+
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
-
             <div class="message"></div>
         </div>
         <form method="post" id="data_form" class="form-horizontal">
             <div class="card-body">
-
-                <h5>Woo Commerce Integration Using REST</h5>
-                <hr>
-                <p>Woo Commerce (WC) 2.6+ is fully integrated with the WordPress REST API. <br><span
-                            class="text-primary">You can link your WooCommerce Store to All1Touch. To create or manage keys for a specific WordPress user, go to WooCommerce > Settings >Advanced > REST API.</span>
-                </p>
-
+                <div class="alert alert-info" id="alert-info-text">
+                    <p>Woo Commerce (WC) 2.6+ is fully integrated with the WordPress REST API. <br><span
+                                class="text-primary">You can link your WooCommerce Store to All1Touch. To create or manage keys for a specific WordPress user, go to WooCommerce > Settings >Advanced > REST API.</span>
+                    </p>
+                </div>
                 <div class="form-group row">
 
                     <label class="col-sm-2 col-form-label" for="terms">Consumer Key</label>
 
-                    <div class="col-sm-8">
+                    <div class="col-sm-6">
                         <input type="text"
                                class="form-control margin-bottom  required" name="key1"
                                value="<?php echo $universal['key1'] ?>">
@@ -29,7 +43,7 @@
 
                     <label class="col-sm-2 col-form-label" for="terms">Consumer Secret</label>
 
-                    <div class="col-sm-8">
+                    <div class="col-sm-6">
                         <input type="text"
                                class="form-control margin-bottom  required" name="key2"
                                value="<?php echo $universal['key2'] ?>">
@@ -40,7 +54,7 @@
 
                     <label class="col-sm-2 col-form-label" for="terms">Store Url</label>
 
-                    <div class="col-sm-8">
+                    <div class="col-sm-6">
                         <input type="text"
                                class="form-control margin-bottom  required" name="url"
                                value="<?php echo $universal['url'] ?>">
@@ -51,9 +65,10 @@
 
                     <label class="col-sm-2 col-form-label" for="terms">Employee for store invoices</label>
 
-                    <div class="col-sm-8">
+                    <div class="col-sm-6">
                         <select name="emp" class="form-control">
-                           <?php if($universal['method']) { ?><option value='<?php echo $universal['method'] ?>'>Do not change</option> <?php } ?>
+                            <?php if ($universal['method']) { ?>
+                                <option value='<?php echo $universal['method'] ?>'>Do not change</option> <?php } ?>
                             <?php
                             foreach ($emp as $row) {
                                 $cid = $row['id'];
@@ -110,64 +125,66 @@
                 </div>
 
                 <div class="form-group row">
-					<div class="col-sm-6">
-						<label class="col-sm-6" for="terms">Import Images</label>
+                    <div class="col-sm-6">
+                        <label class="col-sm-6" for="terms">Import Images</label>
 
-						<div class="col-sm-8">
-							<select name="images" class="form-control">
-								<option value='<?php echo $config['images'] ?>'>-<?php echo $config['images'] ?>-</option>
-								<option value="Yes"><?php echo $this->lang->line('Yes') ?></option>
-								<option value="No"><?php echo $this->lang->line('No') ?></option>
-							</select>
-						</div>
-					</div>
-					<div class="col-sm-6">
-						<div class="form-group row">
+                        <div class="col-sm-8">
+                            <select name="images" class="form-control">
+                                <option value='<?php echo $config['images'] ?>'>-<?php echo $config['images'] ?>-
+                                </option>
+                                <option value="Yes"><?php echo $this->lang->line('Yes') ?></option>
+                                <option value="No"><?php echo $this->lang->line('No') ?></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group row">
 
-							<label class="col-sm-6" for="terms">Product Status</label>
+                            <label class="col-sm-6" for="terms">Product Status</label>
 
-							<div class="col-sm-8">
-								<select name="p_status" class="form-control">
-									<option value='<?php echo $config['filter'] ?>'>-<?php echo $config['filter'] ?>-</option>
-									<option value='any'>Todos</option>
-									<option value="publish">Publicados</option>
-									<option value="draft">Rascunhos</option>
-									<option value="pending">Pendentes</option>
-									<option value="pending">Privados</option>
-								</select>
-							</div>
-						</div>
-					</div>
-				</div>          
-				<div class="form-group row">
-					<div class="col-sm-6">
-						<label class="col-sm-6" for="terms">Desconto Por defeito</label>
+                            <div class="col-sm-8">
+                                <select name="p_status" class="form-control">
+                                    <option value='<?php echo $config['filter'] ?>'>-<?php echo $config['filter'] ?>-
+                                    </option>
+                                    <option value='any'>Todos</option>
+                                    <option value="publish">Publicados</option>
+                                    <option value="draft">Rascunhos</option>
+                                    <option value="pending">Pendentes</option>
+                                    <option value="pending">Privados</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label class="col-sm-6" for="terms">Desconto Por defeito</label>
 
-						<div class="col-sm-8">
-							   <input type="number"
-								   class="form-control margin-bottom  required" name="discount"
-								   value="<?php echo $config['discount'] ?>">
-						</div>
-					</div>
-					<div class="col-sm-6">
-						<div class="form-group row">
-							<label class="col-sm-6" for="terms">Taxa por defeito</label>
-							<div class="col-sm-8 required">
-								<select name="tax" class="form-control">
-									<?php
-										echo $taxs;
-									?>
-								</select>
-							</div>
-						</div>
-					</div>
-				</div>
-                <hr>
+                        <div class="col-sm-8">
+                            <input type="number"
+                                   class="form-control margin-bottom  required" name="discount"
+                                   value="<?php echo $config['discount'] ?>">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group row">
+                            <label class="col-sm-6" for="terms">Taxa por defeito</label>
+                            <div class="col-sm-8 required">
+                                <select name="tax" class="form-control">
+                                    <?php
+                                    echo $taxs;
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group row">
 
                     <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-6" id="paiCompanyUpdate">
                         <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
                                value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Updating...">
                         <input type="hidden" value="woocommerce" id="action-url">
@@ -185,16 +202,18 @@
 
                     <p>You can import your woocommerce products to All1Touch with one click.</p>
                     <a href="#" data-toggle="modal" data-target="#importProducts"
-                       class="btn btn-blue-grey btn-lg margin-bottom"
-                       data-loading-text="Importing..."><?php echo $this->lang->line('Import') ?></a>
+                       class="btn btn-outline-blue btn-md margin-bottom"
+                       data-loading-text="Importing..."
+                       id="paiCompanyUpdate"><?php echo $this->lang->line('Import') ?></a>
                     <div class="card card-block p-1 text-bold-600 text-primary" id="products"></div>
                 </div>
                 <div class="col-md-6"><h5>Import Woocommerce Orders</h5>
                     <hr>
                     <p>You can import your woocommerce orders to All1Touch with one click.</p>
                     <a href="#" data-toggle="modal" data-target="#importOrders"
-                       class="btn btn-blue btn-lg margin-bottom"
-                       data-loading-text="Importt..."><?php echo $this->lang->line('Import') ?></a>
+                       class="btn btn-outline-blue btn-md margin-bottom"
+                       data-loading-text="Importt..."
+                       id="paiCompanyUpdate"><?php echo $this->lang->line('Import') ?></a>
                     <div class="card card-block p-1  text-bold-600 text-primary" id="orders"></div>
                 </div>
             </div>
@@ -279,7 +298,6 @@
         var message = 'Product Import Successful!';
         woo_action(aurl, div_id, message);
     });
-
 
 
     $(document).on('click', "#wimport_orders", function (e) {

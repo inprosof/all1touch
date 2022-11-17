@@ -1,7 +1,11 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('standard_label') ; ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('standard_label'); ?></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -54,12 +58,13 @@
                     </div>
                 </div>
                 <hr>
-                <?php echo $this->lang->line('Print') ?> <?php echo $this->lang->line('Settings') ?>
-                <hr>
+                <h4 class="title">
+                    <?php echo $this->lang->line('Settings') ?> de <?php echo $this->lang->line('Print') ?>
+                </h4>
                 <div class="form-group row">
 
 
-                                 <div class="col-sm-2"><label class="col-form-label"
+                    <div class="col-sm-2"><label class="col-form-label"
                                                  for="standard_label"><?php echo $this->lang->line('standard_label') ?></label>
                         <select class="form-control" name="standard_label">
                             <option value="eu30019">EU30019 65</option>
@@ -149,7 +154,7 @@
                     <div class="col-sm-2"><label class="col-form-label"
                                                  for="width">Total Cols</label>
                         <select class="form-control" name="items_per_row">
-                           <option value="0">1</option>
+                            <option value="0">1</option>
                             <option value="1">2</option>
                             <option value="2">3</option>
                             <option value="3">4</option>
@@ -169,10 +174,10 @@
                 <div class="form-group row">
 
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-12" id="paiCompanyUpdate">
                         <input type="submit" class="btn btn-success margin-bottom"
                                value="<?php echo $this->lang->line('Print') ?>"
-                               data-loading-text="Adding...">
+                               data-loading-text="Adicionando...">
 
                     </div>
                 </div>

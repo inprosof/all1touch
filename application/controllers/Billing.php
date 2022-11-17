@@ -64,7 +64,7 @@ class Billing extends CI_Controller
             $data['activity'] = $this->invociessupli->invoice_transactions($tid);
             $data['attach'] = $this->invociessupli->attach($tid);
             if (CUSTOM) 
-				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 4, 1);
             $data['gateway'] = $this->billing->gateway_list('Yes');
             $data['employee'] = $this->invociessupli->employee($data['invoice']['eid']);
             $head['usernm'] = '';
@@ -73,7 +73,73 @@ class Billing extends CI_Controller
             $this->load->view('billing/view', $data);
             $this->load->view('billing/footer');
         }
+    }
+	
+	public function viewreceipts()
+    {
+        if (!$this->input->get()) {
+            exit();
+        }
 
+        $tid = $this->input->get('id');
+		$draf = $this->input->get('draf');
+		$temp = $this->input->get('temp');
+        $token = $this->input->get('token');
+        $validtoken = hash_hmac('ripemd160', $tid, $this->config->item('encryption_key'));
+        if (hash_equals($token, $validtoken)) {
+            $this->load->model('accounts_model');
+			$this->load->model('receipts_model', 'receipts');
+            $data['id'] = $tid;
+            $data['token'] = $token;
+			$data['draf'] = $draf;
+			$data['temp'] = $temp;
+            $data['invoice'] = $this->receipts->invoice_details($tid, $this->limited,true,0,$draf);
+            $data['acclist'] = $this->accounts_model->accountslist(false . $data['invoice']['loc']);
+            $data['online_pay'] = $this->billing->online_pay_settings();
+			///////////////////////////////////////////////////////////////////////
+			////////////////////////Relação entre documentos//////////////////////
+			$data['products'] = [];
+			$this->load->library("Related");
+			$data['relationid'] = $data['invoice']['factura_duplicada'];
+			$data['tiprelated'] = 0;
+			
+			$typerelatset = 0;
+			if($data['invoice']['irs_type'] == 23)
+			{
+				$typerelatset = 14;
+			}else if($data['invoice']['irs_type'] == 27)
+			{
+				$typerelatset = 113;
+			}else if($data['invoice']['irs_type'] == 28)
+			{
+				$typerelatset = 114;
+			}else{
+				$typerelatset = 13;
+			}
+			
+			if($draf == 0){
+				$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			}else{
+				$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			}
+			$data['activity'] = $this->receipts->invoice_transactions($tid,0);
+            $data['attach'] = $this->receipts->attach($tid);
+			$data['c_custom_fields'] = [];
+			$data['custom_fields'] = [];
+			if (CUSTOM) 
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);			
+			
+            $data['gateway'] = $this->billing->gateway_list('Yes');
+            $data['employee'] = $this->receipts->employee($data['invoice']['eid']);
+            $head['usernm'] = '';
+            $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
+            $head['title'] = $file_name;
+            $this->load->view('billing/header', $head);
+            $this->load->view('billing/receipts', $data);
+            $this->load->view('billing/footer');
+        }
     }
 
     public function view()
@@ -83,7 +149,57 @@ class Billing extends CI_Controller
         }
 
         $tid = $this->input->get('id');
+		$draf = $this->input->get('draf');
+		$temp = $this->input->get('temp');
         $token = $this->input->get('token');
+        $validtoken = hash_hmac('ripemd160', $tid, $this->config->item('encryption_key'));
+        if (hash_equals($token, $validtoken)) {
+            $this->load->model('accounts_model');
+            $data['id'] = $tid;
+            $data['token'] = $token;
+			$data['draf'] = $draf;
+			$data['temp'] = $temp;
+            $data['invoice'] = $this->invocies->invoice_details($tid, '', false);
+            $data['acclist'] = $this->accounts_model->accountslist(false . $data['invoice']['loc']);
+            $data['online_pay'] = $this->billing->online_pay_settings();
+            $data['products'] = $this->invocies->invoice_products($tid);
+            $data['activity'] = $this->invocies->invoice_transactions($tid);
+            $data['attach'] = $this->invocies->attach($tid);
+            $data['c_custom_fields'] = [];
+			$data['custom_fields'] = [];
+			if (CUSTOM) 
+				$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+				$data['custom_fields'] = $this->custom->view_fields_data($tid, 2);
+            $data['gateway'] = $this->billing->gateway_list('Yes');
+            $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
+            $head['usernm'] = '';
+            $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
+            $head['title'] = $file_name;
+            $this->load->view('billing/header', $head);
+            $this->load->view('billing/view', $data);
+            $this->load->view('billing/footer');
+        }
+
+    }
+	
+	
+	public function viewwhat()
+    {
+		if (!$this->input->get()) {
+            exit();
+        }
+
+        $invoice = $this->input->get('invoice');
+		$invoice = base64_decode($invoice);
+		
+		$myArrayVals = explode("&", $invoice);
+		
+		
+		$tid = $myArrayVals[0];
+		$draf = $myArrayVals[1];
+		$temp = $myArrayVals[2];
+        $token = $myArrayVals[3];
+		
         $validtoken = hash_hmac('ripemd160', $tid, $this->config->item('encryption_key'));
         if (hash_equals($token, $validtoken)) {
             $this->load->model('accounts_model');
@@ -100,13 +216,14 @@ class Billing extends CI_Controller
             $data['gateway'] = $this->billing->gateway_list('Yes');
             $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
             $head['usernm'] = '';
-            $head['title'] = "Invoice " . $data['invoice']['tid'];
+			$file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
+            $head['title'] = $file_name;
             $this->load->view('billing/header', $head);
             $this->load->view('billing/view', $data);
             $this->load->view('billing/footer');
         }
-
-    }
+	}
+	
 
 
     public function quoteview()
@@ -236,6 +353,7 @@ class Billing extends CI_Controller
         $token = $this->input->post('token');
         $amount = $this->input->post('p_amount');
         $pay_gateway = $this->input->post('pay_gateway');
+		
         $validtoken = hash_hmac('ripemd160', $tid, $this->config->item('encryption_key'));
         if (hash_equals($token, $validtoken)) {
             switch ($pay_gateway) {
@@ -468,19 +586,16 @@ class Billing extends CI_Controller
             exit();
         }
         $tid = intval($this->input->get('id'));
-		$type = intval($this->input->get('type'));
+		$draf = intval($this->input->get('draf'));
+		$temp = intval($this->input->get('temp'));
         $token = $this->input->get('token');
         $validtoken = hash_hmac('ripemd160', $tid, $this->config->item('encryption_key'));
         if (hash_equals($token, $validtoken)) {
             $data['id'] = $tid;
-			$data['qrc'] = 'pos_' . date('Y_m_d_H_i_s') . '_.png';
-			
-			if($type == 0 || $type == ''){
-				
+			if($draf == 0 || $draf == ''){
 				$data['typeinvoice'] = 'Invoice';
 				$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
 				$data['title'] = $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'];
-				$data['products'] = $this->invocies->invoice_products($tid);
 				$data['activity'] = $this->invocies->invoice_transactions($tid);
 				if($data['invoice']['status'] == 'canceled')
 				{
@@ -489,12 +604,72 @@ class Billing extends CI_Controller
 			}else{
 				$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
 				$data['title'] = 'Rascunho '.$data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'];
-				$data['products'] = $this->invocies->invoice_products2($tid);
 				$data['activity'] = $this->invocies->invoice_transactions2($tid);
 				$data['typeinvoice'] = 'Rascunho';
 				$data['ImageBackGround'] = 'assets/images/rascunho.png';
 			}
-            $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
+			
+			
+			///////////////////////////////////////////////////////////////////////
+			////////////////////////Relação entre documentos//////////////////////
+			$data['relationid'] = $data['invoice']['factura_duplicada'];
+			$data['tiprelated'] = 0;
+			$this->load->library("Related");
+			$typerelatset = 0;
+			if($data['invoice']['irs_type'] == 1){
+				$typerelatset = 0;
+			}else if($data['invoice']['irs_type'] == 2){
+				$typerelatset = 100;
+			}else if($data['invoice']['irs_type'] == 3){
+				$typerelatset = 200;
+			}else if($data['invoice']['irs_type'] == 5){
+				$typerelatset = 6;
+			}else if($data['invoice']['irs_type'] == 6){
+				$typerelatset = 17;
+			}else if($data['invoice']['irs_type'] == 7){
+				$typerelatset = 5;
+			}else if($data['invoice']['irs_type'] == 8){
+				$typerelatset = 3;
+			}else if($data['invoice']['irs_type'] == 9){
+				$typerelatset = 15;
+			}else if($data['invoice']['irs_type'] == 10){
+				$typerelatset = 12;
+			}else if($data['invoice']['irs_type'] == 12){
+				$typerelatset = 8;
+			}else if($data['invoice']['irs_type'] == 13){
+				$typerelatset = 9;
+			}else if($data['invoice']['irs_type'] == 14){
+				$typerelatset = 4;
+			}else if($data['invoice']['irs_type'] == 15){
+				$typerelatset = 2;
+			}else if($data['invoice']['irs_type'] == 17){
+				$typerelatset = 7;
+			}else if($data['invoice']['irs_type'] == 22){
+				$typerelatset = 13;
+			}else if($data['invoice']['irs_type'] == 25){
+				$typerelatset = 111;
+			}else if($data['invoice']['irs_type'] == 26){
+				$typerelatset = 55;
+			}else if($data['invoice']['irs_type'] == 27){
+				$typerelatset = 113;
+			}else if($data['invoice']['irs_type'] == 28){
+				$typerelatset = 114;
+			}
+			
+			if($draf == 0){
+				$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+			}else{
+				$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+			}
+			///////////////////////////////////////////////////////////////////////
+			///////////////////////////////////////////////////////////////////////
+			
+			
+			$data['employee'] = $this->invocies->employee($data['invoice']['eid']);
 			$data['c_custom_fields'] = [];
             if (CUSTOM) {
                 $data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
@@ -536,108 +711,143 @@ class Billing extends CI_Controller
 			
 			$codQRD .= 'F:'.$date.'*';
 			$codQRD .= 'G:'.$data['invoice']['irs_type_s'].$data['invoice']['serie_name'].'/'.$data['invoice']['tid'].'*';
-			if($data['invoice']['atc_serie'] == "")
-			{
-				$codQRD .= 'H:0*';
-			}else{
-				$codQRD .= 'H:'.$data['invoice']['atc_serie'].$data['invoice']['tid'].'*';
+			
+			
+			if($draf == 0){
+				if(isset($data['invoice']['atc_serie']))
+				{
+					if($data['invoice']['atc_serie'] == "")
+					{
+						$codQRD .= 'H:0*';
+					}else{
+						$codQRD .= 'H:'.$data['invoice']['atc_serie'].$data['invoice']['tid'].'*';
+					}
+				}else{
+					$codQRD .= 'H:0*';
+				}
 			}
 			
-			$arrtudo = [];
-			foreach ($data['products'] as $row) {
-				$myArraytaxname = explode(";", $row['taxaname']);
-				$myArraytaxcod = explode(";", $row['taxacod']);
-				$myArraytaxvals = explode(";", $row['taxavals']);
-				$myArraytaxcomo = explode(";", $row['taxacomo']);
-				$myArraytaxperc = explode(";", $row['taxaperc']);
-				for($i = 0; $i < count($myArraytaxname); $i++)
-				{
-					$jatem = false;
-					for($oo = 0; $oo < count($arrtudo); $oo++)
+			//////////////////////Se tiver Produtos temos de fazer isto/////////////////////////////////////
+			$taxasprodutosiva = [];			
+			if (is_array($data['products']) && !empty($data['products'])) {
+				foreach ($data['products'] as $row) {
+					$myArraytaxname = explode(";", $row['taxaname']);
+					$myArraytaxcod = explode(";", $row['taxacod']);
+					$myArraytaxvals = explode(";", $row['taxavals']);
+					$myArraytaxperc = explode(";", $row['taxaperc']);
+					$myArraytaxComo = explode(";", $row['taxacomo']);
+					for($i = 0; $i < count($myArraytaxname); $i++)
 					{
-						if($arrtudo[$oo]['title'] == $myArraytaxname[$i])
+						$jatem = false;
+						for($oo = 0; $oo < count($taxasprodutosiva); $oo++)
 						{
-							$arrtudo[$oo]['total'] = ($arrtudo[$oo]['total']+$myArraytaxvals[$i]);
-							$jatem = true;
-							break;
+							if($taxasprodutosiva[$oo]['title'] == $myArraytaxname[$i])
+							{
+								$taxasprodutosiva[$oo]['val'] = ($taxasprodutosiva[$oo]['val']+$myArraytaxvals[$i]);
+								$taxasprodutosiva[$oo]['inci'] = ($taxasprodutosiva[$oo]['inci']+$row['subtotal']);
+								$jatem = true;
+																
+								if($taxasprodutosiva[$oo]['typ'] == '2'){
+									$nameise = $this->common->withholdingsidname($myArraytaxComo[$i]);
+									if($taxasprodutosiva[$oo]['nameise'] != $nameise){
+										$taxasprodutosiva[$oo]['val'] = $nameise;
+										$jatem = false;
+									}else{
+										$taxasprodutosiva[$oo]['val'] = $taxasprodutosiva[$oo]['nameise'];
+										break;
+									}
+								}else{
+									 break;
+								}
+							}
+						}
+						
+						if(!$jatem)
+						{
+							$nameiselog = '';
+							$typ = '0';
+							$valcomo = $myArraytaxComo[$i];
+							if($valcomo > 1){
+								$typ = '2';
+								$this->load->library("Common");
+								$this->load->library("Custom");
+								$nameiselog = $this->common->withholdingsidname($myArraytaxComo[$i]);
+							}else if($valcomo == 1){
+								$typ = '1';
+							}
+							$stack = array('como'=> $valcomo, 'title'=>$myArraytaxname[$i], 'val'=>$myArraytaxvals[$i], 'total'=> $myArraytaxvals[$i], 'base'=> $myArraytaxvals[$i], 'cod'=> $myArraytaxcod[$i], 'perc'=>$myArraytaxperc[$i].' %', 'inci'=>$row['subtotal'], 'typ' => $typ, 'nameise' => $nameiselog);
+							array_push($taxasprodutosiva, $stack);
+						}
+					}	
+				}	
+				
+				//“PT-AC” – Espaço fiscal da Região Autónoma dos Açores; e “PT-MA” – Espaço fiscal da Região Autónoma da Madeira
+				if($data['invoice']['loc_zon_fis'] == 0)
+				{
+					$codQRD .= 'J1:PT-AC*';
+					for($r = 0; $r < count($taxasprodutosiva); $r++)
+					{
+						if($taxasprodutosiva[$r]['cod'] == 'ISE')
+						{
+							$codQRD .= 'J2:'.$taxasprodutosiva[$r]['base'].'*';
+						}else if($taxasprodutosiva[$r]['cod'] == 'RED')
+						{
+							$codQRD .= 'J3:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+							$codQRD .= 'J4:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+						}else if($taxasprodutosiva[$r]['cod'] == 'INT')
+						{
+							$codQRD .= 'J5:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+							$codQRD .= 'J6:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+						}else{
+							$codQRD .= 'J7:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+							$codQRD .= 'J8:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
 						}
 					}
-					
-					if(!$jatem)
+				}else if($data['invoice']['loc_zon_fis'] == 1)
+				{
+					$codQRD .= 'K1:PT-MA*';
+					for($r = 0; $r < count($taxasprodutosiva); $r++)
 					{
-						$stack = array('title'=>$myArraytaxname[$i], 'total'=>$myArraytaxvals[$i], 'base'=>$myArraytaxvals[$i], 'cod'=>$myArraytaxcod[$i], 'como'=>$myArraytaxcomo[$i], 'perc'=>$myArraytaxperc[$i]);
-						array_push($arrtudo, $stack);
+						if($taxasprodutosiva[$r]['cod'] == 'ISE')
+						{
+							$codQRD .= 'K2:'.$taxasprodutosiva[$r]['base'].'*';
+						}else if($taxasprodutosiva[$r]['cod'] == 'RED')
+						{
+							$codQRD .= 'K3:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+							$codQRD .= 'K4:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+						}else if($taxasprodutosiva[$r]['cod'] == 'INT')
+						{
+							$codQRD .= 'K5:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+							$codQRD .= 'K6:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+						}else{
+							$codQRD .= 'K7:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+							$codQRD .= 'K8:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+						}
+					}
+				}else{
+					$codQRD .= 'I1:'.$data['invoice']['loc_country'].'*';
+					for($r = 0; $r < count($taxasprodutosiva); $r++)
+					{
+						if($taxasprodutosiva[$r]['cod'] == 'ISE')
+						{
+							$codQRD .= 'I2:'.$taxasprodutosiva[$r]['base'].'*';
+						}else if($taxasprodutosiva[$r]['cod'] == 'RED')
+						{
+							$codQRD .= 'I3:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+							$codQRD .= 'I4:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+						}else if($taxasprodutosiva[$r]['cod'] == 'INT')
+						{
+							$codQRD .= 'I5:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+							$codQRD .= 'I6:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+						}else{
+							$codQRD .= 'I7:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+							$codQRD .= 'I8:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+						}
 					}
 				}
 			}
 			
-			//“PT-AC” – Espaço fiscal da Região Autónoma dos Açores; e “PT-MA” – Espaço fiscal da Região Autónoma da Madeira
-			if($data['invoice']['loc_zon_fis'] == 0)
-			{
-				$codQRD .= 'J1:PT-AC*';
-				for($r = 0; $r < count($arrtudo); $r++)
-				{
-					if($arrtudo[$r]['cod'] == 'ISE')
-					{
-						$codQRD .= 'J2:'.$arrtudo[$r]['base'].'*';
-					}else if($arrtudo[$r]['cod'] == 'RED')
-					{
-						$codQRD .= 'J3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-						$codQRD .= 'J4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-					}else if($arrtudo[$r]['cod'] == 'INT')
-					{
-						$codQRD .= 'J5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-						$codQRD .= 'J6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-					}else{
-						$codQRD .= 'J7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-						$codQRD .= 'J8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-					}
-				}
-			}else if($data['invoice']['loc_zon_fis'] == 1)
-			{
-				$codQRD .= 'K1:PT-MA*';
-				for($r = 0; $r < count($arrtudo); $r++)
-				{
-					if($arrtudo[$r]['cod'] == 'ISE')
-					{
-						$codQRD .= 'K2:'.$arrtudo[$r]['base'].'*';
-					}else if($arrtudo[$r]['cod'] == 'RED')
-					{
-						$codQRD .= 'K3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-						$codQRD .= 'K4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-					}else if($arrtudo[$r]['cod'] == 'INT')
-					{
-						$codQRD .= 'K5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-						$codQRD .= 'K6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-					}else{
-						$codQRD .= 'K7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-						$codQRD .= 'K8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-					}
-				}
-			}else{
-				$codQRD .= 'I1:'.$data['invoice']['loc_country'].'*';
-				for($r = 0; $r < count($arrtudo); $r++)
-				{
-					if($arrtudo[$r]['cod'] == 'ISE')
-					{
-						$codQRD .= 'I2:'.$arrtudo[$r]['base'].'*';
-					}else if($arrtudo[$r]['cod'] == 'RED')
-					{
-						$codQRD .= 'I3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-						$codQRD .= 'I4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-					}else if($arrtudo[$r]['cod'] == 'INT')
-					{
-						$codQRD .= 'I5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-						$codQRD .= 'I6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-					}else{
-						$codQRD .= 'I7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-						$codQRD .= 'I8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-					}
-				}
-			}
-
-			
-			
+			$data['taxasprodutosiva'] = $taxasprodutosiva;
 			
 			//$codQRD .= 'L:'.'*';
 			//$codQRD .= 'M:'.'*';
@@ -651,18 +861,17 @@ class Billing extends CI_Controller
 			
 			//4 carateres do Hash gerados na criação do documento e buscar a AT
 			$codQRD .= 'Q:'.'*';
-			
-			
-			$codQRD .= 'R:'.$data['invoice']['loc_certification'].'*';
-			
-			$campfim = "";
-			if($data['invoice']['loc_contabancaria'] != null)
-			{
-				$campfim .= "IBAN-".$data['invoice']['loc_contabancaria'];
+			if($draf == 0){
+				$codQRD .= 'R:'.$data['invoice']['loc_certification'].'*';
+				$campfim = "";
+				if($data['invoice']['loc_contabancaria'] != null)
+				{
+					$campfim .= "IBAN-".$data['invoice']['loc_contabancaria'];
+				}
+				
+				$campfim .= ";".$data['invoice']['loc_cname'];
+				$codQRD .= 'S:'.$campfim.'*';
 			}
-			
-			$campfim .= ";".$data['invoice']['loc_cname'];
-			$codQRD .= 'S:'.$campfim.'*';
 			
 			$qrCode = new QrCode($codQRD);
 			//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
@@ -678,24 +887,72 @@ class Billing extends CI_Controller
 			$data['Tipodoc'] = "Original";
 			$data2 = $data;
 			$data2['Tipodoc'] = "Duplicado";
+			$data3 = $data;
+			$data3['Tipodoc'] = "Triplicado";
+			$data4 = $data;
+			$data4['Tipodoc'] = "Quadruplicado";
+			
+			$tempVersion = 1;
+			if($temp == null)
+			{
+				$tempVersion = INVV;
+			}else{
+				$tempVersion = $temp;
+			}
 
             //But the first serialized its there the data....
-            $html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
-			$html2 = $this->load->view('print_files/invoice-a4_v' . INVV, $data2, true);
+            $html = $this->load->view('print_files/invoice-a4_v' . $tempVersion, $data, true);
+			$html2 = $this->load->view('print_files/invoice-a4_v' . $tempVersion, $data2, true);
+			$html3 = $this->load->view('print_files/invoice-a4_v' . $tempVersion, $data3, true);
+			$html4 = $this->load->view('print_files/invoice-a4_v' . $tempVersion, $data4, true);
 			
             //PDF Rendering
             $this->load->library('pdf');
             $pdf = $this->pdf->load_split(array('margin_top' => 10));
-            $loc2 = location(0);
-			$pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
-            $pdf->WriteHTML($html);
-			$pdf->AddPage();
+			$loc2 = location(0);
+			$footer = '<hr><div style="text-align: right;font-family: serif; font-size: 6pt; color: #5C5C5C; font-style: italic;margin-top:-20pt;"><br>'.$data['invoice']['terms'].'<br>';
+			if ($data['invoice']['notes'])
+			{
+				$footer .= $this->lang->line('Note').': '.$data['invoice']['notes'].'<br>';
+			}
 			
-			$pdf->WriteHTML($html2);
+			$footer .= 'Processado por Programa Certificado nº '.$loc2['certification'].' {PAGENO}/{nbpg} </div>';
+			$pdf->SetHTMLFooter($footer);
+			if($draf == 0){
+				if($data['invoice']['numcop'] == 'copy1')
+				{
+					$pdf->WriteHTML($html);
+				}else if($data['invoice']['numcop'] == 'copy2')
+				{
+					$pdf->WriteHTML($html);
+					$pdf->AddPage();
+					$pdf->WriteHTML($html2);
+				}else if($data['invoice']['numcop'] == 'copy3')
+				{
+					$pdf->WriteHTML($html);
+					$pdf->AddPage();
+					$pdf->WriteHTML($html2);
+					$pdf->AddPage();
+					$pdf->WriteHTML($html3);
+				}else if($data['invoice']['numcop'] == 'copy4')
+				{
+					$pdf->WriteHTML($html);
+					$pdf->AddPage();
+					$pdf->WriteHTML($html2);
+					$pdf->AddPage();
+					$pdf->WriteHTML($html3);
+					$pdf->AddPage();
+					$pdf->WriteHTML($html4);
+				}
+			}else{
+				$pdf->WriteHTML($html);
+			}
+			
+			$file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
             if ($this->input->get('d')) {
-                $pdf->Output('Invoice_#' . $data['invoice']['tid'] . '.pdf', 'D');
+                $pdf->Output($file_name . '.pdf', 'D');
             } else {
-                $pdf->Output('Invoice_#' . $data['invoice']['tid'] . '.pdf', 'I');
+                $pdf->Output($file_name . '.pdf', 'I');
             }
         }
     }
@@ -716,7 +973,6 @@ class Billing extends CI_Controller
             $data['id'] = $tid;
             $data['title'] = $this->lang->line('Quote')." $tid";
             $data['invoice'] = $this->quote->quote_details($tid);
-            $data['products'] = $this->quote->quote_products($tid);
             $data['employee'] = $this->quote->employee($data['invoice']['eid']);
             $data['round_off'] = $this->custom->api_config(4);
             $data['general'] = array('title' => $this->lang->line('Quote'), 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 1);
@@ -733,6 +989,30 @@ class Billing extends CI_Controller
 			}else if($data['invoice']['status'] == 'rejected'){
 				$data['invoice']['status'] = 'Orc4';
 			}
+			
+			///////////////////////////////////////////////////////////////////////
+			////////////////////////Relação entre documentos//////////////////////
+			$data['relationid'] = $data['invoice']['factura_duplicada'];
+			$data['tiprelated'] = 0;
+			$this->load->library("Related");
+			$typerelatset = 0;
+			if($data['invoice']['irs_type'] == 8){
+				$typerelatset = 3;
+			}else if($data['invoice']['irs_type'] == 10){
+				$typerelatset = 12;
+			}
+			
+			if($draf == 0){
+				$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+			}else{
+				$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+			}
+			///////////////////////////////////////////////////////////////////////
+			///////////////////////////////////////////////////////////////////////
 			$token = $this->input->get('token');
 			$data['qrc'] = 'pos_' . date('Y_m_d_H_i_s') . '_.png';
 			$static_q = $data['qrc'];
@@ -922,6 +1202,8 @@ class Billing extends CI_Controller
             exit();
         }
         $tid = intval($this->input->get('id'));
+		$draf = intval($this->input->get('draf'));
+		$ext = intval($this->input->get('ext'));
         $token = $this->input->get('token');
 
         $validtoken = hash_hmac('ripemd160', 'p' . $tid, $this->config->item('encryption_key'));
@@ -932,10 +1214,31 @@ class Billing extends CI_Controller
             $data['id'] = $tid;
             $data['title'] = $this->lang->line('Purchase Order')." $tid";
             $data['invoice'] = $this->purchase->purchase_details($tid);
-            $data['products'] = $this->purchase->purchase_products($tid);
             $data['employee'] = $this->purchase->employee($data['invoice']['eid']);
             $data['round_off'] = $this->custom->api_config(4);
-
+			
+			///////////////////////////////////////////////////////////////////////
+			////////////////////////Relação entre documentos//////////////////////
+			$data['relationid'] = $data['invoice']['factura_duplicada'];
+			$data['tiprelated'] = 0;
+			$this->load->library("Related");
+			$typerelatset = 0;
+			if($data['invoice']['irs_type'] == 5){
+				$typerelatset = 6;
+			}
+			
+			if($draf == 0){
+				$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+			}else{
+				$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+			}
+			///////////////////////////////////////////////////////////////////////
+			///////////////////////////////////////////////////////////////////////
+			
             $data['general'] = array('title' => $this->lang->line('Purchase Order'), 'person' => $this->lang->line('Supplier'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 0);
             ini_set('memory_limit', '64M');
 			
@@ -1137,11 +1440,34 @@ class Billing extends CI_Controller
             $data['id'] = $tid;
             $data['title'] = $this->lang->line('Stock Return')." $tid";
             $data['invoice'] = $this->stockreturn->purchase_details($tid);
-            $data['products'] = $this->stockreturn->purchase_products($tid);
             $data['employee'] = $this->stockreturn->employee($data['invoice']['eid']);
+			
+			///////////////////////////////////////////////////////////////////////
+			////////////////////////Relação entre documentos//////////////////////
+			$data['relationid'] = $data['invoice']['factura_duplicada'];
+			$data['tiprelated'] = 0;
+			$this->load->library("Related");
+			$typerelatset = 0;
+			if($data['invoice']['irs_type'] == 6){
+				$typerelatset = 17;
+			}
+			
+			if($draf == 0){
+				$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+			}else{
+				$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+				$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+				$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+			}
+			///////////////////////////////////////////////////////////////////////
+			///////////////////////////////////////////////////////////////////////
+			
+			
             $data['round_off'] = $this->custom->api_config(4);
             $ty = $this->input->get('ty');
-
+			
             if ($ty < 2) {
                 if ($data['invoice']['i_class'] == 1) {
                     $data['general'] = array('title' => $this->lang->line('Stock Return'), 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 0);
@@ -1512,9 +1838,9 @@ class Billing extends CI_Controller
 
         }
     }
-
-
-    private function stripe($token, $amount, $gateway_data, $tid, $customer, $currency = '', $token_id = '')
+	
+	
+	private function stripe($token, $amount, $gateway_data, $tid, $customer, $currency = '', $token_id = '')
     {
         require_once APPPATH . 'third_party/stripe-php/vendor/autoload.php';
         \Stripe\Stripe::setApiKey($gateway_data['key1']);
@@ -1564,6 +1890,58 @@ class Billing extends CI_Controller
         }
 
     }
+	
+
+    /*private function stripe($token, $amount, $gateway_data, $tid, $customer, $currency = '', $token_id = '')
+    {
+        require_once APPPATH . 'third_party/stripe-php/vendor/autoload.php';
+        \Stripe\Stripe::setApiKey($gateway_data['key1']);
+        try {
+            if ($token) {
+                // Create new PaymentIntent with a PaymentMethod ID from the client.
+                $intent = \Stripe\PaymentIntent::create([
+                    "amount" => $amount,
+                    "currency" => $gateway_data['currency'],
+                    "payment_method" => $token,
+                    "confirmation_method" => "manual",
+                    "confirm" => true,
+                    // If a mobile client passes `useStripeSdk`, set `use_stripe_sdk=true`
+                    // to take advantage of new authentication features in mobile SDKs
+                    "use_stripe_sdk" => true,
+
+                ]);
+                switch ($intent->status) {
+                    case "succeeded":
+
+                        return array('status' => 'succeeded', 'paid_amount' => $intent->amount, 'clientSecret' => $intent->client_secret);
+                        break;
+                }
+                // After create, if the PaymentIntent's status is succeeded, fulfill the order.
+            } else if ($token_id) {
+                // Confirm the PaymentIntent to finalize payment after handling a required action
+                // on the client.
+
+                $intent = \Stripe\PaymentIntent::retrieve($token_id);
+                $intent->confirm();
+                // After confirm, if the PaymentIntent's status is succeeded, fulfill the order.
+                switch ($intent->status) {
+                    case "succeeded":
+
+                        return array('status' => 'succeeded', 'paid_amount' => $intent->amount, 'clientSecret' => $intent->client_secret);
+                        break;
+                }
+
+            }
+
+            $output = $this->generateResponse($intent);
+
+            echo json_encode($output);
+        } catch (Stripe\Exception\CardException $e) {
+            return array('status' => 'error', 'paid_amount' => 0, 'message' => $e->getMessage());
+
+        }
+
+    }*/
 
 
     private function authorizenet($cardNumber, $nmonth, $nyear, $cardCVC, $amount, $tid, $gateway_data, $customer)

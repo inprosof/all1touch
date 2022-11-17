@@ -308,7 +308,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane show" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
+                                <div class="tab-pane" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
                                     <?php
                                     foreach ($custom_fields as $row) {
                                         if ($row['f_type'] == 'text') { ?>

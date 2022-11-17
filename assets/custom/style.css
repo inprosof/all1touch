@@ -6,20 +6,6 @@ text-transform: capitalize;
     border-radius: 11px;
     font-size: 10px;
 }
-
-td .btn_inv {
-  position: absolute;
-  margin-top: 7px;
-  float: right;
-  margin-left: 5px;
-}
-td input {
-  float: left;
-}
-.spacer {
-  padding-left: 30px !important;
-}
-
 .task_Done
 {
  background-color: #5ed45e;

@@ -63,7 +63,7 @@ class Tickets extends CI_Controller
             $row[] = dateformat_time($ticket->created);
             $row[] = '<span class="st-' . $ticket->status . '">' . $ticket->status . '</span>';
 
-            $row[] = '<a href="' . base_url('tickets/thread/?id=' . $ticket->id) . '" class="btn btn-success btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a> <a class="btn btn-danger btn-xs delete-object" href="#" data-object-id="' . $ticket->id . '"> <i class="fa fa-trash "></i> </a>';
+            $row[] = '<div class="action-btn"><a href="' . base_url('tickets/thread/?id=' . $ticket->id) . '" class="btn btn-outline-success btn-sm" title="' . $this->lang->line('View') . '"><i class="bi bi-eye"></i> ' . '</a> <a class="btn btn-outline-danger btn-sm delete-object" href="#" data-object-id="' . $ticket->id . '" title="' . $this->lang->line('Delete') . '"> <i class="bi bi-trash "></i> </a></div>';
 
 
             $data[] = $row;
@@ -148,7 +148,7 @@ class Tickets extends CI_Controller
 
     public function delete_ticket()
     {
-		if (!$this->aauth->premission(11)) {
+        if (!$this->aauth->premission(11)) {
             exit($this->lang->line('translate19'));
         }
         $id = $this->input->post('deleteid');

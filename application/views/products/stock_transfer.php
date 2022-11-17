@@ -1,7 +1,11 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Stock Transfer') ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Stock Transfer') ?></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -44,7 +48,7 @@
                         <label class="col-sm-2 col-form-label"
                                for="pay_cat"><?php echo $this->lang->line('Products') ?></label>
 
-                        <div class="col-sm-8">
+                        <div class="col-sm-6">
                             <select id="products_l" name="products_l[]" class="form-control required select-box"
                                     multiple="multiple">
 
@@ -58,7 +62,7 @@
                         <label class="col-sm-2 col-form-label"
                                for="pay_cat"><?php echo $this->lang->line('Products') . ' ' . $this->lang->line('Qty') ?></label>
 
-                        <div class="col-sm-8">
+                        <div class="col-sm-6">
                             <input name="products_qty" class="form-control required" type="text">
 
                             <small>Comma (,) separated</small>
@@ -91,10 +95,10 @@
 
                         <label class="col-sm-2 col-form-label"></label>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" id="paiCompanyUpdate">
                             <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
                                    value="<?php echo $this->lang->line('Stock Transfer') ?>"
-                                   data-loading-text="Adding...">
+                                   data-loading-text="Adicionando...">
                             <input type="hidden" value="products/stock_transfer" id="action-url">
                         </div>
                     </div>

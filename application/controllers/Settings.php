@@ -17,8 +17,8 @@ class Settings extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-		$this->load->model('invoices_model', 'invocies');
-		$this->load->model('products_model', 'products');
+        $this->load->model('invoices_model', 'invocies');
+        $this->load->model('products_model', 'products');
         $this->li_a = 'settings';
 
         $this->load->library("Aauth");
@@ -34,7 +34,7 @@ class Settings extends CI_Controller
 
         $this->load->model('settings_model', 'settings');
     }
-	
+
     public function company()
     {
         $this->li_a = 'company';
@@ -51,280 +51,270 @@ class Settings extends CI_Controller
             $social_security = $this->input->post('social_security', true);
             $annual_vacation = $this->input->post('annual_vacation', true);
             $number_day_work_month = $this->input->post('number_day_work_month', true);
-			$number_hours_work = $this->input->post('number_hours_work', true);
-			$share_capital = $this->input->post('share_capital', true);
-			$registration = $this->input->post('registration', true);
-			$conservator = $this->input->post('conservator', true);
-			$passive_res = 0;
-			if(filter_has_var(INPUT_POST,'passive_res')) {
-				$passive_res = 1;
-			}else{
-				$passive_res = 0;
-			}
-			$rent_ab = 0;
-			if(filter_has_var(INPUT_POST,'rent_ab')) {
-				$rent_ab = 1;
-			}else{
-				$rent_ab = 0;
-			}
-			$zon_fis = $this->input->post('zon_fis');
-			
+            $number_hours_work = $this->input->post('number_hours_work', true);
+            $share_capital = $this->input->post('share_capital', true);
+            $registration = $this->input->post('registration', true);
+            $conservator = $this->input->post('conservator', true);
+            $passive_res = 0;
+            if (filter_has_var(INPUT_POST, 'passive_res')) {
+                $passive_res = 1;
+            } else {
+                $passive_res = 0;
+            }
+            $rent_ab = 0;
+            if (filter_has_var(INPUT_POST, 'rent_ab')) {
+                $rent_ab = 1;
+            } else {
+                $rent_ab = 0;
+            }
+            $zon_fis = $this->input->post('zon_fis');
+
             $foundation = datefordatabase($this->input->post('foundation', true));
-			$data_share = $this->input->post('data_share');
-			
+            $data_share = $this->input->post('data_share');
+
             $this->db->delete('geopos_documents_copys', array('loc' => 0));
-			$typs_id = $this->input->post('pid');
-			$pcopyid = $this->input->post('pcopyid');
-			$typslist = array();
-			$prodindex = 0;
-			foreach ($typs_id as $key => $value) {
-				$data = array(
-					'loc' => 0,
-					'typ_doc' => $typs_id[$key],
-					'copy' => $pcopyid[$key]);
-				$typslist[$prodindex] = $data;
-				$prodindex++;
-			}
-			$this->db->insert_batch('geopos_documents_copys', $typslist);
-			$this->settings->update_company(1, $name, $phone, $email, $address, $city,$region, $country, $postbox, $taxid, $social_security, $annual_vacation, $number_day_work_month, $number_hours_work, $share_capital, $registration, $conservator, $passive_res, $foundation, $data_share,$rent_ab,$zon_fis);
-			echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED').' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
-		} else {
-			$id = $this->input->get('id');
-			if($id != null)
-			{
-				$data['param'.$id] = $id;
-			}else{
-				$id = 0;
-				$data['param1'] = 1;
-			}
-			
-			if($id == 1 || $id == 0)
-			{
-				$data['param2'] = 0;
-				$data['param3'] = 0;
-				$data['param4'] = 0;
-				$data['param44'] = 0;
-				$data['param5'] = 0;
-				$data['param6'] = 0;
-				$data['param7'] = 0;
-				$data['param77'] = 0;
-			}else if($id == 2)
-			{
-				$data['param1'] = 0;
-				$data['param3'] = 0;
-				$data['param4'] = 0;
-				$data['param44'] = 0;
-				$data['param5'] = 0;
-				$data['param6'] = 0;
-				$data['param7'] = 0;
-				$data['param77'] = 0;
-			}else if($id == 3)
-			{
-				$data['param1'] = 0;
-				$data['param2'] = 0;
-				$data['param4'] = 0;
-				$data['param44'] = 0;
-				$data['param5'] = 0;
-				$data['param6'] = 0;
-				$data['param7'] = 0;
-				$data['param77'] = 0;
-			}else if($id == 4)
-			{
-				$data['param1'] = 0;
-				$data['param2'] = 0;
-				$data['param3'] = 0;
-				$data['param44'] = 0;
-				$data['param5'] = 0;
-				$data['param6'] = 0;
-				$data['param7'] = 0;
-				$data['param77'] = 0;
-			}else if($id == 44)
-			{
-				$data['param1'] = 0;
-				$data['param2'] = 0;
-				$data['param3'] = 0;
-				$data['param4'] = 0;
-				$data['param5'] = 0;
-				$data['param6'] = 0;
-				$data['param7'] = 0;
-				$data['param77'] = 0;
-			}else if($id == 5)
-			{
-				$data['param1'] = 0;
-				$data['param2'] = 0;
-				$data['param3'] = 0;
-				$data['param4'] = 0;
-				$data['param44'] = 0;
-				$data['param6'] = 0;
-				$data['param7'] = 0;
-				$data['param77'] = 0;
-			}else if($id == 6)
-			{
-				$data['param1'] = 0;
-				$data['param2'] = 0;
-				$data['param3'] = 0;
-				$data['param4'] = 0;
-				$data['param44'] = 0;
-				$data['param5'] = 0;
-				$data['param7'] = 0;
-				$data['param77'] = 0;
-			}else if($id == 7)
-			{
-				$data['param1'] = 0;
-				$data['param2'] = 0;
-				$data['param3'] = 0;
-				$data['param4'] = 0;
-				$data['param44'] = 0;
-				$data['param5'] = 0;
-				$data['param6'] = 0;
-				$data['param77'] = 0;
-			}else if($id == 77)
-			{
-				$data['param1'] = 0;
-				$data['param2'] = 0;
-				$data['param3'] = 0;
-				$data['param4'] = 0;
-				$data['param44'] = 0;
-				$data['param5'] = 0;
-				$data['param6'] = 0;
-				$data['param7'] = 0;
-			}
-			$this->load->model('saft_model', 'saft');
-			$this->load->model('plugins_model', 'plugins');
-			$this->load->model('accounts_model');
-			$this->load->library("Common");
-			
-			$this->db->select('*');
+            $typs_id = $this->input->post('pid');
+            $pcopyid = $this->input->post('pcopyid');
+            $typslist = array();
+            $prodindex = 0;
+            foreach ($typs_id as $key => $value) {
+                $data = array(
+                    'loc' => 0,
+                    'typ_doc' => $typs_id[$key],
+                    'copy' => $pcopyid[$key]);
+                $typslist[$prodindex] = $data;
+                $prodindex++;
+            }
+            $this->db->insert_batch('geopos_documents_copys', $typslist);
+            $this->settings->update_company(1, $name, $phone, $email, $address, $city, $region, $country, $postbox, $taxid, $social_security, $annual_vacation, $number_day_work_month, $number_hours_work, $share_capital, $registration, $conservator, $passive_res, $foundation, $data_share, $rent_ab, $zon_fis);
+            echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . ' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
+        } else {
+            $id = $this->input->get('id');
+            if ($id != null) {
+                $data['param' . $id] = $id;
+            } else {
+                $id = 0;
+                $data['param1'] = 1;
+            }
+
+            if ($id == 1 || $id == 0) {
+                $data['param2'] = 0;
+                $data['param3'] = 0;
+                $data['param4'] = 0;
+                $data['param44'] = 0;
+                $data['param5'] = 0;
+                $data['param6'] = 0;
+                $data['param7'] = 0;
+                $data['param77'] = 0;
+            } else if ($id == 2) {
+                $data['param1'] = 0;
+                $data['param3'] = 0;
+                $data['param4'] = 0;
+                $data['param44'] = 0;
+                $data['param5'] = 0;
+                $data['param6'] = 0;
+                $data['param7'] = 0;
+                $data['param77'] = 0;
+            } else if ($id == 3) {
+                $data['param1'] = 0;
+                $data['param2'] = 0;
+                $data['param4'] = 0;
+                $data['param44'] = 0;
+                $data['param5'] = 0;
+                $data['param6'] = 0;
+                $data['param7'] = 0;
+                $data['param77'] = 0;
+            } else if ($id == 4) {
+                $data['param1'] = 0;
+                $data['param2'] = 0;
+                $data['param3'] = 0;
+                $data['param44'] = 0;
+                $data['param5'] = 0;
+                $data['param6'] = 0;
+                $data['param7'] = 0;
+                $data['param77'] = 0;
+            } else if ($id == 44) {
+                $data['param1'] = 0;
+                $data['param2'] = 0;
+                $data['param3'] = 0;
+                $data['param4'] = 0;
+                $data['param5'] = 0;
+                $data['param6'] = 0;
+                $data['param7'] = 0;
+                $data['param77'] = 0;
+            } else if ($id == 5) {
+                $data['param1'] = 0;
+                $data['param2'] = 0;
+                $data['param3'] = 0;
+                $data['param4'] = 0;
+                $data['param44'] = 0;
+                $data['param6'] = 0;
+                $data['param7'] = 0;
+                $data['param77'] = 0;
+            } else if ($id == 6) {
+                $data['param1'] = 0;
+                $data['param2'] = 0;
+                $data['param3'] = 0;
+                $data['param4'] = 0;
+                $data['param44'] = 0;
+                $data['param5'] = 0;
+                $data['param7'] = 0;
+                $data['param77'] = 0;
+            } else if ($id == 7) {
+                $data['param1'] = 0;
+                $data['param2'] = 0;
+                $data['param3'] = 0;
+                $data['param4'] = 0;
+                $data['param44'] = 0;
+                $data['param5'] = 0;
+                $data['param6'] = 0;
+                $data['param77'] = 0;
+            } else if ($id == 77) {
+                $data['param1'] = 0;
+                $data['param2'] = 0;
+                $data['param3'] = 0;
+                $data['param4'] = 0;
+                $data['param44'] = 0;
+                $data['param5'] = 0;
+                $data['param6'] = 0;
+                $data['param7'] = 0;
+            }
+            $this->load->model('saft_model', 'saft');
+            $this->load->model('plugins_model', 'plugins');
+            $this->load->model('accounts_model');
+            $this->load->library("Common");
+
+            $this->db->select('*');
             $this->db->from('geopos_warehouse');
             if ($this->aauth->get_user()->loc) {
                 $this->db->where('loc', $this->aauth->get_user()->loc);
             }
             $query = $this->db->get();
-			$data['warehouses'] = $query->result_array();
-			$data['company_permiss'] = $this->saft->getpermissionsystem(0);
-			$data['irs_typ'] = $this->common->irs_typ_combo();
-			$data['acclist'] = $this->accounts_model->accountslist($this->aauth->get_user()->loc);
-			$data['countrys'] = $this->common->countrys();
-			$data['activation'] = $this->saft->getsaftautenticationloc(0);
+            $data['warehouses'] = $query->result_array();
+
+            $data['prazos_vencimento'] = $this->common->sprazovencimento();
+            $data['expeditions'] = $this->common->sexpeditions();
+            $data['metodos_pagamentos'] = $this->common->smetopagamento();
+
+            $data['expeditions'] = $this->common->sexpeditions();
+            $data['company_permiss'] = $this->saft->getpermissionsystem(0);
+            $data['irs_typ'] = $this->common->irs_typ_combo();
+            $data['acclist'] = $this->accounts_model->accountslist($this->aauth->get_user()->loc);
+            $data['countrys'] = $this->common->countrys();
+            $data['activation'] = $this->saft->getsaftautenticationloc(0);
             $head['usernm'] = $this->aauth->get_user()->username;
-			$data['docs_copy_ini'] = $this->common->default_typ_pref_doc_list($this->aauth->get_user()->loc);
+            $data['docs_copy_ini'] = $this->common->default_typ_pref_doc_list($this->aauth->get_user()->loc);
             $head['title'] = $this->lang->line('company_settings');
             $data['company'] = $this->settings->company_details(1);
-			$data['online_pay'] = $this->settings->online_pay_settings_main();
+            $data['online_pay'] = $this->settings->online_pay_settings_main();
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/company', $data);
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	public function autority_pt()
-	{
-		$this->li_a = 'company';
+
+
+    public function autority_pt()
+    {
+        $this->li_a = 'company';
         if ($this->input->post()) {
-			$this->load->model('saft_model', 'saft');
-			$bill_doc = 0;
-			$trans_doc = 0;
-			
-			if(filter_has_var(INPUT_POST,'billing_doc')) {
-				$bill_doc = 1;
-			}else{
-				$bill_doc = 0;
-			}
-			
-			if(filter_has_var(INPUT_POST,'transport_doc')) {
-				$trans_doc = 1;
-			}else{
-				$trans_doc = 0;
-			}
-			
-			$databddocs = "";
-			if($bill_doc == 1)
-			{
-				if($this->input->post('date_docs') == "")
-				{
-					$databddocs = date('d-m-Y');
-				}else{
-					$databddocs = $this->input->post('date_docs');
-				}
-			}
-			
-			$databdtrans = "";
-			if($trans_doc == 1)
-			{
-				if($this->input->post('date_docs_guide') == "")
-				{
-					$databdtrans = date('d-m-Y');
-				}else{
-					$databdtrans = $this->input->post('date_docs_guide');
-				}
-			}
-			
-			$username = $this->input->post('username');
-			$password = $this->input->post('password');
-			
-			if ($username == "") {
-				echo json_encode(array('status' => 'Error', 'message' => 'Por favor inserir o seu Utilizador.'));
-				return;
-			}
-			
-			if ($password == "") {
-				echo json_encode(array('status' => 'Error', 'message' => 'Por favor inserir a sua Senha.'));
-				return;
-			}
-			
-			if ($this->saft->editat(1,$bill_doc,$databddocs,$trans_doc,$databdtrans,$username,$password)) {
-				echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED').' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
-			}else{
-				echo json_encode(array('status' => 'Success', 'message' => 'Erro a guardar informações AT.'));
-			}
-		}
-	}
-	
-	public function reg_iva()
-	{
-		$this->load->model('saft_model', 'saft');
-		if ($this->input->post()) {
-			$caixa_1 = 0;
-			$caixa_2 = 0;
-			$caixa_3 = 0;
-			$caixa_4 = 0;
-			
-			if(filter_has_var(INPUT_POST,'caixa_1')) {
-				$caixa_1 = 1;
-			}
-			
-			if(filter_has_var(INPUT_POST,'caixa_2')) {
-				$caixa_2 = 1;
-			}
-			
-			if(filter_has_var(INPUT_POST,'caixa_3')) {
-				$caixa_3 = 1;
-			}
-			
-			if(filter_has_var(INPUT_POST,'caixa_4')) {
-				$caixa_4 = 1;
-			}
-			
-			$dateActiv = "";
-			if($caixa_1 == 1 && $caixa_2 == 1 && $caixa_3 == 1)
-			{
-				if($caixa_4 == 1){
-					if($this->input->post('caixa_doc_date') == "")
-					{
-						$dateActiv = date('d-m-Y');
-					}else{
-						$dateActiv = $this->input->post('caixa_doc_date');
-					}
-				}
-			}
-			if ($this->saft->editcaixa(1,$caixa_1,$caixa_2,$caixa_3,$caixa_4,$dateActiv)) {
-				echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED').' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
-			}else{
-				echo json_encode(array('status' => 'Success', 'message' => 'Erro a guardar informações Caixa IVA.'));
-			}
-		}
-	}
+            $this->load->model('saft_model', 'saft');
+            $bill_doc = 0;
+            $trans_doc = 0;
+
+            if (filter_has_var(INPUT_POST, 'billing_doc')) {
+                $bill_doc = 1;
+            } else {
+                $bill_doc = 0;
+            }
+
+            if (filter_has_var(INPUT_POST, 'transport_doc')) {
+                $trans_doc = 1;
+            } else {
+                $trans_doc = 0;
+            }
+
+            $databddocs = "";
+            if ($bill_doc == 1) {
+                if ($this->input->post('date_docs') == "") {
+                    $databddocs = date('d-m-Y');
+                } else {
+                    $databddocs = $this->input->post('date_docs');
+                }
+            }
+
+            $databdtrans = "";
+            if ($trans_doc == 1) {
+                if ($this->input->post('date_docs_guide') == "") {
+                    $databdtrans = date('d-m-Y');
+                } else {
+                    $databdtrans = $this->input->post('date_docs_guide');
+                }
+            }
+
+            $username = $this->input->post('username');
+            $password = $this->input->post('password');
+
+            if ($username == "") {
+                echo json_encode(array('status' => 'Error', 'message' => 'Por favor inserir o seu Utilizador.'));
+                return;
+            }
+
+            if ($password == "") {
+                echo json_encode(array('status' => 'Error', 'message' => 'Por favor inserir a sua Senha.'));
+                return;
+            }
+
+            if ($this->saft->editat(1, $bill_doc, $databddocs, $trans_doc, $databdtrans, $username, $password)) {
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . ' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
+            } else {
+                echo json_encode(array('status' => 'Success', 'message' => 'Erro a guardar informações AT.'));
+            }
+        }
+    }
+
+    public function reg_iva()
+    {
+        $this->load->model('saft_model', 'saft');
+        if ($this->input->post()) {
+            $caixa_1 = 0;
+            $caixa_2 = 0;
+            $caixa_3 = 0;
+            $caixa_4 = 0;
+
+            if (filter_has_var(INPUT_POST, 'caixa_1')) {
+                $caixa_1 = 1;
+            }
+
+            if (filter_has_var(INPUT_POST, 'caixa_2')) {
+                $caixa_2 = 1;
+            }
+
+            if (filter_has_var(INPUT_POST, 'caixa_3')) {
+                $caixa_3 = 1;
+            }
+
+            if (filter_has_var(INPUT_POST, 'caixa_4')) {
+                $caixa_4 = 1;
+            }
+
+            $dateActiv = "";
+            if ($caixa_1 == 1 && $caixa_2 == 1 && $caixa_3 == 1) {
+                if ($caixa_4 == 1) {
+                    if ($this->input->post('caixa_doc_date') == "") {
+                        $dateActiv = date('d-m-Y');
+                    } else {
+                        $dateActiv = $this->input->post('caixa_doc_date');
+                    }
+                }
+            }
+            if ($this->saft->editcaixa(1, $caixa_1, $caixa_2, $caixa_3, $caixa_4, $dateActiv)) {
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . ' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
+            } else {
+                echo json_encode(array('status' => 'Success', 'message' => 'Erro a guardar informações Caixa IVA.'));
+            }
+        }
+    }
 
     public function currency()
     {
@@ -428,8 +418,8 @@ class Settings extends CI_Controller
     public function billing_terms()
     {
         $this->li_a = 'billing';
-		$this->load->library("Common");
-		$data['terms'] = $this->common->stermos();
+        $this->load->library("Common");
+        $data['terms'] = $this->common->stermos();
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
         $this->load->view('settings/terms', $data);
@@ -457,9 +447,9 @@ class Settings extends CI_Controller
             $this->settings->add_term($title, $type, $term);
 
         } else {
-			$this->load->library("Common");
+            $this->load->library("Common");
             $head['title'] = $this->lang->line('Add Billing Term');
-			$head['terms'] = $this->common->stermos();
+            $head['terms'] = $this->common->stermos();
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/add_terms');
@@ -479,9 +469,9 @@ class Settings extends CI_Controller
             $this->settings->edit_term($id, $title, $type, $term);
         } else {
             $id = $this->input->get('id');
-			$this->load->library("Common");
-			$data['term'] = $this->settings->terms_details($id);
-			$data['terms'] = $this->common->stermos();
+            $this->load->library("Common");
+            $data['term'] = $this->settings->terms_details($id);
+            $data['terms'] = $this->common->stermos();
             $head['title'] = $this->lang->line('Edit Billing Term');
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
@@ -620,19 +610,19 @@ class Settings extends CI_Controller
         $this->li_a = 'tax';
         if ($this->input->post()) {
             $tname = $this->input->post('tname', true);
-			$tcode = $this->input->post('taxcode', true);
-			$tregion = $this->input->post('taxcountryregion', true);
-			$tdesc = $this->input->post('taxdescription');
+            $tcode = $this->input->post('taxcode', true);
+            $tregion = $this->input->post('taxcountryregion', true);
+            $tdesc = $this->input->post('taxdescription');
             $trate = $this->input->post('trate');
             $ttype = "yes";
             $ttype2 = "yes";
-			//$ttype = $this->input->post('ttype');
+            //$ttype = $this->input->post('ttype');
             //$ttype2 = $this->input->post('ttype2');
-            $this->settings->add_slab($tname, $trate, $ttype, $ttype2,$tcode,$tregion,$tdesc);
+            $this->settings->add_slab($tname, $trate, $ttype, $ttype2, $tcode, $tregion, $tdesc);
 
         } else {
-			$this->load->library("Common");
-			$data['countrys'] = $this->common->countrys();
+            $this->load->library("Common");
+            $data['countrys'] = $this->common->countrys();
             $data['catlist'] = $this->settings->slabs();
             $head['title'] = $this->lang->line('Add TAX Slabs');
             $head['usernm'] = $this->aauth->get_user()->username;
@@ -641,8 +631,8 @@ class Settings extends CI_Controller
             $this->load->view('fixed/footer');
         }
     }
-	
-	public function caes()
+
+    public function caes()
     {
         $this->li_a = 'company';
         $data['caes'] = $this->settings->scaes();
@@ -658,7 +648,7 @@ class Settings extends CI_Controller
         $this->li_a = 'company';
         if ($this->input->post()) {
             $tname = $this->input->post('tname', true);
-			$tcode = $this->input->post('tcod', true);
+            $tcode = $this->input->post('tcod', true);
             $this->settings->add_caes($tname, $tcode);
         } else {
             $head['title'] = 'Adicionar novo C.A.E';
@@ -668,20 +658,20 @@ class Settings extends CI_Controller
             $this->load->view('fixed/footer');
         }
     }
-	
-	public function caes_edit()
+
+    public function caes_edit()
     {
         $this->li_a = 'company';
         if ($this->input->post()) {
-			$id = $this->input->post('id');
+            $id = $this->input->post('id');
             $tname = $this->input->post('tname', true);
-			$tcode = $this->input->post('tcod', true);
+            $tcode = $this->input->post('tcod', true);
             $this->settings->edit_caes($id, $tname, $tcode);
 
         } else {
-			$caeid = $this->input->get('id');
-			$data['caes'] = $this->settings->caesget($caeid);
-            $head['title'] = 'Alteração do C.A.E '.$data['caes']['val1'];
+            $caeid = $this->input->get('id');
+            $data['caes'] = $this->settings->caesget($caeid);
+            $head['title'] = 'Alteração do C.A.E - ' . $data['caes']['cod'];
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/cae_edit', $data);
@@ -693,41 +683,41 @@ class Settings extends CI_Controller
     {
         if ($this->input->post()) {
             $id = $this->input->post('deleteid');
-			$data = array(
-				'status' => 1
-			);
-			$this->db->set($data);
-			$this->db->where('id', $id);
-			if ($this->db->update('geopos_caes', $data)) {
-				echo json_encode(array('status' => 'Success', 'message' => 'O C.A.E foi inactivado.'));
-			}else {
-				echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
-			}
+            $data = array(
+                'status' => 1
+            );
+            $this->db->set($data);
+            $this->db->where('id', $id);
+            if ($this->db->update('geopos_caes', $data)) {
+                echo json_encode(array('status' => 'Success', 'message' => 'O C.A.E foi inactivado.'));
+            } else {
+                echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
+            }
         }
     }
-	
-	
-	public function taxslabs_edit()
+
+
+    public function taxslabs_edit()
     {
         $this->li_a = 'tax';
         if ($this->input->post()) {
-			$id = $this->input->post('id');
+            $id = $this->input->post('id');
             $tname = $this->input->post('tname', true);
-			$tcode = $this->input->post('taxcode', true);
-			$tregion = $this->input->post('taxcountryregion', true);
-			$tdesc = $this->input->post('taxdescription');
+            $tcode = $this->input->post('taxcode', true);
+            $tregion = $this->input->post('taxcountryregion', true);
+            $tdesc = $this->input->post('taxdescription');
             $trate = $this->input->post('trate');
             $ttype = "yes";
             $ttype2 = "yes";
-			//$ttype = $this->input->post('ttype');
+            //$ttype = $this->input->post('ttype');
             //$ttype2 = $this->input->post('ttype2');
-            $this->settings->edit_slab($id, $tname, $trate, $ttype, $ttype2,$tcode,$tregion,$tdesc);
+            $this->settings->edit_slab($id, $tname, $trate, $ttype, $ttype2, $tcode, $tregion, $tdesc);
 
         } else {
-			$catid = $this->input->get('id');
-			$this->load->library("Common");
-			$data['countrys'] = $this->common->countrys();
-			$data['slabs'] = $this->settings->slabsget($catid);
+            $catid = $this->input->get('id');
+            $this->load->library("Common");
+            $data['countrys'] = $this->common->countrys();
+            $data['slabs'] = $this->settings->slabsget($catid);
             $data['catlist'] = $this->settings->slabs();
             $head['title'] = $this->lang->line('Edit TAX Slabs');
             $head['usernm'] = $this->aauth->get_user()->username;
@@ -749,24 +739,23 @@ class Settings extends CI_Controller
             }
         }
     }
-	
-	public function withholdingsoptions()
+
+    public function withholdingsoptions()
     {
-		//$pid = $this->input->post('pid', true);
-		$query = $this->db->query("SELECT geopos_config.* FROM geopos_config WHERE geopos_config.type = 3");
-		$out = array();
-		$result = array();
-		$result = $query->result_array();
-		foreach ($result as $row) {
-			$name = array($row['id'], $row['val2'], $row['taxcode'], $row['taxregion'], $row['val1']);
-			array_push($out, $name);
-		}
-		echo json_encode($out);
+        //$pid = $this->input->post('pid', true);
+        $query = $this->db->query("SELECT geopos_config.* FROM geopos_config WHERE geopos_config.type = 3");
+        $out = array();
+        $result = array();
+        $result = $query->result_array();
+        foreach ($result as $row) {
+            $name = array($row['id'], $row['val2'], $row['taxcode'], $row['taxregion'], $row['val1']);
+            array_push($out, $name);
+        }
+        echo json_encode($out);
     }
-	
-	
-	
-	public function withholding()
+
+
+    public function withholding()
     {
         $this->li_a = 'tax';
         $data['catlist'] = $this->settings->withholdings();
@@ -782,42 +771,42 @@ class Settings extends CI_Controller
         $this->li_a = 'tax';
         if ($this->input->post()) {
             $tname = $this->input->post('tname', true);
-            $trate = $this->input->post('trate' , true);
-            $ttype = $this->input->post('ttype' , true);
-			$tother = $this->input->post('tcodesend' , true);
-			$ttaxcode = $this->input->post('tcode' , true);
-			$tdiscription = $this->input->post('tdiscription' , true);
+            $trate = $this->input->post('trate', true);
+            $ttype = $this->input->post('ttype', true);
+            $tother = $this->input->post('tcodesend', true);
+            $ttaxcode = $this->input->post('tcode', true);
+            $tdiscription = $this->input->post('tdiscription', true);
             $this->settings->add_withholdings($tname, $trate, $ttype, $tdiscription, $tother, $ttaxcode);
 
         } else {
 
             $data['catlist'] = $this->settings->withholdings();
-            $head['title'] = $this->lang->line('Add').' '.$this->lang->line('Withholding');
+            $head['title'] = $this->lang->line('Add') . ' ' . $this->lang->line('Withholding');
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/withholdings_create', $data);
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	public function taxwithholdings_edit()
+
+
+    public function taxwithholdings_edit()
     {
         $this->li_a = 'tax';
         if ($this->input->post()) {
-			$id = $this->input->post('id');
-			$tname = $this->input->post('tname', true);
-            $trate = $this->input->post('trate' , true);
-            $ttype = $this->input->post('ttype' , true);
-			$tother = $this->input->post('tcodesend' , true);
-			$ttaxcode = $this->input->post('tcode' , true);
-			$tdiscription = $this->input->post('tdiscription' , true);
-			$this->settings->edit_withholdings($id, $tname, $trate, $ttype, $tdiscription, $tother, $ttaxcode);
+            $id = $this->input->post('id');
+            $tname = $this->input->post('tname', true);
+            $trate = $this->input->post('trate', true);
+            $ttype = $this->input->post('ttype', true);
+            $tother = $this->input->post('tcodesend', true);
+            $ttaxcode = $this->input->post('tcode', true);
+            $tdiscription = $this->input->post('tdiscription', true);
+            $this->settings->edit_withholdings($id, $tname, $trate, $ttype, $tdiscription, $tother, $ttaxcode);
         } else {
-			$catid = $this->input->get('id');
-			$query = $this->db->query("SELECT * FROM geopos_config where id=".$catid." and type=3");
-			$data['slabs'] = $query->row_array();
-            $head['title'] = $this->lang->line('Withholding').' '.$this->lang->line('Edit');
+            $catid = $this->input->get('id');
+            $query = $this->db->query("SELECT * FROM geopos_config where id=" . $catid . " and type=3");
+            $data['slabs'] = $query->row_array();
+            $head['title'] = $this->lang->line('Withholding') . ' ' . $this->lang->line('Edit');
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/withholdings_edit', $data);
@@ -838,12 +827,12 @@ class Settings extends CI_Controller
 
         }
     }
-	
-	
-	public function reasons_notes()
+
+
+    public function reasons_notes()
     {
         $this->li_a = 'tax';
-		$data['catlist'] = $this->settings->reasons_notes();
+        $data['catlist'] = $this->settings->reasons_notes();
         $head['title'] = 'Razões Notas de Clientes';
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
@@ -856,31 +845,31 @@ class Settings extends CI_Controller
         $this->li_a = 'tax';
         if ($this->input->post()) {
             $tname = $this->input->post('tname', true);
-            $tcod = $this->input->post('tcode' , true);
+            $tcod = $this->input->post('tcode', true);
             $this->settings->add_reasons_notes($tname, $tcod);
         } else {
-            $head['title'] = $this->lang->line('Add').' Razão da Nota para o Cliente';
+            $head['title'] = $this->lang->line('Add') . ' Razão da Nota para o Cliente';
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/reasons_notes_create');
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	public function reasons_notes_edit()
+
+
+    public function reasons_notes_edit()
     {
         $this->li_a = 'tax';
         if ($this->input->post()) {
-			$id = $this->input->post('id');
-			$tname = $this->input->post('tname', true);
-            $tcod = $this->input->post('tcode' , true);
-			$this->settings->edit_reasons_notes($id, $tname, $tcod);
+            $id = $this->input->post('id');
+            $tname = $this->input->post('tname', true);
+            $tcod = $this->input->post('tcode', true);
+            $this->settings->edit_reasons_notes($id, $tname, $tcod);
         } else {
-			$catid = $this->input->get('id');
-			$query = $this->db->query("SELECT * FROM geopos_config where id=".$catid." and type=11");
-			$data['slabs'] = $query->row_array();
-            $head['title'] = 'Razão da Nota '.$this->lang->line('Edit');
+            $catid = $this->input->get('id');
+            $query = $this->db->query("SELECT * FROM geopos_config where id=" . $catid . " and type=11");
+            $data['slabs'] = $query->row_array();
+            $head['title'] = 'Razão da Nota ' . $this->lang->line('Edit');
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/reasons_notes_edit', $data);
@@ -901,10 +890,9 @@ class Settings extends CI_Controller
 
         }
     }
-	
-	
-	
-	public function method_payments()
+
+
+    public function method_payments()
     {
         $this->li_a = 'payments';
         $data['catlist'] = $this->settings->method_payment();
@@ -920,32 +908,32 @@ class Settings extends CI_Controller
         $this->li_a = 'payments';
         if ($this->input->post()) {
             $tcode = $this->input->post('tcode', true);
-            $tname = $this->input->post('tname' , true);
+            $tname = $this->input->post('tname', true);
             $this->settings->add_method_payments($tcode, $tname);
 
         } else {
-            $head['title'] = $this->lang->line('Add').'Métodos de Pagamentos';
+            $head['title'] = $this->lang->line('Add') . 'Métodos de Pagamentos';
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/method_payments_create', $data);
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	public function method_payments_edit()
+
+
+    public function method_payments_edit()
     {
         $this->li_a = 'payments';
         if ($this->input->post()) {
-			$id = $this->input->post('id');
-			$tcode = $this->input->post('tcode', true);
-            $tname = $this->input->post('tname' , true);
-			$this->settings->edit_method_payments($id, $tcode, $tname);
+            $id = $this->input->post('id');
+            $tcode = $this->input->post('tcode', true);
+            $tname = $this->input->post('tname', true);
+            $this->settings->edit_method_payments($id, $tcode, $tname);
         } else {
-			$catid = $this->input->get('id');
-			$query = $this->db->query("SELECT * FROM geopos_config where id=".$catid." and type=9");
-			$data['slabs'] = $query->row_array();
-            $head['title'] = 'Métodos de Pagamentos '.$this->lang->line('Edit');
+            $catid = $this->input->get('id');
+            $query = $this->db->query("SELECT * FROM geopos_config where id=" . $catid . " and type=9");
+            $data['slabs'] = $query->row_array();
+            $head['title'] = 'Métodos de Pagamentos ' . $this->lang->line('Edit');
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/method_payments_edit', $data);
@@ -965,10 +953,9 @@ class Settings extends CI_Controller
             }
         }
     }
-	
-	
-	
-	public function method_expeditions()
+
+
+    public function method_expeditions()
     {
         $this->li_a = 'payments';
         $data['catlist'] = $this->settings->method_expedition();
@@ -984,32 +971,32 @@ class Settings extends CI_Controller
         $this->li_a = 'payments';
         if ($this->input->post()) {
             $tcode = $this->input->post('tcode', true);
-            $tname = $this->input->post('tname' , true);
+            $tname = $this->input->post('tname', true);
             $this->settings->add_method_expeditions($tcode, $tname);
 
         } else {
-            $head['title'] = $this->lang->line('Add').'Métodos de Expedição';
+            $head['title'] = $this->lang->line('Add') . 'Métodos de Expedição';
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/method_expeditions_create', $data);
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	public function method_expeditions_edit()
+
+
+    public function method_expeditions_edit()
     {
         $this->li_a = 'payments';
         if ($this->input->post()) {
-			$id = $this->input->post('id');
-			$tcode = $this->input->post('tcode', true);
-            $tname = $this->input->post('tname' , true);
-			$this->settings->edit_method_expeditions($id, $tcode, $tname);
+            $id = $this->input->post('id');
+            $tcode = $this->input->post('tcode', true);
+            $tname = $this->input->post('tname', true);
+            $this->settings->edit_method_expeditions($id, $tcode, $tname);
         } else {
-			$catid = $this->input->get('id');
-			$query = $this->db->query("SELECT * FROM geopos_config where id=".$catid." and type=6");
-			$data['slabs'] = $query->row_array();
-            $head['title'] = 'Métodos de Expedição '.$this->lang->line('Edit');
+            $catid = $this->input->get('id');
+            $query = $this->db->query("SELECT * FROM geopos_config where id=" . $catid . " and type=6");
+            $data['slabs'] = $query->row_array();
+            $head['title'] = 'Métodos de Expedição ' . $this->lang->line('Edit');
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/method_expeditions_edit', $data);
@@ -1029,10 +1016,9 @@ class Settings extends CI_Controller
             }
         }
     }
-	
-	
-	
-	public function numb_copys()
+
+
+    public function numb_copys()
     {
         $this->li_a = 'payments';
         $data['catlist'] = $this->settings->numb_copy();
@@ -1048,31 +1034,31 @@ class Settings extends CI_Controller
         $this->li_a = 'payments';
         if ($this->input->post()) {
             $tcode = $this->input->post('tcode', true);
-            $tname = $this->input->post('tname' , true);
+            $tname = $this->input->post('tname', true);
             $this->settings->add_numb_copys($tcode, $tname);
         } else {
-            $head['title'] = $this->lang->line('Add').' Número de Cópias';
+            $head['title'] = $this->lang->line('Add') . ' Número de Cópias';
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/numb_copys_create', $data);
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	public function numb_copys_edit()
+
+
+    public function numb_copys_edit()
     {
         $this->li_a = 'payments';
         if ($this->input->post()) {
-			$id = $this->input->post('id');
-			$tcode = $this->input->post('tcode', true);
-            $tname = $this->input->post('tname' , true);
-			$this->settings->edit_numb_copys($id, $tcode, $tname);
+            $id = $this->input->post('id');
+            $tcode = $this->input->post('tcode', true);
+            $tname = $this->input->post('tname', true);
+            $this->settings->edit_numb_copys($id, $tcode, $tname);
         } else {
-			$catid = $this->input->get('id');
-			$query = $this->db->query("SELECT * FROM geopos_config where id=".$catid." and type=8");
-			$data['slabs'] = $query->row_array();
-            $head['title'] = 'Número de Cópias '.$this->lang->line('Edit');
+            $catid = $this->input->get('id');
+            $query = $this->db->query("SELECT * FROM geopos_config where id=" . $catid . " and type=8");
+            $data['slabs'] = $query->row_array();
+            $head['title'] = 'Número de Cópias ' . $this->lang->line('Edit');
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/numb_copys_edit', $data);
@@ -1092,8 +1078,8 @@ class Settings extends CI_Controller
             }
         }
     }
-	
-	public function praz_vencs()
+
+    public function praz_vencs()
     {
         $this->li_a = 'payments';
         $data['catlist'] = $this->settings->praz_venc();
@@ -1109,31 +1095,32 @@ class Settings extends CI_Controller
         $this->li_a = 'payments';
         if ($this->input->post()) {
             $tcode = $this->input->post('tcode', true);
-            $tname = $this->input->post('tname' , true);
+            $tname = $this->input->post('tname', true);
             $this->settings->add_praz_vencs($tcode, $tname);
         } else {
-            $head['title'] = $this->lang->line('Add').' Prazo de Vencimento';
+            $head['title'] = $this->lang->line('Add') . ' Prazo de Vencimento';
+            $data['title'] = $this->lang->line('Add') . ' Prazo de Vencimento';
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/praz_vencs_create', $data);
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	public function praz_vencs_edit()
+
+
+    public function praz_vencs_edit()
     {
         $this->li_a = 'payments';
         if ($this->input->post()) {
-			$id = $this->input->post('id');
-			$tcode = $this->input->post('tcode', true);
-            $tname = $this->input->post('tname' , true);
-			$this->settings->edit_praz_vencs($id, $tcode, $tname);
+            $id = $this->input->post('id');
+            $tcode = $this->input->post('tcode', true);
+            $tname = $this->input->post('tname', true);
+            $this->settings->edit_praz_vencs($id, $tcode, $tname);
         } else {
-			$catid = $this->input->get('id');
-			$query = $this->db->query("SELECT * FROM geopos_config where id=".$catid." and type=7");
-			$data['slabs'] = $query->row_array();
-            $head['title'] = 'Prazo de Vencimento '.$this->lang->line('Edit');
+            $catid = $this->input->get('id');
+            $query = $this->db->query("SELECT * FROM geopos_config where id=" . $catid . " and type=7");
+            $data['slabs'] = $query->row_array();
+            $head['title'] = 'Prazo de Vencimento ' . $this->lang->line('Edit');
             $head['usernm'] = $this->aauth->get_user()->username;
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/praz_vencs_edit', $data);
@@ -1153,24 +1140,23 @@ class Settings extends CI_Controller
             }
         }
     }
-	
-	
-	
-	function smetopagamento($id = 0)
+
+
+    function smetopagamento($id = 0)
     {
-		$query = "";
-		$this->db->select('*');
-		$this->db->from('geopos_config');
-		$this->db->where('geopos_config.type', 9);
-		$query = $this->db->get();
-		$out = array();
-		$result = array();
-		$result = $query->result_array();
-		foreach ($result as $row) {
-			$name = array($row['id'], $row['val2'], $row['val1']);
-			array_push($out, $name);
-		}
-		echo json_encode($out);
+        $query = "";
+        $this->db->select('*');
+        $this->db->from('geopos_config');
+        $this->db->where('geopos_config.type', 9);
+        $query = $this->db->get();
+        $out = array();
+        $result = array();
+        $result = $query->result_array();
+        foreach ($result as $row) {
+            $name = array($row['id'], $row['val2'], $row['val1']);
+            array_push($out, $name);
+        }
+        echo json_encode($out);
     }
 
     public function logdata()
@@ -1222,130 +1208,139 @@ class Settings extends CI_Controller
         }
 
     }
-	
-	public function geral_emails()
-    {
-		if ($this->input->post()) {
-			$emails_notifica = $this->input->post('emails_notifica', true);
-			$emailo_remet = $this->input->post('emailo_remet', true);
-			$email_stock = $this->input->post('email_stock', true);
-			
-			$docs_email = 0;
-			if(filter_has_var(INPUT_POST,'docs_email')) {
-				$docs_email = 1;
-			}else{
-				$docs_email = 0;
-			}
-			
-			$docs_del_email = 0;
-			if(filter_has_var(INPUT_POST,'docs_del_email')) {
-				$docs_del_email = 1;
-			}else{
-				$docs_del_email = 0;
-			}
-			
-			$trans_email = 0;
-			if(filter_has_var(INPUT_POST,'trans_email')) {
-				$trans_email = 1;
-			}else{
-				$trans_email = 0;
-			}
-			
-			$trans_del_email = 0;
-			if(filter_has_var(INPUT_POST,'trans_del_email')) {
-				$trans_del_email = 1;
-			}else{
-				$trans_del_email = 0;
-			}
-			
-			$stock_min = 0;
-			if(filter_has_var(INPUT_POST,'stock_min')) {
-				$stock_min = 1;
-			}else{
-				$stock_min = 0;
-			}
-			
-			$stock_sem = 0;
-			if(filter_has_var(INPUT_POST,'stock_sem')) {
-				$stock_sem = 1;
-			}else{
-				$stock_sem = 0;
-			}
-			
-			$data = array(
-				'email_app' => $emails_notifica,
-				'emailo_remet' => $emailo_remet,
-				'email_stock' => $email_stock,
-				'docs_email' => $docs_email,
-				'docs_del_email' => $docs_del_email,
-				'trans_email' => $trans_email,
-				'trans_del_email' => $trans_del_email,
-				'stock_min' => $stock_min,
-				'stock_sem' => $stock_sem
-			);
-			$this->db->set($data);
-			$this->db->where('loc', 0);
-			$this->db->update('geopos_system_permiss');
-			echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED').' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
-        }
-	}
-	public function geral_configs()
+
+    public function geral_emails()
     {
         if ($this->input->post()) {
-			$grafic = 0;
-			if(filter_has_var(INPUT_POST,'grafic_show')) {
-				$grafic = 1;
-			}else{
-				$grafic = 0;
-			}
-			
-			$products = 0;
-			if(filter_has_var(INPUT_POST,'products_show')) {
-				$products = 1;
-			}else{
-				$products = 0;
-			}
-			
-			$clients = 0;
-			if(filter_has_var(INPUT_POST,'clients_show')) {
-				$clients = 1;
-			}else{
-				$clients = 0;
-			}
-			
-			$data2 = array(
-				'grafics' => $grafic,
-				'products_inactiv_show' => $products,
-				'clients_inactiv_show' => $clients
-			);
-			$this->db->set($data2);
-			$this->db->where('id', 1);
-			$this->db->update('geopos_system_permiss');
-			
-			$wid = $this->input->post('wid', true);
-			$pstyle = $this->input->post('pstyle', true);
+            $emails_notifica = $this->input->post('emails_notifica', true);
+            $emailo_remet = $this->input->post('emailo_remet', true);
+            $email_stock = $this->input->post('email_stock', true);
+
+            $docs_email = 0;
+            if (filter_has_var(INPUT_POST, 'docs_email')) {
+                $docs_email = 1;
+            } else {
+                $docs_email = 0;
+            }
+
+            $docs_del_email = 0;
+            if (filter_has_var(INPUT_POST, 'docs_del_email')) {
+                $docs_del_email = 1;
+            } else {
+                $docs_del_email = 0;
+            }
+
+            $trans_email = 0;
+            if (filter_has_var(INPUT_POST, 'trans_email')) {
+                $trans_email = 1;
+            } else {
+                $trans_email = 0;
+            }
+
+            $trans_del_email = 0;
+            if (filter_has_var(INPUT_POST, 'trans_del_email')) {
+                $trans_del_email = 1;
+            } else {
+                $trans_del_email = 0;
+            }
+
+            $stock_min = 0;
+            if (filter_has_var(INPUT_POST, 'stock_min')) {
+                $stock_min = 1;
+            } else {
+                $stock_min = 0;
+            }
+
+            $stock_sem = 0;
+            if (filter_has_var(INPUT_POST, 'stock_sem')) {
+                $stock_sem = 1;
+            } else {
+                $stock_sem = 0;
+            }
+
+            $data = array(
+                'email_app' => $emails_notifica,
+                'emailo_remet' => $emailo_remet,
+                'email_stock' => $email_stock,
+                'docs_email' => $docs_email,
+                'docs_del_email' => $docs_del_email,
+                'trans_email' => $trans_email,
+                'trans_del_email' => $trans_del_email,
+                'stock_min' => $stock_min,
+                'stock_sem' => $stock_sem
+            );
+            $this->db->set($data);
+            $this->db->where('loc', 0);
+            $this->db->update('geopos_system_permiss');
+            echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . ' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
+        }
+    }
+
+    public function geral_configs()
+    {
+        if ($this->input->post()) {
+            $grafic = 0;
+            if (filter_has_var(INPUT_POST, 'grafic_show')) {
+                $grafic = 1;
+            } else {
+                $grafic = 0;
+            }
+
+            $products = 0;
+            if (filter_has_var(INPUT_POST, 'products_show')) {
+                $products = 1;
+            } else {
+                $products = 0;
+            }
+
+            $clients = 0;
+            if (filter_has_var(INPUT_POST, 'clients_show')) {
+                $clients = 1;
+            } else {
+                $clients = 0;
+            }
+
+            $data2 = array(
+                'grafics' => $grafic,
+                'products_inactiv_show' => $products,
+                'clients_inactiv_show' => $clients
+            );
+            $this->db->set($data2);
+            $this->db->where('id', 1);
+            $this->db->update('geopos_system_permiss');
+
+            $wid = $this->input->post('wid', true);
+            $pstyle = $this->input->post('pstyle', true);
             $assign = $this->input->post('assign', true);
-			$pos_list = $this->input->post('pos_list', true);
-			$pos_type_doc = $this->input->post('pos_type_doc', true);
-			$account_o = $this->input->post('account_o', true);
-			$account_d = $this->input->post('account_d', true);
-			$account_f = $this->input->post('account_f', true);
-			$dual_entry = $this->input->post('dual_entry', true);
-			
-			$config_file_path = APPPATH . "config/constants.php";
-			$config_file = file_get_contents($config_file_path);
-			$config_file = str_replace("('PAC', '" . PAC . "')", "('PAC', '$pos_list')", $config_file);
-			$config_file = str_replace("('POSV', '" . POSV . "')", "('POSV', '$pstyle')", $config_file);
-			$config_file = str_replace("('WARHOUSE', '" . WARHOUSE . "')", "('WARHOUSE', '$wid')", $config_file);
-			$config_file = str_replace("('DOCDEFAULT', '" . DOCDEFAULT . "')", "('DOCDEFAULT', '$pos_type_doc')", $config_file);
-			$config_file = str_replace("('POSACCOUNT', '" . POSACCOUNT . "')", "('POSACCOUNT', '$account_d')", $config_file);
-			$config_file = str_replace("('DUALENTRY', '" . DUALENTRY . "')", "('DUALENTRY', '$dual_entry')", $config_file);
-			$config_file = str_replace("('DOCSACCOUNT', '" . DOCSACCOUNT . "')", "('DOCSACCOUNT', '$account_o')", $config_file);
-			$config_file = str_replace("('DOCSFACCOUNT', '" . DOCSFACCOUNT . "')", "('DOCSFACCOUNT', '$account_f')", $config_file);
-			$config_file = str_replace("('EMPS', '" . EMPS . "')", "('EMPS', '$assign')", $config_file);
-			file_put_contents($config_file_path, $config_file);
-			clearstatcache();
-			echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED').' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
+            $pos_list = $this->input->post('pos_list', true);
+            $pos_type_doc = $this->input->post('pos_type_doc', true);
+            $account_o = $this->input->post('account_o', true);
+            $account_d = $this->input->post('account_d', true);
+            $account_f = $this->input->post('account_f', true);
+            $dual_entry = $this->input->post('dual_entry', true);
+
+            $n_met_exp = $this->input->post('n_met_exp', true);
+            $n_met_pag = $this->input->post('n_met_pag', true);
+            $n_praz_venc = $this->input->post('n_praz_venc', true);
+
+
+            $config_file_path = APPPATH . "config/constants.php";
+            $config_file = file_get_contents($config_file_path);
+            $config_file = str_replace("('PAC', '" . PAC . "')", "('PAC', '$pos_list')", $config_file);
+            $config_file = str_replace("('POSV', '" . POSV . "')", "('POSV', '$pstyle')", $config_file);
+            $config_file = str_replace("('WARHOUSE', '" . WARHOUSE . "')", "('WARHOUSE', '$wid')", $config_file);
+            $config_file = str_replace("('DOCDEFAULT', '" . DOCDEFAULT . "')", "('DOCDEFAULT', '$pos_type_doc')", $config_file);
+            $config_file = str_replace("('POSACCOUNT', '" . POSACCOUNT . "')", "('POSACCOUNT', '$account_d')", $config_file);
+            $config_file = str_replace("('DUALENTRY', '" . DUALENTRY . "')", "('DUALENTRY', '$dual_entry')", $config_file);
+            $config_file = str_replace("('DOCSACCOUNT', '" . DOCSACCOUNT . "')", "('DOCSACCOUNT', '$account_o')", $config_file);
+            $config_file = str_replace("('DOCSFACCOUNT', '" . DOCSFACCOUNT . "')", "('DOCSFACCOUNT', '$account_f')", $config_file);
+            $config_file = str_replace("('EMPS', '" . EMPS . "')", "('EMPS', '$assign')", $config_file);
+            $config_file = str_replace("('PRAZOVE', '" . PRAZOVE . "')", "('PRAZOVE', '$n_praz_venc')", $config_file);
+            $config_file = str_replace("('METODEXP', '" . METODEXP . "')", "('METODEXP', '$n_met_exp')", $config_file);
+            $config_file = str_replace("('METODPAG', '" . METODPAG . "')", "('METODPAG', '$n_met_pag')", $config_file);
+            file_put_contents($config_file_path, $config_file);
+            clearstatcache();
+            echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . ' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
         }
     }
 
@@ -1426,7 +1421,7 @@ class Settings extends CI_Controller
     {
         $this->li_a = 'advance';
         if ($this->input->post()) {
-			$f_type = $this->input->post('f_type', true);
+            $f_type = $this->input->post('f_type', true);
             $f_module = $this->input->post('f_module', true);
             $f_name = $this->input->post('f_name', true);
             $f_view = $this->input->post('f_view', true);
@@ -1553,11 +1548,11 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         }
     }
 
-	/*
-		Series for documents
-	*/
+    /*
+        Series for documents
+    */
 
-	public function series()
+    public function series()
     {
         $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = 'Series';
@@ -1565,103 +1560,102 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         $this->load->view('settings/serie_list');
         $this->load->view('fixed/footer');
     }
-	
-	public function serie()
+
+    public function serie()
     {
         if ($this->input->post()) {
-			$this->load->library("form_validation");
-			$rules = array(
-				array(
-					'field' => 'serie',
-					'label' => 'Nome da Série',
-					'rules' => 'required',
-					'errors' => array('required' => 'Por favor Insira um %s.')
-				),
-				array(
-					'field' => 'cae',
-					'label' => 'C.A.E',
-					'rules' => 'required',
-					'errors' => array('required' => 'Por favor Selecione pelo menos um %s.')
-				),
-				array(
-					'field' => 'startdate',
-					'label' => 'Data Início',
-					'rules' => 'required',
-					'errors' => array('required' => 'Por favor insira uma %s.')
-				),
-				array(
-					'field' => 'serie_class',
-					'label' => $this->lang->line('Class Ativ'),
-					'rules' => 'required',
-					'errors' => array('required' => 'Por favor selecione uma %s.')
-				),
-				array(
-					'field' => 'serie_wareh',
-					'label' => 'Localização',
-					'rules' => 'required',
-					'errors' => array('required' => 'Por favor selecione uma %s.')
-				),
-				array(
-					'field' => 'serie_type_com',
-					'label' => $this->lang->line('Type Com'),
-					'rules' => 'required',
-					'errors' => array('required' => 'Por favor selecione um %s.')
-				)
-			);
-			
-			$this->form_validation->set_rules($rules);		
-			if ($this->form_validation->run())
-			{
-				$serie = $this->input->post('serie', true);
-				$cae = $this->input->post('cae');
-				$startdate = datefordatabase($this->input->post('startdate'));
-				$enddate = datefordatabase($this->input->post('enddate'));
-				$exclued = $this->input->post('exclued');
-				$serie_class = $this->input->post('serie_class');
-				$serie_wareh = $this->input->post('serie_wareh');
-				$serie_pred = $this->input->post('serie_pred');
-				$serie_type_com = $this->input->post('serie_type_com');
-				$serie_iva_caixa = $this->input->post('serie_iva_caixa');
+            $this->load->library("form_validation");
+            $rules = array(
+                array(
+                    'field' => 'serie',
+                    'label' => 'Nome da Série',
+                    'rules' => 'required',
+                    'errors' => array('required' => 'Por favor Insira um %s.')
+                ),
+                array(
+                    'field' => 'cae',
+                    'label' => 'C.A.E',
+                    'rules' => 'required',
+                    'errors' => array('required' => 'Por favor Selecione pelo menos um %s.')
+                ),
+                array(
+                    'field' => 'startdate',
+                    'label' => 'Data Início',
+                    'rules' => 'required',
+                    'errors' => array('required' => 'Por favor insira uma %s.')
+                ),
+                array(
+                    'field' => 'serie_class',
+                    'label' => $this->lang->line('Class Ativ'),
+                    'rules' => 'required',
+                    'errors' => array('required' => 'Por favor selecione uma %s.')
+                ),
+                array(
+                    'field' => 'serie_wareh',
+                    'label' => 'Localização',
+                    'rules' => 'required',
+                    'errors' => array('required' => 'Por favor selecione uma %s.')
+                ),
+                array(
+                    'field' => 'serie_type_com',
+                    'label' => $this->lang->line('Type Com'),
+                    'rules' => 'required',
+                    'errors' => array('required' => 'Por favor selecione um %s.')
+                )
+            );
 
-				if ($this->settings->addserie($serie, $cae, $startdate, $enddate, $exclued, $serie_class, $serie_wareh, $serie_pred, $serie_type_com, $serie_iva_caixa)) {
-					$seriid = $this->db->insert_id();
-					$typs_id = $this->input->post('pid');
-					$start_doc = $this->input->post('start_doc',true);
-					$typslist = array();
-					$prodindex = 0;
-					foreach ($typs_id as $key => $value) {
-						$data = array(
-							'serie' => $seriid,
-							'typ_doc' => $typs_id[$key],
-							'start' => $start_doc[$key]);
-						$typslist[$prodindex] = $data;
-						$prodindex++;
-					}
-					$this->db->insert_batch('geopos_series_ini_typs', $typslist);
-					echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='serie' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='series' class='btn btn-grey btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a>"));
-				} else {
-					echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
-				}
-			}else{
-				echo json_encode(array('status' => 'Dados de Formulário', 'message' => $this->form_validation->error_string()));
-			}
+            $this->form_validation->set_rules($rules);
+            if ($this->form_validation->run()) {
+                $serie = $this->input->post('serie', true);
+                $cae = $this->input->post('cae');
+                $startdate = datefordatabase($this->input->post('startdate'));
+                $enddate = datefordatabase($this->input->post('enddate'));
+                $exclued = $this->input->post('exclued');
+                $serie_class = $this->input->post('serie_class');
+                $serie_wareh = $this->input->post('serie_wareh');
+                $serie_pred = $this->input->post('serie_pred');
+                $serie_type_com = $this->input->post('serie_type_com');
+                $serie_iva_caixa = $this->input->post('serie_iva_caixa');
+
+                if ($this->settings->addserie($serie, $cae, $startdate, $enddate, $exclued, $serie_class, $serie_wareh, $serie_pred, $serie_type_com, $serie_iva_caixa)) {
+                    $seriid = $this->db->insert_id();
+                    $typs_id = $this->input->post('pid');
+                    $start_doc = $this->input->post('start_doc', true);
+                    $typslist = array();
+                    $prodindex = 0;
+                    foreach ($typs_id as $key => $value) {
+                        $data = array(
+                            'serie' => $seriid,
+                            'typ_doc' => $typs_id[$key],
+                            'start' => $start_doc[$key]);
+                        $typslist[$prodindex] = $data;
+                        $prodindex++;
+                    }
+                    $this->db->insert_batch('geopos_series_ini_typs', $typslist);
+                    echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='serie' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='series' class='btn btn-grey btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a>"));
+                } else {
+                    echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
+                }
+            } else {
+                echo json_encode(array('status' => 'Dados de Formulário', 'message' => $this->form_validation->error_string()));
+            }
         } else {
-			$this->load->library("Common");
+            $this->load->library("Common");
             $head['usernm'] = $this->aauth->get_user()->username;
-			$data['caes'] = $this->settings->scaescombo();
-			$data['docs_ini'] = $this->common->default_typ_doc_list_ini();
-			$data['classes'] = $this->common->get_all_class();
-			$data['localizacoes'] = $this->common->get_all_Localizacoes();
-			
+            $data['caes'] = $this->settings->scaescombo();
+            $data['docs_ini'] = $this->common->default_typ_doc_list_ini();
+            $data['classes'] = $this->common->get_all_class();
+            $data['localizacoes'] = $this->common->get_all_Localizacoes();
+
             $head['title'] = 'New Serie';
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/serie', $data);
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	 public function sre_list()
+
+
+    public function sre_list()
     {
         $cid = $this->input->post('cid');
         $list = $this->settings->serie_datatables($cid);
@@ -1673,17 +1667,16 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $row = array();
             $row[] = $no;
             $row[] = $obj->serie;
-			$row[] = $obj->cae_name;
-			$row[] = $obj->namecla;
-			$row[] = $obj->nameloc;
+            $row[] = $obj->cae_name;
+            $row[] = $obj->namecla;
+            $row[] = $obj->nameloc;
             $row[] = dateformat($obj->startdate);
-			if($obj->enddate == null)
-			{
-				$row[] = "Sem Data Fim";
-			}else{
-				$row[] = dateformat($obj->enddate);
-			}
-			$row[] = "<a href='" . base_url("settings/edserie?id=$obj->id") . "' class='btn btn-blue'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-danger delete-object"><span class="fa fa-trash"></span></a>';
+            if ($obj->enddate == null) {
+                $row[] = "Sem Data Fim";
+            } else {
+                $row[] = dateformat($obj->enddate);
+            }
+            $row[] = "<div class='action-btn'><a href='" . base_url("settings/edserie?id=$obj->id") . "' class='btn btn-outline-primary btn-sm' title='" . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i> </a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-outline-danger btn-sm delete-object" title=' . $this->lang->line('Delete') . '><span class="bi bi-trash"></span></a></div>';
             $data[] = $row;
         }
 
@@ -1699,84 +1692,84 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
 
     public function delete_serie()
     {
-		if (!$this->aauth->premission(11)) {
+        if (!$this->aauth->premission(11)) {
             exit($this->lang->line('translate19'));
         }
-		$this->aauth->applog("[Delete] Serie-$id" . $id, $this->aauth->get_user()->username);
-		
-		$id = $this->input->post('deleteid');
-		$data = array(
-			'status' => 1
-		);
-		$this->db->set($data);
-		$this->db->where('id', $id);
-		if ($this->db->update('geopos_series', $data)) {
-			echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('DELETED')));
+        $this->aauth->applog("[Delete] Serie-$id" . $id, $this->aauth->get_user()->username);
+
+        $id = $this->input->post('deleteid');
+        $data = array(
+            'status' => 1
+        );
+        $this->db->set($data);
+        $this->db->where('id', $id);
+        if ($this->db->update('geopos_series', $data)) {
+            echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('DELETED')));
         } else {
             echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
         }
-	}
-	
-	
-	public function edserie()
+    }
+
+
+    public function edserie()
     {
         if ($this->input->post()) {
             $id = $this->input->post('did');
-			
-			$serie = $this->input->post('serie', true);
-			$cae = $this->input->post('cae');
-			$startdate = datefordatabase($this->input->post('startdate'));
-			$enddate = null;
-			if($this->input->post('enddate') != ''){
-				$enddate = datefordatabase($this->input->post('enddate'));
-			}
-			$exclued = $this->input->post('exclued');
-			$serie_class = $this->input->post('serie_class');
-			$serie_wareh = $this->input->post('serie_wareh');
-			$serie_pred = $this->input->post('serie_pred');
-			$serie_iva_caixa = $this->input->post('serie_iva_caixa');
-			$serie_type_com = $this->input->post('serie_type_com');
+
+            $serie = $this->input->post('serie', true);
+            $cae = $this->input->post('cae');
+            $startdate = datefordatabase($this->input->post('startdate'));
+            $enddate = null;
+            if ($this->input->post('enddate') != '') {
+                $enddate = datefordatabase($this->input->post('enddate'));
+            }
+            $exclued = $this->input->post('exclued');
+            $serie_class = $this->input->post('serie_class');
+            $serie_wareh = $this->input->post('serie_wareh');
+            $serie_pred = $this->input->post('serie_pred');
+            $serie_iva_caixa = $this->input->post('serie_iva_caixa');
+            $serie_type_com = $this->input->post('serie_type_com');
             if ($this->settings->edithserie($id, $serie, $cae, $startdate, $enddate, $exclued, $serie_class, $serie_wareh, $serie_pred, $serie_type_com, $serie_iva_caixa)) {
-				$this->db->delete('geopos_series_ini_typs', array('serie' => $id));
-				$typs_id = $this->input->post('pid');
-				$start_doc = $this->input->post('start_doc',true);
-				$typslist = array();
-				$prodindex = 0;
-				foreach ($typs_id as $key => $value) {
-					$data = array(
-						'serie' => $id,
-						'typ_doc' => $typs_id[$key],
-						'start' => $start_doc[$key]);
-					$typslist[$prodindex] = $data;
-					$prodindex++;
-				}
-				
-				$this->db->insert_batch('geopos_series_ini_typs', $typslist);
+                $this->db->delete('geopos_series_ini_typs', array('serie' => $id));
+                $typs_id = $this->input->post('pid');
+                $start_doc = $this->input->post('start_doc', true);
+                $typslist = array();
+                $prodindex = 0;
+                foreach ($typs_id as $key => $value) {
+                    $data = array(
+                        'serie' => $id,
+                        'typ_doc' => $typs_id[$key],
+                        'start' => $start_doc[$key]);
+                    $typslist[$prodindex] = $data;
+                    $prodindex++;
+                }
+
+                $this->db->insert_batch('geopos_series_ini_typs', $typslist);
                 echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . "  <a href='serie' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='series' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }
         } else {
-			$this->load->library("Common");
+            $this->load->library("Common");
             $data['id'] = $this->input->get('id');
             $data['serie'] = $this->settings->serie_view($data['id']);
-			$data['docs_ini'] = $this->common->default_typ_doc_list($data['id']);
-			$data['classes'] = $this->common->get_all_class();
-			$data['localizacoes'] = $this->common->get_all_Localizacoes();
+            $data['docs_ini'] = $this->common->default_typ_doc_list($data['id']);
+            $data['classes'] = $this->common->get_all_class();
+            $data['localizacoes'] = $this->common->get_all_Localizacoes();
             $head['usernm'] = $this->aauth->get_user()->username;
-			$data['caes'] = $this->settings->scaescombo();
+            $data['caes'] = $this->settings->scaescombo();
             $head['title'] = 'Edit Serie';
             $this->load->view('fixed/header', $head);
             $this->load->view('settings/editserie', $data);
             $this->load->view('fixed/footer');
         }
     }
-	
-	/*
-		Countrys
-	*/
 
-	public function countrys()
+    /*
+        Countrys
+    */
+
+    public function countrys()
     {
         $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = 'Countrys';
@@ -1784,14 +1777,14 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         $this->load->view('settings/country_list');
         $this->load->view('fixed/footer');
     }
-	
-	public function country()
+
+    public function country()
     {
         if ($this->input->post()) {
-            $name = $this->input->post('name',true);
-            $prefix = $this->input->post('prefix',true);
-			$cultur = $this->input->post('culturs',true);
-			$indicat = $this->input->post('indicat');
+            $name = $this->input->post('name', true);
+            $prefix = $this->input->post('prefix', true);
+            $cultur = $this->input->post('culturs', true);
+            $indicat = $this->input->post('indicat');
             $memberue = $this->input->post('memberue');
 
             if ($this->settings->addcountry($name, $prefix, $cultur, $indicat, $memberue)) {
@@ -1800,7 +1793,7 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }
         } else {
-			$data['culturs'] = $this->settings->list_culturs();
+            $data['culturs'] = $this->settings->list_culturs();
             $head['usernm'] = $this->aauth->get_user()->username;
             $head['title'] = 'New Country';
             $this->load->view('fixed/header', $head);
@@ -1808,9 +1801,9 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	public function terms_list()
+
+
+    public function terms_list()
     {
         $cid = $this->input->post('cid');
         $list = $this->settings->terms_datatables($cid);
@@ -1822,8 +1815,9 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $row = array();
             $row[] = $no;
             $row[] = $obj->title;
-			$row[] = $obj->nameterm;
-			$row[] = "<a href='" . base_url("settings/edit_term?id=$obj->id") . "' class='btn btn-blue'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-danger delete-object"><span class="fa fa-trash"></span></a>';
+            $row[] = $obj->nameterm;
+            $row[] = "<div class='action-btn'><a href='" . base_url("settings/edit_term?id=$obj->id") . "' class='btn btn-outline-primary btn-sm' title='" . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i> </a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-outline-danger btn-sm 
+delete-object" title=' . $this->lang->line('Delete') . '><span class="bi bi-trash"></span></a></div>';
             $data[] = $row;
         }
 
@@ -1836,9 +1830,9 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         //output to json format
         echo json_encode($output);
     }
-	
-	
-	public function ctr_list()
+
+
+    public function ctr_list()
     {
         $cid = $this->input->post('cid');
         $list = $this->settings->country_datatables($cid);
@@ -1850,9 +1844,9 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $row = array();
             $row[] = $no;
             $row[] = $obj->name;
-			$row[] = $obj->prefix;
-			$row[] = $obj->indicat;
-			$row[] = "<a href='" . base_url("settings/edcountry?id=$obj->id") . "' class='btn btn-blue'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-danger delete-object"><span class="fa fa-trash"></span></a>';
+            $row[] = $obj->prefix;
+            $row[] = $obj->indicat;
+            $row[] = "<div class='action-btn'> <a href='" . base_url("settings/edcountry?id=$obj->id") . "' class='btn btn-outline-primary btn-sm' title='" . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i> </a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-outline-danger btn-sm delete-object" title=' . $this->lang->line('Delete') . '><span class="bi bi-trash"></span></a></div>';
             $data[] = $row;
         }
 
@@ -1868,10 +1862,10 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
 
     public function delete_country()
     {
-		if (!$this->aauth->premission(11)) {
+        if (!$this->aauth->premission(11)) {
             exit($this->lang->line('translate19'));
         }
-		
+
         $id = $this->input->post('deleteid');
 
         if ($this->settings->deletecountry($id)) {
@@ -1879,18 +1873,18 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         } else {
             echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
         }
-		
-	}
-	
-	
-	public function edcountry()
+
+    }
+
+
+    public function edcountry()
     {
         if ($this->input->post()) {
             $id = $this->input->post('did');
-			$name = $this->input->post('name',true);
-            $prefix = $this->input->post('prefix',true);
-			$cultur = $this->input->post('culturs',true);
-			$indicat = $this->input->post('indicat');
+            $name = $this->input->post('name', true);
+            $prefix = $this->input->post('prefix', true);
+            $cultur = $this->input->post('culturs', true);
+            $indicat = $this->input->post('indicat');
             $memberue = $this->input->post('memberue');
 
             if ($this->settings->edithcountry($id, $name, $prefix, $cultur, $indicat, $memberue)) {
@@ -1901,7 +1895,7 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         } else {
             $data['id'] = $this->input->get('id');
             $data['country'] = $this->settings->country_view($data['id']);
-			$data['culturs'] = $this->settings->list_culturs();
+            $data['culturs'] = $this->settings->list_culturs();
             $head['usernm'] = $this->aauth->get_user()->username;
             $head['title'] = 'Edit Country';
             $this->load->view('fixed/header', $head);
@@ -1909,14 +1903,13 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	
-	/*
-		Culturs
-	*/
 
-	public function culturs()
+
+    /*
+        Culturs
+    */
+
+    public function culturs()
     {
         $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = 'Culturs';
@@ -1924,12 +1917,12 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         $this->load->view('settings/cultur_list');
         $this->load->view('fixed/footer');
     }
-	
-	public function cultur()
+
+    public function cultur()
     {
         if ($this->input->post()) {
-            $name = $this->input->post('name',true);
-            $prefix = $this->input->post('prefix',true);
+            $name = $this->input->post('name', true);
+            $prefix = $this->input->post('prefix', true);
             if ($this->settings->addcultur($name, $prefix)) {
                 echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='cultur' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='culturs' class='btn btn-grey btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a>"));
             } else {
@@ -1939,13 +1932,14 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $head['usernm'] = $this->aauth->get_user()->username;
             $head['title'] = 'New Cultur';
             $this->load->view('fixed/header', $head);
-            $this->load->view('settings/cultur', $data);
+//            $this->load->view('settings/cultur', $data);
+            $this->load->view('settings/cultur');
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	 public function cltu_list()
+
+
+    public function cltu_list()
     {
         $cid = $this->input->post('cid');
         $list = $this->settings->cultur_datatables($cid);
@@ -1957,8 +1951,8 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $row = array();
             $row[] = $no;
             $row[] = $obj->name;
-			$row[] = $obj->prefix;
-			$row[] = "<a href='" . base_url("settings/edcultur?id=$obj->id") . "' class='btn btn-blue'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-danger delete-object"><span class="fa fa-trash"></span></a>';
+            $row[] = $obj->prefix;
+            $row[] = "<div class='action-btn'><a href='" . base_url("settings/edcultur?id=$obj->id") . "' class='btn btn-outline-primary btn-sm' title='" . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i> </a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-outline-danger btn-sm delete-object" title=' . $this->lang->line('Delete') . '><span class="bi bi-trash"></span></a></div>';
             $data[] = $row;
         }
 
@@ -1974,10 +1968,10 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
 
     public function delete_cultur()
     {
-		if (!$this->aauth->premission(11)) {
+        if (!$this->aauth->premission(11)) {
             exit($this->lang->line('translate19'));
         }
-		
+
         $id = $this->input->post('deleteid');
 
         if ($this->settings->deletecultur($id)) {
@@ -1985,16 +1979,16 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         } else {
             echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
         }
-		
-	}
-	
-	
-	public function edcultur()
+
+    }
+
+
+    public function edcultur()
     {
         if ($this->input->post()) {
             $id = $this->input->post('did');
-			$name = $this->input->post('name',true);
-            $prefix = $this->input->post('prefix',true);
+            $name = $this->input->post('name', true);
+            $prefix = $this->input->post('prefix', true);
 
             if ($this->settings->edithcultur($id, $name, $prefix)) {
                 echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . "  <a href='cultur' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='culturs' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
@@ -2011,12 +2005,12 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $this->load->view('fixed/footer');
         }
     }
-	
-	/*
-		Type Documents TAX
-	*/
 
-	public function irs_typ_docs()
+    /*
+        Type Documents TAX
+    */
+
+    public function irs_typ_docs()
     {
         $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = 'Types Docs Tax';
@@ -2024,13 +2018,13 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         $this->load->view('settings/irs_typ_doc_list');
         $this->load->view('fixed/footer');
     }
-	
-	public function irs_typ_doc()
+
+    public function irs_typ_doc()
     {
         if ($this->input->post()) {
-            $type = $this->input->post('type',true);
-            $description = $this->input->post('description',true);
-			$used = $this->input->post('used',true);
+            $type = $this->input->post('type', true);
+            $description = $this->input->post('description', true);
+            $used = $this->input->post('used', true);
             if ($this->settings->addirs_typ_doc($type, $description, $used)) {
                 echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='irs_typ_doc' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='irs_typ_docs' class='btn btn-grey btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a>"));
             } else {
@@ -2044,9 +2038,9 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $this->load->view('fixed/footer');
         }
     }
-	
-	
-	 public function sirs_typ_doc_list()
+
+
+    public function sirs_typ_doc_list()
     {
         $cid = $this->input->post('cid');
         $list = $this->settings->irs_typ_doc_datatables($cid);
@@ -2058,10 +2052,10 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $row = array();
             $row[] = $no;
             $row[] = $obj->type;
-			$row[] = $obj->description;
-			$row[] = $obj->nameused;
-			$row[] = "<a href='" . base_url("settings/edirs_typ_doc?id=$obj->id") . "' class='btn btn-blue'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a>";
-			//$row[] = "<a href='" . base_url("settings/edirs_typ_doc?id=$obj->id") . "' class='btn btn-blue'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-danger delete-object"><span class="fa fa-trash"></span></a>';
+            $row[] = $obj->description;
+            $row[] = $obj->nameused;
+            $row[] = "<div class='action-btn'><a href='" . base_url("settings/edirs_typ_doc?id=$obj->id") . "' class='btn btn-outline-primary btn-sm' title='" . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i></a></div>";
+            //$row[] = "<a href='" . base_url("settings/edirs_typ_doc?id=$obj->id") . "' class='btn btn-blue'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a> " . '<a href="#" data-object-id="' . $obj->id . '" class="btn btn-danger delete-object"><span class="fa fa-trash"></span></a>';
             $data[] = $row;
         }
 
@@ -2077,10 +2071,10 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
 
     public function delete_irs_typ_doc()
     {
-		if (!$this->aauth->premission(11)) {
+        if (!$this->aauth->premission(11)) {
             exit($this->lang->line('translate19'));
         }
-		
+
         $id = $this->input->post('deleteid');
 
         if ($this->settings->deleteirs_typ_doc($id)) {
@@ -2088,21 +2082,21 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
         } else {
             echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
         }
-		
-	}
-	
-	
-	public function edirs_typ_doc()
+
+    }
+
+
+    public function edirs_typ_doc()
     {
         if ($this->input->post()) {
             $id = $this->input->post('did');
-			$type = $this->input->post('type',true);
-            $description = $this->input->post('description',true);
-			$used = $this->input->post('used',true);
+            $type = $this->input->post('type', true);
+            $description = $this->input->post('description', true);
+            $used = $this->input->post('used', true);
 
             if ($this->settings->edithirs_typ_doc($id, $type, $description, $used)) {
-				$this->db->delete('geopos_invoice_items', array('irs_type' => $id));
-				
+                $this->db->delete('geopos_invoice_items', array('irs_type' => $id));
+
                 echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . "  <a href='irs_typ_doc' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='irs_typ_docs' class='btn btn-grey btn-lg'><span class='icon-eye' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
@@ -2117,60 +2111,60 @@ FROM geopos_invoices AS i LEFT JOIN geopos_customers AS c ON i.csd=c.id GROUP BY
             $this->load->view('fixed/footer');
         }
     }
-	
-	public function search_copys()
+
+    public function search_copys()
     {
-		$out = array();
-		$result = $this->settings->list_numcopys();
-		foreach ($result as $row) {
-			$name = array($row['val1'],$row['id']);
-			array_push($out, $name);
-		}
-		echo json_encode($out);
+        $out = array();
+        $result = $this->settings->list_numcopys();
+        foreach ($result as $row) {
+            $name = array($row['val1'], $row['id']);
+            array_push($out, $name);
+        }
+        echo json_encode($out);
     }
-	
-	public function search_wareh()
+
+    public function search_wareh()
     {
-		$out = array();
-		$result = $this->invocies->warehouses();
-		foreach ($result as $row) {
-			$name = array($row['title'],$row['id']);
-			array_push($out, $name);
-		}
-		echo json_encode($out);
+        $out = array();
+        $result = $this->invocies->warehouses();
+        foreach ($result as $row) {
+            $name = array($row['title'], $row['id']);
+            array_push($out, $name);
+        }
+        echo json_encode($out);
     }
-	
-	public function search_activi()
+
+    public function search_activi()
     {
-		$out = array();
-		$result = $this->products->proclasses();
-		foreach ($result as $row) {
-			$name = array($row['title'],$row['id']);
-			array_push($out, $name);
-		}
-		echo json_encode($out);
+        $out = array();
+        $result = $this->products->proclasses();
+        foreach ($result as $row) {
+            $name = array($row['title'], $row['id']);
+            array_push($out, $name);
+        }
+        echo json_encode($out);
     }
-	
-	public function search_series()
+
+    public function search_series()
     {
-		$out = array();
-		$result = $this->settings->list_series();
-		foreach ($result as $row) {
-			$name = array($row['cae_name'],$row['id']);
-			array_push($out, $name);
-		}
-		echo json_encode($out);
+        $out = array();
+        $result = $this->settings->list_series();
+        foreach ($result as $row) {
+            $name = array($row['cae_name'], $row['id']);
+            array_push($out, $name);
+        }
+        echo json_encode($out);
     }
-	
-	
-	public function search_tax()
+
+
+    public function search_tax()
     {
-		$out = array();
-		$result = $this->settings->slabs();
-		foreach ($result as $row) {
-			$name = array($row['val1'],$row['taxcode'],$row['val2'],$row['id']);
-			array_push($out, $name);
-		}
-		echo json_encode($out);
+        $out = array();
+        $result = $this->settings->slabs();
+        foreach ($result as $row) {
+            $name = array($row['val1'], $row['taxcode'], $row['val2'], $row['id']);
+            array_push($out, $name);
+        }
+        echo json_encode($out);
     }
 }

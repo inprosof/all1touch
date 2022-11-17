@@ -1,10 +1,14 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h4 class="card-title"><?php echo $this->lang->line('Manage Invoices Suppliers') ?> <a
-                        href="<?php echo base_url('invoices_supli/create_typ') ?>"
-                        class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(52) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
-                    <?php echo $this->lang->line('Add new') ?></a></h4>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Manage Invoices Suppliers') ?> <a
+                        href="<?php echo base_url('invoices_supli/create_typ?typ=0') ?>"
+                        class="btn btn-primary btn-sm btn-new" <?php if ($this->aauth->premission(52) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                    <?php echo $this->lang->line('Add new') ?></a></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -42,14 +46,14 @@
                 <table id="invoices" class="table table-striped table-bordered zero-configuration ">
                     <thead>
                     <tr>
-                       <th>Série</th>
+                        <th>Série</th>
                         <th>Nº</th>
-						<th>Data Emissão</th>
+                        <th>Data Emissão</th>
                         <th>Fornecedor</th>
                         <th>Contribuinte</th>
-						<th>Ilíquido</th>
-						<th>Impostos</th>
-						<th>Total Liq.</th>
+                        <th>Ilíquido</th>
+                        <th>Impostos</th>
+                        <th>Total Liq.</th>
                         <th><?php echo $this->lang->line('Status') ?></th>
                         <th class="no-sort"><?php echo $this->lang->line('Settings') ?></th>
 
@@ -59,21 +63,6 @@
                     <tbody>
                     </tbody>
 
-                    <tfoot>
-                    <tr>
-                        <th>Série</th>
-                        <th>Nº</th>
-						<th>Data Emissão</th>
-                        <th>Fornecedor</th>
-                        <th>Contribuinte</th>
-						<th>Ilíquido</th>
-						<th>Impostos</th>
-						<th>Total Liq.</th>
-                        <th><?php echo $this->lang->line('Status') ?></th>
-                        <th class="no-sort"><?php echo $this->lang->line('Settings') ?></th>
-
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>
@@ -91,17 +80,28 @@
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                <p>Pretende Anular o documento? Esta função é irreversível.</p>
+                <div class="alert alert-info" id="alert-info-text">
+                    <strong>Atenção:</strong> Esta ferramenta permite-lhe colocar um documento em estado anulado, caso
+                    cumpra as condições impostas pela Autoridade Tributária.<strong>Ao efetuar esta operação, irá ficar
+                        associado e responsabilizado pela operação perante as autoridades competentes.</strong>
+                </div>
+                <p>Caso já tenha comunicado à Autoridade Tributária o ficheiro SAF-T(PT) referente ao mês do documento
+                    que estiver a anular, terá que o voltar a exportar e submeter no eFatura.</p>
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="object-id" value="">
-				<input type="hidden" id="object-tid" value="">
-				<input type="hidden" id="object-tdraft" value="">
-                <input type="hidden" id="action-url" value="invoices_supli/delete_i">
-                <button type="button" data-dismiss="modal" class="btn btn-primary"
-                        id="delete-confirm"><?php echo $this->lang->line('Delete') ?></button>
-                <button type="button" data-dismiss="modal"
-                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                <input type="hidden" id="object-tid" value="">
+                <input type="hidden" id="object-tdraft" value="1">
+                <input type="hidden" id="action-url" value="invoices/delete_i">
+                <textarea class="summernote" name="justification_cancel" id="justification_cancel" rows="1"></textarea>
+            </div>
+            <div class="row" id="centerButton">
+                <div class="col-sm-12">
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete-confirm">Anular
+                    </button>
+                    <button type="button" data-dismiss="modal"
+                            class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                </div>
             </div>
         </div>
     </div>
@@ -117,14 +117,15 @@
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-				<label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
-					<strong>Atenção:</strong> Esta ferramenta permite-lhe remover este documento por estar ainda em estado Rascunho.</strong>
-				</label>
+                <label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
+                    <strong>Atenção:</strong> Esta ferramenta permite-lhe remover este documento por estar ainda em
+                    estado Rascunho.</strong>
+                </label>
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="object-id2" value="">
-				<input type="hidden" id="object-tid2" value="">
-				<input type="hidden" id="object-tdraft2" value="0">
+                <input type="hidden" id="object-tid2" value="">
+                <input type="hidden" id="object-tdraft2" value="0">
                 <input type="hidden" id="action-url2" value="invoices_supli/delete_i">
                 <button type="button" data-dismiss="modal" class="btn btn-primary"
                         id="delete-confirm2"><?php echo $this->lang->line('Delete') ?></button>
@@ -144,20 +145,24 @@
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-				<input type="hidden" id="object-id-doc-convert" value="">
-				<input type="hidden" id="object-id-doc-convert_ext" value="1">
-				<input type="hidden" id="action-url-convert" value="receipts/convert">
-				<input type="hidden" id="action-url-convert1" value="supplier_notes/convert">
-				<input type="hidden" id="action-url-convert2" value="supplier_notes/convert">
-				<select name="object-id-doc-convert-type" class="form-control b_input required" id="object-id-doc-convert-type">
-					<option value="10">Nota de Débito</option>
-					<option value="11">Nota de Crédito</option>
-					<option value="14">Recibo</option>
-				</select>
+                <input type="hidden" id="object-id-doc-convert" value="">
+                <input type="hidden" id="object-id-doc-convert_ext" value="1">
+                <input type="hidden" id="action-url-convert" value="receipts/convert">
+                <input type="hidden" id="action-url-convert1" value="supplier_notes/convert">
+                <input type="hidden" id="action-url-convert2" value="supplier_notes/convert">
+                <select name="object-id-doc-convert-type" class="form-control b_input required"
+                        id="object-id-doc-convert-type">
+                    <option value="10">Nota de Débito</option>
+                    <option value="11">Nota de Crédito</option>
+                    <option value="14">Recibo</option>
+                </select>
             </div>
             <div class="modal-footer">
-				<button type="button" data-dismiss="modal" class="btn btn-primary" id="convert-confirm">Converter Agora</button>
-                <button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="convert-confirm">Converter
+                    Agora
+                </button>
+                <button type="button" data-dismiss="modal"
+                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
             </div>
         </div>
     </div>
@@ -165,26 +170,52 @@
 <div class="modal fade" id="choise_docs_related" role="dialog">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-			<input type="hidden" id="relations-id" name="relations-id" value="">
-			<input type="hidden" id="relations-type" name="relations-type" value="">
-			<input type="hidden" id="relations-type_n" name="relations-type_n" value="">
-			<input type="hidden" id="relations-ext" name="relations-ext" value="0">
+            <input type="hidden" id="relations-id" name="relations-id" value="">
+            <input type="hidden" id="relations-type" name="relations-type" value="">
+            <input type="hidden" id="relations-type_n" name="relations-type_n" value="">
+            <input type="hidden" id="relations-ext" name="relations-ext" value="0">
             <div class="modal-header">
                 <h4 class="modal-title">Documentos relacionados</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
             </div>
-			<div class="modal-body">
+            <div class="modal-body">
                 <h6 id="titulo_relationt" name="titulo_relationt"></h6>
-				<table id="relationstview" name="relationsview" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
-				<h6 id="titulo_relationd" name="titulo_relationd"></h6>
-				<table id="relationsdview" name="relationsview" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
+                <table id="relationstview" name="relationsview"
+                       class="table table-striped table-bordered zero-configuration" cellspacing="0"
+                       width="100%"></table>
+                <h6 id="titulo_relationd" name="titulo_relationd"></h6>
+                <table id="relationsdview" name="relationsview"
+                       class="table table-striped table-bordered zero-configuration" cellspacing="0"
+                       width="100%"></table>
             </div>
             <div class="modal-footer">
-				<button type="button" data-dismiss="modal" class="btn"><?php echo $this->lang->line('Cancel') ?></button>
-			</div>
-		</div>
+                <button type="button" data-dismiss="modal"
+                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+            </div>
+        </div>
     </div>
 </div>
+<script type="text/javascript">
+    $(function () {
+        $('.summernote').summernote({
+            height: 50,
+            tooltip: false,
+            toolbar: [
+                // [groupName, [list of button]]
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['fullscreen', ['fullscreen']],
+                ['codeview', ['codeview']]
+            ]
+        });
+    });
+
+</script>
 <script type="text/javascript">
     $(document).ready(function () {
         draw_data();
@@ -206,6 +237,13 @@
                         end_date: end_date
                     }
                 },
+				'rowCallback': function (row, data, cell) {
+					if (data.status == 'canceled') {
+						$(row).css('background-color', ' rgba(255, 0, 39, 0.22)');
+					} else if (data.status == 'draft') {
+						$(row).css('background-color', ' rgba(250, 255, 70, 0.8)');
+					}
+				},
                 'columnDefs': [
                     {
                         'targets': [0],

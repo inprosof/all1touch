@@ -1,13 +1,17 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
             <h5 class="title">
-                <?php echo $this->lang->line('Product Classes') ?> <a href="<?php echo base_url('products/addclasses') ?>"
-                                                            class="btn btn-primary btn-sm rounded">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Product Classes') ?> <a
+                        href="<?php echo base_url('products/addclasses') ?>"
+                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
-            <hr>
+
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -88,7 +92,7 @@
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                <p><?php echo $this->lang->line('delete this ').' '.$this->lang->line('Product Classes') ?></p>
+                <p><?php echo $this->lang->line('delete this ') . ' ' . $this->lang->line('Product Classes') ?></p>
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="object-id" value="">

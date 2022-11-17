@@ -10,6 +10,7 @@
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
                             <div id="customerpanel" class="inner-cmp-pnl">
+								<input type="hidden" value="<?php echo $relationid ?>" name="relationid" id="relationid">
 								<input type="hidden" name="iddoc" value="<?php echo $guide['iddoc'] ?>">
 								<input type="hidden" name="vers" value="<?php echo $guide['version'] ?>">
 								<input type="hidden" value="<?php echo $type_guide; ?>" name="type_guide" id="type_guide">

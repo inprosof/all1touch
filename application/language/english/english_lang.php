@@ -1,11 +1,63 @@
-<?php 
+<?php
 $lang['name_soft'] = "PCTECKSERV - CRM";
 $lang['Date'] = "Date";
 $lang['File upload error'] = "File upload error";
-$lang['File upload success']='File upload success';
+$lang['File upload success'] = 'File upload success';
 $lang['Edit'] = "Edit";
+$lang['Recommended : No | With this option input during bill creation will be considered as per selected currency.'] = 'Recommended : <strong>No</strong><br> With this option input during bill creation will be considered as per selected currency.';
+$lang['You can add invoice currencies here, these currencies can be selected during an invoice creation. The
+                exchange rate and other tasks will automatically handled by application. Please make sure enter correct
+                ISO currency code to get automatic exchange rate updates and receive payment using payment gateways with
+                converted amount.'] = 'You can add invoice currencies here, these currencies can be selected during an invoice creation. The
+                exchange rate and other tasks will automatically handled by application. Please make sure enter correct
+                ISO currency code to get automatic exchange rate updates and receive payment using payment gateways with
+                converted amount.';
+$lang['Send automatic email during customer registration by
+                        employee. Please do not enable this feature unnecessarily, it may slow the customer registration
+                        process as the application will connect to email server if your email is slow.'] = 'Send automatic email during customer registration by
+                        employee. Please do not enable this feature unnecessarily, it may slow the customer registration
+                        process as the application will connect to email server if your email is slow.';
+
+$lang['Application has integrated currencylayer.com API. It offers a real-time currency conversion for your
+                invoices. Accurate Exchange Rates for 168 World Currencies with data updates ranging from every 60
+                minutes down to stunning 60 seconds. Please visit currencylayer.com to get API key.'] = 'Application has integrated currencylayer.com API. It offers a real-time currency conversion for your
+                invoices. Accurate Exchange Rates for 168 World Currencies with data updates ranging from every 60
+                minutes down to stunning 60 seconds. Please visit currencylayer.com to get API key.';
+$lang['Must be an integer'] = 'Must be an integer';
+$lang['Change Language'] = 'Change Language';
+$lang['Message Upload Logo'] = 'The theme logo is different from the company logo. The recommended size of the theme logo is 80x80px. png only
+                    allowed files. Clear browser cache after upload.';
+$lang['Application Update'] = 'Application Update';
+$lang['Message Update'] = 'You can download and install updates with 3 clicks with this easy WebUpdater. Please remember this
+                function will not work properly if your server has very restricted file permissions and you have to
+                update manually.';
+$lang['Change Custom Field'] = 'Change Custom Field';
+$lang['This % will be added to all invoices. In the Shipping field.'] = 'This % will be added to all invoices. In the Shipping field.';
+$lang['Add Custom Field'] = 'Add Custom Field';
+$lang['Product search settings'] = 'Product search settings';
+$lang['Application Activity Log cleanup can be managed in Cron Job Settings.'] = 'Application Activity Log cleanup can be managed in Cron Job Settings.';
+$lang['Allow sales person to bill with 0 stock, helpful to use products as a service.'] = 'Allow sales person to bill with 0 stock, helpful to use products as a service.';
+$lang['Consult'] = 'Consult';
+$lang['Application Debug Mode'] = 'Application Debug Mode';
+$lang['Refer to documentation to configure email templates'] = 'Refer to documentation to configure email templates';
 $lang['employee_login_panel'] = "Employee Login Panel";
+$lang['Price without taxes & fees'] = 'Price without taxes & fees';
+$lang['Do not change if not applicable'] = 'Do not change if not applicable';
+$lang['Purchase Orders Suppliers'] = "Purchase Orders Suppliers";
 $lang['remember_me'] = "Remember Me";
+$lang['Salary Generate'] = 'Salary generate';
+$lang['Export PDF'] = 'Export PDF';
+$lang['View Salary'] = 'View Salary';
+$lang['View Salary Process'] = 'View Salary Process';
+$lang['Submit'] = 'Submit';
+$lang['TAX Report Export'] = 'TAX Report Export';
+$lang['Tools'] = 'Tools';
+$lang['Pending list of communication to the tax authority'] = 'Pending list of communication to the tax authority';
+$lang['Pending list of communication to the tax authority'] = 'Pending list of communication to the tax authority';
+$lang['Values to add in salary'] = 'Values to add in salary';
+$lang['Values to subtration in salary'] = 'Values to subtration in salary';
+$lang['It will based on each invoice amount - inclusive all taxes,shipping,discounts'] = 'It will based on each invoice amount - inclusive all taxes,shipping,discounts';
+$lang['Edit Product warehouse'] = 'Edit product warehouse';
 $lang['forgot_password'] = "Forgot Password";
 $lang['login'] = "Login";
 $lang['customer_login'] = "Customer Login";
@@ -21,7 +73,7 @@ $lang['Manage Invoices'] = "Manage Invoices";
 $lang['Invoices Suppliers'] = "Invoices Suppliers";
 $lang['Manage Invoices Suppliers'] = "Manage Invoices Suppliers";
 $lang['New Quote'] = "New Quote";
-$lang['Order Number']='Order Number';
+$lang['Order Number'] = 'Order Number';
 $lang['admin'] = 'Administrator';
 $lang['Manage Quotes'] = "Manage Quotes";
 $lang['Reccuring Sales'] = "Recurring Sales";
@@ -842,13 +894,13 @@ $lang['Assets Manager'] = "Assets Management";
 $lang['New Assets'] = "New Assets";
 $lang['Manage Assets'] = "Manage Assets";
 $lang['Assets Categories'] = "Assets Categories";
-$lang['delete this assets']= 'Are you sure you want to delete this asset?';
-$lang['this assets category']= 'Are you sure you want to delete this asset category?';
-$lang['Assets Category']= 'Assets Categories';
-$lang['Asset Name']= 'Asset Name';
-$lang['Edit Asset']= 'Edit Asset';
-$lang['Edit Assets Category']= 'Change Asset Category';
-$lang['Add New Asset Category']= 'Add New Asset Category'; 
+$lang['delete this assets'] = 'Are you sure you want to delete this asset?';
+$lang['this assets category'] = 'Are you sure you want to delete this asset category?';
+$lang['Assets Category'] = 'Assets Categories';
+$lang['Asset Name'] = 'Asset Name';
+$lang['Edit Asset'] = 'Edit Asset';
+$lang['Edit Assets Category'] = 'Change Asset Category';
+$lang['Add New Asset Category'] = 'Add New Asset Category';
 
 $lang['Liabilities'] = "Liabilities";
 $lang['Equity'] = "Equity";
@@ -968,8 +1020,8 @@ $lang['TAX_Statements'] = "TAX Statements";
 $lang['Top_Customers'] = "Top_Customers";
 $lang['Summary_Report'] = "Summary & Report";
 $lang['Employee_Commission'] = "Employee Commission";
-$lang['Data_Import_Export' ] = "Import & Export";
-$lang['Tax_Export' ] = "Tax Export";
+$lang['Data_Import_Export'] = "Import & Export";
+$lang['Tax_Export'] = "Tax Export";
 $lang['Employee_Commission'] = "Employee Commission";
 $lang['Export_Import'] = "Data Export Import";
 $lang['Tax_Export'] = "TAX Export";
@@ -1047,9 +1099,12 @@ $lang['URL Shortener'] = "URL Shortener";
 $lang['SMS Configuration'] = "SMS Configuration";
 $lang['Currency Exchange API'] = "Currency Exchange API";
 $lang['POS Printers'] = "POS Printers";
+$lang['Printers'] = "Printers";
 $lang['Add Printer'] = "Add Printer";
 $lang['List Printers'] = "List Printers";
-
+$lang['Printer Details'] = "Printer Details";
+$lang['Discount'] = "Discount";
+$lang['Edit Printer'] = "Edit Printer";
 $lang['attendances'] = "extra hours";
 $lang['faults'] = "faults";
 $lang['holidays'] = "holidays";
@@ -1070,7 +1125,7 @@ $lang['Every Years'] = "Every Years";
 $lang['Proc. Salary'] = "Proc. Salary";
 $lang['Not Proc. Salary'] = "Not Proc. Salary";
 
-
+$lang['VAT'] = "Number VAT";
 $lang['V/N.OContrib'] = "Tax ID";
 $lang['Request'] = "Request";
 $lang['Salesperson'] = "Sales person";
@@ -1087,9 +1142,6 @@ $lang['share_capital'] = "Share Capital";
 $lang['Product Data Sharing with Other Locations'] = "Product Data Sharing with Other Locations?";
 $lang['Totaltopay'] = "Total to Pay";
 $lang['Totalplustax'] = "Total Plus Tax";
-
-
-
 
 
 $lang['Edit Bank Account'] = "Edit Bank Account";
@@ -1123,7 +1175,6 @@ $lang['Invalid username or password!'] = "Invalid username or password!";
 
 $lang['Insurance date'] = "Insurance date";
 $lang['Inspection date'] = "Inspection date";
-
 
 
 $lang['Remuneration Receipt'] = "Remuneration Receipt";
@@ -1191,8 +1242,6 @@ $lang['saft13'] = "Fill in the username and password authorized to communicate t
 $lang['saft14'] = "In the case of invoicing documents, you can set the start date of your automatic communication, so it will only be carried out for documents whose date is equal to or later than the date you indicated.
 
 If you indicate a date before the current date and you already have invoices issued since that date, these will be automatically communicated when you complete the activation.";
-
-
 
 
 $lang['Withholding'] = "Withholding";

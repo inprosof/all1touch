@@ -1,9 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
             <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
                 <?php echo $this->lang->line('Employee') ?> <a href="<?php echo base_url('employee/add') ?>"
-                                                               class="btn btn-primary btn-sm rounded">
+                                                               class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
@@ -65,21 +68,11 @@
                     <td>$role</td>                 
                     <td>$status</td>
                  
-                    <td><a href='" . base_url("employee/history?id=$aid") . "' class='btn btn-success btn-xs'><i class='fa fa-list-ul'></i> " . $this->lang->line('History') . "</a></td></tr>";
+                    <td><div class='action-btn'> <a href='" . base_url("employee/history?id=$aid") . "' class='btn btn-outline-purple btn-sm' title='" . $this->lang->line('History') . "'><i class='bi bi-clock-history'></i> " . "</a></div></td></tr>";
                         $i++;
                     }
                     ?>
                     </tbody>
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Name') ?></th>
-                        <th><?php echo $this->lang->line('Salary') ?></th>
-                        <th>Role</th>
-                        <th><?php echo $this->lang->line('Status') ?></th>
-                        <th><?php echo $this->lang->line('Actions') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

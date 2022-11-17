@@ -93,9 +93,12 @@
 				<input type="hidden" id="convert-type" name="convert-type" value="">
 				<input type="hidden" id="convert-ext" name="convert-ext" value="0">
 				<select class="form-control b_input required" id="doc-convert-type" name="doc-convert-type">
-					<option value="0" data-url="customers_notes/convert"><i class='fa fa-pencil'></i>Nota de Débito</option>
-					<option value="1" data-url="customers_notes/convert"><i class='fa fa-pencil'></i>Nota de Crédito</option>
-					<option value="0" data-url="receipts/convert"><i class='fa fa-pencil'></i>Recibo</option>
+					<option value="2" data-url="subscriptions/convert"><i class='fa fa-pencil'></i>Avença</option>
+					<option value="0" data-url="invoices/convert"><i class='fa fa-pencil'></i>Fatura</option>
+					<option value="100" data-url="invoices/convert"><i class='fa fa-pencil'></i>Fatura Recibo</option>
+					<option value="200" data-url="invoices/convert"><i class='fa fa-pencil'></i>Fatura Simplificada</option>
+					<option value="3" data-url="quote/convert"><i class='fa fa-pencil'></i>Orçamento</option>
+					<option value="12" data-url="quote/convert"><i class='fa fa-pencil'></i>Fatura Pró-Forma</option>
 				</select>
             </div>
 			<h6 id="titulo_converters" name="titulo_converters"></h6>
@@ -141,20 +144,28 @@
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-				<label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
-					<strong>Atenção:</strong> Esta ferramenta permite-lhe colocar um documento em estado anulado, caso cumpra as condições impostas pela Autoridade Tributária.<strong>Ao efetuar esta operação, irá ficar associado e responsabilizado pela operação perante as autoridades competentes.</strong>
-				</label>
-                <p>Caso já tenha comunicado à Autoridade Tributária o ficheiro SAF-T(PT) referente ao mês do documento que estiver a anular, terá que o voltar a exportar e submeter no eFatura.</p>
+                <div class="alert alert-info" id="alert-info-text">
+                    <strong>Atenção:</strong> Esta ferramenta permite-lhe colocar um documento em estado anulado, caso
+                    cumpra as condições impostas pela Autoridade Tributária.<strong>Ao efetuar esta operação, irá ficar
+                        associado e responsabilizado pela operação perante as autoridades competentes.</strong>
+                </div>
+                <p>Caso já tenha comunicado à Autoridade Tributária o ficheiro SAF-T(PT) referente ao mês do documento
+                    que estiver a anular, terá que o voltar a exportar e submeter no eFatura.</p>
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="object-id" value="">
-				<input type="hidden" id="object-tid" value="">
-				<input type="hidden" id="object-tdraft" value="1">
-                <input type="hidden" id="action-url" value="subscriptions/delete_i">
-				<textarea class="summernote" name="justification_cancel" id="justification_cancel" rows="1"></textarea></div>
-                <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete-confirm">Anular</button>
-                <button type="button" data-dismiss="modal"
-                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                <input type="hidden" id="object-tid" value="">
+                <input type="hidden" id="object-tdraft" value="1">
+                <input type="hidden" id="action-url" value="invoices/delete_i">
+                <textarea class="summernote" name="justification_cancel" id="justification_cancel" rows="1"></textarea>
+            </div>
+            <div class="row" id="centerButton">
+                <div class="col-sm-12">
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete-confirm">Anular
+                    </button>
+                    <button type="button" data-dismiss="modal"
+                            class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                </div>
             </div>
         </div>
     </div>
@@ -170,15 +181,16 @@
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-				<label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
-					<strong>Atenção:</strong> Esta ferramenta permite-lhe remover este documento por estar ainda em estado Rascunho.</strong>
-				</label>
+                <label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
+                    <strong>Atenção:</strong> Esta ferramenta permite-lhe remover este documento por estar ainda em
+                    estado Rascunho.</strong>
+                </label>
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="object-id2" value="">
-				<input type="hidden" id="object-tid2" value="">
-				<input type="hidden" id="object-tdraft2" value="0">
-                <input type="hidden" id="action-url2" value="subscriptions/delete_i">
+                <input type="hidden" id="object-tid2" value="">
+                <input type="hidden" id="object-tdraft2" value="0">
+                <input type="hidden" id="action-url2" value="stockreturn/delete_i">
                 <button type="button" data-dismiss="modal" class="btn btn-primary"
                         id="delete-confirm2"><?php echo $this->lang->line('Delete') ?></button>
                 <button type="button" data-dismiss="modal"
@@ -187,6 +199,26 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    $(function () {
+        $('.summernote').summernote({
+            height: 50,
+            tooltip: false,
+            toolbar: [
+                // [groupName, [list of button]]
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['fullscreen', ['fullscreen']],
+                ['codeview', ['codeview']]
+            ]
+        });
+    });
+
+</script>
 <script type="text/javascript">
 	$(document).ready(function () {
 		var start_date = $('#start_date').val();
@@ -211,9 +243,11 @@
 					end_date: end_date
 				}
 			},
-			'rowCallback': function ( row, data, cell) {
-				if(data.status == 'canceled'){
+			'rowCallback': function (row, data, cell) {
+				if (data.status == 'canceled') {
 					$(row).css('background-color', ' rgba(255, 0, 39, 0.22)');
+				} else if (data.status == 'draft') {
+					$(row).css('background-color', ' rgba(250, 255, 70, 0.8)');
 				}
 			},
 			'columnDefs': [

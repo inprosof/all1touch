@@ -1,4 +1,20 @@
-<div class="card card-block">
+<div class="card yellow-top">
+    <div class="card-header">
+        <h5 class="title">
+            <a class="btn-back" onclick=history.go(-1)>
+                <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+            </a>
+            <?php echo $this->lang->line('Date & Time Format') ?>
+        </h5>
+        <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+        <div class="heading-elements">
+            <ul class="list-inline mb-0">
+                <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                <li><a data-action="close"><i class="ft-x"></i></a></li>
+            </ul>
+        </div>
+    </div>
     <div id="notify" class="alert alert-success" style="display:none;">
         <a href="#" class="close" data-dismiss="alert">&times;</a>
 
@@ -6,18 +22,13 @@
     </div>
     <form method="post" id="product_action" class="form-horizontal">
         <div class="card-body">
-
-            <h5><?php echo $this->lang->line('Date & Time Format') ?></h5>
-            <hr>
-
-
             <input type="hidden" name="id" value="<?php echo $company['id'] ?>">
             <div class="form-group row">
 
-                <label class="col-sm-4 col-form-label"
+                <label class="col-sm-2 col-form-label"
                        for="tzone"><?php echo $this->lang->line('Time Zone') ?></label>
 
-                <div class="col-sm-4">
+                <div class="col-sm-6">
                     <select class="form-control" name="tzone">
                         <option value="<?php
 
@@ -176,21 +187,21 @@
 
             <div class="form-group row">
 
-                <label class="col-sm-4 col-form-label"
+                <label class="col-sm-2 col-form-label"
                        for="product_name"><?php echo $this->lang->line('Date Format(Billing)') ?></label>
 
-                <div class="col-sm-4"><select name="dateformat" class="form-control">
+                <div class="col-sm-6"><select name="dateformat" class="form-control">
                         <?php
                         echo '<option value="' . $company['dformat'] . '">*' . strtoupper($this->config->item('dformat2')) . '*</option>'; ?>
-						<option value="1">DD-MM-YYYY</option>
-						<option value="2">DD/MM/YYYY</option>
-						<option value="3">DD.MM.YYYY</option>
-						<option value="4">MM-DD-YYYY</option>
-						<option value="5">MM/DD/YYYY</option>
-						<option value="6">MM.DD.YYYY</option>
-						<option value="7">YYYY-MM-DD</option>
+                        <option value="1">DD-MM-YYYY</option>
+                        <option value="2">DD/MM/YYYY</option>
+                        <option value="3">DD.MM.YYYY</option>
+                        <option value="4">MM-DD-YYYY</option>
+                        <option value="5">MM/DD/YYYY</option>
+                        <option value="6">MM.DD.YYYY</option>
+                        <option value="7">YYYY-MM-DD</option>
                         <option value="8">YYYY/MM/DD</option>
-						<option value="9">YYYY.MM.DD</option>
+                        <option value="9">YYYY.MM.DD</option>
                         <!--<option value="3">MM-DD-YYYY</option>-->
                     </select>
 
@@ -201,9 +212,9 @@
 
             <div class="form-group row">
 
-                <label class="col-sm-4 col-form-label"></label>
+                <label class="col-sm-2 col-form-label"></label>
 
-                <div class="col-sm-4">
+                <div class="col-sm-6" id="paiCompanyUpdate">
                     <input type="submit" id="time_update" class="btn btn-success margin-bottom"
                            value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Updating...">
                 </div>

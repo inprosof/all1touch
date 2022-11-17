@@ -1,13 +1,29 @@
 <script src="<?php echo assets_url(); ?>assets/myjs/loading-bar.js" type="text/javascript"></script>
 <article class="content-body">
-    <div class="card card-block">
+    <div class="card yellow-top">
+        <div class="card-header">
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Application Update') ?>
+            </h5>
+            <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+            <div class="heading-elements">
+                <ul class="list-inline mb-0">
+                    <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                    <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                    <li><a data-action="close"><i class="ft-x"></i></a></li>
+                </ul>
+            </div>
+        </div>
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
         </div>
         <div class="card-body">
-            <h5>Application Update</h5>
+
 
             <hr>
             <h5>Current Version <?php echo $version ?> /
@@ -20,12 +36,8 @@
 
             ></span>
             <p id="step1"><span id="ldBar" class="text-center"
-                                style="width:100%;height:30px" ,
-
-                ></span>
-                You can download and install updates with 3 clicks with this easy WebUpdater. Please remember this
-                function will not work properly if your server has very restricted file permissions and you have to
-                update manually.
+                                style="width:100%;height:30px" ,></span>
+                <?php echo $this->lang->line('Message Update') ?>
                 <br><br>
                 <button type="button"
                         class="update_chart btn btn-primary btn-min-width btn-lg mr-1 mb-1"
@@ -128,7 +140,7 @@
         e.preventDefault();
         $('#ldBar2').html('');
 
-       // var bar1 = new ldBar("#insldBar");
+        // var bar1 = new ldBar("#insldBar");
 
         //setInterval(function () {
         //    bar1.set(Math.floor((Math.random() * 70) + 30));
@@ -167,8 +179,8 @@
             data: {'v': 5, '<?=$this->security->get_csrf_token_name(); ?>': '<?=$this->security->get_csrf_hash(); ?>'},
             success: function (data) {
                 $('#step3').html(data);
-               // var bar1 = new ldBar("#dbldBar2");
-               // bar1.set(100);
+                // var bar1 = new ldBar("#dbldBar2");
+                // bar1.set(100);
             }
         });
 

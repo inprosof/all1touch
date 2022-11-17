@@ -1,7 +1,11 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5 class="title"> <?php echo $this->lang->line('Business Registers') ?>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Business Registers') ?>
             </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
@@ -12,7 +16,6 @@
                 </ul>
             </div>
         </div>
-        <hr>
         <div class="card-content">
             <div id="notify" class="alert alert-success" style="display:none;">
                 <a href="#" class="close" data-dismiss="alert">&times;</a>
@@ -39,16 +42,6 @@
                     <tbody>
 
                     </tbody>
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Employee') ?></th>
-                        <th><?php echo $this->lang->line('Open Date') ?></th>
-                        <th><?php echo $this->lang->line('Close Date') ?></th>
-                        <th><?php echo $this->lang->line('Status') ?></th>
-                        <th><?php echo $this->lang->line('Action') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

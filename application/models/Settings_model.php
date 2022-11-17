@@ -37,15 +37,22 @@ class Settings_model extends CI_Model
         $this->db->select("geopos_system.*, 
 								case when ".POSACCOUNT." = '0' then 0 else co.id end as ac_id_o,
 								case when ".DOCSFACCOUNT." = '0' then 0 else cf.id end as ac_id_f,
-								case when ".DOCSACCOUNT." = '0' then 0 else cd.id end as ac_id_d, 
+								case when ".DOCSACCOUNT." = '0' then 0 else cd.id end as ac_id_d,
+								CASE WHEN ".PRAZOVE." = 0 THEN 'Escolha uma Opção' ELSE cofp.val1 END AS prazo_ve_name,
+								CASE WHEN ".METODEXP." = 0 THEN 'Escolha uma Opção' ELSE cofme.val1 END AS metod_exp_name,
+								CASE WHEN ".METODPAG." = 0 THEN 'Escolha uma Opção' ELSE cofmp.val1 END AS metod_pag_name,
 								cd.holder as ac_name_d, cd.acn as ac_num_d,
 		cf.holder as ac_name_f, cf.acn as ac_num_f,CASE WHEN ".DOCDEFAULT." = 0 THEN 'Fatura' ELSE geopos_irs_typ_doc.description END AS nametipdoc, ".DOCDEFAULT." as doc_default, 
-		".EMPS." as emps, ".POSV." as posv, ".PAC." as pac, ".DUALENTRY." as dual_entry");
+		".EMPS." as emps, ".POSV." as posv, ".METODEXP." as metod_exp, ".PRAZOVE." as prazo_ve, ".METODPAG." as metod_pag, ".PAC." as pac, ".DUALENTRY." as dual_entry");
         $this->db->from('geopos_system');
 		$this->db->join('geopos_irs_typ_doc', 'geopos_irs_typ_doc.id = '.DOCDEFAULT, 'left');
         $this->db->join('geopos_accounts as co', POSACCOUNT.' = co.id', 'left');
 		$this->db->join('geopos_accounts as cd', DOCSACCOUNT.' = cd.id', 'left');
 		$this->db->join('geopos_accounts as cf', DOCSFACCOUNT.' = cf.id', 'left');
+		$this->db->join('geopos_config as cofp', PRAZOVE.' = cofp.id', 'left');
+		$this->db->join('geopos_config as cofme', METODEXP.' = cofme.id', 'left');
+		$this->db->join('geopos_config as cofmp', METODPAG.' = cofmp.id', 'left');
+		
         $query = $this->db->get();
         return $query->row_array();
     }
@@ -54,13 +61,20 @@ class Settings_model extends CI_Model
     {
         $this->db->select("geopos_locations.*, co.id as ac_id_o, co.holder as ac_name_o, co.acn as ac_num_o, cd.id as ac_id_d, cd.holder as ac_name_d, cd.acn as ac_num_d,
 		cf.id as ac_id_f, cf.holder as ac_name_f, cf.acn as ac_num_f,
-		CASE WHEN geopos_locations.doc_default = 0 THEN 'Fatura' ELSE geopos_irs_typ_doc.description END AS nametipdoc");
+		CASE WHEN geopos_locations.doc_default = 0 THEN 'Fatura' ELSE geopos_irs_typ_doc.description END AS nametipdoc,
+		CASE WHEN geopos_locations.prazo_ve = 0 THEN 'Escolha uma Opção' ELSE cofp.val1 END AS prazo_ve_name,
+		CASE WHEN geopos_locations.metod_exp = 0 THEN 'Escolha uma Opção' ELSE cofme.val1 END AS metod_exp_name,
+		CASE WHEN geopos_locations.metod_pag = 0 THEN 'Escolha uma Opção' ELSE cofmp.val1 END AS metod_pag_name");
         $this->db->from('geopos_locations');
         $this->db->where('geopos_locations.id', $id);
 		$this->db->join('geopos_irs_typ_doc', 'geopos_irs_typ_doc.id = geopos_locations.doc_default', 'left');
         $this->db->join('geopos_accounts as co', 'geopos_locations.acount_o = co.id', 'left');
 		$this->db->join('geopos_accounts as cd', 'geopos_locations.acount_d = cd.id', 'left');
 		$this->db->join('geopos_accounts as cf', 'geopos_locations.acount_f = cf.id', 'left');
+		$this->db->join('geopos_config as cofp', 'geopos_locations.prazo_ve = cofp.id', 'left');
+		$this->db->join('geopos_config as cofme', 'geopos_locations.metod_exp = cofme.id', 'left');
+		$this->db->join('geopos_config as cofmp', 'geopos_locations.metod_pag = cofmp.id', 'left');
+		
         $query = $this->db->get();
         return $query->row_array();
 
@@ -1042,7 +1056,8 @@ class Settings_model extends CI_Model
 			when f_module = 3 then 'Orçamentos'
 			when f_module = 4 then 'Fornecedores'
 			when f_module = 5 then 'Produtos'
-			else 'Funcionários' end as f_module_name");
+			when f_module = 6 then 'Funcionários'
+			else 'Avenças' end as f_module_name");
             $this->db->from('geopos_custom_fields');
             $this->db->where('id', $id);
             $query = $this->db->get();
@@ -1054,7 +1069,8 @@ class Settings_model extends CI_Model
 			when f_module = 3 then 'Orçamentos'
 			when f_module = 4 then 'Fornecedores'
 			when f_module = 5 then 'Produtos'
-			else 'Funcionários' end as f_module_name");
+			when f_module = 6 then 'Funcionários'
+			else 'Avenças' end as f_module_name");
             $this->db->from("geopos_custom_fields");
             $query = $this->db->get();
             return $query->result_array();

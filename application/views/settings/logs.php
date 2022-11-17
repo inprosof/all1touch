@@ -1,16 +1,32 @@
-<div class="card card-block yellow-top">
+<div class="card yellow-top">
+    <div class="card-header">
+        <h5 class="title">
+            <a class="btn-back" onclick=history.go(-1)>
+                <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+            </a>
+            <?php echo $this->lang->line('Application Activity Log') ?>
+        </h5>
+        <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+        <div class="heading-elements">
+            <ul class="list-inline mb-0">
+                <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                <li><a data-action="close"><i class="ft-x"></i></a></li>
+            </ul>
+        </div>
+    </div>
     <div id="notify" class="alert alert-success" style="display:none;">
         <a href="#" class="close" data-dismiss="alert">&times;</a>
 
         <div class="message"></div>
     </div>
     <div class="card-header">
-        <h5 class="title"><?php echo $this->lang->line('Application Activity Log') ?></h5>
+
     </div>
     <div class="card-body">
 
         <div class="alert alert-info" id="alert-info-text">
-            <p class="text-danger"><?php echo $this->lang->line('Application Activity Log cleanup can be managed in Cron Job Settings.') ?></p>
+            <p><?php echo $this->lang->line('Application Activity Log cleanup can be managed in Cron Job Settings.') ?></p>
         </div>
         <table class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%">
             <thead>

@@ -1,7 +1,11 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Edit Assets Category') ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Edit Assets Category') ?></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -20,48 +24,55 @@
                 <form method="post" id="data_form" class="form-horizontal">
                     <input type="hidden" name="catid" value="<?php echo $assetcat['id'] ?>">
                     <div class="form-group row">
-                        <label class="col-sm-2 col-form-label" for="product_catname"><?php echo $this->lang->line('Category Name') ?></label>
+                        <label class="col-sm-2 col-form-label"
+                               for="product_catname"><?php echo $this->lang->line('Category Name') ?></label>
                         <div class="col-sm-6">
-                            <input type="text" class="form-control margin-bottom  required" name="product_catname" value="<?php echo $assetcat['title'] ?>">
+                            <input type="text" class="form-control margin-bottom  required" name="product_catname"
+                                   value="<?php echo $assetcat['title'] ?>">
                         </div>
                     </div>
-					<div class="form-group row">
+                    <div class="form-group row">
                         <label class="col-sm-2 col-form-label"><?php echo $this->lang->line('Description') ?></label>
                         <div class="col-sm-6">
                             <input type="text" name="product_catdesc" class="form-control required"
                                    aria-describedby="sizing-addon1" value="<?php echo $assetcat['extra'] ?>">
                         </div>
                     </div>
-					
-					<div class="form-group row">
+
+                    <div class="form-group row">
                         <label class="col-sm-2 col-form-label" for="cat_type">Tipo Ativo</label>
                         <div class="col-sm-6">
-							<select name="cat_type" id="cat_type" class="form-control required">
-								<option value="<?php echo $assetcat['type'] ?>">** <?php echo $assetcat['type_name'] ?> **</option>
-								<?php
-									foreach ($catTypes as $row) {
-										$cid = $row['id'];
-										$title = $row['name'];
-										echo "<option value='$cid'>$title</option>";
-									}
-								?>
-							</select>
+                            <select name="cat_type" id="cat_type" class="form-control required">
+                                <option value="<?php echo $assetcat['type'] ?>">** <?php echo $assetcat['type_name'] ?>
+                                    **
+                                </option>
+                                <?php
+                                foreach ($catTypes as $row) {
+                                    $cid = $row['id'];
+                                    $title = $row['name'];
+                                    echo "<option value='$cid'>$title</option>";
+                                }
+                                ?>
+                            </select>
                         </div>
                     </div>
-					
+
                     <div class="form-group row">
-                        <label class="col-sm-2 col-form-label" for="cat_rel"><?php echo $this->lang->line('Category') ?> Pai</label>
+                        <label class="col-sm-2 col-form-label" for="cat_rel"><?php echo $this->lang->line('Category') ?>
+                            Pai</label>
                         <div class="col-sm-6">
-							<select name="cat_rel" id="cat_rel" class="form-control required">
-								<option value="<?php echo $assetcat['rel_id'] ?>">** <?php echo $assetcat['cat_name'] ?> **</option>
-								<?php
-									echo $cat;
-								?>
-							</select>
+                            <select name="cat_rel" id="cat_rel" class="form-control required">
+                                <option value="<?php echo $assetcat['rel_id'] ?>">** <?php echo $assetcat['cat_name'] ?>
+                                    **
+                                </option>
+                                <?php
+                                echo $cat;
+                                ?>
+                            </select>
                         </div>
                     </div>
-					
-					<div class="form-group row"><label
+
+                    <div class="form-group row"><label
                                 class="col-sm-2 col-form-label"><?php echo $this->lang->line('Image') ?></label>
                         <div class="col-sm-6">
                             <div id="progress" class="progress">
@@ -83,7 +94,7 @@
                             <span class="btn btn-success fileinput-button">
 								<i class="glyphicon glyphicon-plus"></i>
 								<span>Select files...</span>
-														<!-- The file input field used as target for the file upload widget -->
+                                <!-- The file input field used as target for the file upload widget -->
 								<input id="fileupload" type="file" name="files[]">
 							</span>
                             <br>
@@ -95,56 +106,57 @@
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label"></label>
-                        <div class="col-sm-4">
-                            <input type="submit" id="submit-data" class="btn btn-success margin-bottom" value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Updating...">
+                        <div class="col-sm-4" id="paiCompanyUpdate">
+                            <input type="submit" id="submit-data" class="btn btn-success btn-md margin-bottom"
+                                   value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                             <input type="hidden" value="assests/editcat" id="action-url">
                         </div>
                     </div>
-					<input type="hidden" name="cat_type_id" id="cat_type_id" value="<?php echo $assetcat['type'];?>">
-					<input type="hidden" name="image" id="image" value="<?php echo $product['image'] ?>">
+                    <input type="hidden" name="cat_type_id" id="cat_type_id" value="<?php echo $assetcat['type']; ?>">
+                    <input type="hidden" name="image" id="image" value="<?php echo $product['image'] ?>">
                 </form>
             </div>
         </div>
-	 </div>
+    </div>
 </div>
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js'); ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 <script>
-    $(document).ready(function (){
-        if($('#cat_rel').val() > 0){
-			document.getElementById('cat_type').disabled = true;
+    $(document).ready(function () {
+        if ($('#cat_rel').val() > 0) {
+            document.getElementById('cat_type').disabled = true;
         }
     });
-	
-	$("#cat_type").on('change', function () {
-		var tips = $('#cat_type').val();
-		$("#cat_type_id").val(tips);
-	});
-	
-	$("#cat_rel").on('change', function () {
-		var tips = $('#cat_rel').val();
-		if(tips == 0){
-			document.getElementById('cat_type').disabled = false;
-			document.getElementById('cat_type').html = '<--Selecionar-->';
-			document.getElementById('cat_type').value = 0;
-        }else{
-			document.getElementById('cat_type').disabled = true;
-			$("#cat_type").val('').trigger('change');
-			$.ajax({
+
+    $("#cat_type").on('change', function () {
+        var tips = $('#cat_type').val();
+        $("#cat_type_id").val(tips);
+    });
+
+    $("#cat_rel").on('change', function () {
+        var tips = $('#cat_rel').val();
+        if (tips == 0) {
+            document.getElementById('cat_type').disabled = false;
+            document.getElementById('cat_type').html = '<--Selecionar-->';
+            document.getElementById('cat_type').value = 0;
+        } else {
+            document.getElementById('cat_type').disabled = true;
+            $("#cat_type").val('').trigger('change');
+            $.ajax({
                 url: baseurl + 'assests/gettyp_cat_asset?id=' + tips,
                 dataType: 'json',
                 type: 'POST',
                 quietMillis: 50,
-				data: { id: '' + tips + '' },
-				success: function(data){
-					document.getElementById('cat_type').html = data.name;
-					document.getElementById('cat_type').value = data.id;
-					$("#cat_type_id").val(data.id);
-				}
+                data: {id: '' + tips + ''},
+                success: function (data) {
+                    document.getElementById('cat_type').html = data.name;
+                    document.getElementById('cat_type').value = data.id;
+                    $("#cat_type_id").val(data.id);
+                }
             });
-		}
-    });	
-	
+        }
+    });
+
     /*global window, $ */
     $(function () {
         'use strict';
@@ -162,7 +174,7 @@
                 });
 
                 $('#image').val(img);
-				$('#image').html(img);
+                $('#image').html(img);
             },
             progressall: function (e, data) {
                 var progress = parseInt(data.loaded / data.total * 100, 10);

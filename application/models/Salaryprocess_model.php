@@ -64,7 +64,12 @@ class Salaryprocess_model extends CI_Model
         $this->db->order_by('geopos_irs.up_to', 'ASC');
         $this->db->limit(1);
         $query = $this->db->get();
-        return $query->row_array();
+		$result = $query->row_array();
+		if(empty($result)){
+			$result['up_to'] = '0';
+			$result['value_x'] = '0';
+		}
+        return $result;
     }
 
     public function getValueIrsMin($employee_id, $baseSalaryMeal)

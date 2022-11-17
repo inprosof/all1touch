@@ -61,19 +61,6 @@
                     </thead>
                     <tbody>
                     </tbody>
-
-                    <tfoot>
-                    <tr>
-                        <th>Nº</th>
-                        <th>Serie</th>
-                        <th>Nota</th>
-                        <th>Cliente</th>
-                        <th>Data Emissão</th>
-                        <th><?php echo $this->lang->line('Amount') ?></th>
-                        <th><?php echo $this->lang->line('Status') ?></th>
-                        <th class="no-sort"><?php echo $this->lang->line('Settings') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>
@@ -222,6 +209,26 @@
     </div>
 </div>
 <script type="text/javascript">
+    $(function () {
+        $('.summernote').summernote({
+            height: 50,
+            tooltip: false,
+            toolbar: [
+                // [groupName, [list of button]]
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['fullscreen', ['fullscreen']],
+                ['codeview', ['codeview']]
+            ]
+        });
+    });
+
+</script>
+<script type="text/javascript">
     $(document).ready(function () {
         draw_data();
 
@@ -240,6 +247,13 @@
                         '<?=$this->security->get_csrf_token_name()?>': crsf_hash,
                         start_date: start_date,
                         end_date: end_date
+                    }
+                },
+                'rowCallback': function (row, data, cell) {
+                    if (data.status == 'canceled') {
+                        $(row).css('background-color', ' rgba(255, 0, 39, 0.22)');
+                    } else if (data.status == 'draft') {
+                        $(row).css('background-color', ' rgba(250, 255, 70, 0.8)');
                     }
                 },
                 'columnDefs': [

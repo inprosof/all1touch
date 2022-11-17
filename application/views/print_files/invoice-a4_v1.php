@@ -4,9 +4,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title><?php echo $invoice['irs_type_n'].' '.$invoice['tid'] ?></title>
     <style>
-        body {
-            color: #2B2000;
-            font-family: 'Helvetica';
+		body {
+            font: 9px/1.4 Georgia, serif;
         }
 		
 		.back-form{
@@ -16,12 +15,24 @@
 			background-repeat: no-repeat;
 			background-size: cover;
 		}
+		
+		#header {
+            height: 15px;
+            width: 100%;
+            margin: 5px 0;
+            background: #222;
+            color: white;
+            font: bold 15px Helvetica, Sans-Serif;
+            text-decoration: uppercase;
+            letter-spacing: 10px;
+            padding: 8px 0px;
+        }
 
         .invoice-box {
             width: 210mm;
-            height: 297mm;
+            height: 280mm;
             margin: auto;
-            padding: 4mm;
+            padding: 2mm;
             border: 0;
             font-size: 8pt;
             line-height: 8pt;
@@ -30,13 +41,13 @@
 
         table {
             width: 100%;
-            line-height: 14pt;
+            line-height: 12pt;
             text-align: left;
             border-collapse: collapse;
         }
 
         .plist tr td {
-            line-height: 10pt;
+            line-height: 5pt;
         }
 
         .subtotal {
@@ -44,29 +55,29 @@
         }
 
         .subtotal tr td {
-            line-height: 10pt;
+            line-height: 5pt;
             padding: 6pt;
         }
 
         .subtotal tr td {
-            border: 1px solid #ddd;
+            border: none;
         }
 
         .sign {
             text-align: right;
-            font-size: 10pt;
+            font-size: 9pt;
             margin-right: 110pt;
         }
 
         .sign1 {
             text-align: right;
-            font-size: 10pt;
+            font-size: 9pt;
             margin-right: 90pt;
         }
 
         .sign2 {
             text-align: right;
-            font-size: 10pt;
+            font-size: 9pt;
             margin-right: 115pt;
         }
 
@@ -83,7 +94,7 @@
         }
 
         .invoice-box table td {
-            padding: 5pt 4pt 8pt 4pt;
+            padding: 3pt 3pt 5pt 3pt;
             vertical-align: top;
         }
 
@@ -97,7 +108,7 @@
         }
 
         .invoice-box table tr.top table td {
-            padding-bottom: 10pt;
+            padding-bottom: 7pt;
         }
 
         table tr.top table td.title {
@@ -107,17 +118,17 @@
         }
 
         table tr.information table td {
-            padding-bottom: 10pt;
+            padding-bottom: 7pt;
         }
 
         table tr.heading td {
             background: #515151;
             color: #FFF;
-            padding: 6pt;
+            padding: 5pt;
         }
 
         table tr.details td {
-            padding-bottom: 10pt;
+            padding-bottom: 7pt;
         }
 
         .invoice-box table tr.item td {
@@ -138,7 +149,7 @@
         }
 
         .myco {
-            width: 400pt;
+            width: 200pt;
         }
 
         .myco2 {
@@ -175,8 +186,8 @@
         }
 
         .top_logo {
-            max-height: 80px;
-            max-width: 80px;
+            max-height: 180px;
+            max-width: 200px;
 			<?php if(LTR=='rtl') echo 'margin-left: 200px;' ?>
         }
 
@@ -195,29 +206,31 @@
 			<td class="myw">
 				<table class="top_sum">
 					<tr>
-						<td colspan="1" class="t_center"><h2><?php echo $invoice['irs_type_n']; ?></h2><br><br></td>
+						<td colspan="4" class="t_center"><h2><?php echo $invoice['irs_type_n'].' ('.$Tipodoc.')'; ?></h2><br><br></td>
 					</tr>
 					<tr>
-						<td><?php echo $general['title'] ?></td>
-						<td rowspan="1"><?php 
-									echo '<strong>'.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'].'</strong>'; ?>
-								</td>
+						<td><?php echo 'Documento Nº ' ?></td>
+						<td rowspan="1">
+							<?php echo '<strong>'.$invoice['irs_type_s'].' '.$invoice['serie_name'] . '/' . $invoice['tid'].'</strong>'; ?>
+						</td>
 					</tr>
 					<tr>
 						<td><?php echo $this->lang->line('Date') ?></td>
 						<td><?php echo dateformat($invoice['invoicedate']) ?></td>
 					</tr>
-					<tr>
-						<td><?php echo $this->lang->line('Due Date') ?></td>
-						<td><?php echo dateformat($invoice['invoiceduedate']) ?></td>
-					</tr>
-					<?php if ($invoice['refer']) { ?>
+					<?php if (isset($invoice['refer'])) { ?>
 						<tr>
 							<td><?php echo $this->lang->line('Reference') ?></td>
 							<td><?php echo $invoice['refer'] ?></td>
 						</tr>
 					<?php } ?>
-					<?php if ($invoice['ref_enc_orc']) { ?>
+					<?php if (isset($invoice['invoiceduedate'])) { ?>
+						<tr>
+							<td><?php echo $this->lang->line('Due Date') ?></td>
+							<td><?php echo dateformat($invoice['invoiceduedate']) ?></td>
+						</tr>
+					<?php } ?>
+					<?php if (isset($invoice['ref_enc_orc'])) { ?>
 						<tr>
 							<td>Enc./Orç: </td>
 							<td><?php echo $invoice['ref_enc_orc'] ?></td>
@@ -275,12 +288,6 @@
 				</td>
 			</tr>
 			<tr>
-				<td>
-				   <?php 
-					   if ($invoice['notes'])
-							echo '<hr><br>'.$this->lang->line('Note') . ': <br><h6>' . $invoice['notes'] . '</h6><hr>';
-						?>
-				</td>
 				<?php if (@$invoice['name_s']) { ?>
 					<td>
 						<?php echo '<strong>' . $this->lang->line('Shipping Address') . '</strong>:<br>';
@@ -298,141 +305,107 @@
 			</tbody>
 		</table>
 		<br>
+		<?php 
+		$valsumcisc = 0;
+		$valsumtax = 0;
+		$sub_t_col = 3;
+		$sub_t = 0;
+		$arrtudo = [];
+		if (is_array($products) && !empty($products)) {?>
 		<table class="plist" cellpadding="0" cellspacing="0">
 			<tr class="heading">
-				<td style="width: 1rem;">
-					#
-				</td>
-				<td>
-					<?php echo $this->lang->line('Description') ?>
-				</td>
-				<td>
-					<?php echo $this->lang->line('Price') ?>
-				</td>
-				<td>
-					<?php echo $this->lang->line('Qty') ?>
-				</td>
-				<?php if ($invoice['tax'] > 0) 
-					echo '<td>' . $this->lang->line('Tax') . '</td>';
-				if ($invoice['discount'] > 0) 
-					echo '<td>' . $this->lang->line('Discount') . '</td>'; ?>
-				<td class="t_center">
-					<?php echo $this->lang->line('SubTotal') ?>
-				</td>
+				<td style="width: 1rem;">#</td>
+				<td><?php echo $this->lang->line('Artigo') ?>Artigo</td>
+				<td><?php echo $this->lang->line('Description') ?></td>
+				<td>Pr.Unit</td>
+				<td><?php echo $this->lang->line('Qty') ?>.</td>
+				<td>Descontos</td>
+				<td>Impostos</td>
+				<td class="t_center"><?php echo $this->lang->line('Amount') ?></td>
 			</tr>
 			<?php
-			$fill = true;
-			$sub_t = 0;
-			$valsumtax = 0;
-			$valsumcisc = 0;
-			$sub_t_col = 3;
-			$n = 1;
-			$arrtudo = [];
-			foreach ($products as $row) {
-				$cols = 4;
-				if ($fill == true) {
-					$flag = ' mfill';
-				} else {
-					$flag = '';
-				}
-				$valsumcisc += $row['totaldiscount'];
-				$sub_t += $row['subtotal'];
-				$myArraytaxid = explode(";", $row['taxavals']);
-				$myArraytaxperc = explode(";", $row['taxaperc']);
-				$valsum = 0;
-				$valperc = '';
-				foreach ($myArraytaxid as $row1) {
-					$valsum += $row1;
-					$valsumtax += $row1;
-				}
-				
-				foreach ($myArraytaxperc as $row2) {
-					$valperc = $valperc.' '.$row2.'%';
-				}
-
-				if ($row['serial']) $row['product_des'] .= ' - ' . $row['serial'];
-				
-				$myArraytaxname = explode(";", $row['taxaname']);
-				$myArraytaxcod = explode(";", $row['taxacod']);
-				$myArraytaxvals = explode(";", $row['taxavals']);
-				$myArraytaxperc = explode(";", $row['taxaperc']);
-				for($i = 0; $i < count($myArraytaxname); $i++)
-				{
-					$jatem = false;
-					for($oo = 0; $oo < count($arrtudo); $oo++)
-					{
-						if($arrtudo[$oo]['title'] == $myArraytaxname[$i])
-						{
-							$arrtudo[$oo]['val'] = ($arrtudo[$oo]['val']+$myArraytaxvals[$i]);
-							$arrtudo[$oo]['inci'] = ($arrtudo[$oo]['inci']+$row['subtotal']);
-							$jatem = true;
-							break;
-						}
+				$fill = true;
+				$n = 1;
+				foreach ($products as $row) {
+					$cols = 4;
+					if ($fill == true) {
+						$flag = ' mfill';
+					} else {
+						$flag = '';
+					}
+					$valsumcisc += $row['totaldiscount'];
+					$sub_t += $row['subtotal'];
+					$myArraytaxid = explode(";", $row['taxavals']);
+					$myArraytaxperc = explode(";", $row['taxaperc']);
+					$valsum = 0;
+					$valperc = '';
+					foreach ($myArraytaxid as $row1) {
+						$valsum += $row1;
+						$valsumtax += $row1;
 					}
 					
-					if(!$jatem)
-					{
-						$stack = array('title'=>$myArraytaxname[$i], 'val'=>$myArraytaxvals[$i], 'perc'=>$myArraytaxperc[$i].' %', 'inci'=>$row['subtotal']);
-						array_push($arrtudo, $stack);
+					foreach ($myArraytaxperc as $row2) {
+						$valperc = $valperc.' '.$row2.'%';
 					}
+
+					if ($row['serial']) 
+						$row['product_des'] .= ' - ' . $row['serial'];
+					echo '<tr class="item' . $flag . '">  <td>' . $n . '</td>
+							<td>' . $row['code'] . '</td>
+									<td>' . $row['product'] . '</td>
+									<td style="width:15%;">' . amountExchange($row['price'], $invoice['multi'], $invoice['loc']) . '</td>
+									<td style="width:12%;" >' . +$row['qty'] . $row['unit'] . '</td>
+									<td>' . amountFormat_s($row['discount']) . $this->lang->line($invoice['format_discount']). '</td>';
+					if ($invoice['tax'] > 0) {
+						$cols++;
+						echo '<td style="width:12%;">' . $valperc. '</span></td>';
+					}
+					if ($invoice['discount'] > 0) {
+						$cols++;
+						echo ' <td style="width:12%;">' . amountFormat_s($row['discount']) . $this->lang->line($invoice['format_discount']). '</td>';
+					}
+					echo '<td class="t_center">' . amountExchange($row['totaltax'], $invoice['multi'], $invoice['loc']) . '</td></tr>';
+
+					if ($row['product_des']) {
+						$cc = $cols++;
+						echo '<tr class="item' . $flag . ' descr">  <td> </td>
+							<td colspan="' . $cc . '">' . $row['product_des'] . '&nbsp;</td>
+							
+						</tr>';
+					}
+					if (CUSTOM) {
+						$p_custom_fields = $this->custom->view_fields_data($row['pid'], 5, 1);
+
+						if (is_array($p_custom_fields[0])) {
+							$z_custom_fields = '';
+
+							foreach ($p_custom_fields as $row) {
+								$z_custom_fields .= $row['name'] . ': ' . $row['data'] . '<br>';
+							}
+
+							echo '<tr class="item' . $flag . ' descr">  <td> </td>
+									<td colspan="' . $cc . '">' . $z_custom_fields . '&nbsp;</td>
+									
+								</tr>';
+						}
+					}
+					$fill = !$fill;
+					$n++;
 				}
-				
-				echo '<tr class="item' . $flag . '">  <td>' . $n . '</td>
-								<td>' . $row['product'] . '</td>
-								<td style="width:15%;">' . amountExchange($row['price'], $invoice['multi'], $invoice['loc']) . '</td>
-								<td style="width:12%;" >' . +$row['qty'] . $row['unit'] . '</td>   ';
+
+				if ($invoice['shipping'] > 0) {
+
+					$sub_t_col++;
+				}
 				if ($invoice['tax'] > 0) {
-					$cols++;
-					echo '<td style="width:12%;">' . $valperc. '</span></td>';
+					$sub_t_col++;
 				}
 				if ($invoice['discount'] > 0) {
-					$cols++;
-					echo ' <td style="width:12%;">' . amountFormat_s($row['discount']) . $this->lang->line($invoice['format_discount']). '</td>';
+					$sub_t_col++;
 				}
-				echo '<td class="t_center">' . amountExchange($row['totaltax'], $invoice['multi'], $invoice['loc']) . '</td></tr>';
-
-				if ($row['product_des']) {
-					$cc = $cols++;
-
-					echo '<tr class="item' . $flag . ' descr">  <td> </td>
-								<td colspan="' . $cc . '">' . $row['product_des'] . '&nbsp;</td>
-								
-							</tr>';
-				}
-				if (CUSTOM) {
-					$p_custom_fields = $this->custom->view_fields_data($row['pid'], 4, 1);
-
-					if (is_array($p_custom_fields[0])) {
-						$z_custom_fields = '';
-
-						foreach ($p_custom_fields as $row) {
-							$z_custom_fields .= $row['name'] . ': ' . $row['data'] . '<br>';
-						}
-
-						echo '<tr class="item' . $flag . ' descr">  <td> </td>
-								<td colspan="' . $cc . '">' . $z_custom_fields . '&nbsp;</td>
-								
-							</tr>';
-					}
-				}
-				$fill = !$fill;
-				$n++;
-			}
-
-			if ($invoice['shipping'] > 0) {
-
-				$sub_t_col++;
-			}
-			if ($invoice['tax'] > 0) {
-				$sub_t_col++;
-			}
-			if ($invoice['discount'] > 0) {
-				$sub_t_col++;
-			}
 			?>
-
-
 		</table>
+		<?php }?>
 		<br> <?php if (is_array(@$i_custom_fields)) {
 
 			foreach ($i_custom_fields as $row) {
@@ -441,6 +414,7 @@
 			echo '<br>';
 		}
 		?>
+		<hr>
 		<table class="subtotal">
 			<tr>
 				<td class="myco2" rowspan="<?php echo $sub_t_col ?>"><br>
@@ -471,86 +445,107 @@
 							}else if($invoice['status'] == 'canceled')
 							{
 								$tipsel = 'Cancelado';
+							}else if($invoice['status'] == 'paid')
+							{
+								$tipsel = 'Pago';
 							}
 							
 							echo '' . $this->lang->line('Status') . ': <strong>' .$tipsel.'</strong></p>';
-							if($invoice['irs_type_n'] != 'Guia de Remessa' && $invoice['irs_type_n'] != 'Guia de Transporte')
+							if($invoice['irs_type'] != 7 && $invoice['irs_type'] != 14 && $invoice['irs_type'] != 8 && $invoice['irs_type'] != 10)
 							{
 								echo '<hr><small>' . valorPorExtenso($invoice['total']) . '</small><hr>';
-								echo '<br><p style="font-size: 22px;"><strong>Valor a Pagar: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
+								echo '<br><p style="font-size: 17px;"><strong>Valor a Pagar: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><br><p>';
 								
 								if (@$round_off['other']) {
 									$final_amount = round($invoice['total'], $round_off['active'], constant($round_off['other']));
-									echo '<p style="font-size: 20px;">' . $this->lang->line('Amount').' '.$this->lang->line('Round Off') .': ' . amountExchange($final_amount, $invoice['multi'], $invoice['loc']) . '</p><br>';
+									echo '<p style="font-size: 17px;">' . $this->lang->line('Amount').' '.$this->lang->line('Round Off') .': ' . amountExchange($final_amount, $invoice['multi'], $invoice['loc']) . '</p><br><br>';
 								}
-								echo '<p style="font-size: 20px;">Valor Pago:' . amountExchange($invoice['pamnt'], $invoice['multi'], $invoice['loc']).'</p><br>';
+								echo '<p style="font-size: 17px;">Valor Pago:' . amountExchange($invoice['pamnt'], $invoice['multi'], $invoice['loc']).'</p><br><br>';
 								
 								$rming = $invoice['total'] - $invoice['pamnt'];
 								if (@$round_off['other']) {
 									$rming = round($rming, $round_off['active'], constant($round_off['other']));
 								}
 								if ($rming > 0) {
-									echo '<p style="font-size: 15px;"><strong>'.$this->lang->line('Balance Due').': </strong>' .amountExchange($rming, $invoice['multi'], $invoice['loc']).'</p><br>';
+									echo '<p style="font-size: 15px;"><strong>'.$this->lang->line('Balance Due').': </strong>' .amountExchange($rming, $invoice['multi'], $invoice['loc']).'</p><br><br>';
 								}else{
 									$rming = 0;
 								}
 							}else{
-								
-								if($invoice['irs_type_n'] == 'Guia de Remessa' || $invoice['irs_type_n'] == 'Guia de Transporte')
+								if($invoice['irs_type'] == 7 && $invoice['irs_type'] == 14)
 								{
 									echo '<br><p style="font-size: 18px;"><strong>Guia Valor: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
 								}else{
-									echo '<br><p style="font-size: 18px;"><strong>Orçamento Valor: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
+									if($invoice['irs_type'] == 8)
+									{
+										echo '<br><p style="font-size: 18px;"><strong>Orçamento Valor: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
+									}else{
+										echo '<br><p style="font-size: 18px;"><strong>Pró-Forma Valor: </strong>' . amountExchange($invoice['total'], $invoice['multi'], $invoice['loc']) . '</p><br><p>';
+									}
 								}
 							}
-							if ($general['t_type'] == 1) {
+							if($invoice['irs_type'] == 8 && $invoice['irs_type'] == 10)
+							{
 								echo '<hr>' . $this->lang->line('Proposal') . ': </br></br><small>' . $invoice['proposal'] . '</small>';
 							}
 						?></p>
 				</td>
 				<td colspan="2"><strong><?php echo $this->lang->line('Summary') ?>:</strong></td>
-				<td>&nbsp;</td>
 			</tr>
+
+			<?php if ($invoice['irs_type'] != 22 && $invoice['irs_type'] != 23) {?>
 			<tr class="f_summary">
-				<td>Total Ilíq.</td>
+				<td colspan="2">Total Ilíq.</td>
 				<td><?php echo amountExchange($sub_t, $invoice['multi'], $invoice['loc']); ?></td>
 			</tr>
+			<?php }?>
 			<?php
-			if ($invoice['discount'] > 0) {
+			if ($valsumcisc > 0) {
 				echo '<tr>
-				<td>' . $this->lang->line('Total Discount') . ' Comercial:</td>
-				<td>' . amountExchange($valsumcisc, $invoice['multi'], $invoice['loc']) . '</td>
-			</tr>';
+					<td colspan="2">' . $this->lang->line('Total Discount') . ' Comercial:</td>
+					<td>' . amountExchange($valsumcisc, $invoice['multi'], $invoice['loc']) . '</td>
+				</tr>';
 			}
-			if ($invoice['discount_rate'] > 0) {
+			if (isset($invoice['discount_rate'])) {
+				if ($invoice['discount_rate'] > 0) {
+					echo '<tr>
+						<td colspan="2">' . $this->lang->line('Total Discount') . ' Financeiro:</td>
+						<td>' . amountExchange($invoice['discount_rate'], $invoice['multi'], $invoice['loc']) . '</td>
+					</tr>';
+				}
+			}
+			if (isset($invoice['shipping'])) {
+				if ($invoice['shipping'] > 0) {
+					echo '<tr>
+						<td colspan="2">' . $this->lang->line('Shipping') . ':</td>
+						<td>' . amountExchange($invoice['shipping'], $invoice['multi'], $invoice['loc']) . '</td>
+					</tr>';
+				}
+			}
+			
+			if ($invoice['irs_type'] != 22 && $invoice['irs_type'] != 23) {
 				echo '<tr>
-				<td>' . $this->lang->line('Total Discount') . ' Financeiro:</td>
-				<td>' . amountExchange($invoice['discount_rate'], $invoice['multi'], $invoice['loc']) . '</td>
-			</tr>';
+						<td colspan="2">Total Impostos:</td>
+						<td>' . amountExchange($valsumtax, $invoice['multi'], $invoice['loc']) . '</td>
+				</tr>';
 			}
-			if ($invoice['shipping'] > 0) {
-				echo '<tr>
-				<td>' . $this->lang->line('Shipping') . ':</td>
-				<td>' . amountExchange($invoice['shipping'], $invoice['multi'], $invoice['loc']) . '</td>
-			</tr>';
-			}
-			?>
 			
-			
-			
-			<?php echo '<tr><td>Total Impostos:</td>
-				<td>' . amountExchange($valsumtax, $invoice['multi'], $invoice['loc']) . '</td>
-			</tr>';
-			?>
-			<?php 
-				if($activity != null)
+			if (!empty($activity))
+			{
+				if(is_array($activity))
 				{
-					echo '<tr><td><strong>Meios de pagamento utilizados</strong><hr><table id="items"><tr>';
+					echo '<tr>';
+					if ($invoice['irs_type'] == 22 && $invoice['irs_type'] == 23) {
+						echo '<td colspan="2"><strong>Meios de pagamento utilizados</strong><hr><table id="payments"><thead><tr>';
+					}else{
+						echo '<td><strong>Meios de pagamento utilizados</strong><hr><table id="payments"><thead><tr>';
+					}
+					
 					echo "<th>Data</th>";
 					echo "<th>Método</th>";
 					echo "<th>Valor</th>";
 					echo "<th>Obs</th>";
-					echo '</tr>';
+					echo '</tr></thead>';
 					foreach ($activity as $row) {
 						if($row['debit'] == 0 || $row['debit'] == '0.00')
 						{
@@ -576,29 +571,43 @@
 					}
 					
 					echo '</table></td>';
-					echo '<td><strong>Resumo de Impostos</strong><hr><table id="items"><tr>';
-						echo "<th>Designação</th>";
-						echo "<th>Valor</th>";
-						echo "<th>Incidência</th>";
-						echo "<th>Total</th>";
-					echo '</tr>';
-					for($r = 0; $r < count($arrtudo); $r++)
-					{
-						echo '<tr><td class="item-name">' . $arrtudo[$r]['title'] . '</td>';
-						echo '<td class="description">' . $arrtudo[$r]['perc'] . '</td>';
-						echo '<td class="item-val">' . amountExchange($arrtudo[$r]['inci'], 0, $this->aauth->get_user()->loc) . '</td>';
-						echo '<td class="item-tax">' . amountExchange($arrtudo[$r]['val'], 0, $this->aauth->get_user()->loc) . '</td></tr>';
+					
+					if (!empty($taxasprodutosiva)) {
+						if(is_array($taxasprodutosiva)){
+							if ($invoice['irs_type'] != 22 && $invoice['irs_type'] != 23) {
+								echo '<td colspan="3"><strong>Resumo de Impostos</strong><hr><table id="items"><thead><tr>';
+									echo "<th>Designação</th>";
+									echo "<th>Valor</th>";
+									echo "<th>Incidência</th>";
+									echo "<th>Total</th>";
+								echo '</tr></thead>';
+								for($r = 0; $r < count($taxasprodutosiva); $r++)
+								{
+									echo '<tr><td class="item-name">' . $taxasprodutosiva[$r]['title'] . '</td>';
+									if($taxasprodutosiva[$r]['typ'] == '2'){
+										echo '<td class="text-xs-right">' . $taxasprodutosiva[$r]['nameise'] . '</td>';
+									}else{
+										echo '<td class="description">' . $taxasprodutosiva[$r]['perc'] . '</td>';
+									}
+									echo '<td class="item-val">' . amountExchange($taxasprodutosiva[$r]['inci'], 0, $this->aauth->get_user()->loc) . '</td>';
+									echo '<td class="item-tax">' . amountExchange($taxasprodutosiva[$r]['val'], 0, $this->aauth->get_user()->loc) . '</td>';
+									echo '</tr>';
+								}
+								echo '</table></td>';
+							}
+						}
 					}
-					echo '</table></td></tr>';
+					
+					echo '</tr>';
 				}
-				
-			?>
+			}
 			
-			
-			<?php 
+			echo '</table>';
+			if(isset($invoice['exp_date']))
+			{
 				if($invoice['exp_date'] != null && $invoice['expedition'] != null)
 				{
-					echo '<tr><td colspan="7" class="total-impost"><strong>Entrega e Transporte</strong><hr><table id="items"><tr>';
+					echo '<br><strong>Entrega e Transporte</strong><hr><table id="transport"><tr>';
 					echo "<th>Expedição</th>";
 					echo "<th>Viatura</th>";
 					echo "<th>Início do Transporte</th>";
@@ -631,21 +640,59 @@
 					echo '<td class="item-description">'.$invoice['exp_date'].'</td>';
 					echo '<td class="item-description">'.$invoice['charge_address'].'<br>'.$invoice['charge_postbox'].'<br>'.$invoice['charge_city'].'<br>'.$invoice['charge_country_name'].'</td>';
 					echo '<td class="item-description">'.$invoice['discharge_address'].'<br>'.$invoice['discharge_postbox'].'<br>'.$invoice['discharge_city'].'<br>'.$invoice['discharge_country_name'].'.</td>';		
-					echo '</table></td></tr>';
+					echo '</table>';
 				}
+			}
 			?>
-			<tr>
-				<td>
-					<img style="max-height:180px;" src='<?php echo base_url('userfiles/pos_temp/' . $qrc) ?>' alt='QR'>
-				</td>
-				<td>
-					<br>
-					<div class="sign"><?php echo $this->lang->line('Authorized person') ?></div><div class="sign1"><img src="<?php echo FCPATH . 'userfiles/employee_sign/' . $employee['sign'] ?>" width="160" height="50" border="0" alt=""></div><div class="sign2">(<?php echo $employee['name'] ?>)</div><div class="terms"><?php echo $invoice['notes'] ?><hr><strong><?php echo $this->lang->line('Terms') ?>:</strong><br>
-					<strong><?php echo $invoice['termtit']?></strong>
-					<br><?php echo $invoice['terms']?>
-				</td>
-			</tr>
+			<br><table id="transport">
+				<tr>
+					<td colspan="4">
+						<img style="max-height:80px;" src='<?php echo base_url('userfiles/pos_temp/' . $qrc) ?>' alt="QR">
+					</td>
+					<td>
+						<br>
+						<div class="sign">
+							<?php echo $this->lang->line('Authorized person') ?>
+						</div>
+						<div class="sign1">
+							<img src="<?php echo FCPATH . 'userfiles/employee_sign/' . $employee['sign'] ?>" width="160" height="50" border="0" alt=""/>
+						</div>
+						<div class="sign2">
+							(<?php echo $employee['name'] ?>)
+						</div>						
+					</td>
+				</tr>
 			</table>
+			<br>
+			<?php
+			if (is_array($docs_origem) && !empty($docs_origem)) {
+				echo '<br><strong>Documentos relacionados</strong><p>Para pagamento do(s) seguinte(s) documento(s):</p><hr><table id="realations">'?>
+					<?php
+						echo "<thead>
+							<tr>
+								<th>Documento</th>
+								<th>Série/Nº</th>
+								<th>Data Emissão</th>
+								<th>Valor do documento</th>
+								<th>Valor Pago</th>
+								<th>Valor Pendente</th>
+							</tr>
+						</thead>
+						<tbody>";
+						foreach ($docs_origem as $row) {
+							$tiiid = $row['id'];
+							echo '<tr>';
+							echo "<td><strong>" . $row['tipo'] . "</strong></td>";
+							echo "<td>" . $row['serie_name'] . '/' . $row['tid_doc'] . "</td>";
+							echo "<td>" . $row['invoicedate'] . "</td>";
+							echo "<td>" . amountExchange($row['total'], 0, $this->aauth->get_user()->loc) . "</td>";
+							echo "<td>" . amountExchange($row['total_pay'], 0, $this->aauth->get_user()->loc) . "</td>";
+							echo "<td>" . amountExchange($row['total_due'], 0, $this->aauth->get_user()->loc) . "</td>";
+							echo '</tr>';
+						}
+					echo "</tbody>";?>
+				</table>
+			<?php } ?>
 		</div>
 	</div>
 </div>

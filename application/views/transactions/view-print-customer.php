@@ -30,7 +30,7 @@
 		$loc = location($invoice['loc']);
 		echo '<tr>';
 		echo '<td><img src="'.base_url('userfiles/company/' . $loc['logo']).'" class="img-responsive p-1 m-b-2" style="max-height: 40px;"/></td>';
-		echo '<td>' . $this->lang->line('Date') . ' : ' . dateformat($trans['date']) . '</td><td><h5>'.$this->lang->line('Transaction Details').' ID : ' . prefix(5) . $trans['id'] . '</h5></td></tr>'; 
+		echo '<td>' . $this->lang->line('Date') . ' : ' . dateformat($trans['date']) . '</td><td><h5>'.$this->lang->line('Transaction Details').' ID : TRANS' . $trans['id'] . '</h5></td></tr>'; 
 	?>
 </table>
 

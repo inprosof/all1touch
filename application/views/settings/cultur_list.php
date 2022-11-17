@@ -1,9 +1,14 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Culturs') ?> <a href="<?php echo base_url('settings/cultur') ?>"
-                                                                 class="btn btn-primary btn-sm rounded">
-                    <?php echo $this->lang->line('Add new') ?></a></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Culturs') ?> <a href="<?php echo base_url('settings/cultur') ?>"
+                                                              class="btn btn-primary btn-sm btn-new">
+                    <?php echo $this->lang->line('Add new') ?></a>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -21,28 +26,18 @@
             </div>
             <div class="card-body">
 
-
                 <table id="htable" class="table table-striped table-bordered zero-configuration" cellspacing="0"
                        width="100%">
                     <thead>
                     <tr>
                         <th>#</th>
                         <th><?php echo $this->lang->line('Name') ?></th>
-						<th><?php echo $this->lang->line('Prefix') ?></th>
+                        <th><?php echo $this->lang->line('Prefix') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
                     </tr>
                     </thead>
                     <tbody>
                     </tbody>
-
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Name') ?></th>
-						<th><?php echo $this->lang->line('Prefix') ?></th>
-                        <th><?php echo $this->lang->line('Action') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
 
             </div>
@@ -94,7 +89,7 @@
                 </div>
                 <div class="modal-body">
                     <?php echo $this->lang->line('Delete');
-                    echo ' '.$this->lang->line('Cultur') ?>
+                    echo ' ' . $this->lang->line('Cultur') ?>
                 </div>
                 <div class="modal-footer">
                     <input type="hidden" id="object-id" value="">

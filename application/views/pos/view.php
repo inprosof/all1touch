@@ -117,8 +117,9 @@
                                        href="<?php echo base_url() . 'invoices/delivery?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('Delivery Note') ?></a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item"
-                                       href="<?php echo base_url() . 'invoices/proforma?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('Proforma Invoice') ?></a>
-
+                                       href="<?php echo base_url() . 'invoices/printinvoice?id=' . $invoice['iid'].'&temp=1&draf=0&token=' . $validtoken; ?>"><?php echo $this->lang->line('Proforma Invoice') ?></a>
+									<a class="dropdown-item"
+                                       href="<?php echo base_url() . 'invoices/printinvoice?id=' . $invoice['iid'].'&temp=1&d=1&draf=0&token=' . $validtoken; ?>"><?php echo $this->lang->line('Proforma Invoice').' '.$this->lang->line('PDF Download') ?></a>
                                 </div>
                             </div>
                             <div class="btn-group ">

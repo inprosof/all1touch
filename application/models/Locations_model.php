@@ -91,7 +91,10 @@ class Locations_model extends CI_Model
 			'dual_entry' => 0,
 			'posv' => 1,
 			'emps' => 0,
-			'pac' => 0
+			'pac' => 0,
+			'prazo_ve' => 0,
+			'metod_pag' => 0,
+			'metod_exp' => 0
         );
 		return $this->db->insert('geopos_locations', $data);
     }
@@ -148,8 +151,9 @@ class Locations_model extends CI_Model
 	}
 	
 
-    public function edit($id, $name, $address, $city, $region, $country, $postbox, $phone, $email, $taxid, $image, $cur_id, $ac_id, $acd_id, $acf_id, $wid, $typ_do_id, $rent_ab, $zon_fis, $dual_entry, $posv, $emps, $pac)
+    public function edit($id, $name, $address, $city, $region, $country, $postbox, $phone, $email, $taxid, $image, $cur_id)
     {
+		//, $ac_id, $acd_id, $acf_id, $wid, $typ_do_id, $rent_ab, $zon_fis, $dual_entry, $posv, $emps, $pac
         $data = array(
             'cname' => $name,
             'address' => $address,
@@ -161,25 +165,27 @@ class Locations_model extends CI_Model
             'email' => $email,
             'taxid' => $taxid,
             'logo' => $image,
-            'acount_o' => $ac_id,
-			'acount_d' => $acd_id,
-			'acount_f' => $acf_id,
-            'cur' => $cur_id,
-			'doc_default' => $typ_do_id,
-            'ware' => $wid,
-			'rent_ab' => $rent_ab,
-			'zon_fis' => $zon_fis,
-			'dual_entry' => $dual_entry,
-			'posv' => $posv,
-			'emps' => $emps,
-			'pac' => $pac
+            'cur' => $cur_id
         );
+		
+		/*'doc_default' => $typ_do_id,
+		'ware' => $wid,
+		'rent_ab' => $rent_ab,
+		'zon_fis' => $zon_fis,
+		'dual_entry' => $dual_entry,
+		'posv' => $posv,
+		'emps' => $emps,
+		'pac' => $pac,
+		'acount_o' => $ac_id,
+		'acount_d' => $acd_id,
+		'acount_f' => $acf_id,*/
+			
         $this->db->set($data);
         $this->db->where('id', $id);
 		return $this->db->update('geopos_locations');
     }
 	
-	 public function edit2($id, $ac_id, $acd_id, $acf_id, $wid, $typ_do_id, $dual_entry, $posv, $emps, $pac)
+	 public function edit2($id, $ac_id, $acd_id, $acf_id, $wid, $typ_do_id, $dual_entry, $posv, $emps, $pac, $n_praz_venc, $n_met_pag, $n_met_exp)
     {
         $data = array(
             'acount_o' => $ac_id,
@@ -190,8 +196,12 @@ class Locations_model extends CI_Model
 			'dual_entry' => $dual_entry,
 			'posv' => $posv,
 			'emps' => $emps,
-			'pac' => $pac
+			'pac' => $pac,
+			'prazo_ve' => $n_praz_venc,
+			'metod_pag' => $n_met_pag,
+			'metod_exp' => $n_met_exp
         );
+		
         $this->db->set($data);
         $this->db->where('id', $id);
 		return $this->db->update('geopos_locations');
@@ -233,13 +243,19 @@ class Locations_model extends CI_Model
     {
         $this->db->select("geopos_locations.*, co.id as ac_id_o, co.holder as ac_name_o, co.acn as ac_num_o, cd.id as ac_id_d, cd.holder as ac_name_d, cd.acn as ac_num_d,
 		cf.id as ac_id_f, cf.holder as ac_name_f, cf.acn as ac_num_f,
-		CASE WHEN geopos_locations.doc_default = 0 THEN 'Fatura' ELSE geopos_irs_typ_doc.description END AS nametipdoc");
+		CASE WHEN geopos_locations.doc_default = 0 THEN 'Fatura' ELSE geopos_irs_typ_doc.description END AS nametipdoc,
+		CASE WHEN geopos_locations.prazo_ve = 0 THEN 'Escolha uma Opção' ELSE cofp.val1 END AS prazo_ve_name,
+		CASE WHEN geopos_locations.metod_exp = 0 THEN 'Escolha uma Opção' ELSE cofme.val1 END AS metod_exp_name,
+		CASE WHEN geopos_locations.metod_pag = 0 THEN 'Escolha uma Opção' ELSE cofmp.val1 END AS metod_pag_name");
         $this->db->from('geopos_locations');
         $this->db->where('geopos_locations.id', $id);
 		$this->db->join('geopos_irs_typ_doc', 'geopos_irs_typ_doc.id = geopos_locations.doc_default', 'left');
         $this->db->join('geopos_accounts as co', 'geopos_locations.acount_o = co.id', 'left');
 		$this->db->join('geopos_accounts as cd', 'geopos_locations.acount_d = cd.id', 'left');
 		$this->db->join('geopos_accounts as cf', 'geopos_locations.acount_f = cf.id', 'left');
+		$this->db->join('geopos_config as cofp', 'geopos_locations.prazo_ve = cofp.id', 'left');
+		$this->db->join('geopos_config as cofme', 'geopos_locations.metod_exp = cofme.id', 'left');
+		$this->db->join('geopos_config as cofmp', 'geopos_locations.metod_pag = cofmp.id', 'left');
         $query = $this->db->get();
         return $query->row_array();
 

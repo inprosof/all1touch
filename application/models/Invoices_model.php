@@ -155,6 +155,7 @@ class Invoices_model extends CI_Model
 			geopos_data_transport.discharge_postbox,
 			geopos_data_transport.discharge_city,
 			geopos_data_transport.discharge_country, CASE WHEN geopos_locations.address = '' THEN geopos_system.address ELSE geopos_locations.address END AS loc_name, 
+			geopos_assets.assest_name as autoid_name,l1.name as charge_country_name, l2.name as discharge_country_name, c1.val2 as expd_t, c1.val1 as expd_name, 
 			geopos_invoices.id as iddoc, 
 			, CASE WHEN geopos_locations.address = '' OR geopos_locations.address IS NULL THEN geopos_system.address ELSE geopos_locations.address END AS loc_adress
 			, CASE WHEN geopos_locations.postbox = '' OR geopos_locations.postbox IS NULL THEN geopos_system.postbox ELSE geopos_locations.postbox END AS loc_postbox
@@ -453,7 +454,7 @@ class Invoices_model extends CI_Model
     }
 
 
-    private function _get_datatables_query($opt = '')
+    private function _get_datatables_query($opt = '', $typ = 0)
     {
         $this->db->select("geopos_invoices.id, geopos_invoices.irs_type, geopos_irs_typ_doc.id as irs_type_c, geopos_series.serie AS serie_name,geopos_invoices.tid,geopos_invoices.invoicedate, geopos_customers.name, geopos_customers.taxid, geopos_invoices.subtotal, geopos_invoices.tax, geopos_invoices.total, geopos_invoices.status, geopos_invoices.pamnt, geopos_invoices.invoiceduedate, geopos_irs_typ_doc.type,
 		geopos_invoices.ext, CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL
@@ -467,6 +468,7 @@ class Invoices_model extends CI_Model
 		$this->db->from($this->table);
 		$this->db->where('geopos_invoices.ext', 0);
 		$this->db->where('geopos_invoices.i_class', 0);
+		$this->db->where('geopos_invoices.irs_type', $typ);
         if ($opt) {
             $this->db->where('geopos_invoices.eid', $opt);
         }
@@ -526,7 +528,7 @@ class Invoices_model extends CI_Model
 	var $column_order2 = array(null, 'geopos_series.serie AS serie_name', 'geopos_draft.tid', 'geopos_draft.invoicedate', 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_draft.subtotal', 'geopos_draft.tax', 'geopos_draft.total', null, null, null, null, null);
     var $column_search2 = array('geopos_series.serie', 'geopos_draft.invoicedate', 'geopos_customers.name', 'geopos_customers.taxid', 'geopos_draft.subtotal', 'geopos_draft.tax', 'geopos_draft.total');
     var $order2 = array('geopos_draft.tid' => 'DESC');
-	private function _get_datatables_query2($opt = '')
+	private function _get_datatables_query2($opt = '',$typ = 0)
     {
         $this->db->select("geopos_draft.id,geopos_series.serie AS serie_name,geopos_draft.tid,geopos_draft.invoicedate, geopos_customers.name, geopos_customers.taxid, geopos_draft.subtotal, geopos_draft.tax, geopos_draft.total, 'Rascunho as status', '0.00 as pamnt', geopos_draft.invoiceduedate, geopos_irs_typ_doc.type,
 		CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL 
@@ -540,6 +542,7 @@ class Invoices_model extends CI_Model
         $this->db->from('geopos_draft');
 		$this->db->where('geopos_draft.ext', 0);
 		$this->db->where('geopos_draft.i_class', 0);
+		$this->db->where('geopos_draft.irs_type', $typ);
         if ($opt) {
             $this->db->where('geopos_draft.eid', $opt);
         }
@@ -598,85 +601,48 @@ class Invoices_model extends CI_Model
         }
     }
 	
-	function get_datatables2($opt = '')
+	function get_datatables2($opt = '', $typ = 0)
     {
-        $this->_get_datatables_query2($opt);
+        $this->_get_datatables_query2($opt,$typ);
 		if (isset($_POST['length']) != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_draft.loc', 0); }
-
         return $query->result();
     }
 	
-	public function count_all2($opt = '')
+	public function count_all2($opt = '', $typ = 0)
     {
-        $this->db->select('geopos_draft.id');
-        $this->db->from('geopos_draft');
-		$this->db->where('geopos_draft.ext', 0);
-		$this->db->where('geopos_draft.i_class', 0);
-        if ($opt) {
-            $this->db->where('geopos_draft.eid', $opt);
-        }
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { 
-			$this->db->where('geopos_draft.loc', 0); }
+        $this->_get_datatables_query2($opt,$typ);
         return $this->db->count_all_results();
     }
 	
-	function count_filtered2($opt = '')
+	function count_filtered2($opt = '', $typ = 0)
     {
-        $this->_get_datatables_query2($opt);
-        if ($opt) {
-            $this->db->where('geopos_draft.eid', $opt);
-        }
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_draft.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_draft.loc', 0); }
+        $this->_get_datatables_query2($opt,$typ);
         $query = $this->db->get();
         return $query->num_rows();
     }
 
-    function get_datatables($opt = '')
+    function get_datatables($opt = '', $typ = 0)
     {
-        $this->_get_datatables_query($opt);
-		if (isset($_POST['length']) != -1)
-            $this->db->limit($_POST['length'], $_POST['start']);
+        $this->_get_datatables_query($opt,$typ);
+		if ($this->input->post('length') != -1)
+            $this->db->limit($this->input->post('length'), $this->input->post('start'));
         $query = $this->db->get();
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_invoices.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { $this->db->where('geopos_invoices.loc', 0); }
 
         return $query->result();
     }
 
-    function count_filtered($opt = '')
+    function count_filtered($opt = '', $typ = 0)
     {
-        $this->_get_datatables_query($opt);
-        if ($opt) {
-            $this->db->where('geopos_invoices.eid', $opt);
-        }
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_invoices.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { 
-			$this->db->where('geopos_invoices.loc', 0); }
+        $this->_get_datatables_query($opt,$typ);
         $query = $this->db->get();
         return $query->num_rows();
     }
 
-    public function count_all($opt = '')
+    public function count_all($opt = '', $typ = 0)
     {
-        $this->_get_datatables_query($opt);
-        if ($opt) {
-            $this->db->where('geopos_invoices.eid', $opt);
-        }
-        if ($this->aauth->get_user()->loc) {
-            $this->db->where('geopos_invoices.loc', $this->aauth->get_user()->loc);
-        }  elseif(!BDATA) { 
-			$this->db->where('geopos_invoices.loc', 0); }
+        $this->_get_datatables_query($opt,$typ);
         return $this->db->count_all_results();
     }
 

@@ -1,9 +1,22 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Vacations') ?> <a href="<?php echo base_url('events') ?>"
-                                                                 class="btn btn-primary btn-sm rounded">
-                    <?php echo $this->lang->line('Add new') ?></a></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Vacations') ?> <a href="<?php echo base_url('events') ?>"
+                                                                class="btn btn-primary btn-sm btn-new">
+                    <?php echo $this->lang->line('Add new') ?></a>
+            </h5>
+            <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+            <div class="heading-elements">
+                <ul class="list-inline mb-0">
+                    <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                    <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                    <li><a data-action="close"><i class="ft-x"></i></a></li>
+                </ul>
+            </div>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -30,21 +43,11 @@
                         <th><?php echo $this->lang->line('Employee') ?></th>
                         <th><?php echo $this->lang->line('Start Date') ?></th>
                         <th><?php echo $this->lang->line('Close Date') ?></th>
-						<th><?php echo $this->lang->line('Days') ?></th>
+                        <th><?php echo $this->lang->line('Days') ?></th>
                     </tr>
                     </thead>
                     <tbody>
                     </tbody>
-
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Employee') ?></th>
-                        <th><?php echo $this->lang->line('Start Date') ?></th>
-                        <th><?php echo $this->lang->line('Close Date') ?></th>
-						<th><?php echo $this->lang->line('Days') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
 
             </div>

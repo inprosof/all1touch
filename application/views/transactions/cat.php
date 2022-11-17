@@ -1,24 +1,29 @@
 <article class="content-body">
-    <div class="card card-block">
+    <div class="card yellow-top">
+        <div class="card-header">
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Transactions Categories') ?><a
+                        href="<?php echo base_url('transactions/createcat') ?>"
+                        class="btn btn-primary btn-sm btn-new">
+                    <?php echo $this->lang->line('Add new') ?>
+                </a>
+            </h5>
+
+        </div>
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
         </div>
         <div class="card-body">
-            <h5 class="title">
-                <?php echo $this->lang->line('Transactions Categories') ?><a
-                        href="<?php echo base_url('transactions/createcat') ?>"
-                        class="btn btn-primary btn-sm rounded">
-                    <?php echo $this->lang->line('Add new') ?>
-                </a>
-            </h5>
 
-            <p>&nbsp;</p>
-            <table class="table display" cellspacing="0" width="100%">
+            <table class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%">
                 <thead>
                 <tr>
-					<th>Cód.</th>
+                    <th>Cód.</th>
                     <th><?php echo $this->lang->line('Name') ?></th>
                     <th><?php echo $this->lang->line('Action') ?></th>
                 </tr>
@@ -26,7 +31,7 @@
                 <tbody>
                 <?php foreach ($catlist as $row) {
                     $cid = $row['id'];
-                    echo "<tr><td>" . $row['cod'] . "</td><td>" . $row['name'] . "</td><td><a href='" . base_url("transactions/editcat?id=$cid") . "' class='btn btn-warning btn-xs'><i class='icon-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;<a href='#' data-object-id='" . $cid . "' class='btn btn-danger btn-xs delete-object' title='Delete'><i class='fa fa-trash'></i></a></td></tr>";
+                    echo "<tr><td>" . $row['cod'] . "</td><td>" . $row['name'] . "</td><td><div class='action-btn'><a href='" . base_url("transactions/editcat?id=$cid") . "' class='btn btn-outline-primary btn-sm' title=" . $this->lang->line('Edit') . "><i class='bi bi-pencil'></i> " . "</a><a href='#' data-object-id='" . $cid . "' class='btn btn-outline-danger btn-sm delete-object' title=" . $this->lang->line('Delete') . "><i class='bi bi-trash'></i></a></div></td></tr>";
                 }
                 ?>
                 </tbody>

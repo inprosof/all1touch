@@ -6,9 +6,10 @@
                 <div class="message"></div>
             </div>
             <div class="card-body">
-				<form method="post" id="data_form">
-					<div class="row">
+                <form method="post" id="data_form">
+                    <div class="row">
 						<div class="col-sm-6 cmp-pnl">
+							<input type="hidden" value="<?php echo $relationid ?>" name="relationid" id="relationid">
 							<input type="hidden" value="<?php echo $tiprelated ?>" name="tiprelated" id="tiprelated">
 							<input type="hidden" value="<?php echo $locations['address']; ?>" name="compa_adr" id="compa_adr">
 							<input type="hidden" value="<?php echo $locations['postbox']; ?>" name="compa_post" id="compa_post">
@@ -29,7 +30,7 @@
 								</div>
 								<div class="form-group row">
 									<div class="frmSearch col-sm-12"><label for="cst" class="caption" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>><?php echo $this->lang->line('Search Client'); ?></label>
-										<input type="text" class="form-control round" name="cst" id="customer-box"
+										<input type="text" class="form-control round" name="cst" id="customer-box-guide"
 											   placeholder="Enter Customer Name or Mobile Number to search"
 											   autocomplete="off" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>/>
 										<div id="customer-box-result" <?php if (isset($_GET['project']) || $relationid > 0) echo ' hidden' ?>></div>
@@ -43,6 +44,10 @@
 										<div id="customer_name"><strong><?php echo $csd_name; ?></strong></div>
 									</div>
 									<div class="clientinfo">
+										<input type="hidden" name="customer_adr_hi" id="customer_adr_hi" value="Desconhecido">
+										<input type="hidden" name="customer_post_box_hi" id="customer_post_box_hi" value="0000-000">
+										<input type="hidden" name="customer_city_hi" id="customer_city_hi" value="Desconhecido">
+										<input type="hidden" name="customer_country_hi" id="customer_country_hi" value="PT">
 										<div id="customer_address1"></div>
 									</div>
 									<div class="clientinfo">
@@ -50,10 +55,8 @@
 									</div>
 									<div class="col-sm-6"><label class="caption"><?php echo $this->lang->line('TAX ID'); ?></label>
 										<div class="input-group">
-											<div class="input-group-addon"><span class="icon-calendar4"
-																				 aria-hidden="true"></span></div>
-											<input type="text" class="form-control round required editdate"
-												   placeholder="contribuinte" id="customer_tax" name="customer_tax" value="<?php echo $csd_tax?>" <?php if ($this->aauth->get_user()->roleid < 5) echo 'disabled' ?>/>
+											<input type="text" class="form-control round required"
+												   placeholder="contribuinte" id="customer_tax" name="customer_tax" value="<?php echo $csd_tax?>" <?php if (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) echo 'disabled' ?>/>
 										</div>
 									</div>
 									<hr>
@@ -76,7 +79,7 @@
 								<div class="form-group row">
 									<div class="col-sm-8">
 										<label for="invoi_type"
-											   class="caption"><?php echo $this->lang->line('Invoice Number') ?> <strong><?php echo $lastinvoice + 1 ?> (numeração provisória)</strong></label>
+											   class="caption"><?php echo 'Documento Nº' ?> <strong><?php echo $lastinvoice + 1 ?> (numeração provisória)</strong></label>
 										<span class="input-group-addon" title="<?php echo "Esta numeração é atribuída com base na sequência dos documentos gerados dentro da série escolhida
 
 Os documentos do mesmo tipo dentro da mesma série têm que ter uma numeração sequêncial, a qual é mostrada aqui.
@@ -200,8 +203,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 										foreach ($myArraytaxperc as $row2) {
 											$valsumperc = $row2.'%';
 										}
-										if($row['serial'] != '') 
-											$row['product'].=' - '.$row['serial'];
+										
 										$myArraytaxname = explode(";", $row['taxaname']);
 										$myArraytaxcod = explode(";", $row['taxacod']);
 										$myArraytaxvals = explode(";", $row['taxavals']);
@@ -253,7 +255,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 										<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $cvalue . '" value="' . $row['pid'] . '">
 										<input type="hidden" name="unit[]" id="unit-' . $cvalue . '" value="' . $row['unit'] . '">
 										<input type="hidden" name="hsn[]" id="hsn-' . $cvalue . '" value="' . $row['code'] . '">
-										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="' . $row['serial'] . '">
+										<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="">
 										<input type="hidden" name="verif_typ[]" id="verif_typ-' . $cvalue . '" value="' . $row['verify_typ'] . '">
 										</tr>
 										<tr>
@@ -500,6 +502,7 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 											{
 												foreach ($docs_origem as $row) {
 													$tiiid = $row['iddoc'];
+													$exte = $row['ext'];
 													if($row['iddoc'] != null && $row['iddoc'] != '')
 													{
 														echo '<tr class="last-item-row-related sub_related">';
@@ -508,23 +511,28 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 														echo "<td><strong>".$row['serie_name']."</strong></td>";
 														if($row['type_related'] == "0" || $row['type_related'] == "2"){
 															if($row['draft'] == "0"){
-																echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
-																		<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+																echo '<td><a href="'.base_url("invoices/view?id=$tiiid&draf=0&ext=$exte").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																		<a href="' . base_url("invoices/printinvoice?id=$tiiid&draf=0&ext=$exte") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
 															}else{
-																echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=1").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
-																		<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+																echo '<td><a href="'.base_url("invoices/view?id=$tiiid&draf=1&ext=$exte").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																		<a href="' . base_url("invoices/printinvoice?id=$tiiid&draf=1&ext=$exte") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
 															}
 														}else if($row['type_related'] == "1"){
-															echo '<td><a href="'.base_url("invoices/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
-																		<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+															echo '<td><a href="'.base_url("invoices/view?id=$tiiid&draf=0&ext=$exte").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																		<a href="' . base_url("invoices/printinvoice?id=$tiiid&draf=0&ext=$exte") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
 														}else if($row['type_related'] == "3"){
-															echo '<td><a href="'.base_url("quote/view?id=$tiiid&ty=0").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
-																		<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+															echo '<td><a href="'.base_url("quote/view?id=$tiiid&draf=0&ext=$exte").'" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'.$row['type'].'/'.$row['tid'].'</a>
+																		<a href="' . base_url("quote/printquote?id=$tiiid&draf=0&ext=$exte") . '&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
 														}
 														echo "<td>".$row['invoicedate']."</td>";
-														echo "<td>".$row['taxid']."</td>";
-														echo '<td><input type="hidden" disabled readonly value="'.$row['total_discount_tax'].'" name="val_tot_rel[]" id="val_tot_rel-'.$valdocrela.'"></td>';
-														echo '<td><input type="hidden" disabled readonly value="'.$row['pamnt'].'" name="val_tot_rel[]" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+														echo "<td>".$row['tax_id']."</td>";
+														echo '<td><input type="text" disabled readonly value="'.$row['total_discount_tax'].'" name="val_tot_rel[]" id="val_tot_rel-'.$valdocrela.'"></td>';
+														
+														if($row['type_related'] != 3){
+															echo '<td><input type="text" disabled readonly value="'.$row['pamnt'].'" name="val_tot_rel[]" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+														}else{
+															echo '<td><input type="text" disabled readonly value="'.$row['total_discount_tax'].'" name="val_tot_rel[]" id="val_tot_rel_con-'.$valdocrela.'"></td>';
+														}
 														echo '</tr>';
 													}
 													
@@ -555,20 +563,20 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 											<td colspan="1">Transporte 
 												<div class="col-sm-12">
 													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input required" name="copy_date"
+														<input type="checkbox" class="custom-control-input" name="copy_date"
 															   id="copy_date"/>
 														<label class="custom-control-label"
 															   for="copy_date">Preencher com a data e hora de agora</label>
 													</div>
 													<label for="guidedate" class="caption">Início do transporte</label>
 													<div class="input-group">
-														<input type="text" id="start_date_guide" name="start_date_guide" class="form-control round required" value="" placeholder="0000-00-00 00:00:00"/>
+														<input type="text" id="start_date_guide" name="start_date_guide" class="form-control round" value="" placeholder="0000-00-00 00:00:00"/>
 														<span class="input-group-addon" title="<?php echo 'A data inserida tem que ser no formato: aaaa-mm-dd hh:mm';?>"><i class="fa fa-info fa-2x"></i></span>
 													</div>
 													<label type="text" id="zone_date" name="zone_date" value="" placeholder="timezone"></label>
 													<label for="exped" class="caption">Expedição</label>
 													<input type="hidden" value="exp0" name="expedival" id="expedival">
-													<select name="exped_se" class="form-control b_input required" id="exped_se">
+													<select name="exped_se" class="form-control b_input" id="exped_se">
 														<option value="0" data-type="exp0">Escolha uma Opção</option>
 														<?php
 															echo $expeditions;
@@ -608,22 +616,22 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 													</div>
 													<label for="guideloc" class="caption">Morada</label>
 													<div class="input-group">
-														<input type="text" id="loc_guide_comp" name="loc_guide_comp" class="form-control round required" placeholder=""/>
+														<input type="text" id="loc_guide_comp" name="loc_guide_comp" class="form-control round" placeholder=""/>
 														<span class="input-group-addon" title="<?php echo 'Defina o local de carga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
 													</div>
 													<div class="form-group row">
 														<div class="col-sm-6">
 															<label for="guideloc" class="caption">Cód. Postal</label>
-															<input type="text" id="post_guide_comp" name="post_guide_comp" class="form-control round required" placeholder=""/>
+															<input type="text" id="post_guide_comp" name="post_guide_comp" class="form-control round" placeholder=""/>
 														</div>
 														<div class="col-sm-12">
 															<label for="guideloc" class="caption">Localidade</label>
-															<input type="text" id="city_guide_comp" name="city_guide_comp" class="form-control round required" placeholder=""/>
+															<input type="text" id="city_guide_comp" name="city_guide_comp" class="form-control round" placeholder=""/>
 														</div>
 													</div>
 													<div class="col-sm-12">
 														<label for="mcustomer_gui_comp"><?php echo $this->lang->line('Country') ?></label>
-														<select name="mcustomer_gui_comp" class="form-control b_input required" id="mcustomer_gui_comp">
+														<select name="mcustomer_gui_comp" class="form-control b_input" id="mcustomer_gui_comp">
 															<option value="0">Escolha uma Opção</option>
 															<?php
 															echo $countrys;
@@ -641,17 +649,17 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 													</div>
 													<label for="guideloc" class="caption">Morada</label>
 													<div class="input-group">
-														<input type="text" id="loc_guide_cos" name="loc_guide_cos" class="form-control round required"" placeholder=""/>
+														<input type="text" id="loc_guide_cos" name="loc_guide_cos" class="form-control round"" placeholder=""/>
 														<span class="input-group-addon" title="<?php echo 'Defina o local de descarga dos artigos';?>"><i class="fa fa-info fa-2x"></i></span>
 													</div>
 													<div class="form-group row">
 														<div class="col-sm-6">
 															<label for="guideloc" class="caption">Cód. Postal</label>
-															<input type="text" id="post_guide_cos" name="post_guide_cos" class="form-control round required" placeholder=""/>
+															<input type="text" id="post_guide_cos" name="post_guide_cos" class="form-control round" placeholder=""/>
 														</div>
 														<div class="col-sm-12">
 															<label for="guideloc" class="caption">Localidade</label>
-															<input type="text" id="city_guide_cos" name="city_guide_cos" class="form-control round required" placeholder=""/>
+															<input type="text" id="city_guide_cos" name="city_guide_cos" class="form-control round" placeholder=""/>
 														</div>
 													</div>
 													<div class="col-sm-12">
@@ -831,214 +839,407 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 
                 <!-- Modal Body -->
                 <div class="modal-body">
-                    <p id="statusMsg"></p><input type="hidden" name="mcustomer_id" id="mcustomer_id" value="0">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h5><?php echo $this->lang->line('Billing Address') ?></h5>
-                            <div class="form-group row">
+					<div id="notifyc" class="alert alert-success" style="display:none;">
+						<a href="#" class="close" data-dismiss="alert">&times;</a>
+						<div class="messagec"></div>
+					</div>
+					<input type="hidden" name="mcustomer_id" id="mcustomer_id" value="0">
+					<ul class="nav nav-tabs" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active show" id="base-tab1" data-toggle="tab"
+							   aria-controls="tab1" href="#tab1" role="tab"
+							   aria-selected="true"><?php echo $this->lang->line('Billing Address') ?></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="base-tab2" data-toggle="tab" aria-controls="tab2"
+							   href="#tab2" role="tab"
+							   aria-selected="false"><?php echo $this->lang->line('Shipping Address') ?></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="base-tab3" data-toggle="tab" aria-controls="tab3"
+							   href="#tab3" role="tab"
+							   aria-selected="false"><?php echo $this->lang->line('CustomFields') ?></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="base-tab4" data-toggle="tab" aria-controls="tab4"
+							   href="#tab4" role="tab"
+							   aria-selected="false"><?php echo $this->lang->line('Other') . ' ' . $this->lang->line('Settings') ?></a>
+						</li>
 
-                                <label class="col-sm-2 col-form-label"
-                                       for="name"><?php echo $this->lang->line('Name') ?></label>
+					</ul>
+					<div class="tab-content px-1 pt-1">
+						<div class="tab-pane active show" id="tab1" role="tabpanel" aria-labelledby="base-tab1">
 
-                                <div class="col-sm-10">
-                                    <input type="text" placeholder="Name"
-                                           class="form-control margin-bottom" id="mcustomer_name" name="name" required>
-                                </div>
-                            </div>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label" for="taxid">Contribuinte</label>
+								<div class="col-sm-6">
+									<label class="col-sm-12" for="taxid">Deve ser um valor único</label>
+									<input type="text"
+										   placeholder="<?php echo $this->lang->line('IRS Number') ?>"
+										   class="form-control margin-bottom b_input" name="taxid" id="taxid" value="999999990">
+								</div>
+							</div>
 
-                            <div class="form-group row">
+							<div class="form-group row">
+								<label class="col-sm-12" for="taxid">Verificar contribuinte no sistema
+									VIES</label>
+								<div class="col-sm-12">
+									<div class="alert alert-info" id="alert-info-text" for="taxid">
+										<p>Nota: A verificação dos contribuintes
+											no Sistema VIES só é possível para as empresas da União Europeia!
+											Esta
+											verificação é opcional!
+											Escolha o país de origem da empresa que deseja verificar e carregue
+											em
+											"Verificar Contribuinte". </p>
+									</div>
+									<div class="form-group row">
+										<label class="col-sm-2 col-form-label"
+											   for="mcustomer_vies"><?php echo $this->lang->line('Country') ?></label>
 
-                                <label class="col-sm-2 col-form-label"
-                                       for="phone"><?php echo $this->lang->line('Phone') ?></label>
+										<div class="col-sm-6">
+											<select name="country" class="form-control b_input"
+													id="country">
+												<?php
+												echo $countrys;
+												?>
 
-                                <div class="col-sm-10">
-                                    <input type="text" placeholder="Phone"
-                                           class="form-control margin-bottom" name="phone" id="mcustomer_phone">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label"
-                                       for="email"><?php echo $this->lang->line('Email') ?></label>
+											</select>
+										</div>
+									</div>
+									<input type="submit" class="btn btn-primary btn-md" id="calculate_due"
+										   value="Verificar Contribuinte">
+								</div>
+							</div>
+							<hr>
+							<div class="form-group row mt-1">
+								<label class="col-sm-2 col-form-label"
+									   for="name"><?php echo $this->lang->line('Name') ?></label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="Name"
+										   class="form-control margin-bottom b_input crequired" name="name"
+										   id="mcustomer_name">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="name"><?php echo $this->lang->line('Company') ?></label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="Company"
+										   class="form-control margin-bottom b_input" name="company"
+										   id="company_1">
+								</div>
+							</div>
 
-                                <div class="col-sm-10">
-                                    <input type="email" placeholder="Email"
-                                           class="form-control margin-bottom crequired" name="email"
-                                           id="mcustomer_email">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-
-                                <label class="col-sm-2 col-form-label"
-                                       for="address"><?php echo $this->lang->line('Address') ?></label>
-
-                                <div class="col-sm-10">
-                                    <input type="text" placeholder="Address"
-                                           class="form-control margin-bottom " name="address" id="address">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-
-
-                                <div class="col-sm-6">
-                                    <input type="text" placeholder="City"
-                                           class="form-control margin-bottom" name="city" id="city">
-                                </div>
-                                <div class="col-sm-6">
-                                    <input type="text" placeholder="Region" id="region"
-                                           class="form-control margin-bottom" name="region">
-                                </div>
-
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-6">
-								   <select name="country" class="form-control b_input" id="country">
-										<option value="">Escolha uma Opção</option>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="phone"><?php echo $this->lang->line('Phone') ?></label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="phone"
+										   class="form-control margin-bottom crequired b_input" name="phone"
+										   id="mcustomer_phone" value="+3519">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label" for="email">Email</label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="email"
+										   class="form-control margin-bottom crequired b_input" name="email"
+										   id="mcustomer_email">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="address"><?php echo $this->lang->line('Address') ?></label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="address"
+										   class="form-control margin-bottom b_input" name="address"
+										   id="mcustomer_address1" value="Desconhecido">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="city"><?php echo $this->lang->line('City') ?></label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="city"
+										   class="form-control margin-bottom b_input" name="city"
+										   id="mcustomer_city" value="Desconhecido">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="region"><?php echo $this->lang->line('Region') ?></label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="Region"
+										   class="form-control margin-bottom b_input" name="region"
+										   id="region" value="Desconhecido">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="mcustomer_country"><?php echo $this->lang->line('Country') ?></label>
+								<div class="col-sm-6">
+									<select name="mcustomer_country" class="form-control b_input" id="mcustomer_country">
 										<?php
 										echo $countrys;
 										?>
+
 									</select>
-                                </div>
-                                <div class="col-sm-6">
-                                    <input type="text" placeholder="PostBox" id="postbox"
-                                           class="form-control margin-bottom" name="postbox" id="mcostumer_postbox">
-                                </div>
-                            </div>
+								</div>
+							</div>
+							<div class="form-group row">
 
-                            <div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="postbox"><?php echo $this->lang->line('PostBox') ?></label>
 
-                                <div class="col-sm-6">
-                                    <input type="text" placeholder="Company"
-                                           class="form-control margin-bottom" name="company" id="mcostumer_company">
-                                </div>
+								<div class="col-sm-6">
+									<input type="text" placeholder="PostBox"
+										   class="form-control margin-bottom b_input" name="postbox"
+										   id="postbox" value="0000-000">
+								</div>
+							</div>
+						</div>
+						
+						<div class="tab-pane" id="tab2" role="tabpanel" aria-labelledby="base-tab2">
+							<div class="form-group row">
 
-                                <div class="col-sm-6">
-                                    <input type="text" placeholder="Contribuinte"
-                                           class="form-control margin-bottom" name="taxid" id="mcostumer_taxid">
-                                </div>
+								<div class="input-group mt-1">
+									<div class="custom-control custom-checkbox">
+										<input type="checkbox" class="custom-control-input" name="customer1"
+											   id="copy_address">
+										<label class="custom-control-label"
+											   for="copy_address"><?php echo $this->lang->line('Same As Billing') ?></label>
+									</div>
 
+								</div>
 
-                            </div>
+								<div class="col-sm-10 text-info">
+									<?php echo $this->lang->line("leave Shipping Address") ?>
+								</div>
+							</div>
 
-                            <div class="form-group row">
+							<div class="form-group row">
 
-                                <label class="col-sm-2 col-form-label  col-form-label-sm"
-                                       for="customergroup"><?php echo $this->lang->line('Group') ?></label>
+								<label class="col-sm-2 col-form-label"
+									   for="name_s"><?php echo $this->lang->line('Name') ?></label>
 
-                                <div class="col-sm-10">
-                                    <select name="customergroup" class="form-control form-control-sm">
-                                        <?php
-                                        foreach ($customergrouplist as $row) {
-                                            $cid = $row['id'];
-                                            $title = $row['title'];
-                                            echo "<option value='$cid'>$title</option>";
-                                        }
-                                        ?>
-                                    </select>
-
-
-                                </div>
-                            </div>
-
-
-                        </div>
-
-                        <!-- shipping -->
-                        <div class="col-sm-6">
-                            <h5><?php echo $this->lang->line('Shipping Address') ?></h5>
-                            <div class="form-group row">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" name="customer1s"
-                                           id="copy_address">
-                                    <label class="custom-control-label"
-                                           for="copy_address"><?php echo $this->lang->line('Same As Billing') ?></label>
-                                </div>
+								<div class="col-sm-8">
+									<input type="text" placeholder="Name"
+										   class="form-control margin-bottom b_input crequired" name="name_s"
+										   id="mcustomer_name_s">
+								</div>
+							</div>
 
 
-                                <div class="col-sm-10">
-                                    <?php echo $this->lang->line("leave Shipping Address") ?>
-                                </div>
-                            </div>
-                            <div class="form-group row">
+							<div class="form-group row">
 
-                                <label class="col-sm-2 col-form-label"
-                                       for="name_s"><?php echo $this->lang->line('Name') ?></label>
+								<label class="col-sm-2 col-form-label"
+									   for="phone_s"><?php echo $this->lang->line('Phone') ?></label>
 
-                                <div class="col-sm-10">
-                                    <input type="text" placeholder="Name"
-                                           class="form-control margin-bottom" id="mcustomer_name_s" name="name_s"
-                                           required>
-                                </div>
-                            </div>
+								<div class="col-sm-8">
+									<input type="text" placeholder="phone"
+										   class="form-control margin-bottom b_input" name="phone_s"
+										   id="mcustomer_phone_s">
+								</div>
+							</div>
+							<div class="form-group row">
 
-                            <div class="form-group row">
+								<label class="col-sm-2 col-form-label" for="email_s">Email</label>
 
-                                <label class="col-sm-2 col-form-label"
-                                       for="phone_s"><?php echo $this->lang->line('Phone') ?></label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="email"
+										   class="form-control margin-bottom b_input" name="email_s"
+										   id="mcustomer_email_s">
+								</div>
+							</div>
+							<div class="form-group row">
 
-                                <div class="col-sm-10">
-                                    <input type="text" placeholder="Phone"
-                                           class="form-control margin-bottom" name="phone_s" id="mcustomer_phone_s">
-                                </div>
-                            </div>
-                            <div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="address"><?php echo $this->lang->line('Address') ?></label>
 
-                                <label class="col-sm-2 col-form-label"
-                                       for="email_s"><?php echo $this->lang->line('Email') ?></label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="address_s"
+										   class="form-control margin-bottom b_input" name="address_s"
+										   id="mcustomer_address1_s">
+								</div>
+							</div>
+							<div class="form-group row">
 
-                                <div class="col-sm-10">
-                                    <input type="email" placeholder="Email"
-                                           class="form-control margin-bottom" name="email_s"
-                                           id="mcustomer_email_s">
-                                </div>
-                            </div>
-                            <div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="city_s"><?php echo $this->lang->line('City') ?></label>
 
-                                <label class="col-sm-2 col-form-label"
-                                       for="address_s"><?php echo $this->lang->line('Address') ?></label>
+								<div class="col-sm-8">
+									<input type="text" placeholder="city"
+										   class="form-control margin-bottom b_input" name="city_s"
+										   id="mcustomer_city_s">
+								</div>
+							</div>
+							<div class="form-group row">
 
-                                <div class="col-sm-10">
-                                    <input type="text" placeholder="Address"
-                                           class="form-control margin-bottom " name="address_s"
-                                           id="mcustomer_address1_s">
-                                </div>
-                            </div>
-                            <div class="form-group row">
+								<label class="col-sm-2 col-form-label"
+									   for="region_s"><?php echo $this->lang->line('Region') ?></label>
 
+								<div class="col-sm-8">
+									<input type="text" placeholder="Region"
+										   class="form-control margin-bottom b_input" name="region_s"
+										   id="region_s">
+								</div>
+							</div>
+							<div class="form-group row">
 
-                                <div class="col-sm-6">
-                                    <input type="text" placeholder="City"
-                                           class="form-control margin-bottom" name="city_s" id="mcustomer_city_s">
-                                </div>
-                                <div class="col-sm-6">
-                                    <input type="text" placeholder="Region" id="region_s"
-                                           class="form-control margin-bottom" name="mcustomer_region_s">
-                                </div>
+								<label class="col-sm-2 col-form-label"
+									   for="mcustomer_country_s"><?php echo $this->lang->line('Country') ?></label>
 
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-sm-6">
-                                    <select name="country_s" class="form-control b_input" id="mcustomer_country_s">
-										<option value="">Escolha uma Opção</option>
+								<div class="col-sm-6">
+									<select name="mcustomer_country_s" class="form-control b_input"
+											id="mcustomer_country_s">
 										<?php
 										echo $countrys;
 										?>
+
 									</select>
-                                </div>
-                                <div class="col-sm-6">
-                                    <input type="text" placeholder="PostBox" id="postbox_s"
-                                           class="form-control margin-bottom" name="postbox_s">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+								</div>
+							</div>
+							<div class="form-group row">
+
+								<label class="col-sm-2 col-form-label"
+									   for="postbox"><?php echo $this->lang->line('PostBox') ?></label>
+
+								<div class="col-sm-6">
+									<input type="text" placeholder="PostBox"
+										   class="form-control margin-bottom b_input" name="postbox_s"
+										   id="postbox_s">
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
+							<?php
+							foreach ($c_custom_fields as $row) {
+								if ($row['f_type'] == 'text') { ?>
+									<div class="form-group row">
+										<label class="col-sm-10 col-form-label"
+											   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+										<div class="col-sm-8">
+											<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+												   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+												   name="custom[<?php echo $row['id'] ?>]">
+										</div>
+									</div>
+								<?php } else if ($row['f_type'] == 'check') { ?>
+									<div class="form-group row">
+										<label class="col-sm-10 col-form-label"
+											   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+										<div class="custom-control custom-checkbox">
+											<input type="checkbox"
+												   class="custom-control-input <?php echo $row['other'] ?>"
+												   id="custom[<?php echo $row['id'] ?>]"
+												   name="custom[<?php echo $row['id'] ?>]">
+											<label class="custom-control-label"
+												   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+										</div>
+									</div>
+								<?php } else if ($row['f_type'] == 'textarea') { ?>
+									<div class="form-group row">
+										<label class="col-sm-10 col-form-label"
+											   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+										<div class="col-sm-8">
+											<textarea placeholder="<?php echo $row['placeholder'] ?>"
+													  class="summernote <?php echo $row['other'] ?>"
+													  name="custom[<?php echo $row['id'] ?>]"
+													  rows="1"></textarea>
+										</div>
+									</div>
+								<?php }
+							}
+							?>
+						</div>
+						<div class="tab-pane" id="tab4" role="tabpanel" aria-labelledby="base-tab4">
+							<div class="form-group row"><label class="col-sm-2 col-form-label"
+															   for="Discount"><?php echo $this->lang->line('Discount') ?> </label>
+								<div class="col-sm-6">
+									<input type="text" placeholder="<?php echo $this->lang->line('Discount') ?>"
+										   class="form-control margin-bottom b_input" name="discount" value="0">
+								</div>
+							</div>
+
+							<div class="form-group row">
+
+								<label class="col-sm-2 col-form-label"
+									   for="docid"><?php echo $this->lang->line('Document') ?> ID</label>
+
+								<div class="col-sm-6">
+									<input type="text" placeholder="Document ID"
+										   class="form-control margin-bottom b_input" name="docid">
+								</div>
+							</div>
+							<div class="form-group row">
+
+								<label class="col-sm-2 col-form-label"
+									   for="customergroup"><?php echo $this->lang->line('Customer group') ?></label>
+
+								<div class="col-sm-6">
+									<select name="customergroup" class="form-control b_input">
+										<?php
+
+										foreach ($customergrouplist as $row) {
+											$cid = $row['id'];
+											$title = $row['title'];
+											echo "<option value='$cid'>$title</option>";
+										}
+										?>
+									</select>
+
+
+								</div>
+							</div>
+
+							<div class="form-group row">
+
+								<label class="col-sm-2 col-form-label"
+									   for="currency"><?php echo $this->lang->line('Language') ?></label>
+
+								<div class="col-sm-6">
+									<select name="language" class="form-control b_input">
+										<?php
+										echo $langs;
+										?>
+
+									</select>
+								</div>
+							</div>
+							<div class="form-group row">
+
+								<label class="col-sm-2 col-form-label"
+									   for="currency"><?php echo $this->lang->line('customer_login') ?></label>
+
+								<div class="col-sm-6">
+									<select name="c_login" class="form-control b_input">
+
+										<option value="1"><?php echo $this->lang->line('Yes') ?></option>
+										<option value="0"><?php echo $this->lang->line('No') ?></option>
+
+									</select>
+								</div>
+							</div>
+							<div class="form-group row">
+
+								<label class="col-sm-2 col-form-label"
+									   for="password_c"><?php echo $this->lang->line('New Password') ?></label>
+
+								<div class="col-sm-6">
+									<input type="text" placeholder="Leave blank for auto generation"
+										   class="form-control margin-bottom b_input" name="password_c"
+										   id="password_c">
+								</div>
+							</div>
+						</div>
+					</div>
                 </div>
                 <!-- Modal Footer -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default"
                             data-dismiss="modal"><?php echo $this->lang->line('Close') ?></button>
-                    <input type="submit" id="mclient_add" class="btn btn-primary submitBtn" value="ADD"/>
+                    <input type="submit" id="mclient_add" class="btn btn-primary submitBtn" value="<?php echo $this->lang->line('ADD') ?>"/>
                 </div>
             </form>
         </div>
@@ -1065,20 +1266,22 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 
 	Nota: A pesquisa não é feita em documentos em rascunho ou anulados e apenas considera os documentos disponíveis para serem relacionados respeitando os restantes filtros de pesquisa aplicados.';?>"><i class="fa fa-info fa-2x"></i></span>
 					<label class="col-form-label" for="email_s">Tipo Doc.</label>
-					<select name="choise-doc-type" class="form-control b_input required" id="choise-doc-type">
+					<select name="choise-doc-type" class="form-control b_input crequired" id="choise-doc-type">
 						<option value="-1"><?php echo $this->lang->line('Please Select') ?></option>
 						<option value="2">Avença</option>
 						<option value="3">Orçamento</option>
 						<option value="12">Fatura Pró-Forma</option>
 						<option value="4">Guia de Transporte</option>
 						<option value="5">Guia de Remessa</option>
+						<option value="55">Guia de Consignação</option>
 						<option value="6">Nota de Encomenda</option>
+						<option value="15">Documento Interno</option>
 					</select>
 					<label class="col-form-label" for="email_s">Data Emissão:</label>
 					<label class="col-form-label" for="email_s">Início:</label>
-					<input type="date" style="width: 80px" class="form-control round required" placeholder="De" id="startdaterel" name="startdate" autocomplete="false">
+					<input type="date" style="width: 80px" class="form-control round crequired" placeholder="De" id="startdaterel" name="startdate" autocomplete="false">
 					<label class="col-form-label" for="email_s">Fim:</label>
-					<input type="date" style="width: 80px" class="form-control round required" placeholder="Até" id="enddaterel" name="enddate" autocomplete="false">
+					<input type="date" style="width: 80px" class="form-control round crequired" placeholder="Até" id="enddaterel" name="enddate" autocomplete="false">
 					<button id="searchdocbut" name="searchdocbut" type="button" class="btn btn-default searchdocbut">Pesquisar Filtros Aplicados</button>
 				</div>
             </div>
@@ -1093,6 +1296,91 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js'); ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 <script>
+	$("#calculate_due").click(function (e) {
+        e.preventDefault();
+        var actionurl = baseurl + 'customers/searchVIES';
+        t_actionCaculate(actionurl);
+    });
+
+    function t_actionCaculate(actionurl) {
+        $.ajax({
+            url: actionurl,
+            type: 'POST',
+            data: 'taxid=' + $('#taxid').val() + '&' + 'country=' + $('#country').val() + '&' + crsf_token + '=' + crsf_hash,
+            dataType: 'json',
+            success: function (data) {
+				$('#company_1').html('');
+				$('#company_1').val('');
+				$('#mcustomer_address1').html('Desconhecido');
+				$('#mcustomer_address1').val('Desconhecido');
+				$('#mcustomer_city').html('Desconhecido');
+				$('#mcustomer_city').val('Desconhecido');
+				$('#postbox').val('0000-000');
+				$("#postbox").html('0000-000');
+				$('#region').val('Desconhecido');
+				$("#region").html('Desconhecido');
+				$('#mcustomer_country').prop('selectedIndex', 0);
+				$("#mcustomer_country").val('PT');
+                if (data['valid'] == "false") {
+                    $("#notifyc .messagec").html("<strong>Erro </strong>Não encontramos o contribuinte no sistema VIES.<br><br>Isto pode ter ocorrido porque:<br>- O contribuinte é de um particular;<br>- Ainda não está inserido no sistema VIES;<br>- Não é de uma empresa europeia.");
+                    $("#notifyc").removeClass("alert-success").addClass("alert-warning").fadeIn();
+                    $("html, body").animate({scrollTop: $('#notifyc').offset().top}, 1000);
+                } else if (data['valid'] == "true") {
+                    $("#notifyc").hide();
+                    $('#company_1').html(data.name);
+                    $('#company_1').val(data.name);
+                    $Savename1 = "";
+                    $Saveadrr1 = "";
+                    $Saveadrr2 = "";
+                    $Saveadrr3 = "";
+                    $Saveadrr4 = "";
+                    $line = data.address.split('\n');
+                    if ($line.length > 1) {
+                        $Saveadrr1 = $line[0];
+                        $Saveadrr2 = $line[1];
+                        $line2 = $line[2].split(' ');
+                        if ($line2.length > 1) {
+                            $Saveadrr3 = $line2[0];
+                            //$Saveadrr4 = $line2[1];
+                        }
+                    } else {
+                        $Saveadrr1 = data.address;
+                    }
+                    $('#mcustomer_address1').val($Saveadrr1);
+                    $("#mcustomer_address1").html($Saveadrr1);
+
+                    $('#mcustomer_city').val($Saveadrr2);
+                    $("#mcustomer_city").html($Saveadrr2);
+
+                    $('#postbox').val($Saveadrr3);
+                    $("#postbox").html($Saveadrr3);
+
+                    $('#region').val($Saveadrr2);
+                    $("#region").html($Saveadrr2);
+					
+					var ee = $("#customer_country_hi");
+					var sel = document.getElementById('mcustomer_country');
+					var opts = sel.options;
+					for ( var i = 0; i < opts.length; i++ ) {
+						if (opts[i]['value'] == data.countryCode) {
+						  sel.selectedIndex = i;
+						  break;
+						}
+					}
+                } else {
+                    $("#notifyc .messagec").html("<strong>Erro </strong>Não encontramos o contribuinte no sistema VIES.<br><br>Isto pode ter ocorrido porque:<br>- O contribuinte é de um particular;<br>- Ainda não está inserido no sistema VIES;<br>- Não é de uma empresa europeia.");
+                    $("#notifyc").removeClass("alert-success").addClass("alert-warning").fadeIn();
+                    $("html, body").animate({scrollTop: $('#notifyc').offset().top}, 1000);
+                }
+            },
+            error: function (data) {
+                $("#notifyc .messagec").html("<strong>" + data.status + "</strong>: Não encontramos o contribuinte no sistema VIES.<br><br>Isto pode ter ocorrido porque:<br>- O contribuinte é de um particular;<br>- Ainda não está inserido no sistema VIES;<br>- Não é de uma empresa europeia.");
+                $("#notifyc").removeClass("alert-success").addClass("alert-warning").fadeIn();
+                $("html, body").animate({scrollTop: $('#notifyc').offset().top}, 1000);
+            }
+        });
+    }
+	
 	$("#invoi_serie").select2();
 	$(document).ready(function () {
         billUpyogInv();
@@ -1103,7 +1391,6 @@ A numeração final só é atribuída depois de escolher a opção 'Guardar e fi
 		$('#autos_se').prop('selectedIndex', -1);
 		$("#autos_se").val('');
 		$("#expedival").val(selectedCategoryType);
-		console.log(selectedCategoryType);
         if(selectedCategoryType == 'exp3'){
 			$("#autos_se").attr({ disabled: false});
 			$('.ajaddauto').removeClass('hidden');

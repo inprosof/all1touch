@@ -1,8 +1,13 @@
 <script src="<?php echo assets_url(); ?>assets/portjs/bootstrap-timepicker.min.js" type="text/javascript"></script>
 <div class="content">
-    <div class="card card-block yellow-top">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5 class="title"><?php echo $this->lang->line('Edit') . ' Serie' ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Edit') . ' Serie' ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -38,16 +43,16 @@
             <div class="tab-content px-1 pt-1">
                 <div class="tab-pane active show" id="tab1" role="tabpanel" aria-labelledby="base-tab1">
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label" for="Serie">Serie</label>
-                        <div class="col-sm-8">
+                        <label class="col-sm-2 col-form-label" for="Serie">Serie</label>
+                        <div class="col-sm-6">
                             <input type="text" placeholder="Serie"
                                    class="form-control margin-bottom b_input" name="serie"
                                    value="<?php echo $serie['serie'] ?>">
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label" for="cae">C.A.E</label>
-                        <div class="col-sm-8">
+                        <label class="col-sm-2 col-form-label" for="cae">C.A.E</label>
+                        <div class="col-sm-6">
                             <select name="cae" id="cae" class="form-control required">
                                 <?php if ($serie['cae'] == 0 || $serie['cae'] == "0") echo '<option value="">Escolha um CAE</option>'; else echo '<option value="' . $serie['cae'] . '">-' . $serie['cae_name'] . '-</option>';
                                 echo $caes; ?>
@@ -56,28 +61,29 @@
                     </div>
                     <div class="form-group row">
 
-                        <label class="col-sm-3 control-label"
+                        <label class="col-sm-2 control-label"
                                for="from"><?php echo $this->lang->line('Start') ?></label>
                         <div class="col-sm-2">
                             <div class="input-group">
-                                <span class="icon-calendar input-group-text" aria-hidden="true"></span>
+                                <span class="bi bi-calendar input-group-text" aria-hidden="true"></span>
                                 <input type="text" class="form-control required editdate"
                                        placeholder="Billing Date" name="startdate"
                                        autocomplete="false"
-                                       value="<?php echo dateformat($serie['startdate']) ?>">
+                                       value="<?php echo dateformat($serie['startdate']) ?>" id="input-date">
                             </div>
                         </div>
                     </div>
                     <div class="form-group row">
 
-                        <label class="col-sm-3 control-label"
+                        <label class="col-sm-2 control-label"
                                for="from"><?php echo $this->lang->line('End') ?></label>
                         <div class="col-sm-2">
-                            <div class="input-group"><span class="icon-calendar2" aria-hidden="true"></span>
+                            <div class="input-group"><span class="bi bi-calendar input-group-text"
+                                                           aria-hidden="true"></span>
                                 <input type="text" class="form-control required editdate"
                                        placeholder="Billing Date" name="enddate"
                                        autocomplete="false"
-                                       value="<?php echo dateformat($serie['enddate']) ?>">
+                                       value="<?php echo dateformat($serie['enddate']) ?>" id="input-date">
                             </div>
                         </div>
                     </div>
@@ -85,7 +91,7 @@
 
                 <div class="tab-pane" id="tab2" role="tabpanel" aria-labelledby="base-tab2">
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label"
+                        <label class="col-sm-2 col-form-label"
                                for="serie_iva_caixa">Regime de IVA de Caixa?</label>
                         <div class="col-sm-2">
                             <select name="serie_iva_caixa" class="form-control b_input">
@@ -98,7 +104,7 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label"
+                        <label class="col-sm-2 col-form-label"
                                for="serie_pred">Predefinido?</label>
                         <div class="col-sm-2">
                             <select name="serie_pred" class="form-control b_input">
@@ -111,7 +117,7 @@
                     </div>
 
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label"
+                        <label class="col-sm-2 col-form-label"
                                for="exclued">Inativar?</label>
                         <div class="col-sm-2">
                             <select name="exclued" class="form-control b_input">
@@ -125,7 +131,7 @@
                     </div>
 
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label"
+                        <label class="col-sm-2 col-form-label"
                                for="serie_class"><?php echo $this->lang->line('Class Ativ') ?>.</label>
                         <div class="col-sm-6">
                             <select name="serie_class" id="serie_class" class="form-control b_input">
@@ -136,7 +142,7 @@
                     </div>
 
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label"
+                        <label class="col-sm-2 col-form-label"
                                for="serie_wareh">Localização</label>
                         <div class="col-sm-6">
                             <select name="serie_wareh" id="serie_wareh" class="form-control b_input">
@@ -147,7 +153,7 @@
                     </div>
 
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label"
+                        <label class="col-sm-2 col-form-label"
                                for="serie_type_com"><?php echo $this->lang->line('Type Com') ?>.</label>
                         <div class="col-sm-6">
                             <select name="serie_type_com" id="serie_type_com" class="form-control b_input">
@@ -169,7 +175,7 @@
                     foreach ($docs_ini as $row) {
                         echo '<div class="form-group row">
 									<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $cvalue . '" value="' . $row['id'] . '">
-									<label class="col-sm-3 col-form-label" for="typ_doc_' . $cvalue . '">' . $row['typ_name'] . '</label>
+									<label class="col-sm-2 col-form-label" for="typ_doc_' . $cvalue . '">' . $row['typ_name'] . '</label>
 									<div class="col-sm-6">
 									<input type="text"';
 
@@ -186,9 +192,9 @@
                 </div>
                 <div class="form-group row">
 
-                    <label class="col-sm-3 col-form-label"></label>
+                    <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-12" id="paiCompanyUpdate">
+                    <div class="col-sm-6" id="paiCompanyUpdate">
                         <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
                                value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                         <input type="hidden" value="settings/edserie" id="action-url">

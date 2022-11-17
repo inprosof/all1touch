@@ -2,12 +2,17 @@
 $type = 'transfer';
 ?>
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5>Transferências <a href="<?php echo base_url('transactions/transfer') ?>"
-                        class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(129) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Transfer') ?>
+                <a href="<?php echo base_url('transactions/transfer') ?>"
+                   class="btn btn-primary btn-sm btn-new" <?php if ($this->aauth->premission(129) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
                     <?php echo $this->lang->line('New Transfer') ?></a>
-			</h5>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -17,15 +22,14 @@ $type = 'transfer';
                 </ul>
             </div>
         </div>
+        <div id="notify" class="alert alert-success" style="display:none;">
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
+
+            <div class="message"></div>
+        </div>
         <div class="card-body">
-            <div id="notify" class="alert alert-success" style="display:none;">
-                <a href="#" class="close" data-dismiss="alert">&times;</a>
 
-                <div class="message"></div>
-            </div>
-
-
-            <hr>
+            
             <table id="trans_table" class="table table-striped table-bordered zero-configuration" cellspacing="0"
                    width="100%">
                 <thead>
@@ -44,20 +48,6 @@ $type = 'transfer';
                 </thead>
                 <tbody>
                 </tbody>
-
-                <tfoot>
-                <tr>
-                    <th><?php echo $this->lang->line('Date') ?></th>
-                    <th><?php echo $this->lang->line('Account') ?></th>
-                    <th><?php echo $this->lang->line('Debit') ?></th>
-                    <th><?php echo $this->lang->line('Credit') ?></th>
-                    <th>Entidade</th>
-                    <th><?php echo $this->lang->line('Method') ?></th>
-                    <th><?php echo $this->lang->line('Action') ?></th>
-
-
-                </tr>
-                </tfoot>
             </table>
         </div>
     </div>
@@ -71,7 +61,7 @@ $type = 'transfer';
             responsive: true,
             <?php datatable_lang();?>
             "ajax": {
-                "url": "<?php echo site_url('transactions/translist?type='.$type)?>",
+                "url": "<?php echo site_url('transactions/translist?type=' . $type)?>",
                 "type": "POST",
                 'data': {"<?php echo $this->security->get_csrf_token_name()?>": crsf_hash}
             },

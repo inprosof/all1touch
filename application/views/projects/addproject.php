@@ -1,6 +1,7 @@
 <link rel="stylesheet" type="text/css"
       href="<?php echo assets_url() ?>app-assets/vendors/css/calendars/fullcalendar.min.css?v=<?php echo APPVER ?>">
-<link href="<?php echo assets_url(); ?>assets/c_portcss/bootstrapValidator.min.css?v=<?php echo APPVER ?>" rel="stylesheet"/>
+<link href="<?php echo assets_url(); ?>assets/c_portcss/bootstrapValidator.min.css?v=<?php echo APPVER ?>"
+      rel="stylesheet"/>
 <link href="<?php echo assets_url(); ?>assets/c_portcss/bootstrap-colorpicker.min.css?v=<?php echo APPVER ?>"
       rel="stylesheet"/>
 <!-- Custom css  -->
@@ -11,9 +12,14 @@
 <script src="<?php echo assets_url() ?>app-assets/vendors/js/extensions/fullcalendar.min.js?v=<?php echo APPVER ?>"></script>
 <script src='<?php echo assets_url(); ?>assets/c_portjs/main.js?v=<?php echo APPVER ?>'></script>
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Add Project') ?></h5>
+
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a><?php echo $this->lang->line('Add Project') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -48,11 +54,11 @@
                         <div class="col-md-4 bg-blue bg-lighten-4 rounded"><label class="col col-form-label"
                                                                                   for="name"><?php echo $this->lang->line('Status') ?></label>
                             <select name="status" class="form-control mb-1">
-								<option value='Waiting'><?php echo $this->lang->line('Waiting') ?></option>
-								<option value='Pending'><?php echo $this->lang->line('Pending') ?></option>
-								<option value='Terminated'><?php echo $this->lang->line('Terminated') ?></option>
-								<option value='Finished'><?php echo $this->lang->line('Finished') ?></option>
-								<option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
+                                <option value='Waiting'><?php echo $this->lang->line('Waiting') ?></option>
+                                <option value='Pending'><?php echo $this->lang->line('Pending') ?></option>
+                                <option value='Terminated'><?php echo $this->lang->line('Terminated') ?></option>
+                                <option value='Finished'><?php echo $this->lang->line('Finished') ?></option>
+                                <option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
                             </select>
                         </div>
 
@@ -70,9 +76,9 @@
                                                                                   for="pay_cat"><?php echo $this->lang->line('Priority') ?></label>
                             <select name="priority" class="form-control mb-1">
                                 <option value='Low'><?php echo $this->lang->line('Low') ?></option>
-								<option value='Average'><?php echo $this->lang->line('Average') ?></option>
-								<option value='High'><?php echo $this->lang->line('High') ?></option>
-								<option value='Urgent'><?php echo $this->lang->line('Urgent') ?></option>
+                                <option value='Average'><?php echo $this->lang->line('Average') ?></option>
+                                <option value='High'><?php echo $this->lang->line('High') ?></option>
+                                <option value='Urgent'><?php echo $this->lang->line('Urgent') ?></option>
                             </select>
 
 
@@ -224,9 +230,9 @@
 
                         <label class="col-sm-2 col-form-label"></label>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-12" id="paiCompanyUpdate">
                             <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
-                                   value="<?php echo $this->lang->line('Add') ?>" data-loading-text="Adding...">
+                                   value="<?php echo $this->lang->line('Add') ?>" data-loading-text="Adicionando...">
                             <input type="hidden" value="projects/addproject" id="action-url">
 
                         </div>

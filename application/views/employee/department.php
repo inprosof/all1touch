@@ -1,10 +1,13 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
             <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
                 <?php echo $this->lang->line('Department') . ' :' . $department['val1'] ?> <a
                         href="<?php echo base_url('employee/departments') ?>"
-                        class="btn btn-primary btn-sm rounded">
+                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Departments') ?>
                 </a>
             </h5>
@@ -49,20 +52,11 @@
                     <td>" . $row['name'] . "</td>
                        <td>" . $row['basic_salary'] . "</td>
                  
-                    <td><a href='" . base_url("employee/attendances?id=$aid") . "' class='btn btn-success btn-xs'><i class='fa fa-chain'></i> " . $this->lang->line('Attendance') . "</a>  <a href='" . base_url("employee/payroll_emp?id=$aid") . "' class='btn btn-blue btn-xs'><i class='fa fa-money'></i> " . $this->lang->line('Payroll') . "</a> <a href='" . base_url("employee/view?id=$aid") . "' class='btn btn-info btn-xs'><i class='icon-eye'></i> " . $this->lang->line('View') . "</a> <a href='" . base_url("employee/history?id=$aid") . "' class='btn btn-purple btn-xs'><i class='fa fa-clock-o'></i> " . $this->lang->line('History') . "</a></td></tr>";
+                    <td><div class='action-btn'> <a href='" . base_url("employee/attendances?id=$aid") . "' class='btn btn-outline-primary btn-sm' title='" . $this->lang->line('Attendance') . "'><i class='bi bi-stopwatch'></i> </a>  <a href='" . base_url("employee/payroll_emp?id=$aid") . "' class='btn btn-outline-blue btn-sm' title='" . $this->lang->line('Payroll') . "'><i class='bi bi-cash-stack'></i> </a> <a href='" . base_url("employee/view?id=$aid") . "' class='btn btn-outline-success btn-sm' title='" . $this->lang->line('View') . "'><i class='bi bi-eye'></i> </a> <a href='" . base_url("employee/history?id=$aid") . "' class='btn btn-outline-purple btn-sm' title='" . $this->lang->line('History') . "'><i class='bi bi-clock-history'></i> </a></div></td></tr>";
                         $i++;
                     }
                     ?>
                     </tbody>
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Name') ?></th>
-                        <th><?php echo $this->lang->line('Salary') ?></th>
-
-                        <th><?php echo $this->lang->line('Actions') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

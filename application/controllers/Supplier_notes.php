@@ -56,6 +56,10 @@ class Supplier_notes extends CI_Controller
 			$head['title'] = "Gestor de Notas de Crédito";
 			$this->li_a = 'suppliers';
 			$this->load->view('supplier_notes/invoices');
+		}else if($ty == 'p'){
+			$head['title'] = "Gestor de Pedidos de Garantias";
+			$this->li_a = 'suppliers';
+			$this->load->view('supplier_notes/invoices_p');
 		}else{
 			$head['title'] = "Gestor de Notas de Débito";
 			$this->li_a = 'suppliers';
@@ -63,6 +67,11 @@ class Supplier_notes extends CI_Controller
 		}
         $this->load->view('fixed/footer');
     }
+	
+	public function create_p()
+    {
+		$this->create(0,0,2);
+	}
 	
 	public function create_c()
     {
@@ -98,6 +107,16 @@ class Supplier_notes extends CI_Controller
 			}
 			$typename = "Nota de Crédito ";
 			$data['terms'] = $this->settings->billingterms(21);
+		}else if($typ == 2)
+		{
+			$head['title'] = "Novo Pedido de Garantia Fornecedor";
+			if(count($this->settings->billingterms(25)) == 0)
+			{
+				exit('Deve Inserir pelo menos um Termo para o Pedido de Garantia Fornecedores. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
+													class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
+			}
+			$typename = "Pedido de Garantia ";
+			$data['terms'] = $this->settings->billingterms(25);
 		}else{
 			$head['title'] = "Nova Nota de Débito Fornecedor";
 			if(count($this->settings->billingterms(20)) == 0)
@@ -191,6 +210,9 @@ class Supplier_notes extends CI_Controller
 		if($typ == 1)
 		{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(21);
+		}else if($typ == 2)
+		{
+			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(25);
 		}else{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(20);
 		}
@@ -202,6 +224,10 @@ class Supplier_notes extends CI_Controller
 			{
 				exit('Deve Inserir pelo menos uma Série no Tipo Notas de Crédito Fornecedores. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
+			}else if($typ == 2)
+			{
+				exit('Deve Inserir pelo menos uma Série no Pedido de Garantia Fornecedores. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
+												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 			}else{
 				exit('Deve Inserir pelo menos uma Série no Tipo Notas de Débito Fornecedores. <a class="match-width match-height"  href="'.base_url().'settings/irs_typs"><i 
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
@@ -211,13 +237,27 @@ class Supplier_notes extends CI_Controller
 			if($typ == 1)
 			{
 				$numget = $this->common->lastdoc(21,$seri_did_df);
+			}else if($typ == 2)
+			{
+				$numget = $this->common->lastdoc(25,$seri_did_df);
 			}else{
 				$numget = $this->common->lastdoc(20,$seri_did_df);
 			}
-			$data['custom_fields'] = $this->custom->add_fields(4);
+			
+			$data['custom_fields'] = [];
+			$data['c_custom_fields'] = $this->custom->add_fields(4);
 			$data['lastinvoice'] = $numget;
 			$this->load->view('fixed/header', $head);
-			$this->load->view('supplier_notes/newinvoice', $data);
+			if($typ == 1)
+			{
+				$this->load->view('supplier_notes/newinvoice', $data);
+			}else if($typ == 2)
+			{
+				$this->load->view('supplier_notes/newinvoicep', $data);
+			}else{
+				$this->load->view('supplier_notes/newinvoiced', $data);
+			}
+			
 			$this->load->view('fixed/footer');
 		}
     }
@@ -242,9 +282,9 @@ class Supplier_notes extends CI_Controller
 		
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
         $data['currency'] = $this->notes_model->currencies();
-		$type = $this->input->get('ty');
+		$draf = $this->input->get('draf');
 		
-		if($type == 0){
+		if($draf == 0){
 			$head['title'] = "Alterar Nota #$tid";
 			$data['title'] = "Alterar Nota #$tid";
 			$data['typeinvoice'] = 'Alteração';
@@ -254,6 +294,56 @@ class Supplier_notes extends CI_Controller
 			$data['typeinvoice'] = 'Rascunho';
 		}
 		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['iddoc'] = $data['invoice']['id'];
+		$data['csd_name'] = $data['invoice']['name'];
+		$data['csd_tax'] = $data['invoice']['taxid'];
+		$data['csd_id'] = $data['invoice']['id'];
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$this->load->library("Related");
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 20){
+			$typerelatset = 10;
+		}else if($data['invoice']['irs_type'] == 21){
+			$typerelatset = 11;
+		}else{
+			$typerelatset = 111;
+		}
+		
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		if($data['docs_deu_origem'] != null){
+			if(count($data['docs_deu_origem']) > 0)
+			{
+				if($data['docs_deu_origem'][0] != null)
+				{
+					for($i = 0; $i < count($data['docs_deu_origem']); $i++)
+					{
+						if($data['docs_deu_origem'][$i]['tipologia'] == 1){
+							$data['tiprelated'] = $data['docs_deu_origem'][$i]['doc'];
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		$data['custom_fields'] = [];
+		$data['c_custom_fields'] = $this->custom->view_edit_fields($data['invoice']['cid'], 4);
+		
 		$data['invoice'] = $this->notes_model->purchase_details($tid);
         $data['products'] = $this->notes_model->purchase_products($tid);
         $head['usernm'] = $this->aauth->get_user()->username;
@@ -262,6 +352,54 @@ class Supplier_notes extends CI_Controller
         $data['exchange'] = $this->plugins->universal_api(5);
 		$data['taxsiva'] = $this->settings->slabscombo();
 		$data['taxdetails'] = $this->common->taxdetail();
+		
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		if($discship['ac_id_f'] == 0 && $discship['pac'] == 0)
+		{
+			if($this->aauth->get_user()->loc == 0)
+			{
+				exit('Defina a conta Por defeito dos Fornecedores para os Documentos na Empresa! <a class="match-width match-height" href="'.base_url().'settings/company?id=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}else{
+				exit('Defina a conta Por defeito para os Documentos dos Fornecedores na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}
+		}else{
+			if($discship['ac_id_f'] == 0)
+			{
+				if($this->aauth->get_user()->loc){
+					exit('Defina a conta Por defeito para os Documentos dos Fornecedores na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+				}
+			}
+			$accountin = $this->accounts_model->details($discship['ac_id_f'],false);
+			$accountincome = ((integer)$accountin['id']);
+			$accountincomename = $accountin['holder'];
+			$data['accountid'] = $accountincome;
+			$data['accountname'] = $accountincomename;
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		
+		$data['typesinvoices'] = [];
+		$data['typesinvoicesdefault'] = $this->common->default_typ_doc($data['invoice']['irs_type']);
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+		
         $this->load->view('fixed/header', $head);
         $this->load->view('supplier_notes/edit', $data);
         $this->load->view('fixed/footer');
@@ -320,6 +458,16 @@ class Supplier_notes extends CI_Controller
 		}
 		$quote_tid = $this->input->post('quote_tid');
 		$customer_id = ((integer)$this->input->post('customer_id'));
+		$account_set_id = $this->input->post('account_set_id');
+		$account_set = $this->input->post('account_set');
+		if ($account_set_id == 0 || $account_set_id == "0") {
+			echo json_encode(array('status' => 'Error', 'message' => 'Não foi selecionada qualquer conta para a Operação.'));
+            exit;
+        }
+		
+		$accountincome = $account_set_id;
+		$accountincomename = $account_set;
+		
         $invoicedate = $this->input->post('invoicedate', true);
         $invocieduedate = $this->input->post('invocieduedate', true);
         $notes = $this->input->post('notes', true);
@@ -479,7 +627,12 @@ class Supplier_notes extends CI_Controller
 					$striPay .= '<br>Nota Crédito Nº para o Fornecedor: '.$customer_name;
 					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'notes_f', $invocieno);
 					
-					echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&draf=0&ty=$typenot' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0&ty=$typenot' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+					
+					$this->db->set('lastbal', "lastbal+$total_pay", FALSE);
+					$this->db->where('id', $accountincome);
+					$this->db->update('geopos_accounts');
+					
+					echo json_encode(array('status' => 'Success', 'message' => "Documento Criado com Sucesso. <a href='view?id=$invocieno&draf=0&ty=$typenot' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0&ty=$typenot' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 				}
 			} else {
 				echo json_encode(array('status' => 'Error', 'message' => "Problema ao criar a fatura. Tente mais tarde."));
@@ -695,6 +848,7 @@ class Supplier_notes extends CI_Controller
         foreach ($list as $invoices) {
             $no++;
             $row = array();
+			$row['status'] = $invoices->status;
             $row[] = $no;
 			$row[] = $invoices->serie_name;
 			$row[] = '<a href="' . base_url("supplier_notes/view?id=$invoices->id&draf=0&ty=".$ty) . '">&nbsp; ' . $invoices->tid . '</a>';
@@ -752,6 +906,7 @@ class Supplier_notes extends CI_Controller
 			$textini .= '<br>(Provisório)';
 			$width = round(0,2);
             $row = array();
+			$row['status'] = 'draft';
 			$row[] = $no;
 			$row[] = $drafts->serie_name;
             $row[] = '<a href="' . base_url("supplier_notes/view?id=$drafts->id&draf=1&ty=".$ty) . '">&nbsp; ' . $textini . '</a>';
@@ -797,7 +952,6 @@ class Supplier_notes extends CI_Controller
 			if($draf == 0){
 				$data['draft'] = 0;
 				$data['invoice'] = $this->notes_model->supplier_notes_details($tid, $this->limited);
-				$data['products'] = $this->notes_model->supplier_notes_products($tid);
 				$data['title'] = "Nota de Crédito Fornecedor " . $data['invoice']['tid'];
 				$head['title'] = "Nota de Crédito Fornecedor " . $data['invoice']['tid'];
 				$data['attach'] = $this->notes_model->attach($tid);
@@ -805,7 +959,6 @@ class Supplier_notes extends CI_Controller
 			}else{
 				$data['draft'] = 1;
 				$data['invoice'] = $this->notes_model->supplier_notes_details2($tid, $this->limited);
-				$data['products'] = $this->notes_model->supplier_notes_products2($tid);
 				$data['title'] = "Rascunho Nota de Crédito Fornecedor " . $data['invoice']['tid'];
 				$head['title'] = "Rascunho Nota de Crédito Fornecedor " . $data['invoice']['tid'];
 				$data['history'] = $this->common->history($tid,'notes_f_draft');
@@ -815,7 +968,6 @@ class Supplier_notes extends CI_Controller
 			if($draf == 0){
 				$data['draft'] = 0;
 				$data['invoice'] = $this->notes_model->supplier_notes_details($tid, $this->limited);
-				$data['products'] = $this->notes_model->supplier_notes_products($tid);
 				$data['title'] = "Nota de Débito Fornecedor " . $data['invoice']['tid'];
 				$head['title'] = "Nota de Débito Fornecedor " . $data['invoice']['tid'];
 				$data['attach'] = $this->notes_model->attach($tid);
@@ -823,13 +975,44 @@ class Supplier_notes extends CI_Controller
 			}else{
 				$data['draft'] = 1;
 				$data['invoice'] = $this->notes_model->supplier_notes_details2($tid, $this->limited);
-				$data['products'] = $this->notes_model->supplier_notes_products2($tid);
 				$data['title'] = "Rascunho Nota de Débito Fornecedor " . $data['invoice']['tid'];
 				$head['title'] = "Rascunho Nota de Débito Fornecedor " . $data['invoice']['tid'];
 				$data['history'] = $this->common->history($tid,'notes_f_draft');
 			}
 		}
 		
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$this->load->library("Related");
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 20){
+			$typerelatset = 10;
+		}else if($data['invoice']['irs_type'] == 21){
+			$typerelatset = 11;
+		}else{
+			$typerelatset = 111;
+		}
+		
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		
+		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
+        if (CUSTOM) 
+			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 4, 1);
+			
         $data['iddoc'] = $data['invoice']['id'];
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
@@ -856,18 +1039,47 @@ class Supplier_notes extends CI_Controller
 		if($type == 0){
 			$data['typeinvoice'] = 'Invoice';
 			$data['invoice'] = $this->notes_model->supplier_notes_details($tid, $this->limited);
-			$data['products'] = $this->notes_model->supplier_notes_products($tid);
 			if($data['invoice']['status'] == 'canceled')
 			{
 				$data['ImageBackGround'] = 'assets/images/anulada.png';
 			}
 		}else{
 			$data['invoice'] = $this->notes_model->supplier_notes_details2($tid, $this->limited);
-			$data['products'] = $this->notes_model->supplier_notes_products2($tid);
 			$data['typeinvoice'] = 'Rascunho';
 			$data['invoice']['status'] = 'Rascunho';
 			$data['ImageBackGround'] = 'assets/images/rascunho.png';
 		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$this->load->library("Related");
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 20){
+			$typerelatset = 10;
+		}else if($data['invoice']['irs_type'] == 21){
+			$typerelatset = 11;
+		}else{
+			$typerelatset = 111;
+		}
+		
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		
+		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
+        if (CUSTOM) 
+			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 4, 1);
 		
 		$data['employee'] = $this->invocies->employee($data['invoice']['eid']);
         $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Customer'), 'prefix' => $pref, 't_type' => 0);

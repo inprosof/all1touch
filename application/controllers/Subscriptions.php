@@ -49,7 +49,9 @@ class Subscriptions extends CI_Controller
 	{
 		$tid = $this->input->get('id');
 		$typ = $this->input->get('typ');
-		$this->create($tid, $typ);
+		$typconv = $this->input->get('typdoc');
+		$ext = $this->input->get('ext');
+		$this->create($tid, $typconv, $typ);
 	}
 	
 	
@@ -57,11 +59,13 @@ class Subscriptions extends CI_Controller
 	{
 		$tid = $this->input->get('id');
 		$typ = $this->input->get('typ');
-		$this->create($tid, $typ);
+		$typconv = $this->input->get('typdoc');
+		$ext = $this->input->get('ext');
+		$this->create($tid, $typconv, $typ);
 	}
 	
 	//create invoice
-    public function create($relation = 0, $typrelation = 0)
+    public function create($relation = 0, $typrelation = 0, $typeggc = 15)
     {
 		$this->load->model('locations_model', 'locations');
 		$this->load->model('accounts_model');
@@ -74,6 +78,16 @@ class Subscriptions extends CI_Controller
 		////////////////////////Relação entre documentos//////////////////////
 		$data['typrelation'] = $typrelation;
 		$data['relationid'] = $relation;
+		
+		$data['tiprelated'] = 0;
+		if($typeggc > 0)
+		{
+			$typegg = $typeggc;
+			$data['tiprelated'] = $typeggc;
+		}else{
+			$typegg = $this->input->get('ty');
+		}
+		
 		$data['tiprelated'] = 0;
 		if($relation > 0)
 		{
@@ -156,29 +170,31 @@ class Subscriptions extends CI_Controller
 		
         $data['warehouse'] = $this->invocies->warehouses();
 		
-		if(count($this->settings->billingterms(15)) == 0)
+		if(count($this->settings->billingterms($typeggc)) == 0)
 		{
 			exit('Deve Inserir pelo menos um Termo para as Avenças. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}
-        $data['terms'] = $this->settings->billingterms(15);
+        $data['terms'] = $this->settings->billingterms($typeggc);
         $data['currency'] = $this->invocies->currencies();
 		$data['taxsiva'] = $this->settings->slabscombo();		
-		$data['typesinvoices'] = $this->settings->list_irs_typ_id();
-		
-		$data['typesinvoicesdefault'] = $this->common->default_typ_doc(15);
+		$data['typesinvoices'] = [];
+		$data['typesinvoicesdefault'] = $this->common->default_typ_doc($typeggc);
 		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
 		if($data['seriesinvoiceselect'] == NULL)
 		{
 			exit('Ainda não definiu nenhuma série para esta Localização. <a class="match-width match-height"  href="'.base_url().'settings/series"><i class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
 			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
-			$numget = $this->common->lastdoc(15,$seri_did_df);
+			$numget = $this->common->lastdoc($typeggc,$seri_did_df);
 			$data['lastinvoice'] = $numget;
 			$head['title'] = 'Novo Documento';
 			$head['usernm'] = $this->aauth->get_user()->username;
 			$data['taxdetails'] = $this->common->taxdetail();
-			$data['custom_fields'] = $this->custom->add_fields(2);
+			
+			$data['custom_fields'] = $this->custom->add_fields(7);
+			$data['c_custom_fields'] = $this->custom->add_fields(1);
+			
 			$this->load->view('fixed/header', $head);
 			$this->load->view('subscriptions/newinvoice', $data);
 			$this->load->view('fixed/footer');
@@ -201,31 +217,126 @@ class Subscriptions extends CI_Controller
         $data['id'] = $tid;
         $data['title'] = "Alterar Subscrição $tid";
 		$data['company'] = $this->settings->company_details(1);
-		$data['typesinvoicesdefault'] = $this->common->default_typ_doc(15);
         $data['customergrouplist'] = $this->customers->group_list();
 		$data['terms'] = $this->settings->billingterms(1);
         $data['currency'] = $this->invocies->currencies();
-		$type = $this->input->get('ty');
-		if($type == 0){
+		$draf = $this->input->get('draf');
+		if($draf == 0){
 			$head['title'] = "Alterar Subscrição #$tid";
 			$data['typeinvoice'] = 'Invoice';
 			$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
-			$data['products'] = $this->invocies->items_with_product($tid);
+			if($data['invoice'] == null){
+				redirect(base_url('subscriptions'));
+			}
 		}else{
 			$head['title'] = "Alterar Rascunho #$tid";
 			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited,0);
-			$data['products'] = $this->invocies->items_with_product2($tid);
+			if($data['invoice'] == null){
+				redirect(base_url('subscriptions'));
+			}
 			$data['typeinvoice'] = 'Rascunho';
 		}
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['iddoc'] = $data['invoice']['id'];
+		$data['csd_name'] = $data['invoice']['name'];
+		$data['csd_tax'] = $data['invoice']['taxid'];
+		$data['csd_id'] = $data['invoice']['id'];
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$this->load->library("Related");
+		$typerelatset = 2;
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		
+		if($data['docs_deu_origem'] != null){
+			if(count($data['docs_deu_origem']) > 0)
+			{
+				if($data['docs_deu_origem'][0] != null)
+				{
+					for($i = 0; $i < count($data['docs_deu_origem']); $i++)
+					{
+						if($data['docs_deu_origem'][$i]['tipologia'] == 1){
+							$data['tiprelated'] = $data['docs_deu_origem'][$i]['doc'];
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		$data['iddoc'] = $data['invoice']['id'];
+		$data['csd_name'] = $data['invoice']['name'];
+		$data['csd_tax'] = $data['invoice']['taxid'];
+		$data['csd_id'] = $data['invoice']['id'];
         
         $head['usernm'] = $this->aauth->get_user()->username;
 		$data['countrys'] = $this->common->countrys();
         $data['warehouse'] = $this->invocies->warehouses();
         $data['exchange'] = $this->plugins->universal_api(5);
 		$data['taxsiva'] = $this->settings->slabscombo();
-        $data['custom_fields_c'] = $this->custom->add_fields(1);
-        $data['custom_fields'] = $this->custom->add_fields(2);
+		
+		$data['typesinvoices'] = [];
+		$data['typesinvoicesdefault'] = $this->common->default_typ_doc($data['invoice']['irs_type']);
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+		$data['custom_fields'] = [];
+		$data['c_custom_fields'] = $this->custom->view_edit_fields($data['invoice']['cid'], 1);
 		$data['taxdetails'] = $this->common->taxdetail();
+		
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		
+		if($discship['ac_id_d'] == 0 && $discship['pac'] == 0)
+		{
+			if($this->aauth->get_user()->loc == 0)
+			{
+				exit('Defina a conta Por defeito para os Documentos na Empresa! <a class="match-width match-height" href="'.base_url().'settings/company?id=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}else{
+				exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+			}
+		}else{
+			if($discship['ac_id_d'] == 0)
+			{
+				if($this->aauth->get_user()->loc){
+					exit('Defina a conta Por defeito para os Documentos na Localização! <a class="match-width match-height" href="'.base_url().'locations/edit?id='.$this->aauth->get_user()->loc.'&param=77"><i class="ft-chevron-right">Click aqui para o Fazer.</i></a>');
+				}
+			}
+			$accountin = $this->accounts_model->details($discship['ac_id_d'],false);
+			$accountincome = ((integer)$accountin['id']);
+			$accountincomename = $accountin['holder'];
+			$data['accountid'] = $accountincome;
+			$data['accountname'] = $accountincomename;
+		}
+		
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
+		
         $this->load->view('fixed/header', $head);
         $this->load->view('subscriptions/edit', $data);	
         $this->load->view('fixed/footer');
@@ -267,6 +378,22 @@ class Subscriptions extends CI_Controller
 			$currencyCOde = $this->accounts_model->getCurrency();
 			$currency = $currencyCOde['id'];
 		}
+		
+		$account_set_id = $this->input->post('account_set_id');
+		$account_set = $this->input->post('account_set');
+		if ($account_set_id == 0 || $account_set_id == "0") {
+			echo json_encode(array('status' => 'Error', 'message' => 'Não foi selecionada qualquer conta para a Operação.'));
+            exit;
+        }
+		
+		$accountincome = $account_set_id;
+		$accountincomename = $account_set;
+		
+		$justification_cancel = '';
+		
+		$relationid = $this->input->post('relationid');
+		$tiprelated = $this->input->post('tiprelated');
+		
 		$customer_id = ((integer)$this->input->post('customer_id'));
 		$invocieencorc = $this->input->post('invocieencorc');
 		$customer_info = $this->customers->recipientinfo($customer_id);
@@ -338,28 +465,44 @@ class Subscriptions extends CI_Controller
         $st_c = 0;
         $this->load->library("Common");
 		$numget = $this->common->lastdoc($invoi_type,$invoi_serie);
-		$invocieno = $numget+1;
+		$numget = $numget+1;
+		$invocieno = $numget;
+		$invocieno2 = $invocieno;
+		
+		
         $this->db->trans_start();
         //Invoice Data
         $bill_date = datefordatabase($invoicedate);
 		$ndate = date("Y-m-d", strtotime($invoicedate . " +" . $reccur . 's'));
         $bill_due_date = datefordatabase($ndate);
-		$invocieno2 = $invocieno;
 		
-        $data = array('tid' => $invocieno, 'invoicedate' => $bill_date, 'pmethod' => 1, 'invoiceduedate' => $bill_due_date, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'loc' => $warehouse, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 2, 'irs_type' => $invoi_type, 'r_time' => $reccur);
+		$typerelatset = 2;
+		$data = [];
+		
+		$duplicateid = 0;
+		if($tiprelated == 0){
+			$duplicateid = $relationid;
+		}
+		
+		if($typ == 1 || $typ == 2){
+			$data = array('tid' => $invocieno, 'loc' => $this->aauth->get_user()->loc, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'partial', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 2, 'ext' => 0, 'irs_type' => $invoi_type, 'factura_duplicada' => $duplicateid, 'r_time' => $reccur);
+		}else{
+			$data = array('tid' => $invocieno, 'loc' => $this->aauth->get_user()->loc, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'justification_cancel' => $justification_cancel, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'partial', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 2, 'ext' => 0, 'r_time' => $reccur, 'irs_type' => $invoi_type, 'factura_duplicada' => $duplicateid, 'factura_manual' => 1, 'datedoc' => date('Y-m-d H:i:s'));
+		}
+		
 		if($typ == 0 || $typ == 3){
 			if($typ == 3){
 				$this->db->delete('geopos_draft', array('id' => $idgu));
 				$this->db->delete('geopos_draft_items', array('tid' => $idgu));
 			}
 			if ($this->db->insert('geopos_invoices', $data)) {
+				$invocieno = $this->db->insert_id();
+				
 				$multiClause = array('typ_doc' => $invoi_type, 'serie' => $invoi_serie);
 				$this->db->set('start', "$invocieno2", FALSE);
 				$this->db->where($multiClause);
 				$this->db->update('geopos_series_ini_typs');
 				
-				$invocieno = $this->db->insert_id();
-				//products
 				$productlist = array();
 				$prodindex = 0;
 				$itc = 0;
@@ -377,6 +520,7 @@ class Subscriptions extends CI_Controller
 				$product_hsn = $this->input->post('hsn', true);
 				$product_alert = $this->input->post('alert');
 				$product_serial = $this->input->post('serial');
+				$verify_typ = $this->input->post('verif_typ');
 				
 				$taxaname = $this->input->post('taxaname');
 				$taxaid = $this->input->post('taxaid');
@@ -387,8 +531,6 @@ class Subscriptions extends CI_Controller
 				
 				foreach ($product_id as $key => $value) {
 					$total_tax = 0;
-					$total_discount += numberClean(@$ptotal_disc[$key]);
-                    $total_tax += numberClean($ptotal_tax[$key]);
 					$data = array(
 						'tid' => $invocieno,
 						'pid' => $product_id[$key],
@@ -402,7 +544,6 @@ class Subscriptions extends CI_Controller
 						'totaltax' => $ptotal_tax[$key],
 						'totaldiscount' => $ptotal_disc[$key],
 						'product_des' => $product_des[$key],
-						
 						'unit' => $product_unit[$key],
 						'serial' => $product_serial[$key],
 						'taxaname' => $taxaname[$key],
@@ -416,16 +557,6 @@ class Subscriptions extends CI_Controller
 					$i++;
 					$prodindex++;
 					$amt = numberClean($product_qty[$key]);
-					if ($product_id[$key] > 0) {
-						$this->db->set('qty', "qty-$amt", FALSE);
-						$this->db->where('pid', $product_id[$key]);
-						$this->db->update('geopos_products');
-						if ((numberClean($product_alert[$key]) - $amt) < 0 and $st_c == 0 and $this->common->zero_stock()) {
-							echo json_encode(array('status' => 'Error', 'message' => 'Product - <strong>' . $product_name1[$key] . "</strong> - Low quantity. Available stock is  " . $product_alert[$key]));
-							$transok = false;
-							$st_c = 1;
-						}
-					}
 					$itc += $amt;
 				}
 				if (count($product_serial) > 0) {
@@ -433,6 +564,8 @@ class Subscriptions extends CI_Controller
 					$this->db->where_in('serial', $product_serial);
 					$this->db->update('geopos_product_serials');
 				}
+				$total_pay = 0;
+				
 				if ($prodindex > 0) {
 					$this->db->insert_batch('geopos_invoice_items', $productlist);
 					
@@ -494,20 +627,10 @@ class Subscriptions extends CI_Controller
 						'tid' => $invocieno,
 						'loc' =>$this->aauth->get_user()->loc
 					);
-					
-					$discship = $this->plugins->universal_api(65);
-					if($row['loc'] == 0)
-					{
-						$data['accounts'] = $this->locations->accountslist();
-						$t_data['acid'] = $discship['key2'];
-						$t_data['account'] = "Conta Por Defeito";
-					}else{
-						$accountin = $this->accounts_model->details($discship['key2'],false);
-						$accountincome = ((integer)$accountin['id']);
-						$accountincomename = $accountin['holder'];
-						$t_data['acid'] = $accountincome;
-						$t_data['account'] = $accountincomename;
-					}
+					$dual = $discship;
+		
+					$t_data['acid'] = $accountincome;
+					$t_data['account'] = $accountincomename;
 					
 					$this->db->insert('geopos_transactions', $t_data);
 					//account update
@@ -516,6 +639,50 @@ class Subscriptions extends CI_Controller
 					$this->db->update('geopos_accounts');
 					
 					$this->db->trans_complete();
+					
+					///////////////////////////////////////////////////////////////////////
+					////////////////////////Relação entre documentos//////////////////////
+					$idtyprelation = $this->input->post('idtyprelation');
+					$typrelation = $this->input->post('typrelation');
+					$tipoconvert = '';
+					//$val_tot_rel = $this->input->post('val_tot_rel');
+					$relaindex = 0;
+					$Relationslist = [];
+					
+					$totaldue = $total-$total_pay;
+					if($typrelation != null){
+						foreach ($typrelation as $keyp => $value) {
+							$idtdoc = $idtyprelation[$keyp];
+							$tipoconvert = $typrelation[$keyp];
+							//$val_doc = $val_tot_rel[$keyp];
+							$datare = array(
+								'tid' => $invocieno,
+								'ttype' => $typrelation[$keyp],
+								'type' => $typerelatset,
+								'draft' => 0,
+								'total_pay' => $total_pay,
+								'total_doc' => $total,
+								'total_due' => $totaldue,
+								'doc' => $idtdoc);
+							$Relationslist[$relaindex] = $datare;
+							if($typrelation[$keyp] == 3)
+							{
+								$this->db->set('status', 'ended');
+								$this->db->where('id', $idtdoc);
+								$this->db->update('geopos_quotes');
+							}else if($typrelation[$keyp] == 6)
+							{
+								$this->db->set('status', 'ended');
+								$this->db->where('id', $idtdoc);
+								$this->db->update('geopos_purchase');
+							}
+							$relaindex++;
+						}
+						
+						if(count($Relationslist) > 0){
+							$this->db->insert_batch('geopos_data_related', $Relationslist);
+						}
+					}
 					
 					// now try it
 					$ua=$this->aauth->getBrowser();
@@ -534,7 +701,7 @@ class Subscriptions extends CI_Controller
 				if ($transok) {
 					$validtoken = hash_hmac('ripemd160', $invocieno, $this->config->item('encryption_key'));
 					$link = base_url('billing/view?id=' . $invocieno . '&token=' . $validtoken);
-					echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('Invoice Success') . " <a href='view?id=$invocieno' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+					echo json_encode(array('status' => 'Success', 'message' => "Documento Criado com Sucesso. <a href='view?id=$invocieno&draf=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 				}
 			} else {
 				echo json_encode(array('status' => 'Error', 'message' => "Problema ao criar a fatura. Tente mais tarde."));
@@ -628,7 +795,8 @@ class Subscriptions extends CI_Controller
 				$taxaperc = $this->input->post('taxaperc');
 				$taxavals = $this->input->post('taxavals');	
 				$taxacomo = $this->input->post('taxacomo');
-
+				
+				$total_discount = 0;
                 foreach ($pid as $key => $value) {
                     $total_discount += numberClean(@$ptotal_disc[$key]);
                     $total_tax += numberClean($ptotal_tax[$key]);
@@ -667,6 +835,51 @@ class Subscriptions extends CI_Controller
 				$this->db->insert_batch('geopos_draft_items', $productlist);
 				
 				$this->db->trans_complete();
+				
+				///////////////////////////////////////////////////////////////////////
+				////////////////////////Relação entre documentos//////////////////////
+				$idtyprelation = $this->input->post('idtyprelation');
+				$typrelation = $this->input->post('typrelation');
+				$tipoconvert = '';
+				//$val_tot_rel = $this->input->post('val_tot_rel');
+				$relaindex = 0;
+				$Relationslist = [];
+				
+				$totaldue = $total-$total_pay;
+				if($typrelation != null){
+					foreach ($typrelation as $keyp => $value) {
+						$idtdoc = $idtyprelation[$keyp];
+						$tipoconvert = $typrelation[$keyp];
+						//$val_doc = $val_tot_rel[$keyp];
+						$datare = array(
+							'tid' => $invocieno,
+							'ttype' => $typrelation[$keyp],
+							'type' => $typerelatset,
+							'draft' => 1,
+							'total_pay' => $total_pay,
+							'total_doc' => $total,
+							'total_due' => $totaldue,
+							'doc' => $idtdoc);
+						$Relationslist[$relaindex] = $datare;
+						if($typrelation[$keyp] == 3)
+						{
+							$this->db->set('status', 'ended');
+							$this->db->where('id', $idtdoc);
+							$this->db->update('geopos_quotes');
+						}else if($typrelation[$keyp] == 6)
+						{
+							$this->db->set('status', 'ended');
+							$this->db->where('id', $idtdoc);
+							$this->db->update('geopos_purchase');
+						}
+						$relaindex++;
+					}
+					
+					if(count($Relationslist) > 0){
+						$this->db->insert_batch('geopos_data_related', $Relationslist);
+					}
+				}
+					
 				// now try it
 				$ua=$this->aauth->getBrowser();
 				$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
@@ -678,7 +891,7 @@ class Subscriptions extends CI_Controller
 				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'draft', $invocieno);
 				
                 if ($transok) 
-					echo json_encode(array('status' => 'Success', 'message' => "Rascunho criado com Sucesso. <a href='view?id=$invocieno&ty=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+					echo json_encode(array('status' => 'Success', 'message' => "Rascunho criado com Sucesso. <a href='view?id=$invocieno&draf=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => "Erro a criar rascunho na Fatura. Tente mais tarde."));
                 $transok = false;
@@ -717,7 +930,8 @@ class Subscriptions extends CI_Controller
 				$taxaperc = $this->input->post('taxaperc');
 				$taxavals = $this->input->post('taxavals');	
 				$taxacomo = $this->input->post('taxacomo');
-
+				
+				$total_discount = 0;
                 foreach ($pid as $key => $value) {
                     $total_discount += numberClean(@$ptotal_disc[$key]);
                     $total_tax += numberClean($ptotal_tax[$key]);
@@ -753,9 +967,53 @@ class Subscriptions extends CI_Controller
                     $amt = numberClean($product_qty[$key]);
                     $itc += $amt;
                 }
-				
 				$this->db->insert_batch('geopos_draft_items', $productlist);
 				$this->db->trans_complete();
+				
+				///////////////////////////////////////////////////////////////////////
+				////////////////////////Relação entre documentos//////////////////////
+				$idtyprelation = $this->input->post('idtyprelation');
+				$typrelation = $this->input->post('typrelation');
+				$tipoconvert = '';
+				//$val_tot_rel = $this->input->post('val_tot_rel');
+				$relaindex = 0;
+				$Relationslist = [];
+				
+				$totaldue = $total-$total_pay;
+				if($typrelation != null){
+					foreach ($typrelation as $keyp => $value) {
+						$idtdoc = $idtyprelation[$keyp];
+						$tipoconvert = $typrelation[$keyp];
+						//$val_doc = $val_tot_rel[$keyp];
+						$datare = array(
+							'tid' => $invocieno,
+							'ttype' => $typrelation[$keyp],
+							'type' => $typerelatset,
+							'draft' => 1,
+							'total_pay' => $total_pay,
+							'total_doc' => $total,
+							'total_due' => $totaldue,
+							'doc' => $idtdoc);
+						$Relationslist[$relaindex] = $datare;
+						if($typrelation[$keyp] == 3)
+						{
+							$this->db->set('status', 'ended');
+							$this->db->where('id', $idtdoc);
+							$this->db->update('geopos_quotes');
+						}else if($typrelation[$keyp] == 6)
+						{
+							$this->db->set('status', 'ended');
+							$this->db->where('id', $idtdoc);
+							$this->db->update('geopos_purchase');
+						}
+						$relaindex++;
+					}
+					
+					if(count($Relationslist) > 0){
+						$this->db->insert_batch('geopos_data_related', $Relationslist);
+					}
+				}
+					
 				// now try it
 				$ua=$this->aauth->getBrowser();
 				$yourbrowser= "Navegador/Browser: " . $ua['name'] . " " . $ua['version'] . " on " .$ua['platform'];
@@ -766,7 +1024,7 @@ class Subscriptions extends CI_Controller
 				$striPay .= '<br>Rascunho Nº (Provisório)'.$invocieno2.' para o Cliente: '.$customer_name;
 				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'draft', $invocieno);
 				
-                echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&ty=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+                echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&draf=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 			}else {
 				echo json_encode(array('status' => 'Error', 'message' => "Erro ao guardar Rascunho!"));
 				$transok = false;
@@ -832,6 +1090,7 @@ class Subscriptions extends CI_Controller
 			$textini .= '<br>(Provisório)';
 			$width = round(0,2);
             $row = array();
+			$row['status'] = 'draft';
 			$row[] = $drafts->serie_name;
             $row[] = '<a href="' . base_url("subscriptions/view?id=$drafts->id&draf=1") . '">' . $textini . '</a>';
 			$row[] = dateformat($drafts->invoicedate);
@@ -840,12 +1099,15 @@ class Subscriptions extends CI_Controller
 			$row[] = amountExchange($drafts->subtotal, 0, $this->aauth->get_user()->loc);
 			$row[] = amountExchange($drafts->tax, 0, $this->aauth->get_user()->loc);
 			$row[] = amountExchange($drafts->total, 0, $this->aauth->get_user()->loc);
+			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='0' aria-valuemin='0' aria-valuemax='$drafts->total' style='width:$width%;'>$width%</div></div>";
 			$row[] = '<span class="st-sub3 badge">Rascunho</span>';
-			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='$drafts->pamnt' aria-valuemin='0' aria-valuemax='$drafts->total' style='width:$width%;'>$width%</div></div>";
 			$row[] = '<span class="st-sub3 badge">Rascunho</span>';
             $option = '<a href="' . base_url("subscriptions/view?id=$drafts->id&draf=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("subscriptions/printinvoice?id=$drafts->id&draf=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+			if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(12)) {
+				$option .= '<a href="' . base_url("subscriptions/edit?id=$drafts->id&draf=1"). '" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" class="btn btn-danger btn-sm"><span class="fa fa-pencil"></span></a>';
+			}
 			if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(121)) {
-				$option .= '<a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" class="btn btn-danger btn-sm delete-object2"><span class="fa fa-trash"></span></a>';
+				$option .= '&nbsp;<a href="#" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" class="btn btn-danger btn-sm delete-object2"><span class="fa fa-trash"></span></a>';
 			}
 			$row[] = $option;
 			$data[] = $row;
@@ -877,7 +1139,6 @@ class Subscriptions extends CI_Controller
 		if($draf == 0)
 		{
 			$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
-			$data['products'] = $this->invocies->invoice_products($tid);
 			$data['activity'] = $this->invocies->invoice_transactions($tid);
 			$head['title'] = "Subscrição " . $data['invoice']['tid'];
 			$data['attach'] = $this->invocies->attach($tid);
@@ -885,21 +1146,43 @@ class Subscriptions extends CI_Controller
 			$data['draft'] = 0;
 		}else{
 			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
-			$data['products'] = $this->invocies->invoice_products2($tid);
 			$head['title'] = "Rascunho " . $data['invoice']['tid'];
 			$data['draft'] = 1;
 			$data['history'] = $this->common->history($tid,'draft');
 		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$this->load->library("Related");
+		$typerelatset = 2;
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		
         $data['iddoc'] = $data['invoice']['id'];
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
-        $data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1);
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
         $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
-        $data['custom_fields'] = $this->custom->view_fields_data($tid, 2);
+        $data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
+        if (CUSTOM) 
+			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+			$data['custom_fields'] = $this->custom->view_fields_data($tid, 7);
         if ($data['invoice']['id']) {
             $data['invoice']['id'] = $tid;
-			if($type == 0){
+			if($draf == 0){
 				$this->load->view('subscriptions/view', $data);
 			}else{
 				$this->load->view('subscriptions/viewdraft', $data);
@@ -915,13 +1198,12 @@ class Subscriptions extends CI_Controller
         }
         $tid = $this->input->get('id');
 		$token = $this->input->get('token');
-		$type = $this->input->get('ty');
+		$draf = $this->input->get('draf');
 		$data['id'] = $tid;
 		
-		if($type == 0){
+		if($draf == 0){
 			$data['typeinvoice'] = 'Avença';
 			$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
-			$data['products'] = $this->invocies->invoice_products($tid);
 			$data['activity'] = $this->invocies->invoice_transactions($tid);
 			if($data['invoice']['status'] == 'canceled')
 			{
@@ -929,16 +1211,37 @@ class Subscriptions extends CI_Controller
 			}
 		}else{
 			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
-			$data['products'] = $this->invocies->invoice_products2($tid);
 			$data['activity'] = $this->invocies->invoice_transactions2($tid);
 			$data['typeinvoice'] = 'Rascunho';
 			$data['invoice']['status'] = 'Rascunho';
 			$data['ImageBackGround'] = 'assets/images/rascunho.png';
 		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$this->load->library("Related");
+		$typerelatset = 2;
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		
         $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
+		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
         if (CUSTOM) 
 			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
-        $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Customer'), 'prefix' => $pref, 't_type' => 0);
+			$data['custom_fields'] = $this->custom->view_fields_data($tid, 7);
+        $data['general'] = array('title' => $data['invoice']['irs_type_s'].' - '.$data['invoice']['irs_type_n'], 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_s'], 't_type' => 0);
         ini_set('memory_limit', '64M');
 		
 		$data['invoice']['type'] = $data['invoice']['irs_type_n'];
@@ -946,155 +1249,155 @@ class Subscriptions extends CI_Controller
 		$data['qrc'] = 'pos_' . date('Y_m_d_H_i_s') . '_.png';
 		$static_q = $data['qrc'];
 		
-		
-		$codQRD = 'A:'.$data['invoice']['loc_country'].$data['invoice']['loc_taxid'].'*';
-		$codQRD .= 'B:'.$data['invoice']['taxid'].'*';
-		$codQRD .= 'C:'.$data['invoice']['country'].'*';
-		$codQRD .= 'D:'.$data['invoice']['irs_type_s'].'*';
-		
-		//“N” – Normal; “S” – Autofaturação; “A” – Documento anulado; “R” – Documento de resumo doutros documentos criados noutras aplicações e gerado nesta aplicação; “F” – Documento faturado
-		
-		if($data['invoice']['status'] == 'canceled')
-		{
-			$codQRD .= 'E:A*';
-		}else{
-			$codQRD .= 'E:N*';
-		}
-		
-		$date = new DateTime($data['invoice']['invoicedate']);
-		//$date = $date->format('Y-m-dTH:i:s');
-		$date = $date->format('Ymd');
-		
-		$codQRD .= 'F:'.$date.'*';
-		$codQRD .= 'G:'.$data['invoice']['irs_type_s'].$data['invoice']['serie_name'].'/'.$data['invoice']['tid'].'*';
-		if($data['invoice']['atc_serie'] == "")
-		{
-			$codQRD .= 'H:0*';
-		}else{
-			$codQRD .= 'H:'.$data['invoice']['atc_serie'].$data['invoice']['tid'].'*';
-		}
-		
-		$arrtudo = [];
-		foreach ($data['products'] as $row) {
-			$myArraytaxname = explode(";", $row['taxaname']);
-			$myArraytaxcod = explode(";", $row['taxacod']);
-			$myArraytaxvals = explode(";", $row['taxavals']);
-			$myArraytaxcomo = explode(";", $row['taxacomo']);
-			$myArraytaxperc = explode(";", $row['taxaperc']);
-			for($i = 0; $i < count($myArraytaxname); $i++)
+		$codQRD = "";
+		if($draf == 0){
+			$codQRD = 'A:'.$data['invoice']['loc_country'].$data['invoice']['loc_taxid'].'*';
+			$codQRD .= 'B:'.$data['invoice']['taxid'].'*';
+			$codQRD .= 'C:'.$data['invoice']['country'].'*';
+			$codQRD .= 'D:'.$data['invoice']['irs_type_s'].'*';
+			
+			//“N” – Normal; “S” – Autofaturação; “A” – Documento anulado; “R” – Documento de resumo doutros documentos criados noutras aplicações e gerado nesta aplicação; “F” – Documento faturado
+			
+			if($data['invoice']['status'] == 'canceled')
 			{
-				$jatem = false;
-				for($oo = 0; $oo < count($arrtudo); $oo++)
+				$codQRD .= 'E:A*';
+			}else{
+				$codQRD .= 'E:N*';
+			}
+			
+			$date = new DateTime($data['invoice']['invoicedate']);
+			//$date = $date->format('Y-m-dTH:i:s');
+			$date = $date->format('Ymd');
+			
+			$codQRD .= 'F:'.$date.'*';
+			$codQRD .= 'G:'.$data['invoice']['irs_type_s'].$data['invoice']['serie_name'].'/'.$data['invoice']['tid'].'*';
+			if($data['invoice']['atc_serie'] == "")
+			{
+				$codQRD .= 'H:0*';
+			}else{
+				$codQRD .= 'H:'.$data['invoice']['atc_serie'].$data['invoice']['tid'].'*';
+			}
+			
+			$arrtudo = [];
+			foreach ($data['products'] as $row) {
+				$myArraytaxname = explode(";", $row['taxaname']);
+				$myArraytaxcod = explode(";", $row['taxacod']);
+				$myArraytaxvals = explode(";", $row['taxavals']);
+				$myArraytaxcomo = explode(";", $row['taxacomo']);
+				$myArraytaxperc = explode(";", $row['taxaperc']);
+				for($i = 0; $i < count($myArraytaxname); $i++)
 				{
-					if($arrtudo[$oo]['title'] == $myArraytaxname[$i])
+					$jatem = false;
+					for($oo = 0; $oo < count($arrtudo); $oo++)
 					{
-						$arrtudo[$oo]['total'] = ($arrtudo[$oo]['total']+$myArraytaxvals[$i]);
-						$jatem = true;
-						break;
+						if($arrtudo[$oo]['title'] == $myArraytaxname[$i])
+						{
+							$arrtudo[$oo]['total'] = ($arrtudo[$oo]['total']+$myArraytaxvals[$i]);
+							$jatem = true;
+							break;
+						}
+					}
+					
+					if(!$jatem)
+					{
+						$stack = array('title'=>$myArraytaxname[$i], 'total'=>$myArraytaxvals[$i], 'base'=>$myArraytaxvals[$i], 'cod'=>$myArraytaxcod[$i], 'como'=>$myArraytaxcomo[$i], 'perc'=>$myArraytaxperc[$i]);
+						array_push($arrtudo, $stack);
 					}
 				}
-				
-				if(!$jatem)
-				{
-					$stack = array('title'=>$myArraytaxname[$i], 'total'=>$myArraytaxvals[$i], 'base'=>$myArraytaxvals[$i], 'cod'=>$myArraytaxcod[$i], 'como'=>$myArraytaxcomo[$i], 'perc'=>$myArraytaxperc[$i]);
-					array_push($arrtudo, $stack);
-				}
 			}
-		}
-		
-		//“PT-AC” – Espaço fiscal da Região Autónoma dos Açores; e “PT-MA” – Espaço fiscal da Região Autónoma da Madeira
-		if($data['invoice']['loc_zon_fis'] == 0)
-		{
-			$codQRD .= 'J1:PT-AC*';
-			for($r = 0; $r < count($arrtudo); $r++)
+			
+			//“PT-AC” – Espaço fiscal da Região Autónoma dos Açores; e “PT-MA” – Espaço fiscal da Região Autónoma da Madeira
+			if($data['invoice']['loc_zon_fis'] == 0)
 			{
-				if($arrtudo[$r]['cod'] == 'ISE')
+				$codQRD .= 'J1:PT-AC*';
+				for($r = 0; $r < count($arrtudo); $r++)
 				{
-					$codQRD .= 'J2:'.$arrtudo[$r]['base'].'*';
-				}else if($arrtudo[$r]['cod'] == 'RED')
-				{
-					$codQRD .= 'J3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'J4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else if($arrtudo[$r]['cod'] == 'INT')
-				{
-					$codQRD .= 'J5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'J6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else{
-					$codQRD .= 'J7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'J8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					if($arrtudo[$r]['cod'] == 'ISE')
+					{
+						$codQRD .= 'J2:'.$arrtudo[$r]['base'].'*';
+					}else if($arrtudo[$r]['cod'] == 'RED')
+					{
+						$codQRD .= 'J3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'J4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					}else if($arrtudo[$r]['cod'] == 'INT')
+					{
+						$codQRD .= 'J5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'J6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					}else{
+						$codQRD .= 'J7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'J8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					}
 				}
-			}
-		}else if($data['invoice']['loc_zon_fis'] == 1)
-		{
-			$codQRD .= 'K1:PT-MA*';
-			for($r = 0; $r < count($arrtudo); $r++)
+			}else if($data['invoice']['loc_zon_fis'] == 1)
 			{
-				if($arrtudo[$r]['cod'] == 'ISE')
+				$codQRD .= 'K1:PT-MA*';
+				for($r = 0; $r < count($arrtudo); $r++)
 				{
-					$codQRD .= 'K2:'.$arrtudo[$r]['base'].'*';
-				}else if($arrtudo[$r]['cod'] == 'RED')
+					if($arrtudo[$r]['cod'] == 'ISE')
+					{
+						$codQRD .= 'K2:'.$arrtudo[$r]['base'].'*';
+					}else if($arrtudo[$r]['cod'] == 'RED')
+					{
+						$codQRD .= 'K3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'K4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					}else if($arrtudo[$r]['cod'] == 'INT')
+					{
+						$codQRD .= 'K5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'K6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					}else{
+						$codQRD .= 'K7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'K8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					}
+				}
+			}else{
+				$codQRD .= 'I1:'.$data['invoice']['loc_country'].'*';
+				for($r = 0; $r < count($arrtudo); $r++)
 				{
-					$codQRD .= 'K3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'K4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else if($arrtudo[$r]['cod'] == 'INT')
-				{
-					$codQRD .= 'K5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'K6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else{
-					$codQRD .= 'K7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'K8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					if($arrtudo[$r]['cod'] == 'ISE')
+					{
+						$codQRD .= 'I2:'.$arrtudo[$r]['base'].'*';
+					}else if($arrtudo[$r]['cod'] == 'RED')
+					{
+						$codQRD .= 'I3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'I4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					}else if($arrtudo[$r]['cod'] == 'INT')
+					{
+						$codQRD .= 'I5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'I6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					}else{
+						$codQRD .= 'I7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'I8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
+					}
 				}
 			}
-		}else{
-			$codQRD .= 'I1:'.$data['invoice']['loc_country'].'*';
-			for($r = 0; $r < count($arrtudo); $r++)
-			{
-				if($arrtudo[$r]['cod'] == 'ISE')
-				{
-					$codQRD .= 'I2:'.$arrtudo[$r]['base'].'*';
-				}else if($arrtudo[$r]['cod'] == 'RED')
-				{
-					$codQRD .= 'I3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'I4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else if($arrtudo[$r]['cod'] == 'INT')
-				{
-					$codQRD .= 'I5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'I6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else{
-					$codQRD .= 'I7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'I8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}
-			}
-		}
 
-		
-		
-		
-		//$codQRD .= 'L:'.'*';
-		//$codQRD .= 'M:'.'*';
-		
-		$codQRD .= 'N:'.@number_format($data['invoice']['tax'], 2, '.', '').'*';
-		$codQRD .= 'O:'.@number_format($data['invoice']['total'], 2, '.', '').'*';
-		
-		//Valor do total das retenções na fonte - campo WithholdingTaxAmount do SAF-T (PT).
-		//$codQRD .= 'P:'.'*';
-		
-		
-		//4 carateres do Hash gerados na criação do documento e buscar a AT
-		$codQRD .= 'Q:'.'*';
-		
-		
-		$codQRD .= 'R:'.$data['invoice']['loc_certification'].'*';
-		
-		$campfim = "";
-		if($data['invoice']['loc_contabancaria'] != null)
-		{
-			$campfim .= "IBAN-".$data['invoice']['loc_contabancaria'];
-		}
-		
-		$campfim .= ";".$data['invoice']['loc_cname'];
-		$codQRD .= 'S:'.$campfim.'*';
-		
+			
+			
+			
+			//$codQRD .= 'L:'.'*';
+			//$codQRD .= 'M:'.'*';
+			
+			$codQRD .= 'N:'.@number_format($data['invoice']['tax'], 2, '.', '').'*';
+			$codQRD .= 'O:'.@number_format($data['invoice']['total'], 2, '.', '').'*';
+			
+			//Valor do total das retenções na fonte - campo WithholdingTaxAmount do SAF-T (PT).
+			//$codQRD .= 'P:'.'*';
+			
+			
+			//4 carateres do Hash gerados na criação do documento e buscar a AT
+			$codQRD .= 'Q:'.'*';
+			
+			
+			$codQRD .= 'R:'.$data['invoice']['loc_certification'].'*';
+			$campfim = "";
+			if($data['invoice']['loc_contabancaria'] != null)
+			{
+				$campfim .= "IBAN-".$data['invoice']['loc_contabancaria'];
+			}
+			
+			$campfim .= ";".$data['invoice']['loc_cname'];
+			$codQRD .= 'S:'.$campfim.'*';
+		}		
 		$qrCode = new QrCode($codQRD);
 		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
 		
@@ -1119,30 +1422,35 @@ class Subscriptions extends CI_Controller
         $pdf = $this->pdf->load_split(array('margin_top' => 10));
 		$loc2 = location(0);
         $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
-		if($data['invoice']['numcop'] == 'copy1')
-		{
+		
+		if($draf == 0){
+			if($data['invoice']['numcop'] == 'copy1')
+			{
+				$pdf->WriteHTML($html);
+			}else if($data['invoice']['numcop'] == 'copy2')
+			{
+				$pdf->WriteHTML($html);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html2);
+			}else if($data['invoice']['numcop'] == 'copy3')
+			{
+				$pdf->WriteHTML($html);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html2);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html3);
+			}else if($data['invoice']['numcop'] == 'copy4')
+			{
+				$pdf->WriteHTML($html);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html2);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html3);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html4);
+			}
+		}else{
 			$pdf->WriteHTML($html);
-		}else if($data['invoice']['numcop'] == 'copy2')
-		{
-			$pdf->WriteHTML($html);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html2);
-		}else if($data['invoice']['numcop'] == 'copy3')
-		{
-			$pdf->WriteHTML($html);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html2);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html3);
-		}else if($data['invoice']['numcop'] == 'copy4')
-		{
-			$pdf->WriteHTML($html);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html2);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html3);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html4);
 		}
 		
         $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);

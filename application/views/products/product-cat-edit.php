@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5>Edit Product Category</h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Edit Product Category') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -21,7 +26,8 @@
                 <form method="post" id="data_form" class="form-horizontal">
                     <input type="hidden" name="catid" value="<?php echo $productcat['id'] ?>">
                     <div class="form-group row">
-                        <label class="col-sm-2 col-form-label" for="product_cat_name"><?php echo $this->lang->line('Category Name') ?></label>
+                        <label class="col-sm-2 col-form-label"
+                               for="product_cat_name"><?php echo $this->lang->line('Category Name') ?></label>
                         <div class="col-sm-6">
                             <input type="text"
                                    class="form-control margin-bottom required" name="product_cat_name"
@@ -36,25 +42,29 @@
                         </div>
                     </div>
                     <div class="form-group row">
-						<label class="col-sm-2 col-form-label" for="product_cat"><?php echo $this->lang->line('Category') ?> Pai</label>
-						<div class="col-sm-6">
-							<select name="cat_rel" class="form-control" <?php if($productcat['delete1'] == 0) echo 'disabled' ?>>
-								<?php
-								echo "<option value='" . $productcat['rel_id'] . "'>--".$productcat['painame']."--</option>";
-								echo $cat;
-								?>
-							</select>
-						</div>
-					</div>
-					<div class="custom-control custom-checkbox">
-						<input type="checkbox" class="custom-control-input" name="vis_pos" id="vis_pos" value="<?php echo $productcat['vis_pos'] ?>" <?php if ($productcat['vis_pos'] == 1) echo 'checked="checked"' ?>>
-						<label class="custom-control-label" for="vis_pos"><?php echo "Visível no POS" ?></label>
-					</div>
-					<div class="custom-control custom-checkbox">
-						<input type="checkbox" class="custom-control-input" name="fav_pos" id="fav_pos" value="<?php echo $productcat['fav_pos'] ?>" <?php if ($productcat['fav_pos'] == 1) echo 'checked="checked"' ?>>
-						<label class="custom-control-label" for="fav_pos"><?php echo "Favorito no POS" ?></label>
-					</div>
-					<div class="form-group row"><label
+                        <label class="col-sm-2 col-form-label"
+                               for="product_cat"><?php echo $this->lang->line('Category') ?> Pai</label>
+                        <div class="col-sm-6">
+                            <select name="cat_rel"
+                                    class="form-control" <?php if ($productcat['delete1'] == 0) echo 'disabled' ?>>
+                                <?php
+                                echo "<option value='" . $productcat['rel_id'] . "'>--" . $productcat['painame'] . "--</option>";
+                                echo $cat;
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="vis_pos" id="vis_pos"
+                               value="<?php echo $productcat['vis_pos'] ?>" <?php if ($productcat['vis_pos'] == 1) echo 'checked="checked"' ?>>
+                        <label class="custom-control-label" for="vis_pos"><?php echo "Visível no POS" ?></label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="fav_pos" id="fav_pos"
+                               value="<?php echo $productcat['fav_pos'] ?>" <?php if ($productcat['fav_pos'] == 1) echo 'checked="checked"' ?>>
+                        <label class="custom-control-label" for="fav_pos"><?php echo "Favorito no POS" ?></label>
+                    </div>
+                    <div class="form-group row"><label
                                 class="col-sm-2 col-form-label"><?php echo $this->lang->line('Image') ?></label>
                         <div class="col-sm-6">
                             <div id="progress" class="progress">
@@ -76,7 +86,7 @@
                             <span class="btn btn-success fileinput-button">
 								<i class="glyphicon glyphicon-plus"></i>
 								<span>Select files...</span>
-														<!-- The file input field used as target for the file upload widget -->
+                                <!-- The file input field used as target for the file upload widget -->
 								<input id="fileupload" type="file" name="files[]">
 							</span>
                             <br>
@@ -88,17 +98,17 @@
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label"></label>
-                        <div class="col-sm-4">
+                        <div class="col-sm-6" id="paiCompanyUpdate">
                             <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
-                                   value="Update" data-loading-text="Updating...">
+                                   value="Update" data-loading-text="Atualizando...">
                             <input type="hidden" value="productcategory/editcat" id="action-url">
                         </div>
                     </div>
-					<input type="hidden" name="image" id="image" value="<?php echo $productcat['image'] ?>">
+                    <input type="hidden" name="image" id="image" value="<?php echo $productcat['image'] ?>">
                 </form>
             </div>
         </div>
-	</div>
+    </div>
 </div>
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js'); ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
@@ -121,7 +131,7 @@
                 });
 
                 $('#image').val(img);
-				$('#image').html(img);
+                $('#image').html(img);
             },
             progressall: function (e, data) {
                 var progress = parseInt(data.loaded / data.total * 100, 10);

@@ -1,7 +1,11 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h4><?php echo $this->lang->line('Add New Transaction') ?></h4>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Add New Transaction') ?></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -11,7 +15,6 @@
                 </ul>
             </div>
         </div>
-        <hr>
         <div class="card-content">
             <div id="notify" class="alert alert-success" style="display:none;">
                 <a href="#" class="close" data-dismiss="alert">&times;</a>
@@ -46,16 +49,18 @@
                         </div>
 
                     </div>
-                    <hr>
                     <div id="customerpanel" class="form-group row bg-blue bg-lighten-4 pb-1">
 
-                        <div class="col-sm-4"><label for="toBizName" class="caption col-form-label"><?php echo $this->lang->line('C/o') ?>
-                            <span style="color: red;">*</span></label><input type="hidden" name="payer_id" id="customer_id" value="0">
+                        <div class="col-sm-4"><label for="toBizName"
+                                                     class="caption col-form-label"><?php echo $this->lang->line('C/o') ?>
+                                <span style="color: red;">*</span></label><input type="hidden" name="payer_id"
+                                                                                 id="customer_id" value="0">
                             <input type="text" class="form-control required" name="payer_name" id="customer_name">
                         </div>
 
 
-                        <div class="col-sm-4"><label class=" col-form-label" for="pay_cat"><?php echo $this->lang->line('To') . ' ' . $this->lang->line('Account') ?></label>
+                        <div class="col-sm-4"><label class=" col-form-label"
+                                                     for="pay_cat"><?php echo $this->lang->line('To') . ' ' . $this->lang->line('Account') ?></label>
                             <select name="pay_acc" class="form-control">
                                 <?php
                                 foreach ($accounts as $row) {
@@ -94,11 +99,12 @@
                                                      for="product_price"><?php echo $this->lang->line('Type') ?></label>
 
                             <select name="pay_type" class="form-control">
-								<option value="Expense" selected><?php echo $this->lang->line('Expense') . ' / ' . $this->lang->line('Debit') ?></option>
-								<option value="Income"><?php echo $this->lang->line('Income') . ' / ' . $this->lang->line('Credit') ?></option>
-								<option value="Transfer"><?php echo $this->lang->line('Transfer') ?></option>
-								<option value="Subscription"><?php echo $this->lang->line('Subscription') ?></option>
-								<option value="Salaries">Salários</option>
+                                <option value="Expense"
+                                        selected><?php echo $this->lang->line('Expense') . ' / ' . $this->lang->line('Debit') ?></option>
+                                <option value="Income"><?php echo $this->lang->line('Income') . ' / ' . $this->lang->line('Credit') ?></option>
+                                <option value="Transfer"><?php echo $this->lang->line('Transfer') ?></option>
+                                <option value="Subscription"><?php echo $this->lang->line('Subscription') ?></option>
+                                <option value="Salaries">Salários</option>
                             </select>
                         </div>
 
@@ -124,8 +130,8 @@
                         <div class="col-sm-4"><label class="col-form-label"
                                                      for="product_price"><?php echo $this->lang->line('Method') ?> </label>
                             <select name="paymethod" class="form-control required">
-								<option value="">Escolha uma Opção</option>
-                                <?php echo $metodos_pagamentos;?>
+                                <option value="">Escolha uma Opção</option>
+                                <?php echo $metodos_pagamentos; ?>
                             </select>
                         </div>
 
@@ -138,7 +144,7 @@
                     </div>
                     <!---- Dual -->
                     <?php if ($dual['dual_entry'] > 0) { ?>
-                        <hr><h4 class="purple"><?php echo $this->lang->line('Dual Entry') ?></h4>
+                        <h4 class="purple"><?php echo $this->lang->line('Dual Entry') ?></h4>
                         <div id="customerpanel" class="form-group row bg-purple bg-lighten-4 pb-1">
 
 
@@ -179,7 +185,7 @@
                                                          for="f_paymethod"><?php echo $this->lang->line('From') . ' ' . $this->lang->line('Method') ?> </label>
                                 <select name="f_paymethod" class="form-control">
                                     <option value="">Escolha uma Opção</option>
-									<?php echo $metodos_pagamentos;?>
+                                    <?php echo $metodos_pagamentos; ?>
                                 </select>
                             </div>
 
@@ -195,10 +201,10 @@
                     <?php } ?>
 
                     <div class="form-group row">
-                        <div class="col-sm-4">
-                            <input type="submit" id="submit-data" class="btn btn-success btn-lg margin-bottom"
+                        <div class="col-sm-12" id="paiCompanyUpdate">
+                            <input type="submit" id="submit-data" class="btn btn-success btn-md margin-bottom"
                                    value="<?php echo $this->lang->line('Add transaction') ?>"
-                                   data-loading-text="Adding...">
+                                   data-loading-text="Adicionando...">
                             <input type="hidden" value="transactions/save_trans" id="action-url">
                         </div>
                     </div>

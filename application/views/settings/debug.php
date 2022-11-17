@@ -1,19 +1,37 @@
-<div class="card card-block">
+<div class="card yellow-top">
+    <div class="card-header">
+
+        <h5 class="title">
+            <a class="btn-back" onclick=history.go(-1)>
+                <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+            </a>
+            <?php echo $this->lang->line('Application Debug Mode') ?>
+        </h5>
+        <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+        <div class="heading-elements">
+            <ul class="list-inline mb-0">
+                <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                <li><a data-action="close"><i class="ft-x"></i></a></li>
+            </ul>
+        </div>
+
+    </div>
     <div id="notify" class="alert alert-success" style="display:none;">
         <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-        <div class="message"></div>
     </div>
+    <div class="message"></div>
     <form method="post" id="product_action" class="form-horizontal">
         <div class="card-body">
-            <h5>Application Debug Mode</h5>
-            <hr>
-            <p class="danger">
-                You can enable the debug mode to Development Mode to read your server related issue - like PHP Version
-                etc. Please do not enable the Development Mode , if you are not a developer - It will start displaying
-                notices and interfere with the general application functionality.
-            </p>
-
+            <div class="alert alert-info" id="alert-info-text">
+                <p>
+                    You can enable the debug mode to Development Mode to read your server related issue - like PHP
+                    Version
+                    etc. Please do not enable the Development Mode , if you are not a developer - It will start
+                    displaying
+                    notices and interfere with the general application functionality.
+                </p>
+            </div>
 
             <div class="form-group row">
 
@@ -44,7 +62,7 @@
 
                 <label class="col-sm-2 col-form-label"></label>
 
-                <div class="col-sm-4">
+                <div class="col-sm-6" id="paiCompanyUpdate">
                     <input type="submit" id="billing_update" class="btn btn-success margin-bottom"
                            value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Updating...">
                 </div>
@@ -97,10 +115,11 @@
             }
 
             ?>
-            <p class="text-right"><a href="<?php echo base_url('settings/server') ?>" class="btn btn-blue"><i
+            <p class="text-right"><a href="<?php echo base_url('settings/server') ?>"
+                                     class="btn btn-outline-blue btn-md"><i
                             class="ft-eye"></i>
                     <small>Server PHP Info</small>
-                </a> | <a href="<?php echo base_url('settings/db_error') ?>" class="btn btn-pink"><i
+                </a> | <a href="<?php echo base_url('settings/db_error') ?>" class="btn btn-outline-pink btn-md"><i
                             class="fa fa-list-alt"></i>
                     <small>MySQL Issues</small>
                 </a></p>

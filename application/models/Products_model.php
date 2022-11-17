@@ -175,9 +175,6 @@ class Products_model extends CI_Model
         } else {
             $this->_get_datatables_query();
         }
-
-        if ($this->input->post('length') != -1)
-            $this->db->limit($this->input->post('length'), $this->input->post('start'));
         $query = $this->db->get();
         return $query->num_rows();
     }

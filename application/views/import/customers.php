@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Import Customers') ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Import Customers') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -27,17 +32,15 @@
                         </div>
                         <?php echo form_open_multipart('import/customers_upload'); ?>
                         <div class="card card-block">
-
-                            <hr>
+                            
                             <p>Your customer data file should as per this template <a
                                         href="<?php echo base_url('userfiles/customers/customers_import.csv') ?>"><strong>Download
                                         Template</strong></a>. Please download a database backup before importing the
                                 geopos_products.
                             </p>
-                            <p>Column Order in CSV File Must be like this</p>
-                            <pre>
-
-
+                            <div class="alert alert-info" id="alert-info-text">
+                                <p>Column Order in CSV File Must be like this</p>
+                                <pre>
      1. (string)John Smith, 2. (string)Phone,  3. (string) Sample Address,
 
      4. (string) City, 5. (string)Region, 6. (string)Country, 7. (string)Postbox, 8. (string)walkin@example.com,
@@ -51,8 +54,8 @@
      22. (number) Balance
 
 </pre>
+                            </div>
 
-                            <hr>
                             <div class="form-group row">
 
                                 <label class="col-sm-2 col-form-label" for="name">File
@@ -85,7 +88,7 @@
 
                                 <label class="col-sm-2 col-form-label"></label>
 
-                                <div class="col-sm-4">
+                                <div class="col-sm-6" id="paiCompanyUpdate">
                                     <input type="submit" class="btn btn-success margin-bottom"
                                            value="<?php echo $this->lang->line('Import Customers') ?>"
                                            data-loading-text="Adding...">
@@ -94,7 +97,6 @@
                             </div>
                         </div>
 
-                        </form>
                     </div>
                 </div>
             </div>

@@ -13,7 +13,6 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 
-
 class Events extends CI_Controller
 
 {
@@ -25,9 +24,7 @@ class Events extends CI_Controller
         parent:: __construct();
 
 
-
         $this->load->model('settings_model', 'system');
-
 
 
         $this->load->library("Aauth");
@@ -46,11 +43,11 @@ class Events extends CI_Controller
         $this->li_a = 'misc';
 
 
-
     }
 
 
-    public function index() {
+    public function index()
+    {
 
         $this->load->model('employee_model', 'employee');
 
@@ -66,16 +63,17 @@ class Events extends CI_Controller
     }
 
 
-    function getEventArray($event,$start,$end){
+    function getEventArray($event, $start, $end)
+    {
         return array(
             'id' => $event->id,
             'title' => $event->title,
             'start' => $start,
             'end' => $event->end,
             // 'url' => $event->url,
-            'allDay'=>$event->allDay,
-            'color'=>$event->color,
-            'description'=>$event->description,
+            'allDay' => $event->allDay,
+            'color' => $event->color,
+            'description' => $event->description,
             'event_repeat' => $event->event_repeat,
             'event_type' => $event->event_type,
             'event_associated' => $event->event_associated,
@@ -91,37 +89,37 @@ class Events extends CI_Controller
         $end = $this->input->get('end');
         $result = $this->events_model->getEvents($start, $end);
         // print_r($result);die;
-        $i=0;
+        $i = 0;
 
         $items = array();
         foreach ($result as $key => $event) {
 
-                if ($event->event_repeat == 1) {
-                    foreach ($this->getDailyTasks($event) as $s) {
-                        array_push($items, $s);
-                    }
-                }else
+            if ($event->event_repeat == 1) {
+                foreach ($this->getDailyTasks($event) as $s) {
+                    array_push($items, $s);
+                }
+            } else
 
                 if ($event->event_repeat == 2) {
                     foreach ($this->getWeeklyTasks($event) as $s) {
                         array_push($items, $s);
                     }
-                }else
+                } else
 
-                if ($event->event_repeat == 3) {
-                    foreach ($this->getMonthlyTasks($event) as $s) {
-                        array_push($items, $s);
-                    }
-                }else
-                if ($event->event_repeat == 4) {
-                    foreach ($this->getYearlyTasks($event) as $s) {
-                        array_push($items, $s);
-                    }
-                } else {
-                    foreach ($this->getDayTask($event) as $s) {
-                        array_push($items, $s);
-                    }
-                }
+                    if ($event->event_repeat == 3) {
+                        foreach ($this->getMonthlyTasks($event) as $s) {
+                            array_push($items, $s);
+                        }
+                    } else
+                        if ($event->event_repeat == 4) {
+                            foreach ($this->getYearlyTasks($event) as $s) {
+                                array_push($items, $s);
+                            }
+                        } else {
+                            foreach ($this->getDayTask($event) as $s) {
+                                array_push($items, $s);
+                            }
+                        }
 
             // $data[$i]['id'] = $value->id;
             // $data[$i]['title'] = $value->title;
@@ -151,7 +149,7 @@ class Events extends CI_Controller
         echo json_encode($items);
     }
 
-      /**
+    /**
      * single day task
      * @param $event
      * @return array
@@ -161,7 +159,7 @@ class Events extends CI_Controller
         $end = $event->end;
         $start = $event->start;
 
-        $events[] =$this->getEventArray($event,$start,$end);
+        $events[] = $this->getEventArray($event, $start, $end);
         return $events;
 
     }
@@ -178,11 +176,11 @@ class Events extends CI_Controller
         $start = $event->start;
 
         $FromDate = new DateTime($event->start);
-        $ToDate   = new DateTime($event->end);
+        $ToDate = new DateTime($event->end);
         $Interval = $FromDate->diff($ToDate);
-      
+
         $hours = $Interval->h;
-        $weeks = floor($Interval->d/7);
+        $weeks = floor($Interval->d / 7);
         $days = $Interval->d % 7;
         $months = $Interval->m;
 
@@ -192,10 +190,10 @@ class Events extends CI_Controller
             // if ($event->status == 'completed')
             //     continue;
 
-            $events[] = $this->getEventArray($event,$date,$date);
-            $date = DateTime::createFromFormat('Y-m-d h:i:s',$date)
-                       ->add(DateInterval::createFromDateString('1 day'))
-                       ->format('Y-m-d h:i:s');
+            $events[] = $this->getEventArray($event, $date, $date);
+            $date = DateTime::createFromFormat('Y-m-d h:i:s', $date)
+                ->add(DateInterval::createFromDateString('1 day'))
+                ->format('Y-m-d h:i:s');
             // $date = Carbon::parse($date)->addDays($event->freq);
 
         }
@@ -211,24 +209,24 @@ class Events extends CI_Controller
     {
         $end = $event->end;
         $start = $event->start;
-     
+
         $FromDate = new DateTime($event->start);
-        $ToDate   = new DateTime($event->end);
+        $ToDate = new DateTime($event->end);
         $Interval = $FromDate->diff($ToDate);
-  
+
         $hours = $Interval->h;
-        $weeks = floor($Interval->d/7);
+        $weeks = floor($Interval->d / 7);
         $days = $Interval->d % 7;
         $months = $Interval->m;
 
         $events = array();
         $date = $start;
-    
+
         for ($i = 1; $i <= 20; $i++) {
-            $events[] = $this->getEventArray($event,$date,$date);
-            $date = DateTime::createFromFormat('Y-m-d h:i:s',$date)
-                       ->add(DateInterval::createFromDateString('1 week'))
-                       ->format('Y-m-d h:i:s');
+            $events[] = $this->getEventArray($event, $date, $date);
+            $date = DateTime::createFromFormat('Y-m-d h:i:s', $date)
+                ->add(DateInterval::createFromDateString('1 week'))
+                ->format('Y-m-d h:i:s');
             // $date = Carbon::parse($date)->addWeeks($event->freq);
 
         }
@@ -247,11 +245,11 @@ class Events extends CI_Controller
         $start = $event->start;
 
         $FromDate = new DateTime($event->start);
-        $ToDate   = new DateTime($event->end);
+        $ToDate = new DateTime($event->end);
         $Interval = $FromDate->diff($ToDate);
-      
+
         $hours = $Interval->h;
-        $weeks = floor($Interval->d/7);
+        $weeks = floor($Interval->d / 7);
         $days = $Interval->d % 7;
         $months = $Interval->m;
 
@@ -263,10 +261,10 @@ class Events extends CI_Controller
             // if ($event->status == 'completed')
             //     continue;
 
-            $events[] = $this->getEventArray($event,$date,$date);
-            $date = DateTime::createFromFormat('Y-m-d h:i:s',$date)
-            ->add(DateInterval::createFromDateString('1 month'))
-            ->format('Y-m-d h:i:s');
+            $events[] = $this->getEventArray($event, $date, $date);
+            $date = DateTime::createFromFormat('Y-m-d h:i:s', $date)
+                ->add(DateInterval::createFromDateString('1 month'))
+                ->format('Y-m-d h:i:s');
             // $date = Carbon::parse($date)->addMonths($event->freq);
 
         }
@@ -286,9 +284,9 @@ class Events extends CI_Controller
         $start = $event->start;
 
         $FromDate = new DateTime($event->start);
-        $ToDate   = new DateTime($event->end);
+        $ToDate = new DateTime($event->end);
         $Interval = $FromDate->diff($ToDate);
-      
+
         $years = $Interval->y;
 
         $events = array();
@@ -299,10 +297,10 @@ class Events extends CI_Controller
             // if ($event->status == 'completed')
             //     continue;
 
-            $events[] =$this->getEventArray($event,$date,$date);
-            $date = DateTime::createFromFormat('Y-m-d h:i:s',$date)
-            ->add(DateInterval::createFromDateString('1 year'))
-            ->format('Y-m-d h:i:s');
+            $events[] = $this->getEventArray($event, $date, $date);
+            $date = DateTime::createFromFormat('Y-m-d h:i:s', $date)
+                ->add(DateInterval::createFromDateString('1 year'))
+                ->format('Y-m-d h:i:s');
             // $date = Carbon::parse($date)->addYears($event->freq);
 
         }
@@ -328,61 +326,43 @@ class Events extends CI_Controller
 
         $event_type = $this->input->post('event_type', true);
 
-		$event_repeat = $this->input->post('event_repeat');
+        $event_repeat = $this->input->post('event_repeat');
 
-		$event_associated = $this->input->post('event_associated');
+        $event_associated = $this->input->post('event_associated');
 
-		$event_all_day = "true";
-
-
+        $event_all_day = "true";
 
 
+        if ($event_repeat == "0") {
 
-		if($event_repeat == "0")
+            $event_repeat = 0;
 
-		{
+        } else if ($event_repeat == 1) {
 
-			$event_repeat = 0;
+            $event_repeat = 1;
 
-		}else if($event_repeat == 1)
+        } else if ($event_repeat == 2) {
 
-		{
+            $event_repeat = 2;
 
-			$event_repeat = 1;
+        } else if ($event_repeat == 3) {
 
-		}else if($event_repeat == 2)
+            $event_repeat = 3;
 
-		{
+        } else if ($event_repeat == 4) {
 
-			$event_repeat = 2;
+            $event_repeat = 4;
 
-		}else if($event_repeat == 3)
-
-		{
-
-			$event_repeat = 3;
-
-		}else if($event_repeat == 4)
-
-		{
-
-			$event_repeat = 4;
-
-		}
+        }
 
 
+        if ($event_associated == 0 || $event_associated == "0") {
 
-		if($event_associated == 0 || $event_associated == "0")
-
-		{
-
-            if($event_type == 1 || $event_associated == "1")
-
-            {
+            if ($event_type == 1 || $event_associated == "1") {
 
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('EventADDVacation')));
 
-            }else{
+            } else {
 
                 $employee_id = 0;
 
@@ -392,7 +372,7 @@ class Events extends CI_Controller
 
                     echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('EventADD')));
 
-                }else{
+                } else {
 
                     echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
 
@@ -400,13 +380,11 @@ class Events extends CI_Controller
 
             }
 
-		}else{
+        } else {
 
-			$employee_id = $this->input->post('employee_id', true);
+            $employee_id = $this->input->post('employee_id', true);
 
-            if($event_type == 1 || $event_associated == "1")
-
-            {
+            if ($event_type == 1 || $event_associated == "1") {
 
                 $year = date('Y', strtotime($start));
 
@@ -416,7 +394,6 @@ class Events extends CI_Controller
 
                 $system = $this->system->company_details(1);
 
-        
 
                 foreach ($vacations as $vacation) {
 
@@ -430,7 +407,6 @@ class Events extends CI_Controller
 
                 }
 
-        
 
                 $currentStart = new DateTime($start);
 
@@ -438,7 +414,6 @@ class Events extends CI_Controller
 
                 $currentDiff = $currentStart->diff($currentEnd);
 
-        
 
                 if ($vacationOfYear + $currentDiff->d > $system['annual_vacation']) {
 
@@ -452,7 +427,7 @@ class Events extends CI_Controller
 
                         echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('EventADD')));
 
-                    }else{
+                    } else {
 
                         echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
 
@@ -460,7 +435,7 @@ class Events extends CI_Controller
 
                 }
 
-            }else{
+            } else {
 
                 $result = $this->events_model->addEvent($title, $start, $end, $description, $color, $event_type, $event_repeat, $event_associated, $event_all_day, $employee_id);
 
@@ -468,7 +443,7 @@ class Events extends CI_Controller
 
                     echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('EventADDVacation')));
 
-                }else{
+                } else {
 
                     echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
 
@@ -476,10 +451,9 @@ class Events extends CI_Controller
 
             }
 
-		}
+        }
 
     }
-
 
 
     /*Update Event */
@@ -496,60 +470,40 @@ class Events extends CI_Controller
 
         $event_type = $this->input->post('event_type', true);
 
-		$event_repeat = $this->input->post('event_repeat');
+        $event_repeat = $this->input->post('event_repeat');
 
         $color = $this->input->post('color');
 
-		$event_associated = $this->input->post('event_associated');
+        $event_associated = $this->input->post('event_associated');
 
-		
 
-		if($event_repeat == 0)
+        if ($event_repeat == 0) {
 
-		{
 
-			
+        } else if ($event_repeat == 1) {
 
-		}else if($event_repeat == 1)
 
-		{
+        } else if ($event_repeat == 2) {
 
-			
 
-		}else if($event_repeat == 2)
+        } else if ($event_repeat == 3) {
 
-		{
 
-			
+        } else if ($event_repeat == 4) {
 
-		}else if($event_repeat == 3)
 
-		{
+        }
 
-			
 
-		}else if($event_repeat == 4)
+        if ($event_associated == 0) {
 
-		{
+            $employee_id = $this->input->post('employee_id', true);
 
-			
+        } else {
 
-		}
+            $employee_id = 0;
 
-		
-
-		if($event_associated == 0)
-
-		{
-
-			$employee_id = $this->input->post('employee_id', true);
-
-		}else{
-
-			$employee_id = 0;
-
-		}
-
+        }
 
 
         $result = $this->events_model->updateEvent($id, $title, $description, $color, $event_type, $event_repeat, $event_associated, $employee_id);
@@ -559,20 +513,18 @@ class Events extends CI_Controller
     }
 
 
-
     /*Delete Event*/
 
     public function deleteEvent()
 
     {
 
-		if (!$this->aauth->premission(11)) {
+        if (!$this->aauth->premission(11)) {
 
             exit($this->lang->line('translate19'));
 
         }
 
-		
 
         $result = $this->events_model->deleteEvent();
 
@@ -581,11 +533,9 @@ class Events extends CI_Controller
     }
 
 
-
     public function dragUpdateEvent()
 
     {
-
 
 
         $result = $this->events_model->dragUpdateEvent();
@@ -594,15 +544,11 @@ class Events extends CI_Controller
 
     }
 
-	
 
-	/*Events Type */
+    /*Events Type */
 
-	
 
-	
-
-	public function events_type()
+    public function events_type()
 
     {
 
@@ -618,15 +564,14 @@ class Events extends CI_Controller
 
     }
 
-	
 
-	public function addeventstype()
+    public function addeventstype()
     {
         if ($this->input->post()) {
             $name = $this->input->post('name', true);
-			$paid = $this->input->post('paid');
+            $paid = $this->input->post('paid');
             if ($this->events_model->addEventType($name, $paid)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='addeventstype' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='events_type' class='btn btn-grey btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('ADDED') . "  <a href='addeventstype' class='btn btn-blue btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span>  </a> <a href='events_type' class='btn btn-grey btn-lg'><span class='bi bi-eye' aria-hidden='true'></span>  </a>"));
             } else {
 
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
@@ -650,14 +595,12 @@ class Events extends CI_Controller
         }
 
 
-
     }
 
-	
 
-	 /*Get events Type */
+    /*Get events Type */
 
-	public function getEventsType()
+    public function getEventsType()
 
     {
 
@@ -694,7 +637,6 @@ class Events extends CI_Controller
     }*/
 
 
-
     /*Update Event */
 
     public function updateEventType()
@@ -714,7 +656,6 @@ class Events extends CI_Controller
     }
 
 
-
     /*Delete Event*/
 
     public function delEventType()
@@ -730,7 +671,6 @@ class Events extends CI_Controller
         $id = $this->input->post('deleteid');
 
 
-
         if ($this->events_model->deleteEventType($id)) {
 
             echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('DELETED')));
@@ -742,9 +682,6 @@ class Events extends CI_Controller
         }
 
     }
-
-
-
 
 
     public function evt_load_list()
@@ -760,23 +697,21 @@ class Events extends CI_Controller
             $no++;
             $row[] = $no;
             $row[] = $obj->name;
-            if($obj->paid == 1){
-				$row[] = $this->lang->line('Proc. Salary');
-			}else{
-				$row[] = $this->lang->line('Not Proc. Salary');
-			}
-			
-			if($obj->delete == 1)
-			{
-				$row[] = '<a href="editeventtype?id=' . $obj->id . '" class="btn btn-info btn-sm"><span class="fa fa-eye"></span> ' . $this->lang->line('Edit') . '</a> <a class="btn btn-danger btn-sm delete-object" href="#" data-object-id="' . $obj->id . '"> <i class="fa fa-trash"></i> </a>'; 
-			}else{
-				$row[] = '<a href="editeventtype?id=' . $obj->id . '" class="btn btn-info btn-sm"><span class="fa fa-eye"></span> ' . $this->lang->line('Edit') . '</a>'; 
-			}
+            if ($obj->paid == 1) {
+                $row[] = $this->lang->line('Proc. Salary');
+            } else {
+                $row[] = $this->lang->line('Not Proc. Salary');
+            }
+
+            if ($obj->delete == 1) {
+                $row[] = '<div class="action-btn"><a href="editeventtype?id=' . $obj->id . '" class="btn btn-outline-primary btn-sm" title="' . $this->lang->line('Edit') . '"><span class="bi bi-pencil"></span> ' . '</a> <a class="btn btn-outline-danger btn-sm delete-object" href="#" data-object-id="' . $obj->id . '" title="' . $this->lang->line('Delete') . '"> <i class="bi bi-trash"></i> </a></div>';
+            } else {
+                $row[] = '<div class="action-btn"><a href="editeventtype?id=' . $obj->id . '" class="btn btn-outline-primary btn-sm" title="' . $this->lang->line('Edit') . '"><span class="bi bi-pencil"></span> ' . '</a></div>';
+            }
             //$row[] = '<a class="btn-info btn-sm" href="events/editeventtype?id=' . $obj->id . '" data-object-id="' . $obj->id . '"> <i class="fa fa-pencil"></i> </a>&nbsp;<a class="btn-danger btn-sm delete-object" href="#" data-object-id="' . $obj->id . '"> <i class="fa fa-trash"></i> </a>';
             $data[] = $row;
 
         }
-
 
 
         $output = array(
@@ -795,22 +730,18 @@ class Events extends CI_Controller
 
     }
 
-	
 
-	
-
-	public function editeventtype()
+    public function editeventtype()
 
     {
 
         if ($this->input->post()) {
 
-			$name = $this->input->post('name', true);
+            $name = $this->input->post('name', true);
 
-			$id = $this->input->post('did');
+            $id = $this->input->post('did');
 
-			$paid = $this->input->post('paid');
-
+            $paid = $this->input->post('paid');
 
 
             if ($this->events_model->updateEventType($id, $name, $paid)) {
@@ -829,7 +760,6 @@ class Events extends CI_Controller
 
             $data['evtype'] = $this->events_model->eventtype_view($data['id']);
 
-			
 
             $head['title'] = 'Edit Event Type';
 
@@ -842,9 +772,7 @@ class Events extends CI_Controller
         }
 
 
-
     }
-
 
 
 }

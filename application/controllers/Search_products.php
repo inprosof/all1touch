@@ -140,9 +140,9 @@ class Search_products extends CI_Controller
             $whr = ' (loc=0) AND ';
         }
 		
-		$whr = $whr. 'id <>  99999999 AND';
+		$whr = $whr. 'geopos_customers.id <>  99999999 AND';
         if ($name) {
-            $query = $this->db->query("SELECT geopos_customers.*,CONCAT('(', geopos_customers.company, ') - ', geopos_customers.name) AS namecompany FROM geopos_customers inner join geopos_countrys on geopos_customers.country = geopos_countrys.prefix WHERE id = 99999999 UNION SELECT geopos_customers.*,CONCAT('(', geopos_customers.company, ') - ', geopos_customers.name) AS namecompany FROM geopos_customers inner join geopos_countrys on geopos_customers.country = geopos_countrys.prefix WHERE $whr (UPPER(name)  LIKE '%" . strtoupper($name) . "%' OR UPPER(phone)  LIKE '" . strtoupper($name) . "%') LIMIT 6");
+            $query = $this->db->query("SELECT geopos_customers.*,CONCAT('(', geopos_customers.company, ') - ', geopos_customers.name) AS namecompany FROM geopos_customers inner join geopos_countrys on geopos_customers.country = geopos_countrys.prefix WHERE geopos_customers.id = 99999999 UNION SELECT geopos_customers.*,CONCAT('(', geopos_customers.company, ') - ', geopos_customers.name) AS namecompany FROM geopos_customers inner join geopos_countrys on geopos_customers.country = geopos_countrys.prefix WHERE $whr (UPPER(geopos_customers.name)  LIKE '%" . strtoupper($name) . "%' OR UPPER(phone)  LIKE '" . strtoupper($name) . "%') LIMIT 6");
             $result = $query->result_array();
             echo '<ol>';
             $i = 1;

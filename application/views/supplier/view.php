@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h4 class="card-title"><h4><?php echo $this->lang->line('Supplier Details') ?><?php echo ': '.$details['name'] ?></h4>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Supplier Details') ?><?php echo ': ' . $details['name'] ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -21,7 +26,7 @@
 
 
                 <div class="row">
-                    <div class="col-md-4 border-right border-right-grey">
+                    <div class="col-md-3 border-right border-right-grey">
                         <div class="ibox-content mt-2">
                             <img alt="image" id="dpic" class="card-img-top img-fluid"
                                  src="<?php echo base_url('userfiles/suppliers/') . $details['picture'] ?>">
@@ -36,23 +41,23 @@
                                    class="btn btn-success btn-md mr-1 mb-1 btn-block btn-lighten-1"><i
                                             class="fa fa-file-text"></i> <?php echo $this->lang->line('View Invoices') ?>
                                 </a>
-								<a href="<?php echo base_url('supplier/statement?id=' . $details['id']) ?>"
+                                <a href="<?php echo base_url('supplier/statement?id=' . $details['id']) ?>"
                                    class="btn btn-primary btn-block btn-md mr-1 mb-1 btn-lighten-1"><i
                                             class="fa fa-briefcase"></i> <?php echo $this->lang->line('Account Statements') ?>
                                 </a>
-								<a href="<?php echo base_url('supplier/products?id=' . $details['id']) ?>"
-                                  class="btn btn-purple btn-md mr-1 mb-1 btn-block btn-lighten-1"><i
+                                <a href="<?php echo base_url('supplier/products?id=' . $details['id']) ?>"
+                                   class="btn btn-purple btn-md mr-1 mb-1 btn-block btn-lighten-1"><i
                                             class="fa fa-quote-left"></i> Ver Produtos Associados
                                 </a>
-								<a href="<?php echo base_url('supplier/purchaseorder?id=' . $details['id']) ?>"
+                                <a href="<?php echo base_url('supplier/purchaseorder?id=' . $details['id']) ?>"
                                    class="btn btn-primary btn-block btn-md mr-1 mb-1 btn-lighten-1"><i
                                             class="fa fa-bullhorn"></i> Ver Notas de Encomendas
                                 </a>
-								<a href="<?php echo base_url('supplier/invoices?id=' . $details['id']) ?>&t=sub"
+                                <a href="<?php echo base_url('supplier/invoices?id=' . $details['id']) ?>&t=sub"
                                    class="btn btn-flickr btn-md mr-1 mb-1 btn-block btn-lighten-1"><i
                                             class="fa fa-calendar-check-o"></i> <?php echo $this->lang->line('Subscriptions') ?>
                                 </a>
-								<a href="<?php echo base_url('supplier/transactions?id=' . $details['id']) ?>"
+                                <a href="<?php echo base_url('supplier/transactions?id=' . $details['id']) ?>"
                                    class="btn btn-blue-grey btn-md mr-1 mb-1 btn-block  btn-lighten-1"><i
                                             class="fa fa-money"></i> <?php echo $this->lang->line('View Transactions') ?>
                                 </a>
@@ -61,25 +66,25 @@
 
 
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <div id="mybutton">
                             <div class="">
                                 <a href="#sendMail" data-toggle="modal" data-remote="false"
-								   class="btn btn-primary btn-md  " data-type="reminder"><i
-											class="icon-envelope"></i> <?php echo $this->lang->line('Send Message') ?>
-								</a>
-								<a href="<?php echo base_url('supplier/bulkpayment?id=' . $details['id']) ?>"
+                                   class="btn btn-primary btn-md  " data-type="reminder"><i
+                                            class="icon-envelope"></i> <?php echo $this->lang->line('Send Message') ?>
+                                </a>
+                                <a href="<?php echo base_url('supplier/bulkpayment?id=' . $details['id']) ?>"
                                    class="btn btn-grey-blue btn-md"><i
                                             class="fa fa-money"></i> <?php echo $this->lang->line('Bulk Payment') ?>
                                 </a>
-								<a href="<?php echo base_url('supplier/edit?id=' . $details['id']) ?>"
-								   class="btn btn-warning btn-md"><i
-											class="icon-pencil"></i> <?php echo $this->lang->line('Edit Profile') ?>
-								</a>
+                                <a href="<?php echo base_url('supplier/edit?id=' . $details['id']) ?>"
+                                   class="btn btn-warning btn-md"><i
+                                            class="icon-pencil"></i> <?php echo $this->lang->line('Edit Profile') ?>
+                                </a>
                             </div>
 
                         </div>
-						<hr>
+                        <hr>
                         <h4>Informação do Fornecedor</h4>
                         <hr>
                         <div class="">
@@ -190,52 +195,52 @@
                                     </div>
                                 </div>
                                 <hr>
-								
-								<div id="heading1" class="card-header">
+
+                                <div id="heading1" class="card-header">
                                     <a data-toggle="collapse" data-parent="#accordionWrapa1" href="#accordion1"
                                        aria-expanded="false" aria-controls="accordion1"
                                        class="card-title lead collapsed">
                                         <i class="fa fa-plus-circle"></i> <?php echo $this->lang->line('CustomFields') ?>
                                     </a>
                                 </div>
-								<div id="accordion1" role="tabpanel" aria-labelledby="accordionWrapa1"
-									 class="card-collapse collapse" aria-expanded="false">
-									<div class="card-body">
-										<div class="card-block">
-											<?php foreach ($custom_fields as $row) {
-												if ($row['f_type'] == 'text') { ?>
-													<div class="row m-t-lg">
-														<div class="col-md-10">
-															<strong><?php echo $row['name'] ?></strong>
-														</div>
-														<div class="col-md-10">
-															<?php echo $row['data'] ?>
-														</div>
-													</div>
-												<?php }else if ($row['f_type'] == 'check') { ?>
-													<div class="row m-t-lg">
-														<div class="col-md-10">
-															<strong><?php echo $row['name'] ?></strong>
-														</div>
-														<div class="col-md-10">
-															<?php if($row['data'] == 'on') echo 'Sim'; else 'Não' ?>
-														</div>
-													</div>
-												<?php }else if ($row['f_type'] == 'textarea') { ?>
-													<div class="row m-t-lg">
-														<div class="col-md-10">
-															<strong><?php echo $row['name'] ?></strong>
-														</div>
-														<div class="col-md-10">
-															<?php echo $row['data'] ?>
-														</div>
-													</div>
-												<?php }
-												}?>
-										</div>
-									 </div>
-								</div>
-								<hr>
+                                <div id="accordion1" role="tabpanel" aria-labelledby="accordionWrapa1"
+                                     class="card-collapse collapse" aria-expanded="false">
+                                    <div class="card-body">
+                                        <div class="card-block">
+                                            <?php foreach ($custom_fields as $row) {
+                                                if ($row['f_type'] == 'text') { ?>
+                                                    <div class="row m-t-lg">
+                                                        <div class="col-md-10">
+                                                            <strong><?php echo $row['name'] ?></strong>
+                                                        </div>
+                                                        <div class="col-md-10">
+                                                            <?php echo $row['data'] ?>
+                                                        </div>
+                                                    </div>
+                                                <?php } else if ($row['f_type'] == 'check') { ?>
+                                                    <div class="row m-t-lg">
+                                                        <div class="col-md-10">
+                                                            <strong><?php echo $row['name'] ?></strong>
+                                                        </div>
+                                                        <div class="col-md-10">
+                                                            <?php if ($row['data'] == 'on') echo 'Sim'; else 'Não' ?>
+                                                        </div>
+                                                    </div>
+                                                <?php } else if ($row['f_type'] == 'textarea') { ?>
+                                                    <div class="row m-t-lg">
+                                                        <div class="col-md-10">
+                                                            <strong><?php echo $row['name'] ?></strong>
+                                                        </div>
+                                                        <div class="col-md-10">
+                                                            <?php echo $row['data'] ?>
+                                                        </div>
+                                                    </div>
+                                                <?php }
+                                            } ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
                                 <h5><?php echo $this->lang->line('Summary') ?></h5>
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item">

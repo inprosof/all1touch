@@ -1,5 +1,15 @@
 <article class="content-body">
-    <div class="card card-block">
+    <div class="card card-block yellow-top">
+        <div class="card-header">
+            <h5 class="title"><a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a><?php echo $thread_info['subject'] ?>
+                <a href="#pop_model" data-toggle="modal"
+                   data-remote="false"
+                   class="btn btn-sm btn-cyan btn-new"
+                   title="Change Status"
+                ><span class="icon-tab"></span> <?php echo $this->lang->line('Change Status') ?></a></h5>
+        </div>
         <?php if ($response == 1) {
             echo '<div id="notify" class="alert alert-success">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
@@ -20,11 +30,7 @@
         </div>';
 
         } ?>
-        <div class="card-body"><h4><?php echo $thread_info['subject'] ?> <a href="#pop_model" data-toggle="modal"
-                                                                            data-remote="false"
-                                                                            class="btn btn-sm btn-cyan mb-1"
-                                                                            title="Change Status"
-                ><span class="icon-tab"></span> <?php echo $this->lang->line('Change Status') ?></a></h4>
+        <div class="card-body">
             <p class="card card-block"><?php echo '<strong>Created on</strong> ' . dateformat_time($thread_info['created']);
                 echo '<br><strong>Customer</strong> ' . $thread_info['name'];
                 echo '<br><strong>Status</strong> <span id="pstatus">' . $thread_info['status']

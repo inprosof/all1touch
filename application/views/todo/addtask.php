@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Add Task') ?> </h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Add Task') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -24,7 +29,7 @@
                         <label class="col-sm-2 col-form-label"
                                for="name"><?php echo $this->lang->line('Title') ?></label>
 
-                        <div class="col-sm-10">
+                        <div class="col-sm-6">
                             <input type="text" placeholder="Task Title"
                                    class="form-control margin-bottom  required" name="name">
                         </div>
@@ -35,11 +40,11 @@
                         <label class="col-sm-2 col-form-label"
                                for="name"><?php echo $this->lang->line('Due') ?></label>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-6">
                             <select name="status" class="form-control">
                                 <option value='Due'><?php echo $this->lang->line('Due') ?></option>
-								<option value='Done'><?php echo $this->lang->line('Done') ?></option>
-								<option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
+                                <option value='Done'><?php echo $this->lang->line('Done') ?></option>
+                                <option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
                             </select>
                         </div>
                     </div>
@@ -49,7 +54,7 @@
                         <label class="col-sm-2 col-form-label"
                                for="pay_cat"><?php echo $this->lang->line('Priority') ?></label>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-6">
                             <select name="priority" class="form-control">
                                 <option value='Low'><?php echo $this->lang->line('Low') ?></option>
                                 <option value='Average'><?php echo $this->lang->line('Average') ?></option>
@@ -88,7 +93,7 @@
                         <label class="col-sm-2 col-form-label"
                                for="pay_cat"><?php echo $this->lang->line('Assign to') ?></label>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-6">
                             <select name="employee" class="form-control select-box">
                                 <?php
                                 foreach ($emp as $row) {
@@ -107,7 +112,7 @@
                         <label class="col-sm-2 control-label"
                                for="content"><?php echo $this->lang->line('Description') ?></label>
 
-                        <div class="col-sm-10">
+                        <div class="col-sm-6">
                         <textarea class="summernote"
                                   placeholder=" Note"
                                   autocomplete="false" rows="10" name="content"></textarea>
@@ -118,9 +123,10 @@
 
                         <label class="col-sm-2 col-form-label"></label>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-6" id="paiCompanyUpdate">
                             <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
-                                   value="<?php echo $this->lang->line('Add Task') ?>" data-loading-text="Adding...">
+                                   value="<?php echo $this->lang->line('Add Task') ?>"
+                                   data-loading-text="Adicionando...">
                             <input type="hidden" value="tools/save_addtask" id="action-url">
                         </div>
                     </div>

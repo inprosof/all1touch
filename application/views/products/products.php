@@ -54,17 +54,21 @@
         </div>
 
     </div>
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Products') ?> <a
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Products') ?> <a
                         href="<?php echo base_url('products/add') ?>"
-                        class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(23) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                        class="btn btn-primary btn-sm btn-new" <?php if ($this->aauth->premission(23) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
                     <?php echo $this->lang->line('Add new') ?>
-                </a>  <a
+                </a> <a
                         href="<?php echo base_url('products') ?>?group=yes"
-                        class="btn btn-purple btn-sm rounded"><i class="ft-grid"></i></a> <a
+                        class="btn btn-info btn-sm rounded"><i class="bi bi-columns"></i></a> <a
                         href="<?php echo base_url('products') ?>"
-                        class="btn btn-purple btn-sm rounded"><i class="ft-list"></i></a></h5>
+                        class="btn btn-info btn-sm rounded"><i class="bi bi-list-ul"></i></a></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -101,18 +105,6 @@
                     <tbody>
                     </tbody>
 
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Name') ?></th>
-                        <th>Stock</th>
-                        <th><?php echo $this->lang->line('Code') ?></th>
-                        <th><?php echo $this->lang->line('Category') ?></th>
-                        <th><?php echo $this->lang->line('Warehouse') ?></th>
-                        <th><?php echo $this->lang->line('Price') ?></th>
-                        <th><?php echo $this->lang->line('Settings') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
 
             </div>
@@ -137,7 +129,10 @@
                     "ajax": {
                         "url": "<?php echo site_url('products/product_list')?>",
                         "type": "POST",
-                        'data': {'<?php echo $this->security->get_csrf_token_name()?>': crsf_hash,'group': '<?php echo $this->input->get('group')?>'}
+                        'data': {
+                            '<?php echo $this->security->get_csrf_token_name()?>': crsf_hash,
+                            'group': '<?php echo $this->input->get('group')?>'
+                        }
                     },
 
                     //Set column definition initialisation properties.
@@ -147,7 +142,7 @@
                             "orderable": false, //set not orderable
                         },
                     ],
-                    dom: 'Blfrtip',lengthMenu: [10, 20, 50, 100, 200, 500],
+                    dom: 'Blfrtip', lengthMenu: [10, 20, 50, 100, 200, 500],
                     buttons: [
                         {
                             extend: 'excelHtml5',

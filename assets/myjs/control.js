@@ -5,6 +5,7 @@ function selectCustomer(cid, contrr, pgui1, cname, cadd1, cadd2, ph, email, disc
 	{
 		cli_tax = '999999990';
 	}
+	
 	$('#customer_tax').val(cli_tax);
     $('#custom_discount').val(discount);
     $('#customer_name').html('<strong>' + cname + '</strong>');
@@ -85,9 +86,12 @@ function isNumber(evt) {
 
 function selectCustomerGuide(cid, pgui1, pgui2, pgui3, pgui4, cname, cadd1, cadd2, ph, email, discount = 0, cli_tax) {
     $('#customer_id').val(cid);
+	if(cli_tax == null || cli_tax == '')
+	{
+		cli_tax = '999999990';
+	}
 	$('#customer_tax').val(cli_tax);
     $('#custom_discount').val(discount);
-	
     $('#customer_city_hi').val(cadd2);
     $('#customer_adr_hi').val(cadd1);
     $('#customer_post_box_hi').val(pgui1);
@@ -117,7 +121,7 @@ $(document).ready(function () {
             success: function (data) {
                 $("#customer-box-result").show();
                 $("#customer-box-result").html(data);
-                $("#customer-box").css("background", "none");
+                $("#customer-box-guide").css("background", "none");
 
             }
         });
@@ -151,7 +155,7 @@ $(document).ready(function () {
             success: function (data) {
                 $("#customer-box-result").show();
                 $("#customer-box-result").html(data);
-                $("#customer-box").css("background", "none");
+                $("#pos-customer-box").css("background", "none");
 
             }
         });
@@ -290,7 +294,7 @@ $(document).on('click', "#thermal_p", function (e) {
 });
 
 $(document).on('click', "#thermal_server", function (e) {
-    /*var ptid = $(this).attr('data-ptid');
+    var ptid = $(this).attr('data-ptid');
     var url = $(this).attr('data-url');
     e.preventDefault();
     $.ajax({
@@ -302,8 +306,7 @@ $(document).on('click', "#thermal_server", function (e) {
             $("#thermal_a .message").html('Success');
             $("html, body").animate({scrollTop: $('#thermal_a').offset().bottom}, 1000);
         }
-    });*/
-
+    });
 });
 
 //part
@@ -628,11 +631,6 @@ $("#mclient_add").click(function (e) {
     var actionurl = baseurl + 'invoices/addcustomer';
     searchCS(actionurl);
 });
-$("#msupplier_add").click(function (e) {
-    e.preventDefault();
-    var actionurl = baseurl + 'supplier/addsupplier';
-    searchCS(actionurl);
-});
 
 function searchCS(actionurl) {
     var errorNum = farmCheck2();
@@ -665,6 +663,52 @@ function searchCS(actionurl) {
                     $('#addCustomer').find('input:text,input:hidden').val('');
                     $("#addCustomer").modal('toggle');
                     $("#Pos_addCustomer").modal('toggle');
+                } else {
+                    $("#statusMsg").html("<strong>" + data.status + "</strong>: " + data.message);
+                    $("#statusMsg").removeClass("alert-success").addClass("alert-warning").fadeIn();
+                    $("html, body").animate({scrollTop: $('#statusMsg').offset().top}, 1000);
+                }
+            },
+            error: function (data) {
+                $("#statusMsg").html("<strong>" + data.status + "</strong>: " + data.message);
+                $("#statusMsg").removeClass("alert-success").addClass("alert-warning").fadeIn();
+                $("html, body").animate({scrollTop: $('#statusMsg').offset().top}, 1000);
+            }
+        });
+    }
+}
+
+$("#msupplier_add").click(function (e) {
+    e.preventDefault();
+    var actionurl = baseurl + 'supplier/addsupplier';
+    searchCSSuplier(actionurl);
+});
+
+function searchCSSuplier(actionurl) {
+    var errorNum = farmCheck2();
+    if (errorNum > 0) {
+        $("#statusMsg").removeClass("alert-success").addClass("alert-warning").fadeIn();
+        $("#statusMsg").html("<strong>Error</strong>: It appears you have forgotten to complete something!");
+        $("html, body").animate({scrollTop: $('#statusMsg').offset().top}, 1000);
+    } else {
+        $(".crequired").parent().removeClass("has-error");
+        $.ajax({
+            url: actionurl,
+            type: 'POST',
+            data: $("#product_action").serialize() + '&' + crsf_token + '=' + crsf_hash,
+            dataType: 'json',
+            success: function (data) {
+                if (data.status == 'Success') {
+                    $("#statusMsg").html("<strong>" + data.status + "</strong>: " + data.message);
+                    $("#statusMsg").removeClass("alert-warning").addClass("alert-success").fadeIn();
+                    $("html, body").animate({scrollTop: $('html, body').offset().top}, 200);
+                    $('#customer_id').val(data.cid);
+                    $('#customer_name').html('<strong>' + $('#name').val() + '</strong>');
+                    $('#customer_address1').html('<strong>' + $('#address').val() + '<br>' + $('#city').val() + ',' + $('#region').val() + '</strong>');
+                    $('#customer_phone').html('Phone: <strong>' + $('#phone').val() + '</strong><br>Email: <strong>' + $('#email').val() + '</strong>');
+					$('#customer_tax').val($('#taxid').val());
+                    $('#addSupplier').find('input:text,input:hidden').val('');
+                    $("#addSupplier").modal('toggle');
                 } else {
                     $("#statusMsg").html("<strong>" + data.status + "</strong>: " + data.message);
                     $("#statusMsg").removeClass("alert-success").addClass("alert-warning").fadeIn();
@@ -808,7 +852,7 @@ $("#submit-data-save").on("click", function (e) {
     var o_data = $("#data_form").serialize();
     var action_url = $('#action-url').val();
     addObject(o_data, action_url);
-    setTimeout(function(){  $("#submit-data-product").show(); }, 1000);
+    setTimeout(function(){  $("#submit-data-save").show(); }, 1000);
 });
 
 $("#submit-data-draft").on("click", function (e) {
@@ -817,7 +861,7 @@ $("#submit-data-draft").on("click", function (e) {
     var o_data = $("#data_form").serialize();
     var action_url = $('#action-url2').val();
     addObject(o_data, action_url);
-    setTimeout(function(){  $("#submit-data-product-2").show(); }, 1000);
+    setTimeout(function(){  $("#submit-data-draft").show(); }, 1000);
 });
 
 //universal create
@@ -1243,8 +1287,8 @@ $(document).on('click', ".convert-object", function (e) {
 	$("#convert-type").val($(this).attr('data-object-type'));
 	$("#convert-ext").val($(this).attr('data-object-ext'));
 	var table = document.getElementById("convertersview");
-		table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
-		draw_data_relation('convertersview', $(this).attr('data-object-id'), 0, '', 0,$(this).attr('data-object-ext'),-1,'Este documento ainda não foi convertido');
+	table.innerHTML = '<thead><tr><th width="10%">Documento</th><th width="12%">Série/Nº</th><th width="13%">Data Emissão</th><th width="10%">NIF/NIC</th><th width="10%">Ilíquido</th><th width="15%">Impostos</th><th width="10%">Total Liq.</th><th width="20%">Configurações</th></tr></thead>';
+	draw_data_relation('convertersview', $(this).attr('data-object-id'), 0, '', 0,$(this).attr('data-object-ext'),-1,'Este documento ainda não foi convertido');
 });
 
 $("#convert-confirm").on("click", function (e) {
@@ -1254,15 +1298,6 @@ $("#convert-confirm").on("click", function (e) {
 	
 	window.open(baseurl+action_url+'?'+o_data, '_self');
 });
-
-$("#choise_type_convert_but").on("click", function (e) {
-	//e.preventDefault();
-	console.log('Val1: '+$(this).attr('data-object-id'));
-	$("#convert-id").val($(this).attr('data-object-id'));
-	$("#convert-type").val($(this).attr('data-object-type'));
-	$("#convert-ext").val($(this).attr('data-object-ext'));
-});
-
 
 $(document).on('click', ".duplicate-object", function (e) {
     e.preventDefault();
@@ -1442,7 +1477,7 @@ $(document).on('click', "#pass_selected", function (e) {
 						var obj = JSON.parse(data);
 						var valparconsiliar = 0;
 						var tiiid = obj['iddoc'];
-						var addrow = '<tr class="last-item-row-related sub_related"><input type="hidden" value="'+obj['id']+'" name="idtyprelation[]" id="idtyprelation-'+valdocrela+'"><input type="hidden" value="'+obj['type_related']+'" name="typrelation[]" id="typrelation-'+valdocrela+'"><td><strong>'+obj['serie_name']+'</strong></td>';
+						var addrow = '<tr class="last-item-row-related sub_related"><input type="hidden" value="'+obj['iddoc']+'" name="idtyprelation[]" id="idtyprelation-'+valdocrela+'"><input type="hidden" value="'+obj['type_related']+'" name="typrelation[]" id="typrelation-'+valdocrela+'"><td><strong>'+obj['serie_name']+'</strong></td>';
 						if(obj['type_related'] == "0" || obj['type_related'] == "2"){
 							if(obj['draft'] == "0"){
 								addrow += '<td><a href="'+baseurl+'invoices/view?id='+obj['iddoc']+'&ty=0" target="_blank" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i>'+obj['type']+'/'+obj['tid']+'</a><a href="'+baseurl+'invoices/printinvoice?id='+obj['iddoc']+'&ty=0&d=1" target="_blank" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';

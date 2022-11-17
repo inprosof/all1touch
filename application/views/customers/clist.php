@@ -77,20 +77,6 @@ if ($this->input->get('inac')) {
                     </thead>
                     <tbody>
                     </tbody>
-
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Name') ?></th>
-                        <?php if ($due) {
-                            echo '  <th>' . $this->lang->line('Due') . '</th>';
-                        } ?>
-                        <th><?php echo $this->lang->line('Address') ?></th>
-                        <th><?php echo $this->lang->line('Email') ?></th>
-                        <th><?php echo $this->lang->line('Phone') ?></th>
-                        <th><?php echo $this->lang->line('Settings') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

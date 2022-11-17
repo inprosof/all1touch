@@ -1,16 +1,29 @@
 <script src="<?php echo assets_url(); ?>assets/portjs/bootstrap-timepicker.min.js" type="text/javascript"></script>
 <div class="content">
-    <div class="card card-block">
+    <div class="card yellow-top">
+        <div class="card-header">
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Add') . ' Serie' ?>
+            </h5>
+            <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+            <div class="heading-elements">
+                <ul class="list-inline mb-0">
+                    <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                    <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                    <li><a data-action="close"><i class="ft-x"></i></a></li>
+                </ul>
+            </div>
+        </div>
         <div id="notify" class="alert alert-success" style="display:none;">
             <a href="#" class="close" data-dismiss="alert">&times;</a>
 
             <div class="message"></div>
         </div>
-        <div class="card-header">
-            <h5 class="title"><?php echo $this->lang->line('Add') . ' Serie' ?></h5>
-            <hr>
-        </div>
-        <div class="card card-block">
+
+        <div class="card-body">
 
 
             <form method="post" id="data_form" class="card-body">
@@ -36,16 +49,16 @@
                 <div class="tab-content px-1 pt-1">
                     <div class="tab-pane active show" id="tab1" role="tabpanel" aria-labelledby="base-tab1">
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label" for="Serie">Serie</label>
-                            <div class="col-sm-8">
+                            <label class="col-sm-2 col-form-label" for="Serie">Serie</label>
+                            <div class="col-sm-6">
                                 <input type="text" placeholder="Serie"
                                        class="form-control margin-bottom b_input" name="serie">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label" for="cae">C.A.E. (Classificação das Atividades
+                            <label class="col-sm-2 col-form-label" for="cae">C.A.E. (Classificação das Atividades
                                 Económicas)</label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-6">
                                 <select name="cae" class="form-control b_input required" id="cae">
                                     <option value="">Escolha um CAE</option>
                                     <?php
@@ -55,27 +68,27 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-3 control-label"
+                            <label class="col-sm-2 control-label"
                                    for="from"><?php echo $this->lang->line('Start') ?></label>
                             <div class="col-sm-2">
                                 <input type="text" class="form-control b_input required"
                                        placeholder="Start Date" name="startdate"
-                                       data-toggle="datepicker" autocomplete="false">
+                                       data-toggle="datepicker" autocomplete="false" id="input-date">
                             </div>
                         </div>
                         <div class="form-group row">
 
-                            <label class="col-sm-3 control-label"
+                            <label class="col-sm-2 control-label"
                                    for="from"><?php echo $this->lang->line('End') ?></label>
 
                             <div class="col-sm-2">
                                 <input type="text" class="form-control b_input required"
                                        placeholder="End Date" name="enddate"
-                                       data-toggle="datepicker" autocomplete="false">
+                                       data-toggle="datepicker" autocomplete="false" id="input-date">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label"
+                            <label class="col-sm-2 col-form-label"
                                    for="serie_iva_caixa">Regime de IVA de Caixa?</label>
                             <div class="col-sm-2">
                                 <select name="serie_iva_caixa" class="form-control b_input">
@@ -87,7 +100,7 @@
                     </div>
                     <div class="tab-pane" id="tab2" role="tabpanel" aria-labelledby="base-tab2">
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label"
+                            <label class="col-sm-2 col-form-label"
                                    for="serie_iva_caixa">Regime de IVA de Caixa?</label>
                             <div class="col-sm-2">
                                 <select name="serie_iva_caixa" class="form-control b_input">
@@ -97,7 +110,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label"
+                            <label class="col-sm-2 col-form-label"
                                    for="serie_pred">Predefinido?</label>
                             <div class="col-sm-2">
                                 <select name="serie_pred" class="form-control b_input">
@@ -108,7 +121,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label"
+                            <label class="col-sm-2 col-form-label"
                                    for="exclued">Inativar?</label>
                             <div class="col-sm-2">
                                 <select name="exclued" class="form-control b_input">
@@ -119,7 +132,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label"
+                            <label class="col-sm-2 col-form-label"
                                    for="serie_class"><?php echo $this->lang->line('Class Ativ') ?>.</label>
                             <div class="col-sm-6">
                                 <select name="serie_class" id="serie_class" class="form-control b_input">
@@ -130,7 +143,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label"
+                            <label class="col-sm-2 col-form-label"
                                    for="serie_wareh">Localização</label>
                             <div class="col-sm-6">
                                 <select name="serie_wareh" id="serie_wareh" class="form-control b_input">
@@ -141,7 +154,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label"
+                            <label class="col-sm-2 col-form-label"
                                    for="serie_type_com"><?php echo $this->lang->line('Type Com') ?>.</label>
                             <div class="col-sm-6">
                                 <select name="serie_type_com" id="serie_type_com" class="form-control b_input">
@@ -158,9 +171,9 @@
                         <?php
                         $cvalue = 0;
                         foreach ($docs_ini as $row) {
-                            echo '<div class="col-sm-12">
+                            echo '<div class="row mb-2">
 									<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $cvalue . '" value="' . $row['id'] . '">
-									<label class="col-form-label" for="typ_doc_' . $cvalue . '">' . $row['typ_name'] . '</label><div class="col-sm-8">
+									<div class="col-sm-2"><label class="col-form-label" for="typ_doc_' . $cvalue . '">' . $row['typ_name'] . '</label></div><div class="col-sm-6">
 									<input type="text"';
 
                             if ($row['ver'] == 0) {
@@ -178,9 +191,9 @@
 
                 <div class="form-group row">
 
-                    <label class="col-sm-3 col-form-label"></label>
+                    <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-6 mt-2" id="paiCompanyUpdate">
                         <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
                                value="<?php echo $this->lang->line('Add') ?>" data-loading-text="Adding...">
                         <input type="hidden" value="settings/serie" id="action-url">

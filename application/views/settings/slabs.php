@@ -1,27 +1,41 @@
 <article class="content-body">
-    <div class="card card-block">
-        <div id="notify" class="alert alert-success" style="display:none;">
-            <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-            <div class="message"></div>
-        </div>
-        <div class="card-body">
+    <div class="card yellow-top">
+        <div class="card-header">
             <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
                 <?php echo $this->lang->line('Tax') ?> <a
                         href="<?php echo base_url('settings/taxslabs_new') ?>"
-                        class="btn btn-primary btn-sm rounded">
+                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
+            <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+            <div class="heading-elements">
+                <ul class="list-inline mb-0">
+                    <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                    <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                    <li><a data-action="close"><i class="ft-x"></i></a></li>
+                </ul>
+            </div>
+        </div>
+        <div id="notify" class="alert alert-success" style="display:none;">
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
+            <div class="message"></div>
+        </div>
+        <div class="card-body">
+
 
             <p>&nbsp;</p>
-            <table class="table display" cellspacing="0" width="100%">
+            <table class="table table-striped table-bordered zero-configuration table display" cellspacing="0"
+                   width="100%">
                 <thead>
                 <tr>
                     <th><?php echo $this->lang->line('Name') ?></th>
                     <th><?php echo $this->lang->line('Rate') ?></th>
                     <th><?php echo $this->lang->line('Code') ?></th>
-					<th><?php echo $this->lang->line('Region') ?></th>
+                    <th><?php echo $this->lang->line('Region') ?></th>
                     <th><?php echo $this->lang->line('Action') ?></th>
                 </tr>
                 </thead>
@@ -29,7 +43,7 @@
                 <?php foreach ($catlist as $row) {
                     $cid = $row['id'];
                     echo "<tr><td>" . $row['val1'] . "</td><td>" . $row['val2'] . "%</td><td>" . $row['taxcode'] . "</td></td><td>" . $row['taxregion'] . "</td>
-					<td><a href='" . base_url("settings/taxslabs_edit?id=$cid") . "' class='btn btn-warning btn-sm'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;<a href='#' data-object-id='" . $cid . "' class='btn btn-danger btn-sm delete-object' title='Delete'><i class='fa fa-trash'></i></a></td></tr>";
+					<td><div class='action-btn'> <a href='" . base_url("settings/taxslabs_edit?id=$cid") . "' class='btn btn-outline-primary btn-sm' title='" . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i> </a><a href='#' data-object-id='" . $cid . "' class='btn btn-outline-danger btn-sm delete-object' title='" . $this->lang->line('Edit') . "'><i class='bi bi-trash'></i></a></div></td></tr>";
                 }
                 ?>
                 </tbody>

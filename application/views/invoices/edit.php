@@ -10,6 +10,7 @@
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
                             <div id="customerpanel" class="inner-cmp-pnl">
+								<input type="hidden" value="<?php echo $relationid ?>" name="relationid" id="relationid">
 								<input type="hidden" name="typeinvoice" value="<?php echo $typeinvoice ?>">
 								<input type="hidden" name="iddoc" value="<?php echo $invoice['iddoc'] ?>">
 								<input type="hidden" value="<?php echo $locations['address']; ?>" name="compa_adr" id="compa_adr">
@@ -354,7 +355,29 @@
 							</tr>
 							</tbody>
 						</table>
+						
+						<?php if($configs['pac'] == 1){
+							echo'<div class="card">'; ?>
+									<div class="row mt-1">
+										<label class="col-sm-8"
+											   for="s_accounts">Conta para Creditar</label>
+
+										<div class="col-sm-6">
+											<select name="s_accounts" id="s_accounts"
+													class="form-control round">
+													<option value="0">Escolha uma Conta</option>'
+												<?php 
+													foreach ($accounts as $rowa) {
+														echo '<option value="' . $rowa['id'] . '" data-serie="' . $rowa['holder'] . '">' . $rowa['holder'] . ' / ' . $rowa['acn'] . '</option>';
+													}
+												?>
+											</select>
+										</div>
+									</div>
+						<?php echo'</div>';} ?>
+						
                         <?php
+						if(!empty($custom_fields)){
 							foreach ($custom_fields as $row) {
 								if ($row['f_type'] == 'text') { ?>
 									<div class="form-group row">
@@ -388,7 +411,7 @@
 									</div>
 								<?php }
 							}
-							?>
+						}?>
                     </div>
 					<hr>
 					<div id="accordionWrapar" role="tablist" aria-multiselectable="true">
@@ -992,27 +1015,43 @@
                         </div>
 
                     </div>
-                                   <?php
-                                   if(is_array($custom_fields_c)){
-                                    foreach ($custom_fields_c as $row) {
-                                        if ($row['f_type'] == 'text') { ?>
-                                            <div class="form-group row">
-
-                                                <label class="col-sm-2 col-form-label"
-                                                       for="docid"><?php echo $row['name'] ?></label>
-
-                                                <div class="col-sm-8">
-                                                    <input type="text" placeholder="<?php echo $row['placeholder'] ?>"
-                                                           class="form-control margin-bottom b_input"
-                                                           name="custom[<?php echo $row['id'] ?>]">
-                                                </div>
-                                            </div>
-
-
-                                        <?php }
-                                    }
-                                   }
-                                    ?>
+                      <?php
+						if(!empty($custom_fields_c)){
+							foreach ($custom_fields_c as $row) {
+								if ($row['f_type'] == 'text') { ?>
+									<div class="form-group row">
+										<label class="col-sm-10 col-form-label"
+											   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+										<div class="col-sm-8">
+											<input type="text" placeholder="<?php echo $row['placeholder'] ?>"
+												   class="form-control margin-bottom b_input <?php echo $row['other'] ?>"
+												   name="custom[<?php echo $row['id'] ?>]">
+										</div>
+									</div>
+								<?php }else if ($row['f_type'] == 'check') { ?>
+									<div class="form-group row">
+										<label class="col-sm-10 col-form-label"
+											   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+										<div class="custom-control custom-checkbox">
+											<input type="checkbox" class="custom-control-input <?php echo $row['other'] ?>" id="custom[<?php echo $row['id'] ?>]" name="custom[<?php echo $row['id'] ?>]">
+											<label class="custom-control-label"
+											   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['placeholder'] ?></label>
+										</div>
+									</div>
+								<?php }else if ($row['f_type'] == 'textarea') { ?>
+									<div class="form-group row">
+										<label class="col-sm-10 col-form-label"
+											   for="custom[<?php echo $row['id'] ?>]"><?php echo $row['name'] ?></label>
+										<div class="col-sm-8">
+											<textarea placeholder="<?php echo $row['placeholder'] ?>"
+												   class="summernote <?php echo $row['other'] ?>"
+												   name="custom[<?php echo $row['id'] ?>]" rows="1"></textarea>
+										</div>
+									</div>
+								<?php }
+							}
+						}
+					?>
                 </div>
                 <!-- Modal Footer -->
                 <div class="modal-footer">
@@ -1024,6 +1063,53 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="choise_docs_related" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+				<div class="col-sm-12">
+					<h4 class="modal-title">Relacionar com outros documentos</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<div class="input-group">
+						<h6>Relacione este documento com outros documentos do mesmo cliente</h6>
+					</div>
+				</div>
+            </div>
+			
+			<div class="modal-body">
+				<div class="input-group">
+					<label class="col-form-label">Pesquisa</label>
+					<input type="text" placeholder="Ref. Nº Série" id="searchdoc" class="form-control col-sm-2" name="searchdoc">
+					<span class="input-group-addon" title="<?php echo 'A pesquisa nos documentos relacionados procura nos seguintes campos: Número, série, nossa referência e referência do cliente/fornecedor.
+
+	Nota: A pesquisa não é feita em documentos em rascunho ou anulados e apenas considera os documentos disponíveis para serem relacionados respeitando os restantes filtros de pesquisa aplicados.';?>"><i class="fa fa-info fa-2x"></i></span>
+					<label class="col-form-label" for="email_s">Tipo Doc.</label>
+					<select name="choise-doc-type" class="form-control b_input required" id="choise-doc-type">
+						<option value="-1"><?php echo $this->lang->line('Please Select') ?></option>
+						<option value="2">Avença</option>
+						<option value="3">Orçamento</option>
+						<option value="12">Fatura Pró-Forma</option>
+						<option value="4">Guia de Transporte</option>
+						<option value="5">Guia de Remessa</option>
+						<option value="6">Nota de Encomenda</option>
+					</select>
+					<label class="col-form-label" for="email_s">Data Emissão:</label>
+					<label class="col-form-label" for="email_s">Início:</label>
+					<input type="date" style="width: 80px" class="form-control round required" placeholder="De" id="startdaterel" name="startdate" autocomplete="false">
+					<label class="col-form-label" for="email_s">Fim:</label>
+					<input type="date" style="width: 80px" class="form-control round required" placeholder="Até" id="enddaterel" name="enddate" autocomplete="false">
+					<button id="searchdocbut" name="searchdocbut" type="button" class="btn btn-default searchdocbut">Pesquisar Filtros Aplicados</button>
+				</div>
+            </div>
+            <div class="modal-footer">
+				<table id="relationssearch" name="relationssearch" class="table table-striped table-bordered zero-configuration" cellspacing="0" width="100%"></table>
+			</div>
+			<button id="pass_selected" name="pass_selected" type="button" class="btn btn-primary"><span class="fa fa-select"></span>Passa Selecionados</button>	
+			<button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line('Close') ?></button>
+		 </div>
+	 </div>
+ </div>
 <script src="<?php echo assets_url('assets/myjs/jquery.ui.widget.js'); ?>"></script>
 <script src="<?php echo assets_url('assets/myjs/jquery.fileupload.js') ?>"></script>
 <script>

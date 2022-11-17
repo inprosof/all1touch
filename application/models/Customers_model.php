@@ -1240,10 +1240,42 @@ class Customers_model extends CI_Model
         return array('subject' => $subject, 'message' => $message);
     }
 	
-	
+	/**
+	 * VIES VAT number validation
+	 *
+	 * @author Eugen Mihailescu
+	 *        
+	 * @param string $countryCode           
+	 * @param string $vatNumber         
+	 * @param int $timeout          
+	 */
+	function array_key_replace($item, $replace_with, array $array){
+		$updated_array = [];
+		foreach ($array as $key => $value) {
+			if (!is_array($value) && $key == $item) {
+				$updated_array = array_merge($updated_array, [$replace_with => $value]);
+				continue;
+			}
+			$updated_array = array_merge($updated_array, [$key => $value]);
+		}
+		return $updated_array;
+	}
+
+	 function string_between_two_string($str, $starting_word, $ending_word)
+	{
+		$subtring_start = strpos($str, $starting_word);
+		//Adding the starting index of the starting word to
+		//its length would give its ending index
+		$subtring_start += strlen($starting_word); 
+		//Length of our required sub string
+		$size = strpos($str, $ending_word) - $subtring_start; 
+		// Return the substring from the index substring_start of length size
+		return substr($str, $subtring_start, $size); 
+	}
+
 	public function ValidaVIES($inif, $icontry, $timeout = 30)
     {
-		$Vvies = "http://ec.europa.eu/taxation_customs/vies/services/checkVatService";
+		//'VIES_URL', 'http://ec.europa.eu/taxation_customs/vies/services/checkVatService'
 		$response = array ();
 		$pattern = '/<(%s).*?>([\s\S]*)<\/\1/';
 		$keys = array (
@@ -1254,33 +1286,52 @@ class Customers_model extends CI_Model
 				'name',
 				'address' 
 		);
-
-		$content = "<s11:Envelope xmlns:s11='http://schemas.xmlsoap.org/soap/envelope/'>
-		  <s11:Body>
-			<tns1:checkVat xmlns:tns1='urn:ec.europa.eu:taxud:vies:services:checkVat:types'>
-			  <tns1:countryCode>%s</tns1:countryCode>
-			  <tns1:vatNumber>%s</tns1:vatNumber>
-			</tns1:checkVat>
-		  </s11:Body>
-		</s11:Envelope>";
+		//Changed envelope
+		 $content = "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'
+			 xmlns:tns1='urn:ec.europa.eu:taxud:vies:services:checkVat:types'
+			 xmlns:impl='urn:ec.europa.eu:taxud:vies:services:checkVat'>
+			 <soap:Header>
+			 </soap:Header>
+			 <soap:Body>
+				<tns1:checkVat xmlns:tns1='urn:ec.europa.eu:taxud:vies:services:checkVat:types'
+				xmlns='urn:ec.europa.eu:taxud:vies:services:checkVat:types'>
+				<tns1:countryCode>".$icontry."</tns1:countryCode>
+				<tns1:vatNumber>".$inif."</tns1:vatNumber>
+			   </tns1:checkVat>
+			 </soap:Body>
+			</soap:Envelope>";
 
 		$opts = array (
 				'http' => array (
 						'method' => 'POST',
-						'header' => "Content-Type: text/xml; charset=utf-8; SOAPAction: checkVatService",
-						'content' => sprintf ( $content, $icontry, $inif ),
+						'header' => "Content-type: text/xml",
+						'content' => sprintf ( $content ),
 						'timeout' => $timeout 
 				) 
 		);
 
 		$ctx = stream_context_create ( $opts );
-		$result = file_get_contents ($Vvies, false, $ctx );
+		$result = file_get_contents ( 'https://ec.europa.eu/taxation_customs/vies/services/checkVatService', false, $ctx );
+		
+		$valid = $this->string_between_two_string($result, '<ns2:valid>', '</ns2:valid>');
+		$country = $this->string_between_two_string($result, '<ns2:countryCode>', '</ns2:countryCode>');
+		$vatnumber = $this->string_between_two_string($result, '<ns2:vatNumber>', '</ns2:vatNumber>');
+		$address = $this->string_between_two_string($result, '<ns2:address>', '</ns2:address>');
+		$name = $this->string_between_two_string($result, '<ns2:name>', '</ns2:name>');
+		$dater = $this->string_between_two_string($result, '<ns2:requestDate>', '</ns2:requestDate>');
 
-		if (preg_match ( sprintf ( $pattern, 'checkVatResponse' ), $result, $matches )) {
-			foreach ( $keys as $key )
-				preg_match ( sprintf ( $pattern, $key ), $matches [2], $value ) && $response [$key] = $value [2];
-		}
-		return json_encode($response);
+		//insert strings in array and replace index keys by name
+		$vat = "$country$vatnumber";
+		$vars = array($vat, $name, $address, $dater, $valid);
+		$new_obj = [];
+		$new_obj['vat'] = $vatnumber;
+		$new_obj['name'] = $name;
+		$new_obj['address'] = $address;
+		$new_obj['requestDate'] = $dater;
+		$new_obj['countryCode'] = $country;
+		$new_obj['valid'] = $valid;
+		
+		return json_encode($new_obj);
 	}
 	
 	public function recipientinfo($ids)

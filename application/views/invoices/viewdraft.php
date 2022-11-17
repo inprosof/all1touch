@@ -356,20 +356,6 @@
 
 										</tbody>
 									</table>
-
-									<div class="row">
-
-										<div class="col-md-7 col-sm-12">
-
-											<h6><?php echo $this->lang->line('Terms & Condition') ?></h6>
-											<p> <?php
-
-												echo '<strong>' . $guide['termtit'] . '</strong><br>' . $guide['terms'];
-												?></p>
-										</div>
-
-									</div>
-
 								</div>	
 						<?php }?>
 						<div id="invoice-footer"><p class="lead">Transações Guardadas:</p>

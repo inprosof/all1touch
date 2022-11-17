@@ -209,9 +209,12 @@ class Locations extends CI_Controller
 			$pos_list = $this->input->post('pos_list', true);
 			$dual_entry = $this->input->post('dual_entry', true);
             $wid = $this->input->post('wid');
+			$n_met_exp = $this->input->post('n_met_exp', true);
+            $n_met_pag = $this->input->post('n_met_pag', true);
+            $n_praz_venc = $this->input->post('n_praz_venc', true);
 			
 			if ($this->locations->editpermissions1($id, $grafic, $products, $clients)) {
-				if ($this->locations->edit2($id, $ac_id, $acd_id, $acf_id, $wid, $typ_doc, $dual_entry, $pstyle, $assign, $pos_list)) {
+				if ($this->locations->edit2($id, $ac_id, $acd_id, $acf_id, $wid, $typ_doc, $dual_entry, $pstyle, $assign, $pos_list, $n_praz_venc, $n_met_pag, $n_met_exp)) {
 					echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED').' Por favor Faça SHIFT+F5 para verificar as Alterações.'));
 				}else{
 					echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
@@ -384,6 +387,9 @@ class Locations extends CI_Controller
             $head['usernm'] = $this->aauth->get_user()->username;
             $data['currency'] = $this->locations->currencies();
 			$data['countrys'] = $this->common->countrys();
+			$data['prazos_vencimento'] = $this->common->sprazovencimento();
+			$data['expeditions'] = $this->common->sexpeditions();
+			$data['metodos_pagamentos'] = $this->common->smetopagamento();
 			$data['irs_typ'] = $this->common->irs_typ_combo();
             $data['accounts'] = $this->locations->accountslist();
 			$data['docs_copy_ini'] = $this->common->default_typ_pref_doc_list($this->input->get('id'));

@@ -25,18 +25,18 @@ class Clientgroup extends CI_Controller
         }
         if (!$this->aauth->premission(39) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 
-			exit($this->lang->line('translate19'));
-		}
-		 
+            exit($this->lang->line('translate19'));
+        }
+
         $this->li_a = 'crm';
     }
 
     //groups
     public function index()
     {
-		if (!$this->aauth->premission(39) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(39) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+            exit($this->lang->line('translate19'));
+        }
         $data['group'] = $this->customers->group_list();
         $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = 'Client Groups';
@@ -48,9 +48,9 @@ class Clientgroup extends CI_Controller
     //view
     public function groupview()
     {
-		if (!$this->aauth->premission(39) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(39) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+            exit($this->lang->line('translate19'));
+        }
         $head['usernm'] = $this->aauth->get_user()->username;
         $id = $this->input->get('id');
         $data['group'] = $this->clientgroup->details($id);
@@ -63,9 +63,9 @@ class Clientgroup extends CI_Controller
     //datatable
     public function grouplist()
     {
-		if (!$this->aauth->premission(39) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(39) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+            exit($this->lang->line('translate19'));
+        }
         $id = $this->input->get('id');
         $list = $this->customers->get_datatables($id);
         $data = array();
@@ -79,20 +79,20 @@ class Clientgroup extends CI_Controller
             $row[] = $customers->address . ',' . $customers->city . ',' . $customers->country;
             $row[] = $customers->email;
             $row[] = $customers->phone;
-			
-			$option = '';
-			if ($this->aauth->premission(39) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7){
-				$option .= '<a href="' . base_url() . 'customers/view?id=' . $customers->id . '" class="btn btn-info btn-sm"><span class="fa fa-eye"></span>  ' . $this->lang->line('View') . '</a>&nbsp;';
-			}
-			
-			if ($this->aauth->premission(41) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7){
-				$option .= '<a href="' . base_url() . 'customers/edit?id=' . $customers->id . '" class="btn btn-success btn-sm"><span class="icon-pencil"></span> ' . $this->lang->line('Edit') . '</a>&nbsp;';
-			}
-			if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
-				$option .= "<a href='#' data-object-id='" . $customers->id . "' class='btn btn-danger btn-xs delete-object' title='Delete'><i class='fa fa-trash'></i></a>";
-			}
-			
-			$row[] = $option;
+
+            $option = '';
+            if ($this->aauth->premission(39) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) {
+                $option .= '<a href="' . base_url() . 'customers/view?id=' . $customers->id . '" class="btn btn-outline-success btn-sm"><span class="bi bi-eye"></span>  ' . '</a>';
+            }
+
+            if ($this->aauth->premission(41) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) {
+                $option .= '<a href="' . base_url() . 'customers/edit?id=' . $customers->id . '" class="btn btn-outline-primary btn-sm"><span class="icon-pencil"></span> ' . '</a>';
+            }
+            if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7) {
+                $option .= "<a href='#' data-object-id='" . $customers->id . "' class='btn btn-outline-danger btn-sm delete-object' title='Delete'><i class='bi bi-trash'></i></a>";
+            }
+
+            $row[] = $option;
             $data[] = $row;
         }
         $output = array(
@@ -104,46 +104,46 @@ class Clientgroup extends CI_Controller
         //output to json format
         echo json_encode($output);
     }
-	
-	//datatable
+
+    //datatable
     public function group_clientlist()
     {
-		if (!$this->aauth->premission(39) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(39) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+            exit($this->lang->line('translate19'));
+        }
         $id = $this->input->get('id');
         $list = $this->clientgroup->get_datatables($id);
         $data = array();
         $no = $this->input->post('start');
         foreach ($list as $group) {
             $no++;
-			$cid = $group->id;
+            $cid = $group->id;
             $row = array();
             $row[] = $no;
-			$row[] = $group->title.'<br>'.$group->summary;
-			$numlis = $this->clientgroup->grup_clin_sum($cid);
+            $row[] = $group->title . '<br>' . $group->summary;
+            $numlis = $this->clientgroup->grup_clin_sum($cid);
             $row[] = $numlis['num_cli'];
-			$row[] = $group->disc_rate;
-			
-			$option = '';
-			if ($this->aauth->premission(39) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7){
-				$option .= "<a href='" . base_url("clientgroup/groupview?id=$cid") . "' class='btn btn-success btn-xs'><i class='fa fa-eye'></i>  " . $this->lang->line('View') . "</a>&nbsp;";
-			}
-			
-			if ($this->aauth->premission(41) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7){
-				$option .= "<a href='" . base_url("clientgroup/editgroup?id=$cid") . "' class='btn btn-warning btn-xs'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;";
-			}
-			
-			if ($this->aauth->premission(39) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7){
-				$option .= "<a href='#' data-object-id='" . $cid . "'  class='btn btn-info btn-xs discount-object' title='Apply Discount'><i class='fa fa-bolt'></i> " . $this->lang->line('Discount') . "</a>&nbsp;";
-			}
-			
-			if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
-				$option .= "<a href='#' data-object-id='" . $cid . "' class='btn btn-danger btn-xs delete-object' title='Delete'><i class='fa fa-trash'></i></a>";
-			}
-			
-			$row[] = $option;
-			$data[] = $row;
+            $row[] = $group->disc_rate;
+
+            $option = '';
+            if ($this->aauth->premission(39) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) {
+                $option .= "<div class='action-btn'><a href='" . base_url("clientgroup/groupview?id=$cid") . "' class='btn btn-outline-success btn-sm' title=" . $this->lang->line('View') . "><i class='bi bi-eye'></i>  " . "</a>";
+            }
+
+            if ($this->aauth->premission(41) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) {
+                $option .= "<a href='" . base_url("clientgroup/editgroup?id=$cid") . "' class='btn btn-outline-primary btn-sm' title=" . $this->lang->line('Edit') . "><i class='bi bi-pencil'></i> " . "</a>";
+            }
+
+            if ($this->aauth->premission(39) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) {
+                $option .= "<a href='#' data-object-id='" . $cid . "'  class='btn btn-outline-info btn-sm discount-object' title=" . $this->lang->line('Discount') . "><i class='bi bi-lightning-fill'></i> " . "</a>";
+            }
+
+            if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7) {
+                $option .= "<a href='#' data-object-id='" . $cid . "' class='btn btn-outline-danger btn-sm delete-object' title=" . $this->lang->line('Delete') . "><i class='bi bi-trash'></i></a></div>";
+            }
+
+            $row[] = $option;
+            $data[] = $row;
         }
         $output = array(
             "draw" => $_POST['draw'],
@@ -154,15 +154,13 @@ class Clientgroup extends CI_Controller
         //output to json format
         echo json_encode($output);
     }
-	
-	
-	
+
 
     public function create()
     {
-		if (!$this->aauth->premission(40) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(40) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+            exit($this->lang->line('translate19'));
+        }
         $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = 'Create Group';
         $this->load->view('fixed/header', $head);
@@ -172,9 +170,9 @@ class Clientgroup extends CI_Controller
 
     public function add()
     {
-		if (!$this->aauth->premission(40) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(40) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+            exit($this->lang->line('translate19'));
+        }
         $group_name = $this->input->post('group_name', true);
         $group_desc = $this->input->post('group_desc', true);
 
@@ -185,9 +183,9 @@ class Clientgroup extends CI_Controller
 
     public function editgroup()
     {
-		if (!$this->aauth->premission(41) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(41) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+            exit($this->lang->line('translate19'));
+        }
         $gid = $this->input->get('id');
         $this->db->select('*');
         $this->db->from('geopos_cust_group');
@@ -204,9 +202,9 @@ class Clientgroup extends CI_Controller
 
     public function editgroupupdate()
     {
-		if (!$this->aauth->premission(41) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(41) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+            exit($this->lang->line('translate19'));
+        }
         $gid = $this->input->post('gid', true);
         $group_name = $this->input->post('group_name', true);
         $group_desc = $this->input->post('group_desc', true);
@@ -217,26 +215,24 @@ class Clientgroup extends CI_Controller
 
     public function delete_i()
     {
-		if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
-			exit($this->lang->line('translate19'));
-		}
-		
+        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7) {
+            exit($this->lang->line('translate19'));
+        }
+
         $id = $this->input->post('deleteid');
-		if ($id != 1) {
-			$this->db->delete('geopos_cust_group', array('id' => $id));
-			$this->db->set(array('gid' => 1));
-			$this->db->where('gid', $id);
-			$this->db->update('geopos_customers');
-			echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('DELETED')));
-		} else if ($id == 1) {
-			echo json_encode(array('status' => 'Error', 'message' => 'You can not delete the default group!'));
-		} else {
-			echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
-			 
-				
-																	
-											 
-		}
+        if ($id != 1) {
+            $this->db->delete('geopos_cust_group', array('id' => $id));
+            $this->db->set(array('gid' => 1));
+            $this->db->where('gid', $id);
+            $this->db->update('geopos_customers');
+            echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('DELETED')));
+        } else if ($id == 1) {
+            echo json_encode(array('status' => 'Error', 'message' => 'You can not delete the default group!'));
+        } else {
+            echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
+
+
+        }
     }
 
     function sendGroup()

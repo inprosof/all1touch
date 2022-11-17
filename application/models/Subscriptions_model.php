@@ -448,10 +448,10 @@ class Subscriptions_model extends CI_Model
 
     private function _get_datatables_query($opt = '')
     {
-        $this->db->select("geopos_invoices.id,geopos_series.serie AS serie_name,geopos_invoices.tid,geopos_invoices.invoicedate, geopos_customers.name, 
+        $this->db->select("geopos_invoices.id, geopos_invoices.irs_type, geopos_irs_typ_doc.id as irs_type_c,geopos_series.serie AS serie_name,geopos_invoices.tid,geopos_invoices.invoicedate, geopos_customers.name, 
 		geopos_customers.taxid, geopos_invoices.subtotal, geopos_invoices.tax, geopos_invoices.total, geopos_invoices.status, geopos_invoices.pamnt, 
 		geopos_invoices.invoiceduedate, geopos_irs_typ_doc.type,geopos_invoices.i_class,
-		CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL 
+		geopos_invoices.ext,CASE WHEN geopos_locations.cname = '' OR geopos_locations.cname IS NULL 
 			THEN 
 				CASE WHEN w2.title is null or w2.title = '' 
 					THEN 'Todos' 

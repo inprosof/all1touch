@@ -69,14 +69,17 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h3 class="title">
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
                 <?php echo $this->lang->line('Projects') ?> <a href="<?php echo base_url('projects/addproject') ?>"
-                                                               class="btn btn-primary btn-sm rounded">
+                                                               class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
-            </h3>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -123,9 +126,10 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
+                    <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
+
                 </div>
                 <div class="modal-body">
                     <p><?php echo $this->lang->line('delete this project') ?> </p>
@@ -243,7 +247,7 @@
                 "ajax": {
                     "url": "<?php echo site_url('projects/project_load_list')?>",
                     "type": "POST",
-                    'data': {'<?=$this->security->get_csrf_token_name()?>': crsf_hash, 'eid':<?=$eid ?>}
+                    'data': {'<?=$this->security->get_csrf_token_name()?>': crsf_hash, 'eid': <?=$eid ?>}
                 },
                 "columnDefs": [
                     {

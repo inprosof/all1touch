@@ -1,7 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Import Products') ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Import Products') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -24,22 +29,21 @@
                                                                                    name="<?php echo $this->security->get_csrf_token_name(); ?>"
                                                                                    value="<?php echo $this->security->get_csrf_hash(); ?>">
 
-
-                <hr>
                 <p>Your products data file should as per this template <a
                             href="<?php echo base_url('userfiles/product/products_import.csv') ?>"><strong>Download
                             Template</strong></a>. Please download a database backup before importing the
                     geopos_products.
                 </p>
-                <p>Column Order in CSV File Must be like this</p>
-                <pre>
-     1. (string)Product A, 2. (string)ProductCODE, 3.(number)Sales_Price, 4.(number)Factory_Price,
+                <div class="alert alert-info" id="alert-info-text">
+                    <p>Column Order in CSV File Must be like this</p>
+                    <pre>
+1. (string)Product A, 2. (string)ProductCODE, 3.(number)Sales_Price, 4.(number)Factory_Price,
 
-     5.(number)TAX_Rate, 6.(number)Discount_Rate, 7.(integer)Quantity,
+5.(number)TAX_Rate, 6.(number)Discount_Rate, 7.(integer)Quantity,
 
-     8.(string)Product_Description, 9.(integer)Low_Stock_Alert_Quantity
-</pre>
-
+8.(string)Product_Description, 9.(integer)Low_Stock_Alert_Quantity
+                </pre>
+                </div>
                 <hr>
                 <div class="form-group row">
 
@@ -82,7 +86,6 @@
                             ?>
                         </select>
 
-
                     </div>
                 </div>
 
@@ -90,15 +93,13 @@
 
                     <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-6" id="paiCompanyUpdate">
                         <input type="submit" class="btn btn-success margin-bottom"
                                value="<?php echo $this->lang->line('Import Products') ?>" data-loading-text="Adding...">
 
                     </div>
                 </div>
 
-
-                </form>
             </div>
         </div>
 

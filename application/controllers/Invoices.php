@@ -54,7 +54,8 @@ class Invoices extends CI_Controller
 		$tid = $this->input->get('id');
 		$typ = $this->input->get('typ');
 		$ext = $this->input->get('ext');
-		$this->create($tid, 0, $typ, $ext);
+		$typconv = $this->input->get('typdoc');
+		$this->create($tid,$typconv,$ext,$typ);
 	}
 	
 	
@@ -63,7 +64,8 @@ class Invoices extends CI_Controller
 		$tid = $this->input->get('id');
 		$typ = $this->input->get('typ');
 		$ext = $this->input->get('ext');
-		$this->create($tid, $typ, 0, $ext);
+		$typconv = $this->input->get('typdoc');
+		$this->create($tid, $typconv, $typ, $ext);
 	}
 
     //create invoice
@@ -84,7 +86,7 @@ class Invoices extends CI_Controller
 		if($typeggc > 0)
 		{
 			$typegg = $typeggc;
-			$data['tiprelated'] = 2;
+			$data['tiprelated'] = $typeggc;
 		}else{
 			$typegg = $this->input->get('ty');
 		}
@@ -191,9 +193,9 @@ class Invoices extends CI_Controller
 		$data['company'] = $this->settings->company_details(1);
         $data['customergrouplist'] = $this->customers->group_list();
 		$data['countrys'] = $this->common->countrys();
+		$data['expeditions'] = $this->common->sexpeditions();
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
         $data['warehouse'] = $this->invocies->warehouses();
-        
         $data['currency'] = $this->invocies->currencies();
 		$data['taxsiva'] = $this->settings->slabscombo();
 		$data['typesinvoices'] = $this->settings->list_irs_typ_id_fact();
@@ -213,11 +215,10 @@ class Invoices extends CI_Controller
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}
 		$data['terms'] = $this->settings->billingterms($typegg);
-		
-		
+		$data['langs'] = $this->common->languagesSystem();
 		if($data['seriesinvoiceselect'] == NULL)
 		{
-			exit('Ainda não definiu nenhuma série para esta Localização. <a class="match-width match-height"  href="'.base_url().'settings/series"><i class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
+			exit('Ainda não definiu nenhuma série no Tipo '.$typename.' para esta Localização. <a class="match-width match-height"  href="'.base_url().'settings/series"><i class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
 			$invoi_type = $this->common->default_typ_id_doc($typegg);
 			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
@@ -228,6 +229,7 @@ class Invoices extends CI_Controller
 			$head['usernm'] = $this->aauth->get_user()->username;
 			$data['taxdetails'] = $this->common->taxdetail();
 			$data['custom_fields'] = $this->custom->add_fields(2);
+			$data['c_custom_fields'] = $this->custom->add_fields(1);
 			$this->load->view('fixed/header', $head);
 			$this->load->view('invoices/newinvoice', $data);
 			$this->load->view('fixed/footer');
@@ -261,27 +263,45 @@ class Invoices extends CI_Controller
 			$data['title'] = "Alterar Fatura #$tid";
 			$data['typeinvoice'] = 'Fatura';
 			$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
+			if($data['invoice'] == null){
+				redirect(base_url('invoices'));
+			}
 			$data['payments'] = $this->invocies->invoice_transactions($tid);
 		}else{
 			$head['title'] = "Alterar Rascunho #$tid";
 			$data['title'] = "Alterar Rascunho #$tid";
 			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
+			if($data['invoice'] == null){
+				redirect(base_url('invoices'));
+			}
 			$data['payments'] = $this->invocies->invoice_transactions2($tid);
 			$data['typeinvoice'] = 'Rascunho';
 		}		
 		///////////////////////////////////////////////////////////////////////
 		////////////////////////Relação entre documentos//////////////////////
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
 		$this->load->library("Related");
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 1){
+			$typerelatset = 0;
+		}else if($data['invoice']['irs_type'] == 2){
+			$typerelatset = 100;
+		}else{
+			$typerelatset = 200;
+		}
 		
 		if($draf == 0){
-			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
-			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
-			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,0);
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
 		}else{
-			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
-			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
-			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,1);
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
 		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
 		if($data['docs_deu_origem'] != null){
 			if(count($data['docs_deu_origem']) > 0)
 			{
@@ -306,6 +326,7 @@ class Invoices extends CI_Controller
 		///////////////////////////////////////////////////////////////////////
         $head['usernm'] = $this->aauth->get_user()->username;
 		$data['countrys'] = $this->common->countrys();
+		$data['expeditions'] = $this->common->sexpeditions();
         $data['warehouse'] = $this->invocies->warehouses();
         $data['exchange'] = $this->plugins->universal_api(5);
 		$data['taxsiva'] = $this->settings->slabscombo();
@@ -318,7 +339,8 @@ class Invoices extends CI_Controller
 		}else{
 			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
 		}
-        $data['custom_fields'] = $this->custom->view_edit_fields($tid, 2);
+		$data['custom_fields'] = $this->custom->view_edit_fields($tid, 2);
+		$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
 		$data['taxdetails'] = $this->common->taxdetail();
 		////////////////////////Relação entre documentos//////////////////////
 		///////////////////////////////////////////////////////////////////////
@@ -372,10 +394,32 @@ class Invoices extends CI_Controller
     //invoices list
     public function index()
     {
-        $head['title'] = "Manage Invoices";
+		$type = $this->input->get('ty');
+		if (!$this->aauth->premission(1) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+			exit($this->lang->line('translate19'));
+		}
+		$typename = "";
+		if($type == 1 || $type == '1')
+		{
+			$head['title'] = "Gestão de Faturas";
+		}else if($type == 2 || $type == '2')
+		{
+			$head['title'] = "Gestão de Faturas Recibo";
+		}else{
+			$head['title'] = "Gestão de Faturas Simplificadas";
+		}
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
-        $this->load->view('invoices/invoices');
+		if($type == 1 || $type == '1')
+		{
+			$this->load->view('invoices/invoices');
+		}else if($type == 2 || $type == '2')
+		{
+			$this->load->view('invoices/invoices_r');
+		}else{
+			$this->load->view('invoices/invoices_s');
+		}
+        
         $this->load->view('fixed/footer');
     }
 	
@@ -425,13 +469,14 @@ class Invoices extends CI_Controller
 		////////////////////////Relação entre documentos//////////////////////
 		///////////////////////////////////////////////////////////////////////
 		
-		
-		$justification_cancel = '';
+		$justification_cancel = '';		
 		$invocieencorc = $this->input->post('invocieencorc');
 		$customer_info = $this->customers->recipientinfo($customer_id);
         $customer_name = $customer_info['name'];
 		$customer_tax = $this->input->post('customer_tax');
-        
+        $tiprelated = $this->input->post('tiprelated');
+		$relationid = $this->input->post('relationid');
+		
         $invoicedate = $this->input->post('invoicedate', true);
         $invocieduedate = $this->input->post('invocieduedate', true);
         $notes = $this->input->post('notes', true);
@@ -708,6 +753,17 @@ class Invoices extends CI_Controller
 		{
 			$invoi_type = 2;
 		}
+		
+		$typerelatset = 0;
+		if($invoi_type == 1){
+			$typerelatset = 100;
+		}else if($invoi_type == 2){
+			$typerelatset = 200;
+		}else{
+			$typerelatset = 0;
+		}
+		
+		
 		$numget = $this->common->lastdoc($invoi_type,$invoi_serie);
 		$numget = $numget+1;
 		$invocieno = $numget;
@@ -718,10 +774,16 @@ class Invoices extends CI_Controller
 		////////////////////////Relação entre documentos//////////////////////
 		$this->load->library("Related");
 		$data = [];
+		
+		$duplicateid = 0;
+		if($tiprelated == 0){
+			$duplicateid = $relationid;
+		}
+
 		if($typ == 1 || $typ == 2){
-			$data = array('tid' => $invocieno, 'loc' => $this->aauth->get_user()->loc, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 0, 'ext' => 0, 'irs_type' => $invoi_type);
+			$data = array('tid' => $invocieno, 'loc' => $this->aauth->get_user()->loc, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 0, 'ext' => 0, 'irs_type' => $invoi_type, 'factura_duplicada' => $duplicateid);
 		}else{
-			$data = array('tid' => $invocieno, 'loc' => $this->aauth->get_user()->loc, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'justification_cancel' => $justification_cancel, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 0, 'ext' => 0, 'irs_type' => $invoi_type, 'datedoc' => date('Y-m-d H:i:s'));
+			$data = array('tid' => $invocieno, 'loc' => $this->aauth->get_user()->loc, 'invoicedate' => $bill_date, 'invoiceduedate' => $bill_due_date, 'justification_cancel' => $justification_cancel, 'subtotal' => $subtotal, 'shipping' => $shipping, 'ship_tax' => $shipping_tax, 'ship_tax_type' => $ship_taxtype, 'discount' => $discs_come,'discount_rate' => $disc_val, 'tax' => $taxas_tota, 'total' => $total, 'notes' => $notes, 'status' => 'due', 'csd' => $customer_id, 'eid' => $emp, 'pamnt' => 0, 'items' => $tota_items, 'taxstatus' => $tax, 'total_discount_tax' => $total_discount_tax, 'format_discount' => $discountFormat, 'refer' => $refer, 'ref_enc_orc' => $invocieencorc, 'term' => $pterms, 'multi' => $currency, 'tax_id' => $customer_tax, 'serie' => $invoi_serie, 'i_class' => 0, 'ext' => 0, 'irs_type' => $invoi_type, 'factura_duplicada' => $duplicateid, 'factura_manual' => 1, 'datedoc' => date('Y-m-d H:i:s'));
 		}
 		
 		////////////////////////Relação entre documentos//////////////////////
@@ -841,7 +903,7 @@ class Invoices extends CI_Controller
 							$total_pay += $pay_tot[$keyp];
 							$pmethoget = $this->invocies->methodpayname($pay_met[$keyp]);
 							$pmethodname = $pmethoget['methodname'];
-							$tnote = 'Fatura Nº: ' . $invocieno2 . '-'.$pay_obs[$keyp]. '-' . $pmethodname;
+							$tnote = 'Documento Nº: ' . $invocieno2 . '-'.$pay_obs[$keyp]. '-' . $pmethodname;
 							
 							$this->load->model('settings_model', 'settings');
 							$discship = [];
@@ -971,6 +1033,8 @@ class Invoices extends CI_Controller
 					//$val_tot_rel = $this->input->post('val_tot_rel');
 					$relaindex = 0;
 					$Relationslist = [];
+					
+					$totaldue = $total-$total_pay;
 					if($typrelation != null){
 						foreach ($typrelation as $keyp => $value) {
 							$idtdoc = $idtyprelation[$keyp];
@@ -979,8 +1043,11 @@ class Invoices extends CI_Controller
 							$datare = array(
 								'tid' => $invocieno,
 								'ttype' => $typrelation[$keyp],
-								'type' => $invoi_type,
+								'type' => $typerelatset,
 								'draft' => 0,
+								'total_pay' => $total_pay,
+								'total_doc' => $total,
+								'total_due' => $totaldue,
 								'doc' => $idtdoc);
 							$Relationslist[$relaindex] = $datare;
 							if($typrelation[$keyp] == 3)
@@ -1006,12 +1073,12 @@ class Invoices extends CI_Controller
 					$textconver = '';
 					if($tipoconvert == 3)
 					{
-						$textconver = 'Converteu com sucesso o Orçamento em Fatura Nº: '.$invocieno2;
+						$textconver = 'Converteu com sucesso o Orçamento em Documento Nº: '.$invocieno2;
 					}else if($tipoconvert == 6)
 					{
-						$textconver = 'Converteu com sucesso a Nota de Encomenda em Fatura Nº: '.$invocieno2;
+						$textconver = 'Converteu com sucesso a Nota de Encomenda em Documento Nº: '.$invocieno2;
 					}else{
-						$textconver = 'Criou com sucesso a Fatura Nº: '.$invocieno2;
+						$textconver = 'Criou com sucesso o Documento Nº: '.$invocieno2;
 					}
 					///////////////////////////////////////////////////////////////////////
 					////////////////////////Relação entre documentos//////////////////////
@@ -1028,14 +1095,14 @@ class Invoices extends CI_Controller
 					$striPay = $striPay.' '.$textconver.'<br>'.$invocieno2.' - '.$statuPay;
 					$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'fa', $invocieno);
 					
-					echo json_encode(array('status' => 'Success', 'message' => $textconver . " <a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+					echo json_encode(array('status' => 'Success', 'message' => $textconver.". <a href='view?id=$invocieno&draf=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 					
 					/*if($passouquo)
 					{
-						echo json_encode(array('status' => 'Success', 'message' => $textconver."<a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+						echo json_encode(array('status' => 'Success', 'message' => $textconver."<a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 					}else if($passount)
 					{
-						echo json_encode(array('status' => 'Success', 'message' => $textconver."<a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+						echo json_encode(array('status' => 'Success', 'message' => $textconver."<a href='view?id=$invocieno&ty=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=0' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='$link' class='btn btn-purple btn-lg'><span class='fa fa-globe' aria-hidden='true'></span> " . $this->lang->line('Public View') . " </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 					}else{
 						
 					}*/
@@ -1214,7 +1281,7 @@ class Invoices extends CI_Controller
 						$datare = array(
 							'tid' => $invocieno,
 							'ttype' => $typrelation[$keyp],
-							'type' => $invoi_type,
+							'type' => $typerelatset,
 							'draft' => 1,
 							'doc' => $idtdoc);
 						$Relationslist[$relaindex] = $datare;
@@ -1365,7 +1432,7 @@ class Invoices extends CI_Controller
 						$datare = array(
 							'tid' => $invocieno,
 							'ttype' => $typrelation[$keyp],
-							'type' => $invoi_type,
+							'type' => $typerelatset,
 							'draft' => 1,
 							'doc' => $idtdoc);
 						$Relationslist[$relaindex] = $datare;
@@ -1395,7 +1462,7 @@ class Invoices extends CI_Controller
 				$striPay .= '<br>Rascunho Nº (Provisório)'.$invocieno2.' para o Cliente: '.$customer_name;
 				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'draft', $invocieno);
 				
-                echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&ty=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&ty=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+                echo json_encode(array('status' => 'Success', 'message' => "Atualização de Rascunho com Sucesso. <a href='view?id=$invocieno&ty=1' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printinvoice?id=$invocieno&draf=1' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a> &nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 			}else {
 				echo json_encode(array('status' => 'Error', 'message' => "Erro ao guardar Rascunho!"));
 				$transok = false;
@@ -1407,7 +1474,8 @@ class Invoices extends CI_Controller
 
     public function ajax_list()
     {
-        $list = $this->invocies->get_datatables($this->limited);
+		$typ = $this->input->post('typ');
+        $list = $this->invocies->get_datatables($this->limited,$typ);
         $data = array();
         $no = $this->input->post('start');
         foreach ($list as $invoices) {
@@ -1423,6 +1491,9 @@ class Invoices extends CI_Controller
 			
             $row = array();
 			$row['status'] = $invoices->status;
+			$row['subtotal'] = $invoices->subtotal;
+			$row['tax'] = $invoices->tax;
+			$row['total'] = $invoices->total;
 			$row[] = $invoices->serie_name;
             $row[] = '<a href="' . base_url("invoices/view?id=$invoices->id&draf=0") . '">'.$invoices->type. $invoices->tid . '</a>';
 			$row[] = dateformat($invoices->invoicedate);
@@ -1436,7 +1507,9 @@ class Invoices extends CI_Controller
             $option = '';
 			if($invoices->status == 'canceled'){
 				$option = '<a href="' . base_url("invoices/view?id=$invoices->id&draf=0") . '" class="btn btn-danger btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id&draf=0") . '&d=1" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
-				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>';
+				$option .= '<a data-toggle="modal" data-target="#choise_type_duplicate" href="#" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm duplicate-object" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+				$option .= '<a data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="' . $invoices->ext . '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+				
 				$row[] = $option;
 			}else{
 				$option = '<a href="' . base_url("invoices/view?id=$invoices->id&draf=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$invoices->id&draf=0") . '&d=1" class="btn btn-info btn-sm" title="Download"><span class="fa fa-download"></span></a>&nbsp;';
@@ -1453,9 +1526,9 @@ class Invoices extends CI_Controller
             $data[] = $row;
         }
 		
-		$numtab1 = $this->invocies->count_all($this->limited);
-		$numfil1 = $this->invocies->count_filtered($this->limited);
-		$list = $this->invocies->get_datatables2($this->limited);
+		$numtab1 = $this->invocies->count_all($this->limited,$typ);
+		$numfil1 = $this->invocies->count_filtered($this->limited,$typ);
+		$list = $this->invocies->get_datatables2($this->limited,$typ);
         foreach ($list as $drafts) {
             $no++;
 			$textini = $drafts->type.$drafts->tid;
@@ -1463,6 +1536,9 @@ class Invoices extends CI_Controller
 			$width = round(0,2);
             $row = array();
 			$row['status'] = 'draft';
+			$row['subtotal'] = $drafts->subtotal;
+			$row['tax'] = $drafts->tax;
+			$row['total'] = $drafts->total;
 			$row[] = $drafts->serie_name;
             $row[] = '<a href="' . base_url("invoices/view?id=$drafts->id&draf=1") . '">' . $textini . '</a>';
 			$row[] = dateformat($drafts->invoicedate);
@@ -1473,7 +1549,7 @@ class Invoices extends CI_Controller
 			$row[] = amountExchange($drafts->total, 0, $this->aauth->get_user()->loc);
 			$row[] = "<div class='progress'><div class='progress-bar progress-bar-success' role='progressbar' aria-valuenow='0' aria-valuemin='0' aria-valuemax='$drafts->total' style='width:$width%;'>$width%</div></div>";
             $row[] = 'Rascunho';
-			$option = '<a href="' . base_url("invoices/view?id=$drafts->id&draf=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$drafts->id&draf=1") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+			$option = '<a href="' . base_url("invoices/view?id=$drafts->id&draf=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("invoices/printinvoice?id=$drafts->id&draf=1&d=1") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
 			if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(3)) {
 				$option .= '<a href="' . base_url("invoices/edit?id=$drafts->id&draf=1"). '" data-object-id="' . $drafts->id . '" data-object-tid="' . $drafts->tid . '" class="btn btn-danger btn-sm"><span class="fa fa-pencil"></span></a>';
 			}
@@ -1484,8 +1560,8 @@ class Invoices extends CI_Controller
             $data[] = $row;
         }
 		
-		$numtab1 = $numtab1+$this->invocies->count_all2($this->limited);
-		$numfil1 = $numfil1+$this->invocies->count_filtered2($this->limited);
+		$numtab1 = $numtab1+$this->invocies->count_all2($this->limited,$typ);
+		$numfil1 = $numfil1+$this->invocies->count_filtered2($this->limited,$typ);
 		
 		
         $output = array(
@@ -1505,9 +1581,13 @@ class Invoices extends CI_Controller
         $tid = $this->input->get('id');
 		$token = $this->input->get('token');
 		$draf = $this->input->get('draf');
+		$this->load->library("Related");
 		if($draf == 0){
 			$data['draft'] = 0;
 			$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
+			if($data['invoice'] == null){
+				redirect(base_url('invoices'));
+			}
 			$data['activity'] = $this->invocies->invoice_transactions($tid);
 			$data['title'] = $data['invoice']['irs_type_n'].': ' . $data['invoice']['tid'];
 			$head['title'] = $data['invoice']['irs_type_n'].': ' . $data['invoice']['tid'];
@@ -1517,6 +1597,9 @@ class Invoices extends CI_Controller
 		}else{
 			$data['draft'] = 1;
 			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
+			if($data['invoice'] == null){
+				redirect(base_url('invoices'));
+			}
 			$data['activity'] = $this->invocies->invoice_transactions2($tid);
 			$data['title'] = 'Rascunho: ' . $data['invoice']['tid'];
 			$head['title'] = 'Rascunho: ' . $data['invoice']['tid'];
@@ -1526,25 +1609,37 @@ class Invoices extends CI_Controller
 		
 		///////////////////////////////////////////////////////////////////////
 		////////////////////////Relação entre documentos//////////////////////
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
 		$this->load->library("Related");
-		if($draf == 0){
-			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
-			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
-			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,0);
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 1){
+			$typerelatset = 0;
+		}else if($data['invoice']['irs_type'] == 2){
+			$typerelatset = 100;
 		}else{
-			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
-			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
-			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0,1);
+			$typerelatset = 200;
+		}
+		
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
 		}
 		///////////////////////////////////////////////////////////////////////
-		////////////////////////Relação entre documentos//////////////////////
+		///////////////////////////////////////////////////////////////////////
 		
         $data['iddoc'] = $data['invoice']['id'];
 		$data['metodos_pagamentos'] = $this->common->smetopagamento();
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
         $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
-        $data['custom_fields'] = $this->custom->view_fields_data($tid, 2);
+		$data['custom_fields'] = $this->custom->view_fields_data($tid, 2);
+		$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
         if ($data['invoice']['id']) {
             $data['invoice']['id'] = $tid;
 			if($draf == 0){
@@ -1564,12 +1659,12 @@ class Invoices extends CI_Controller
         $tid = $this->input->get('id');
 		$token = $this->input->get('token');
 		$draf = $this->input->get('draf');
-		$data['id'] = $tid;
+		$temp = $this->input->get('temp');
 		
+		$data['id'] = $tid;
 		if($draf == 0){
 			$data['typeinvoice'] = 'Invoice';
 			$data['invoice'] = $this->invocies->invoice_details($tid, $this->limited);
-			$data['products'] = $this->invocies->invoice_products($tid);
 			$data['activity'] = $this->invocies->invoice_transactions($tid);
 			if($data['invoice']['status'] == 'canceled')
 			{
@@ -1577,12 +1672,38 @@ class Invoices extends CI_Controller
 			}
 		}else{
 			$data['invoice'] = $this->invocies->invoice_details2($tid, $this->limited);
-			$data['products'] = $this->invocies->invoice_products2($tid);
 			$data['activity'] = $this->invocies->invoice_transactions2($tid);
 			$data['typeinvoice'] = 'Rascunho';
 			$data['invoice']['status'] = 'Rascunho';
 			$data['ImageBackGround'] = 'assets/images/rascunho.png';
 		}
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$this->load->library("Related");
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 1){
+			$typerelatset = 0;
+		}else if($data['invoice']['irs_type'] == 2){
+			$typerelatset = 100;
+		}else{
+			$typerelatset = 200;
+		}
+		
+		if($draf == 0){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		
         $data['employee'] = $this->invocies->employee($data['invoice']['eid']);
 		$data['c_custom_fields'] = [];
 		$data['custom_fields'] = [];
@@ -1595,8 +1716,7 @@ class Invoices extends CI_Controller
 		$data['invoice']['type'] = $data['invoice']['irs_type_n'];
 		$data['qrc'] = 'pos_' . date('Y_m_d_H_i_s') . '_.png';
 		$static_q = $data['qrc'];
-		
-		
+		$codQRD = "";
 		$codQRD = 'A:'.$data['invoice']['loc_country'].$data['invoice']['loc_taxid'].'*';
 		$codQRD .= 'B:'.$data['invoice']['taxid'].'*';
 		$codQRD .= 'C:'.$data['invoice']['country'].'*';
@@ -1617,108 +1737,144 @@ class Invoices extends CI_Controller
 		
 		$codQRD .= 'F:'.$date.'*';
 		$codQRD .= 'G:'.$data['invoice']['irs_type_s'].$data['invoice']['serie_name'].'/'.$data['invoice']['tid'].'*';
-		if($data['invoice']['atc_serie'] == "")
-		{
-			$codQRD .= 'H:0*';
-		}else{
-			$codQRD .= 'H:'.$data['invoice']['atc_serie'].$data['invoice']['tid'].'*';
+		
+		
+		if($draf == 0){
+			if(isset($data['invoice']['atc_serie']))
+			{
+				if($data['invoice']['atc_serie'] == "")
+				{
+					$codQRD .= 'H:0*';
+				}else{
+					$codQRD .= 'H:'.$data['invoice']['atc_serie'].$data['invoice']['tid'].'*';
+				}
+			}else{
+				$codQRD .= 'H:0*';
+			}
 		}
 		
-		$arrtudo = [];
-		foreach ($data['products'] as $row) {
-			$myArraytaxname = explode(";", $row['taxaname']);
-			$myArraytaxcod = explode(";", $row['taxacod']);
-			$myArraytaxvals = explode(";", $row['taxavals']);
-			$myArraytaxcomo = explode(";", $row['taxacomo']);
-			$myArraytaxperc = explode(";", $row['taxaperc']);
-			for($i = 0; $i < count($myArraytaxname); $i++)
-			{
-				$jatem = false;
-				for($oo = 0; $oo < count($arrtudo); $oo++)
+		//////////////////////Se tiver Produtos temos de fazer isto/////////////////////////////////////
+		$taxasprodutosiva = [];
+		if (is_array($data['products']) && !empty($data['products'])) {
+			foreach ($data['products'] as $row) {
+				$myArraytaxname = explode(";", $row['taxaname']);
+				$myArraytaxcod = explode(";", $row['taxacod']);
+				$myArraytaxvals = explode(";", $row['taxavals']);
+				$myArraytaxperc = explode(";", $row['taxaperc']);
+				$myArraytaxComo = explode(";", $row['taxacomo']);
+				for($i = 0; $i < count($myArraytaxname); $i++)
 				{
-					if($arrtudo[$oo]['title'] == $myArraytaxname[$i])
+					$jatem = false;
+					for($oo = 0; $oo < count($taxasprodutosiva); $oo++)
 					{
-						$arrtudo[$oo]['total'] = ($arrtudo[$oo]['total']+$myArraytaxvals[$i]);
-						$jatem = true;
-						break;
+						if($taxasprodutosiva[$oo]['title'] == $myArraytaxname[$i])
+						{
+							$taxasprodutosiva[$oo]['val'] = ($taxasprodutosiva[$oo]['val']+$myArraytaxvals[$i]);
+							$taxasprodutosiva[$oo]['inci'] = ($taxasprodutosiva[$oo]['inci']+$row['subtotal']);
+							$jatem = true;
+															
+							if($taxasprodutosiva[$oo]['typ'] == '2'){
+								$nameise = $this->common->withholdingsidname($myArraytaxComo[$i]);
+								if($taxasprodutosiva[$oo]['nameise'] != $nameise){
+									$taxasprodutosiva[$oo]['val'] = $nameise;
+									$jatem = false;
+								}else{
+									$taxasprodutosiva[$oo]['val'] = $taxasprodutosiva[$oo]['nameise'];
+									break;
+								}
+							}else{
+								 break;
+							}
+						}
+					}
+					
+					if(!$jatem)
+					{
+						$nameiselog = '';
+						$typ = '0';
+						$valcomo = $myArraytaxComo[$i];
+						if($valcomo > 1){
+							$typ = '2';
+							$this->load->library("Common");
+							$this->load->library("Custom");
+							$nameiselog = $this->common->withholdingsidname($myArraytaxComo[$i]);
+						}else if($valcomo > 1){
+							$typ = '1';
+						}
+						$stack = array('title'=>$myArraytaxname[$i], 'val'=>$myArraytaxvals[$i], 'total'=>$myArraytaxvals[$i], 'base'=>$myArraytaxvals[$i], 'cod'=>$myArraytaxcod[$i], 'como'=>$valcomo, 'perc'=>$myArraytaxperc[$i].' %', 'inci'=>$row['subtotal'], 'typ' => $typ, 'nameise' => $nameiselog);
+						array_push($taxasprodutosiva, $stack);
 					}
 				}
-				
-				if(!$jatem)
+			}
+			
+			
+			//“PT-AC” – Espaço fiscal da Região Autónoma dos Açores; e “PT-MA” – Espaço fiscal da Região Autónoma da Madeira
+			if($data['invoice']['loc_zon_fis'] == 0)
+			{
+				$codQRD .= 'J1:PT-AC*';
+				for($r = 0; $r < count($taxasprodutosiva); $r++)
 				{
-					$stack = array('title'=>$myArraytaxname[$i], 'total'=>$myArraytaxvals[$i], 'base'=>$myArraytaxvals[$i], 'cod'=>$myArraytaxcod[$i], 'como'=>$myArraytaxcomo[$i], 'perc'=>$myArraytaxperc[$i]);
-					array_push($arrtudo, $stack);
+					if($taxasprodutosiva[$r]['cod'] == 'ISE')
+					{
+						$codQRD .= 'J2:'.$taxasprodutosiva[$r]['base'].'*';
+					}else if($taxasprodutosiva[$r]['cod'] == 'RED')
+					{
+						$codQRD .= 'J3:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'J4:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+					}else if($taxasprodutosiva[$r]['cod'] == 'INT')
+					{
+						$codQRD .= 'J5:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'J6:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+					}else{
+						$codQRD .= 'J7:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'J8:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+					}
+				}
+			}else if($data['invoice']['loc_zon_fis'] == 1)
+			{
+				$codQRD .= 'K1:PT-MA*';
+				for($r = 0; $r < count($taxasprodutosiva); $r++)
+				{
+					if($taxasprodutosiva[$r]['cod'] == 'ISE')
+					{
+						$codQRD .= 'K2:'.$taxasprodutosiva[$r]['base'].'*';
+					}else if($taxasprodutosiva[$r]['cod'] == 'RED')
+					{
+						$codQRD .= 'K3:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'K4:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+					}else if($taxasprodutosiva[$r]['cod'] == 'INT')
+					{
+						$codQRD .= 'K5:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'K6:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+					}else{
+						$codQRD .= 'K7:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'K8:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+					}
+				}
+			}else{
+				$codQRD .= 'I1:'.$data['invoice']['loc_country'].'*';
+				for($r = 0; $r < count($taxasprodutosiva); $r++)
+				{
+					if($taxasprodutosiva[$r]['cod'] == 'ISE')
+					{
+						$codQRD .= 'I2:'.$taxasprodutosiva[$r]['base'].'*';
+					}else if($taxasprodutosiva[$r]['cod'] == 'RED')
+					{
+						$codQRD .= 'I3:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'I4:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+					}else if($taxasprodutosiva[$r]['cod'] == 'INT')
+					{
+						$codQRD .= 'I5:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'I6:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+					}else{
+						$codQRD .= 'I7:'.@number_format($taxasprodutosiva[$r]['base'], 2, '.', '').'*';
+						$codQRD .= 'I8:'.@number_format($taxasprodutosiva[$r]['total'], 2, '.', '').'*';
+					}
 				}
 			}
 		}
 		
-		//“PT-AC” – Espaço fiscal da Região Autónoma dos Açores; e “PT-MA” – Espaço fiscal da Região Autónoma da Madeira
-		if($data['invoice']['loc_zon_fis'] == 0)
-		{
-			$codQRD .= 'J1:PT-AC*';
-			for($r = 0; $r < count($arrtudo); $r++)
-			{
-				if($arrtudo[$r]['cod'] == 'ISE')
-				{
-					$codQRD .= 'J2:'.$arrtudo[$r]['base'].'*';
-				}else if($arrtudo[$r]['cod'] == 'RED')
-				{
-					$codQRD .= 'J3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'J4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else if($arrtudo[$r]['cod'] == 'INT')
-				{
-					$codQRD .= 'J5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'J6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else{
-					$codQRD .= 'J7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'J8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}
-			}
-		}else if($data['invoice']['loc_zon_fis'] == 1)
-		{
-			$codQRD .= 'K1:PT-MA*';
-			for($r = 0; $r < count($arrtudo); $r++)
-			{
-				if($arrtudo[$r]['cod'] == 'ISE')
-				{
-					$codQRD .= 'K2:'.$arrtudo[$r]['base'].'*';
-				}else if($arrtudo[$r]['cod'] == 'RED')
-				{
-					$codQRD .= 'K3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'K4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else if($arrtudo[$r]['cod'] == 'INT')
-				{
-					$codQRD .= 'K5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'K6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else{
-					$codQRD .= 'K7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'K8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}
-			}
-		}else{
-			$codQRD .= 'I1:'.$data['invoice']['loc_country'].'*';
-			for($r = 0; $r < count($arrtudo); $r++)
-			{
-				if($arrtudo[$r]['cod'] == 'ISE')
-				{
-					$codQRD .= 'I2:'.$arrtudo[$r]['base'].'*';
-				}else if($arrtudo[$r]['cod'] == 'RED')
-				{
-					$codQRD .= 'I3:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'I4:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else if($arrtudo[$r]['cod'] == 'INT')
-				{
-					$codQRD .= 'I5:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'I6:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}else{
-					$codQRD .= 'I7:'.@number_format($arrtudo[$r]['base'], 2, '.', '').'*';
-					$codQRD .= 'I8:'.@number_format($arrtudo[$r]['total'], 2, '.', '').'*';
-				}
-			}
-		}
-
-		
-		
+		$data['taxasprodutosiva'] = $taxasprodutosiva;
 		
 		//$codQRD .= 'L:'.'*';
 		//$codQRD .= 'M:'.'*';
@@ -1732,18 +1888,17 @@ class Invoices extends CI_Controller
 		
 		//4 carateres do Hash gerados na criação do documento e buscar a AT
 		$codQRD .= 'Q:'.'*';
-		
-		
-		$codQRD .= 'R:'.$data['invoice']['loc_certification'].'*';
-		
-		$campfim = "";
-		if($data['invoice']['loc_contabancaria'] != null)
-		{
-			$campfim .= "IBAN-".$data['invoice']['loc_contabancaria'];
+		if($draf == 0){
+			$codQRD .= 'R:'.$data['invoice']['loc_certification'].'*';
+			$campfim = "";
+			if($data['invoice']['loc_contabancaria'] != null)
+			{
+				$campfim .= "IBAN-".$data['invoice']['loc_contabancaria'];
+			}
+			
+			$campfim .= ";".$data['invoice']['loc_cname'];
+			$codQRD .= 'S:'.$campfim.'*';
 		}
-		
-		$campfim .= ";".$data['invoice']['loc_cname'];
-		$codQRD .= 'S:'.$campfim.'*';
 		
 		$qrCode = new QrCode($codQRD);
 		//$qrCode->writeFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
@@ -1751,7 +1906,7 @@ class Invoices extends CI_Controller
 		$writer = new PngWriter();
 		$writer->write($qrCode)->saveToFile(FCPATH . 'userfiles/pos_temp/' . $data['qrc']);
 		ini_set('memory_limit', '64M');
-
+		
 		$data['Tipodoc'] = "Original";
 		$data2 = $data;
 		$data2['Tipodoc'] = "Duplicado";
@@ -1760,41 +1915,63 @@ class Invoices extends CI_Controller
 		$data4 = $data;
 		$data4['Tipodoc'] = "Quadruplicado";
 		
-		$html = $this->load->view('print_files/invoice-a4_v' . INVV, $data, true);
-		$html2 = $this->load->view('print_files/invoice-a4_v' . INVV, $data2, true);
-		$html3 = $this->load->view('print_files/invoice-a4_v' . INVV, $data3, true);
-		$html4 = $this->load->view('print_files/invoice-a4_v' . INVV, $data4, true);
+		$tempVersion = 1;
+		if($temp == null)
+		{
+			$tempVersion = INVV;
+		}else{
+			$tempVersion = $temp;
+		}
+		
+		$html = $this->load->view('print_files/invoice-a4_v' . $tempVersion, $data, true);
+		$html2 = $this->load->view('print_files/invoice-a4_v' . $tempVersion, $data2, true);
+		$html3 = $this->load->view('print_files/invoice-a4_v' . $tempVersion, $data3, true);
+		$html4 = $this->load->view('print_files/invoice-a4_v' . $tempVersion, $data4, true);
+		
+		//var_dump($html);
 		
 		$this->load->library('pdf');
         $pdf = $this->pdf->load_split(array('margin_top' => 10));
 		$loc2 = location(0);
-        $pdf->SetHTMLFooter('<div style="text-align: right;font-family: serif; font-size: 8pt; color: #5C5C5C; font-style: italic;margin-top:-6pt;">Processado por Programa Certificado nº'.$loc2['certification'].' {PAGENO}/{nbpg} #' . $data['invoice']['tid'] . '</div>');
-		
-		if($data['invoice']['numcop'] == 'copy1')
+		$footer = '<hr><div style="text-align: right;font-family: serif; font-size: 6pt; color: #5C5C5C; font-style: italic;margin-top:-20pt;"><br>'.$data['invoice']['terms'].'<br>';
+		if ($data['invoice']['notes'])
 		{
-			$pdf->WriteHTML($html);
-		}else if($data['invoice']['numcop'] == 'copy2')
-		{
-			$pdf->WriteHTML($html);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html2);
-		}else if($data['invoice']['numcop'] == 'copy3')
-		{
-			$pdf->WriteHTML($html);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html2);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html3);
-		}else if($data['invoice']['numcop'] == 'copy4')
-		{
-			$pdf->WriteHTML($html);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html2);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html3);
-			$pdf->AddPage();
-			$pdf->WriteHTML($html4);
+			$footer .= $this->lang->line('Note').': '.$data['invoice']['notes'].'<br>';
 		}
+		
+		$footer .= 'Processado por Programa Certificado nº '.$loc2['certification'].' {PAGENO}/{nbpg} </div>';
+        $pdf->SetHTMLFooter($footer);
+		
+		if($draf == 0){
+			if($data['invoice']['numcop'] == 'copy1')
+			{
+				$pdf->WriteHTML($html);
+			}else if($data['invoice']['numcop'] == 'copy2')
+			{
+				$pdf->WriteHTML($html);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html2);
+			}else if($data['invoice']['numcop'] == 'copy3')
+			{
+				$pdf->WriteHTML($html);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html2);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html3);
+			}else if($data['invoice']['numcop'] == 'copy4')
+			{
+				$pdf->WriteHTML($html);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html2);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html3);
+				$pdf->AddPage();
+				$pdf->WriteHTML($html4);
+			}
+		}else{
+			$pdf->WriteHTML($html);
+		}
+		
 		
         $file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['invoice']['irs_type_s'] . '_' . $data['invoice']['tid']);
         if ($this->input->get('d')) {

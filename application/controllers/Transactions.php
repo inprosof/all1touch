@@ -29,7 +29,7 @@ class Transactions extends CI_Controller
 
     public function index()
     {
-		if (!$this->aauth->premission(73) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
+        if (!$this->aauth->premission(73) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
             exit($this->lang->line('translate19'));
         }
         $head['title'] = "Transações";
@@ -45,19 +45,18 @@ class Transactions extends CI_Controller
         if (!$this->aauth->premission(5)) {
             exit($this->lang->line('translate19'));
         }
-		$this->load->library("Common");
-		$this->load->model('settings_model', 'settings');
-		$discship = [];
-		if($this->aauth->get_user()->loc == 0)
-		{
-			$discship = $this->settings->online_pay_settings_main();
-		}else{
-			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
-		}
+        $this->load->library("Common");
+        $this->load->model('settings_model', 'settings');
+        $discship = [];
+        if ($this->aauth->get_user()->loc == 0) {
+            $discship = $this->settings->online_pay_settings_main();
+        } else {
+            $discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+        }
         $data['dual'] = $discship;
         $data['cat'] = $this->transactions->categories();
         $data['accounts'] = $this->transactions->acc_list();
-		$data['metodos_pagamentos'] = $this->common->smetopagamento();
+        $data['metodos_pagamentos'] = $this->common->smetopagamento();
         $head['title'] = "Nova Transação";
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
@@ -65,15 +64,15 @@ class Transactions extends CI_Controller
         $this->load->view('fixed/footer');
 
     }
-	
-	public function transfers()
+
+    public function transfers()
     {
         if (!$this->aauth->premission(79) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
             exit($this->lang->line('translate19'));
         }
         $head['title'] = "Gestão de Transferências";
-		$data['cat'] = $this->transactions->categories();
-		$data['accounts'] = $this->transactions->acc_list();
+        $data['cat'] = $this->transactions->categories();
+        $data['accounts'] = $this->transactions->acc_list();
         $head['usernm'] = $this->aauth->get_user()->username;
         $this->load->view('fixed/header', $head);
         $this->load->view('transactions/transfers', $data);
@@ -98,7 +97,7 @@ class Transactions extends CI_Controller
 
     public function payinvoice()
     {
-		if (!$this->aauth->premission(1)) {
+        if (!$this->aauth->premission(1)) {
             exit($this->lang->line('translate19'));
         }
         $amount2 = 0;
@@ -133,7 +132,7 @@ class Transactions extends CI_Controller
                 $this->db->update('geopos_customers');
             }
         }
-		
+
         $data = array(
             'acid' => $acid,
             'account' => $account['holder'],
@@ -202,17 +201,16 @@ class Transactions extends CI_Controller
         }
         $amount += $amount2;
 
-        $activitym = "<tr><td>" . '<a href="' . base_url('invoices') . '/view_payslip?id=' . $tttid . '&inv=' . $tid . '" class="btn btn-blue btn-sm"><span class="fa fa-print" aria-hidden="true"></span></a> ' . substr($paydate, 0, 10) . "</td><td>$pmethod</td><td>" . amountExchange_s($amount, 0, $this->aauth->get_user()->loc) . "</td><td>$note</td></tr>";
+        $activitym = "<tr><td>" . '<a href="' . base_url('invoices') . '/view_payslip?id=' . $tttid . '&inv=' . $tid . '" class="btn btn-secondary btn-sm"><span class="bi bi-printer" aria-hidden="true"></span></a> ' . substr($paydate, 0, 10) . "</td><td>$pmethod</td><td>" . amountExchange_s($amount, 0, $this->aauth->get_user()->loc) . "</td><td>$note</td></tr>";
         $this->load->model('settings_model', 'settings');
-		$discship = [];
-		if($this->aauth->get_user()->loc == 0)
-		{
-			$discship = $this->settings->online_pay_settings_main();
-		}else{
-			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
-		}
-		$dual = $discship;
-		if($dual['dual_entry']>0){
+        $discship = [];
+        if ($this->aauth->get_user()->loc == 0) {
+            $discship = $this->settings->online_pay_settings_main();
+        } else {
+            $discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+        }
+        $dual = $discship;
+        if ($dual['dual_entry'] > 0) {
             $this->db->select('holder');
             $this->db->from('geopos_accounts');
             $this->db->where('id', $dual['ac_id_d']);
@@ -235,7 +233,7 @@ class Transactions extends CI_Controller
         }
         echo json_encode(array('status' => 'Success', 'message' =>
             $this->lang->line('Transaction has been added'), 'pstatus' => $this->lang->line($status), 'activity' => $activitym, 'amt' => $totalrm, 'ttlpaid' => amountExchange_s($amount, 0, $this->aauth->get_user()->loc)));
-		
+
         $alert = $this->custom->get_configs_emails($this->aauth->get_user()->loc);
         if ($alert['trans_email'] == 1) {
             $this->load->model('communication_model');
@@ -247,9 +245,9 @@ class Transactions extends CI_Controller
 
     public function paypurchase()
     {
-		if (!$this->aauth->premission(5)) {
-			exit($this->lang->line('translate19'));	
-		}
+        if (!$this->aauth->premission(5)) {
+            exit($this->lang->line('translate19'));
+        }
 
         $tid = $this->input->post('tid', true);
         $amount = $this->input->post('amount', true);
@@ -316,16 +314,15 @@ class Transactions extends CI_Controller
             $status = 'Paid';
             $paid_amount = $amount;
         }
-		
-		$discship = [];
-		if($this->aauth->get_user()->loc == 0)
-		{
-			$discship = $this->settings->online_pay_settings_main();
-		}else{
-			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
-		}
-		$dual = $discship;
-		if($dual['dual_entry']>0){
+
+        $discship = [];
+        if ($this->aauth->get_user()->loc == 0) {
+            $discship = $this->settings->online_pay_settings_main();
+        } else {
+            $discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+        }
+        $dual = $discship;
+        if ($dual['dual_entry'] > 0) {
             $this->db->select('holder');
             $this->db->from('geopos_accounts');
             $this->db->where('id', $dual['ac_id_d']);
@@ -357,7 +354,7 @@ class Transactions extends CI_Controller
     public function cancelinvoice()
     {
         if ($this->aauth->get_user()->roleid < 5) {
-			 exit($this->lang->line('translate19'));
+            exit($this->lang->line('translate19'));
         }
         $tid = intval($this->input->post('tid'));
 
@@ -401,7 +398,7 @@ class Transactions extends CI_Controller
     public function cancelpurchase()
     {
         if ($this->aauth->get_user()->roleid < 5) {
-			 exit($this->lang->line('translate19'));
+            exit($this->lang->line('translate19'));
         }
         $tid = intval($this->input->post('tid'));
         $this->db->set('pamnt', "0.00", FALSE);
@@ -440,7 +437,7 @@ class Transactions extends CI_Controller
     public function translist()
     {
         if (!$this->aauth->premission(98) && !$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7) {
-			 exit($this->lang->line('translate19'));
+            exit($this->lang->line('translate19'));
         }
         $ttype = $this->input->get('type');
         $list = $this->transactions->get_datatables($ttype);
@@ -457,7 +454,7 @@ class Transactions extends CI_Controller
             $row[] = amountExchange($prd->credit, 0, $this->aauth->get_user()->loc);
             $row[] = $prd->payer;
             $row[] = $prd->methodname;
-            $row[] = '<a href="' . base_url() . 'transactions/view?id=' . $pid . '" class="btn btn-primary btn-sm"><span class="fa fa-eye"></span>  ' . $this->lang->line('View') . '</a> <a href="' . base_url() . 'transactions/print_t?id=' . $pid . '" class="btn btn-info btn-sm"  title="Print"><span class="fa fa-print"></span></a>&nbsp; &nbsp;<a  href="#" data-object-id="' . $pid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
+            $row[] = '<div class="action-btn"><a href="' . base_url() . 'transactions/view?id=' . $pid . '" class="btn btn-outline-success btn-sm" title="' . $this->lang->line('View') . '"><span class="bi bi-eye"></span>  ' . '</a> <a href="' . base_url() . 'transactions/print_t?id=' . $pid . '" class="btn btn-outline-secondary btn-sm"  title="' . $this->lang->line('Print') . '"><span class="bi bi-printer"></span></a><a  href="#" data-object-id="' . $pid . '" class="btn btn-outline-danger btn-sm delete-object" title="' . $this->lang->line('Delete') . '"><span class="bi bi-trash"></span></a></div>';
             $data[] = $row;
         }
         $output = array(
@@ -476,9 +473,9 @@ class Transactions extends CI_Controller
     {
         $this->li_a = 'accounts';
         if ($this->aauth->get_user()->roleid < 5) {
-			 exit($this->lang->line('translate19'));
+            exit($this->lang->line('translate19'));
         }
-		
+
         $data['catlist'] = $this->transactions->categories();
         $head['title'] = "Category";
         $head['usernm'] = $this->aauth->get_user()->username;
@@ -520,14 +517,14 @@ class Transactions extends CI_Controller
 
     public function save_createcat()
     {
-		if (!$this->aauth->premission(5)) {
+        if (!$this->aauth->premission(5)) {
             exit($this->lang->line('translate19'));
         }
 
         $name = $this->input->post('catname');
-		$cod = $this->input->post('catcod');
+        $cod = $this->input->post('catcod');
 
-        if ($this->transactions->addcat($name,$cod)) {
+        if ($this->transactions->addcat($name, $cod)) {
             echo json_encode(array('status' => 'Success', 'message' =>
                 $this->lang->line('ADDED')));
         } else {
@@ -544,7 +541,7 @@ class Transactions extends CI_Controller
         }
         $id = $this->input->post('catid');
         $name = $this->input->post('cat_name');
-		$cod = $this->input->post('catcod');
+        $cod = $this->input->post('catcod');
 
         if ($this->transactions->cat_update($id, $name, $cod)) {
 
@@ -562,40 +559,38 @@ class Transactions extends CI_Controller
 
     public function delete_cat()
     {
-        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
-			exit($this->lang->line('translate19'));
-		}
-		$id = $this->input->post('deleteid');
-		$catVm = $this->transactions->cat_details($id);
-		
-        if($catVm['delete1'] == 1)
-		{
-			echo json_encode(array('status' => 'Error', 'message' => 'Categoria do Sistema, não pode ser Apagada.'));
-		}else{
-			if ($id) {
-				$this->db->delete('geopos_trans_cat', array('id' => $id));
-				echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('DELETED')));
-			} else {
-				echo json_encode(array('status' => 'Error', 'message' => 'Error!'));
-			}
-		}
+        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7) {
+            exit($this->lang->line('translate19'));
+        }
+        $id = $this->input->post('deleteid');
+        $catVm = $this->transactions->cat_details($id);
+
+        if ($catVm['delete1'] == 1) {
+            echo json_encode(array('status' => 'Error', 'message' => 'Categoria do Sistema, não pode ser Apagada.'));
+        } else {
+            if ($id) {
+                $this->db->delete('geopos_trans_cat', array('id' => $id));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('DELETED')));
+            } else {
+                echo json_encode(array('status' => 'Error', 'message' => 'Error!'));
+            }
+        }
     }
 
     public function save_trans()
     {
         if (!$this->aauth->premission(74) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
-		
-		$this->load->model('settings_model', 'settings');
-		$discship = [];
-		if($this->aauth->get_user()->loc == 0)
-		{
-			$discship = $this->settings->online_pay_settings_main();
-		}else{
-			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
-		}
-		$dual = $discship;
+            exit($this->lang->line('translate19'));
+        }
+
+        $this->load->model('settings_model', 'settings');
+        $discship = [];
+        if ($this->aauth->get_user()->loc == 0) {
+            $discship = $this->settings->online_pay_settings_main();
+        } else {
+            $discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+        }
+        $dual = $discship;
         $credit = 0;
         $debit = 0;
         $payer_id = $this->input->post('payer_id', true);
@@ -618,7 +613,7 @@ class Transactions extends CI_Controller
             if ($this->transactions->addtrans($payer_id, $payer_name, $pay_acc, $date, $debit, $credit, $pay_type, $pay_cat, $paymethod, $note, $this->aauth->get_user()->id, $this->aauth->get_user()->loc, $payer_ty)) {
                 $lid = $this->db->insert_id();
 
-               if($dual['dual_entry']>0){
+                if ($dual['dual_entry'] > 0) {
                     $pay_acc = $this->input->post('f_pay_acc', true);
                     $pay_cat = $this->input->post('f_pay_cat');
                     $paymethod = $this->input->post('f_paymethod');
@@ -637,32 +632,31 @@ class Transactions extends CI_Controller
                 }
 
                 echo json_encode(array('status' => 'Success', 'message' =>
-                    $this->lang->line('Transaction has been') . "  <a href='" . base_url() . "transactions/add' class='btn btn-blue '><span class='fa fa-plus-circle' aria-hidden='true'></span> " . $this->lang->line('New') . "  </a> <a href='" . base_url() . 'transactions/view?id=' . $lid . "' class='btn btn-primary btn-xs'><span class='fa fa-eye'></span>  " . $this->lang->line('View') . "</a> <a href='" . base_url() . "transactions' class='btn btn-pink '><span class='fa fa-list-alt aria-hidden='true'></span></a>"));
+                    $this->lang->line('Transaction has been') . "  <a href='" . base_url() . "transactions/add' class='btn btn-blue '><span class='fa fa-plus-circle' aria-hidden='true'></span> " . $this->lang->line('New') . "  </a> <a href='" . base_url() . 'transactions/view?id=' . $lid . "' class='btn btn-primary btn-xs'><span class='bi bi-eye'></span>  " . $this->lang->line('View') . "</a> <a href='" . base_url() . "transactions' class='btn btn-pink '><span class='fa fa-list-alt aria-hidden='true'></span></a>"));
             }
         } else {
             echo json_encode(array('status' => 'Error', 'message' =>
                 'Error!'));
         }
-		
-		$alert = $this->custom->get_configs_emails($this->aauth->get_user()->loc);
+
+        $alert = $this->custom->get_configs_emails($this->aauth->get_user()->loc);
         if ($alert['trans_email'] == 1) {
             $this->load->model('communication_model');
-			$subject = "";
-			$body = "";
-			if($pay_type == 'Salaries')
-			{
-				$subject = $payer_name . '<br>Realizada uma transferência de Salário.<br>';
-				$body = $subject . '<br> Foi transferido o valor de: ' . $amount . '<br> Obrigado pela sua Colaboração.';
-			}else{
-				$subject = $payer_name . '<br>' . $this->lang->line('Transaction has been').'<br>';
-				if ($pay_type == 'Income' || $pay_type == 'Subscription' || $pay_type == 'Transfer') {
-					$body = $subject . '<br> Foi dado como Crédito o valor de: ' . $amount . '<br> Obrigado pela sua Preferência.';
-				} elseif ($pay_type == 'Expense') {
-					$body = $subject . '<br> Foi dado como Débito o valor de: ' .$amount. '<br> Obrigado pela sua Preferência.';
-				}
-			}
-            
-           
+            $subject = "";
+            $body = "";
+            if ($pay_type == 'Salaries') {
+                $subject = $payer_name . '<br>Realizada uma transferência de Salário.<br>';
+                $body = $subject . '<br> Foi transferido o valor de: ' . $amount . '<br> Obrigado pela sua Colaboração.';
+            } else {
+                $subject = $payer_name . '<br>' . $this->lang->line('Transaction has been') . '<br>';
+                if ($pay_type == 'Income' || $pay_type == 'Subscription' || $pay_type == 'Transfer') {
+                    $body = $subject . '<br> Foi dado como Crédito o valor de: ' . $amount . '<br> Obrigado pela sua Preferência.';
+                } elseif ($pay_type == 'Expense') {
+                    $body = $subject . '<br> Foi dado como Débito o valor de: ' . $amount . '<br> Obrigado pela sua Preferência.';
+                }
+            }
+
+
             $out = $this->communication_model->send_corn_email($alert['email_app'], $alert['emailo_remet'], $subject, $body, false, '');
         }
 
@@ -672,8 +666,8 @@ class Transactions extends CI_Controller
     public function save_transfer()
     {
         if (!$this->aauth->premission(74) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
-			exit($this->lang->line('translate19'));
-		}
+            exit($this->lang->line('translate19'));
+        }
 
         $pay_acc = $this->input->post('pay_acc');
         $pay_acc2 = $this->input->post('pay_acc2');
@@ -695,9 +689,9 @@ class Transactions extends CI_Controller
 
     public function delete_i()
     {
-        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7) {
+            exit($this->lang->line('translate19'));
+        }
         $id = $this->input->post('deleteid');
         if ($id) {
             echo json_encode($this->transactions->delt($id));
@@ -756,7 +750,7 @@ class Transactions extends CI_Controller
 
     public function print_t()
     {
-       if (!$this->aauth->premission(5)) {
+        if (!$this->aauth->premission(5)) {
             exit($this->lang->line('translate19'));
         }
         $head['title'] = "View Transaction";

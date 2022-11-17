@@ -1,126 +1,138 @@
-<div class="card card-block yellow-top">
-    <div id="notify" class="alert alert-success" style="display:none;">
-        <a href="#" class="close" data-dismiss="alert">&times;</a>
-
-        <div class="message"></div>
-    </div>
+<div class="card yellow-top">
     <div class="card-header">
-        <h5 class="title"><?php echo $this->lang->line('Edit Gateway Details') . ' ( ' . $gateway['name'] ?>)</h5>
-        <hr>
-    </div>
-    <form method="post" id="data_form" class="form-horizontal">
-        <div class="card-body">
-            <input type="hidden" name="gid" value="<?php echo $gateway['id'] ?>">
-
-            <div class="form-group row">
-
-                <label class="col-sm-4 col-form-label"
-                       for="currency"><?php echo $this->lang->line('Currency Code') ?>
-                    <small>(i.e. USD,AUD)</small>
-                </label>
-
-                <div class="col-sm-8">
-                    <input type="text"
-                           class="form-control margin-bottom  required" name="currency"
-                           value="<?php echo $gateway['currency'] ?>">
-                </div>
-            </div>
-
-
-            <div class="form-group row">
-
-                <label class="col-sm-4 col-form-label" for="key1"><?php echo $this->lang->line('API Key') ?></label>
-
-                <div class="col-sm-8">
-                    <input type="text"
-                           class="form-control margin-bottom  required" name="key1"
-                           value="<?php echo $gateway['key1'] ?>">
-                </div>
-            </div>
-            <?php if ($gateway['key2'] != 'none') { ?>
-                <div class="form-group row">
-
-                    <label class="col-sm-4 col-form-label"
-                           for="key2"><?php echo $this->lang->line('Key 2') ?></label>
-
-                    <div class="col-sm-8">
-                        <input type="text"
-                               class="form-control margin-bottom  required" name="key2"
-                               value="<?php echo $gateway['key2'] ?>">
-                    </div>
-                </div>
-            <?php } ?>
-
-            <?php if ($gateway['extra'] != 'none') { ?>
-                <div class="form-group row">
-
-                    <label class="col-sm-4 col-form-label"
-                           for="key2"><?php echo $this->lang->line('Other') ?></label>
-
-                    <div class="col-sm-8">
-                        <input type="text"
-                               class="form-control margin-bottom  required" name="key2"
-                               value="<?php echo $gateway['extra'] ?>">
-                    </div>
-                </div>
-            <?php } ?>
-
-            <div class="form-group row">
-
-                <label class="col-sm-4 col-form-label"
-                       for="enable"><?php echo $this->lang->line('Enable Gateway') ?></label>
-
-                <div class="col-sm-8">
-                    <select class="form-control" name="enable">
-                        <option value="<?php echo $gateway['enable'] ?>">
-                            --<?php echo $this->lang->line($gateway['enable']) ?>--
-                        </option>
-                        <option value="Yes"><?php echo $this->lang->line('Yes') ?></option>
-                        <option value="No"><?php echo $this->lang->line('No') ?></option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group row">
-
-                <label class="col-sm-4 col-form-label"
-                       for="devmode"><?php echo $this->lang->line('Test Mode') ?></label>
-
-                <div class="col-sm-8">
-                    <select class="form-control" name="devmode">
-                        <option value="<?php echo $gateway['dev_mode'] ?>">--<?php echo $gateway['dev_mode'] ?>--
-                        </option>
-                        <option value="true">true</option>
-                        <option value="false">false</option>
-                    </select>
-                </div>
-            </div>
-
-
-            <div class="form-group row">
-
-                <label class="col-sm-4 col-form-label"
-                       for="key2"><?php echo $this->lang->line('Processing Fee') ?> (in %)</label>
-
-                <div class="col-sm-8">
-                    <input type="text"
-                           class="form-control margin-bottom  required" name="p_fee"
-                           value="<?php echo $gateway['surcharge'] ?>">
-                </div>
-            </div>
-
-
-            <div class="form-group row">
-
-                <label class="col-sm-4 col-form-label"></label>
-
-                <div class="col-sm-4" id="paiCompanyUpdate">
-                    <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
-                           value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
-                    <input type="hidden" value="paymentgateways/edit" id="action-url">
-                </div>
-            </div>
-
+        <h5 class="title">
+            <a class="btn-back" onclick=history.go(-1)>
+                <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+            </a>
+            <?php echo $this->lang->line('Edit Gateway Details') . ' ( ' . $gateway['name'] ?>)
+        </h5>
+        <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+        <div class="heading-elements">
+            <ul class="list-inline mb-0">
+                <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                <li><a data-action="close"><i class="ft-x"></i></a></li>
+            </ul>
         </div>
-    </form>
+        <div id="notify" class="alert alert-success" style="display:none;">
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
 
-</div>
+            <div class="message"></div>
+        </div>
+
+        <form method="post" id="data_form" class="form-horizontal">
+            <div class="card-body">
+                <input type="hidden" name="gid" value="<?php echo $gateway['id'] ?>">
+
+                <div class="form-group row">
+
+                    <label class="col-sm-2 col-form-label"
+                           for="currency"><?php echo $this->lang->line('Currency Code') ?>
+                        <small>(i.e. USD,AUD)</small>
+                    </label>
+
+                    <div class="col-sm-6">
+                        <input type="text"
+                               class="form-control margin-bottom  required" name="currency"
+                               value="<?php echo $gateway['currency'] ?>">
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+
+                    <label class="col-sm-2 col-form-label" for="key1"><?php echo $this->lang->line('API Key') ?></label>
+
+                    <div class="col-sm-6">
+                        <input type="text"
+                               class="form-control margin-bottom  required" name="key1"
+                               value="<?php echo $gateway['key1'] ?>">
+                    </div>
+                </div>
+                <?php if ($gateway['key2'] != 'none') { ?>
+                    <div class="form-group row">
+
+                        <label class="col-sm-2 col-form-label"
+                               for="key2"><?php echo $this->lang->line('Key 2') ?></label>
+
+                        <div class="col-sm-6">
+                            <input type="text"
+                                   class="form-control margin-bottom  required" name="key2"
+                                   value="<?php echo $gateway['key2'] ?>">
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <?php if ($gateway['extra'] != 'none') { ?>
+                    <div class="form-group row">
+
+                        <label class="col-sm-2 col-form-label"
+                               for="key2"><?php echo $this->lang->line('Other') ?></label>
+
+                        <div class="col-sm-6">
+                            <input type="text"
+                                   class="form-control margin-bottom  required" name="key2"
+                                   value="<?php echo $gateway['extra'] ?>">
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <div class="form-group row">
+
+                    <label class="col-sm-2 col-form-label"
+                           for="enable"><?php echo $this->lang->line('Enable Gateway') ?></label>
+
+                    <div class="col-sm-6">
+                        <select class="form-control" name="enable">
+                            <option value="<?php echo $gateway['enable'] ?>">
+                                --<?php echo $this->lang->line($gateway['enable']) ?>--
+                            </option>
+                            <option value="Yes"><?php echo $this->lang->line('Yes') ?></option>
+                            <option value="No"><?php echo $this->lang->line('No') ?></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+
+                    <label class="col-sm-2 col-form-label"
+                           for="devmode"><?php echo $this->lang->line('Test Mode') ?></label>
+
+                    <div class="col-sm-6">
+                        <select class="form-control" name="devmode">
+                            <option value="<?php echo $gateway['dev_mode'] ?>">--<?php echo $gateway['dev_mode'] ?>--
+                            </option>
+                            <option value="true">true</option>
+                            <option value="false">false</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+
+                    <label class="col-sm-2 col-form-label"
+                           for="key2"><?php echo $this->lang->line('Processing Fee') ?> (in %)</label>
+
+                    <div class="col-sm-6">
+                        <input type="text"
+                               class="form-control margin-bottom  required" name="p_fee"
+                               value="<?php echo $gateway['surcharge'] ?>">
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+
+                    <label class="col-sm-2 col-form-label"></label>
+
+                    <div class="col-sm-4" id="paiCompanyUpdate">
+                        <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
+                               value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
+                        <input type="hidden" value="paymentgateways/edit" id="action-url">
+                    </div>
+                </div>
+
+            </div>
+        </form>
+
+    </div>

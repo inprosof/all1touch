@@ -160,20 +160,28 @@
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-				<label class='btn-blue' style="display: block;"><span class='fa fa-plus-circle'></span>
-					<strong>Atenção:</strong> Esta ferramenta permite-lhe colocar um documento em estado anulado, caso cumpra as condições impostas pela Autoridade Tributária.<strong>Ao efetuar esta operação, irá ficar associado e responsabilizado pela operação perante as autoridades competentes.</strong>
-				</label>
-                <p>Caso já tenha comunicado à Autoridade Tributária o ficheiro SAF-T(PT) referente ao mês do documento que estiver a anular, terá que o voltar a exportar e submeter no eFatura.</p>
+                <div class="alert alert-info" id="alert-info-text">
+                    <strong>Atenção:</strong> Esta ferramenta permite-lhe colocar um documento em estado anulado, caso
+                    cumpra as condições impostas pela Autoridade Tributária.<strong>Ao efetuar esta operação, irá ficar
+                        associado e responsabilizado pela operação perante as autoridades competentes.</strong>
+                </div>
+                <p>Caso já tenha comunicado à Autoridade Tributária o ficheiro SAF-T(PT) referente ao mês do documento
+                    que estiver a anular, terá que o voltar a exportar e submeter no eFatura.</p>
             </div>
             <div class="modal-footer">
                 <input type="hidden" id="object-id" value="">
-				<input type="hidden" id="object-tid" value="">
-				<input type="hidden" id="object-tdraft" value="1">
-                <input type="hidden" id="action-url" value="guides/delete_i">
-				<textarea class="summernote" name="justification_cancel" id="justification_cancel" rows="1"></textarea></div>
-                <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete-confirm">Anular</button>
-                <button type="button" data-dismiss="modal"
-                        class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                <input type="hidden" id="object-tid" value="">
+                <input type="hidden" id="object-tdraft" value="1">
+                <input type="hidden" id="action-url" value="invoices/delete_i">
+                <textarea class="summernote" name="justification_cancel" id="justification_cancel" rows="1"></textarea>
+            </div>
+            <div class="row" id="centerButton">
+                <div class="col-sm-12">
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete-confirm">Anular
+                    </button>
+                    <button type="button" data-dismiss="modal"
+                            class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                </div>
             </div>
         </div>
     </div>
@@ -207,6 +215,26 @@
     </div>
 </div>
 <script type="text/javascript">
+    $(function () {
+        $('.summernote').summernote({
+            height: 50,
+            tooltip: false,
+            toolbar: [
+                // [groupName, [list of button]]
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['fullscreen', ['fullscreen']],
+                ['codeview', ['codeview']]
+            ]
+        });
+    });
+
+</script>
+<script type="text/javascript">
     $(document).ready(function () {
         draw_data();
 
@@ -227,6 +255,13 @@
                         end_date: end_date
                     }
                 },
+				'rowCallback': function (row, data, cell) {
+					if (data.status == 'canceled') {
+						$(row).css('background-color', ' rgba(255, 0, 39, 0.22)');
+					} else if (data.status == 'draft') {
+						$(row).css('background-color', ' rgba(250, 255, 70, 0.8)');
+					}
+				},
                 'columnDefs': [
                     {
                         'targets': [0],

@@ -70,12 +70,18 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card yellow-top">
 
         <div class="card-header">
-            <h3><?php echo $this->lang->line('Task') ?> <a href="<?php echo base_url() ?>tools/addtask"
-                                                           class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(66) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
-                    Adicionar Nova </a></h3>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Task') ?>
+                <a href="<?php echo base_url() ?>tools/addtask" class="btn btn-primary btn-sm btn-new"
+                    <?php if ($this->aauth->premission(66) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                    Adicionar Nova </a>
+            </h5>
 
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
@@ -86,11 +92,11 @@
                 </ul>
             </div>
         </div>
-		<div id="notify" class="alert alert-success" style="display:none;">
-			<a href="#" class="close" data-dismiss="alert">&times;</a>
+        <div id="notify" class="alert alert-success" style="display:none;">
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
 
-			<div class="message"></div>
-		</div>
+            <div class="message"></div>
+        </div>
         <div class="card-body">
             <table id="todotable" class="table table-striped table-bordered zero-configuration">
                 <thead>
@@ -146,21 +152,23 @@
             <div class="modal-body">
                 <form id="form_model">
                     <div class="row">
-						<div class="col mb-1">
-							<label for="pmethod"><?php echo $this->lang->line('Change Status') ?></label>
+                        <div class="col mb-1">
+                            <label for="pmethod"><?php echo $this->lang->line('Change Status') ?></label>
                             <select id="stat" name="stat" class="form-control mb-1">
                                 <option value='Due'><?php echo $this->lang->line('Due') ?></option>
-								<option value='Done'><?php echo $this->lang->line('Done') ?></option>
-								<option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
+                                <option value='Done'><?php echo $this->lang->line('Done') ?></option>
+                                <option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
                             </select>
                         </div>
                     </div>
 
                     <div class="modal-footer">
                         <input type="hidden" class="form-control" name="tid" id="taskid" value="">
-						<button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line('Close'); ?></button>
-						<input type="hidden" id="action-url" value="tools/set_task">
-						<button type="button" class="btn btn-primary" id="submit_model"><?php echo $this->lang->line('Change Status'); ?></button>
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal"><?php echo $this->lang->line('Close'); ?></button>
+                        <input type="hidden" id="action-url" value="tools/set_task">
+                        <button type="button" class="btn btn-primary"
+                                id="submit_model"><?php echo $this->lang->line('Change Status'); ?></button>
                     </div>
                 </form>
             </div>

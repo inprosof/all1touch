@@ -1,7 +1,11 @@
 <div class="content-body">
     <div class="card yellow-top">
         <div class="card-header">
-            <h5 class="title"><?php echo $this->lang->line('Set Goals') ?>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Set Goals') ?>
                 <small>(in <?php echo $this->config->item('currency') ?>)</small>
             </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
@@ -30,7 +34,7 @@
                         <label class="col-sm-2 col-form-label"
                                for="income"><?php echo $this->lang->line('Income') ?></label>
 
-                        <div class="col-sm-5">
+                        <div class="col-sm-6">
                             <input type="text" placeholder="Income"
                                    class="form-control margin-bottom  required" name="income"
                                    value="<?php echo $goals['income'] ?>">
@@ -42,7 +46,7 @@
                         <label class="col-sm-2 col-form-label"
                                for="expense"><?php echo $this->lang->line('Expenses') ?></label>
 
-                        <div class="col-sm-5">
+                        <div class="col-sm-6">
                             <input type="text" placeholder="Expenses"
                                    class="form-control margin-bottom  required" name="expense"
                                    value="<?php echo $goals['expense'] ?>">
@@ -54,7 +58,7 @@
                         <label class="col-sm-2 col-form-label"
                                for="sales"><?php echo $this->lang->line('Sales') ?></label>
 
-                        <div class="col-sm-5">
+                        <div class="col-sm-6">
                             <input type="text" placeholder="Sales"
                                    class="form-control margin-bottom  required" name="sales"
                                    value="<?php echo $goals['sales'] ?>">
@@ -66,7 +70,7 @@
                         <label class="col-sm-2 col-form-label"
                                for="netincome"><?php echo $this->lang->line('Net Income') ?></label>
 
-                        <div class="col-sm-5">
+                        <div class="col-sm-6">
                             <input type="text" placeholder="Net Income"
                                    class="form-control margin-bottom  required" name="netincome"
                                    value="<?php echo $goals['netincome'] ?>">
@@ -78,7 +82,7 @@
 
                         <label class="col-sm-2 col-form-label"></label>
 
-                        <div class="col-sm-4" id="paiCompanyUpdate">
+                        <div class="col-sm-6" id="paiCompanyUpdate">
                             <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
                                    value="<?php echo $this->lang->line('Update') ?>" data-loading-text="Atualizando...">
                             <input type="hidden" value="tools/setgoals" id="action-url">

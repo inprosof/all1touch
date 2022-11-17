@@ -1,13 +1,15 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
             <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
                 <?php echo $this->lang->line('Notes') ?> <a href="<?php echo base_url('tools/addnote') ?>"
-                                                            class="btn btn-primary btn-sm rounded">
+                                                            class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
-            <hr>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -28,16 +30,8 @@
                 <div class="content-body">
                     <div class="card">
                         <div class="card-header">
-                            <h5><?php echo $this->lang->line('Upload New Document') ?></h5>
-                            <hr>
-                            <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
-                            <div class="heading-elements">
-                                <ul class="list-inline mb-0">
-                                    <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
-                                    <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
-                                    <li><a data-action="close"><i class="ft-x"></i></a></li>
-                                </ul>
-                            </div>
+                            <h4 class="title"><?php echo $this->lang->line('Upload New Document') ?></h4>
+
                         </div>
                         <div class="card-content">
                             <div id="notify" class="alert alert-success" style="display:none;">
@@ -70,7 +64,7 @@
 
                                             <div class="form-group row">
 
-                                                <label class="col-sm-4 col-form-label"
+                                                <label class="col-sm-2 col-form-label"
                                                        for="name"><?php echo $this->lang->line('Title') ?></label>
 
                                                 <div class="col-sm-6">
@@ -79,7 +73,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="form-group row">
+                                            <div class="form-group row mb-3 mt-3">
 
                                                 <label class="col-sm-4 col-form-label"
                                                        for="name"><?php echo $this->lang->line('Document') ?>
@@ -95,11 +89,11 @@
 
                                                 <label class="col-sm-4 col-form-label"></label>
 
-                                                <div class="col-sm-4">
+                                                <div class="col-sm-2" id="paiCompanyUpdate">
                                                     <input type="submit" id="document_add"
                                                            class="btn btn-success margin-bottom"
                                                            value="<?php echo $this->lang->line('Upload Document') ?>"
-                                                           data-loading-text="Adding...">
+                                                           data-loading-text="Adicionando...">
                                                 </div>
                                             </div>
 

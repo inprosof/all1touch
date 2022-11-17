@@ -1,9 +1,14 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h4><?php echo $product['product_name'] . ' ';
-                echo $this->lang->line('Statements') ?></h4>
-            <hr>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $product['product_name'] . ' ';
+                echo $this->lang->line('Statements') ?>
+            </h5>
+
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -39,7 +44,8 @@
 
                                             <option value='1'><?php echo $this->lang->line('Sales') ?></option>
                                             <option value='2'><?php echo $this->lang->line('Purchase Order') ?></option>
-                                            <option value='3'>Alterações do <?php echo $this->lang->line('Stock')?></option>
+                                            <option value='3'>Alterações
+                                                do <?php echo $this->lang->line('Stock') ?></option>
                                         </select>
 
 
@@ -70,8 +76,9 @@
                                 <div class="form-group row">
                                     <label class="col-md-2 col-form-label" for="pay_cat"></label>
 
-                                    <div class="col-md-4">
-                                        <input type="submit" class="btn btn-primary btn-md" value="View">
+                                    <div class="col-md-4" id="paiCompanyUpdate">
+                                        <input type="submit" class="btn btn-primary btn-md"
+                                               value=<?php echo $this->lang->line("View") ?>>
 
 
                                     </div>

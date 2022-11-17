@@ -1,13 +1,15 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
             <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
                 <?php echo $this->lang->line('Events Type') ?> <a href="<?php echo base_url('events/addeventstype') ?>"
-                                                            class="btn btn-primary btn-sm rounded">
+                                                                  class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
-            <hr>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -31,7 +33,7 @@
                     <thead>
                     <tr>
                         <th>#</th>
-						<th><?php echo $this->lang->line('Name') ?></th>
+                        <th><?php echo $this->lang->line('Name') ?></th>
                         <th><?php echo $this->lang->line('Paid?') ?></th>
                         <th><?php echo $this->lang->line('Action') ?></th>
                     </tr>
@@ -87,13 +89,14 @@
             <div class="modal-header">
 
                 <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                    <?php 
-					echo $this->lang->line('Delete');
-                    echo ' ' . $this->lang->line('Event Type'); ?>
-                </div>
+                <?php
+                echo $this->lang->line('Delete');
+                echo ' ' . $this->lang->line('Event Type'); ?>
+            </div>
             <div class="modal-footer">
                 <input type="hidden" id="object-id" value="">
                 <input type="hidden" id="action-url" value="events/delEventType">

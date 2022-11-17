@@ -1,9 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
             <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
                 <?php echo $this->lang->line('Departments') ?> <a href="<?php echo base_url('employee/adddep') ?>"
-                                                                  class="btn btn-primary btn-sm rounded">
+                                                                  class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
@@ -49,7 +52,7 @@
                     <td>" . $row['val1'] . "</td>
                     
                  
-                    <td><a href='" . base_url("employee/department?id=$aid") . "' class='btn btn-success btn-sm'><i class='fa fa-eye'></i> " . $this->lang->line('View') . "</a> <a href='" . base_url("employee/editdep?id=$aid") . "' class='btn btn-blue  btn-sm'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a> <a href='#' data-object-id='$aid' class='btn btn-danger btn-sm delete-object  btn-sm'><span class='fa fa-trash'></span></a></td></tr>";
+                    <td><div class='action-btn'><a href='" . base_url("employee/department?id=$aid") . "' class='btn btn-outline-success btn-sm' title='" . $this->lang->line('View') . "'><i class='bi bi-eye'></i> </diva> <a href='" . base_url("employee/editdep?id=$aid") . "' class='btn btn-outline-primary  btn-sm' title='" . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i> </a> <a href='#' data-object-id='$aid' class='btn btn-outline-danger delete-object  btn-sm' title='" . $this->lang->line('Delete') . "'><span class='bi bi-trash'></span></a></td></tr></div>";
                         $i++;
                     }
                     ?>

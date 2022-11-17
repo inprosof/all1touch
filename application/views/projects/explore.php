@@ -70,9 +70,14 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h3><?php echo $project['name'] ?></h3>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $project['name'] ?>
+            </h5>
             <p><?php echo $this->lang->line('Status') ?>: <span
                         class="project_<?php echo $project['status'] ?>"><?php echo $this->lang->line($project['status']) ?></span>
             </p>
@@ -82,21 +87,23 @@
                 foreach ($emp as $row) {
                     echo '<span class="avatar"><img src="' . base_url() . '/userfiles/employee/thumbnail/' . $row['picture'] . '" title="' . $row['name'] . '" alt="' . $row['name'] . '"></span> &nbsp; ';
                 }
-                ?>         <hr> <?php echo '<span class="p-1 text-bold-300">' . $this->lang->line('Clock') . ':</span>';
-								if($clock != null)
-								{
-									if (!$clock['key3']) {
-										  echo '<span class="badge badge-danger">' . $this->lang->line('Off') . '</span><a href="' . base_url() . '/projects/clock_in?id='.$project['id'].'" class="btn btn-outline-success  btn-outline-white btn-md ml-1 mr-1" ><span class="icon-toggle-on" aria-hidden="true"></span> ' . $this->lang->line('Clock') . ' ' . $this->lang->line('In') . ' <i
+                ?>
+            <hr>
+            <?php echo '<span class="p-1 text-bold-300">' . $this->lang->line('Clock') . ':</span>';
+            if ($clock != null) {
+                if (!$clock['key3']) {
+                    echo '<span class="badge badge-danger">' . $this->lang->line('Off') . '</span><a href="' . base_url() . '/projects/clock_in?id=' . $project['id'] . '" class="btn btn-outline-success  btn-outline-white btn-md ml-1 mr-1" ><span class="icon-toggle-on" aria-hidden="true"></span> ' . $this->lang->line('Clock') . ' ' . $this->lang->line('In') . ' <i
 										class="ficon icon-clock "></i></a>';
-									} else {
-											   echo '<span class="badge badge-success">' . $this->lang->line('On') . '</span> <a href="' . base_url() . '/projects/clock_out?id='.$project['id'].'" class="btn btn-outline-danger  btn-outline-white btn-md ml-1 mr-1" ><span class="icon-toggle-off" aria-hidden="true"></span> ' . $this->lang->line('Clock') . ' ' . $this->lang->line('Out') . ' <i
+                } else {
+                    echo '<span class="badge badge-success">' . $this->lang->line('On') . '</span> <a href="' . base_url() . '/projects/clock_out?id=' . $project['id'] . '" class="btn btn-outline-danger  btn-outline-white btn-md ml-1 mr-1" ><span class="icon-toggle-off" aria-hidden="true"></span> ' . $this->lang->line('Clock') . ' ' . $this->lang->line('Out') . ' <i
 										class="ficon icon-clock spinner"></i></a>';
-									}
-									echo round(@$clock['key4'] / 3600, 2);
-									echo ' '.$this->lang->line('Hours') ;
-								}else{
-									echo '0 '.$this->lang->line('Hours') ;
-								}?></p> <hr>
+                }
+                echo round(@$clock['key4'] / 3600, 2);
+                echo ' ' . $this->lang->line('Hours');
+            } else {
+                echo '0 ' . $this->lang->line('Hours');
+            } ?></p>
+            <hr>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -116,7 +123,7 @@
 
     </div>
     <input type="hidden" id="dashurl" value="projects/task_stats?id=<?php echo $project['id']; ?>">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-body">
             <div class="card-block">
 
@@ -170,7 +177,7 @@
                            aria-controls="comments"><i
                                     class="fa fa-comment-o"></i> <?php echo $this->lang->line('Comments') ?></a>
                     </li>
-                         <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" id="clock-tab" data-toggle="tab" href="#clock"
                            aria-controls="clock"><i
                                     class="fa fa-clock-o"></i> <?php echo $this->lang->line('Clock') ?></a>
@@ -430,23 +437,25 @@
                     <div class="tab-pane fade" id="files" role="tabpanel" aria-labelledby="files-tab"
                          aria-expanded="false">
                         <p>
-                            <?php foreach ($p_files as $row) { ?>
+                            <?php foreach ($p_files
+
+                            as $row) { ?>
 
 
-                                <section class="row">
+                        <section class="row">
 
 
-                                    <div data-block="sec" class="col">
-                                        <div class=""><?php
+                            <div data-block="sec" class="col">
+                                <div class=""><?php
 
 
-                                            echo '<a class="" href="' . base_url('userfiles/project/' . $row['value']) . '">' . $row['value'] . '</a> &nbsp; &nbsp; <a href="#" class=" danger delete-custom" data-did="1" data-object-id="' . $row['meta_data'] . '"><i class="fa fa-trash"></i></a> ';
-                                            echo '<br>';
+                                    echo '<a class="" href="' . base_url('userfiles/project/' . $row['value']) . '">' . $row['value'] . '</a> &nbsp; &nbsp; <a href="#" class=" danger delete-custom" data-did="1" data-object-id="' . $row['meta_data'] . '"><i class="fa fa-trash"></i></a> ';
+                                    echo '<br>';
 
-                                            ?></div>
-                                    </div>
-                                </section>
-                            <?php } ?>
+                                    ?></div>
+                            </div>
+                        </section>
+                        <?php } ?>
                         </p>
                         <span class="btn btn-success fileinput-button">
         <i class="glyphicon glyphicon-plus"></i>
@@ -588,447 +597,450 @@
                     </div>
                     <!--comments-->
                     <!--clock-->
-                     <div role="tabpanel" class="tab-pane fade" id="clock"
-                         aria-labelledby="clock-tab" >
+                    <div role="tabpanel" class="tab-pane fade" id="clock"
+                         aria-labelledby="clock-tab">
                         <div class="table-responsive col-sm-12">
                             <table class="table">
 
                                 <tbody>
 
                                 <?php
-                                $f_hour=0;
-                                                foreach ($emp_time as $row) {
-           $thour=round(@$row['key4'] / 3600, 2);
-$f_hour+=$thour;
-                    echo '  <tr>
+                                $f_hour = 0;
+                                foreach ($emp_time as $row) {
+                                    $thour = round(@$row['key4'] / 3600, 2);
+                                    $f_hour += $thour;
+                                    echo '  <tr>
                                     <th scope="row"><span class="avatar"><img src="' . base_url() . '/userfiles/employee/thumbnail/' . $row['picture'] . '" title="' . $row['name'] . '" alt="' . $row['name'] . '"></span> &nbsp; ' . $row['name'] . '</th>
                                     <td>
-                                        <p>'.$thour .' '.$this->lang->line('Hours').'</p>
+                                        <p>' . $thour . ' ' . $this->lang->line('Hours') . '</p>
 
                                     </td>
 
                                 </tr>';
-                }
-                                                  echo '  <tr>
-                                    <th scope="row"><br> '.$this->lang->line('Total').'</th>
+                                }
+                                echo '  <tr>
+                                    <th scope="row"><br> ' . $this->lang->line('Total') . '</th>
                                     <td>
-                                        <p><br>'.$f_hour .' '.$this->lang->line('Hours').'</p>
+                                        <p><br>' . $f_hour . ' ' . $this->lang->line('Hours') . '</p>
 
                                     </td>
 
                                 </tr>';
-                                                ?>
+                                ?>
 
 
- </tbody> </table>
+                                </tbody>
+                            </table>
 
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="pop_model" class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;
+                            </button>
+                            <h4 class="modal-title"><?php echo $this->lang->line('Change Status'); ?></h4>
+                        </div>
+
+                        <div class="modal-body">
+                            <form id="form_model">
+                                <div class="row">
+                                    <div class="col-xs-12 mb-1"><label
+                                                for="status"><?php echo $this->lang->line('Change Status') ?></label>
+                                        <select name="stat" class="form-control mb-1">
+                                            <option value='Due'><?php echo $this->lang->line('Due') ?></option>
+                                            <option value='Done'><?php echo $this->lang->line('Done') ?></option>
+                                            <option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="hidden" class="form-control"
+                                           name="tid" id="taskid" value="">
+                                    <button type="button" class="btn btn-default"
+                                            data-dismiss="modal"><?php echo $this->lang->line('Close'); ?></button>
+                                    <input type="hidden" id="action-url" value="tools/set_task">
+                                    <button type="button" class="btn btn-primary"
+                                            id="submit_model"><?php echo $this->lang->line('Change Status'); ?></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="task_model" class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;
+                            </button>
+                            <h4 class="modal-title" id="task_title"><?php echo $this->lang->line('Details'); ?></h4>
+                        </div>
+
+                        <div class="modal-body">
+                            <form id="form_model">
+
+
+                                <div class="row">
+                                    <div class="col-xs-12 mb-1" id="description">
+
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-xs-12 mb-1"><?php echo $this->lang->line('Priority') ?>
+                                        <strong><span
+                                                    id="priority"></span></strong>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 mb-1"><?php echo $this->lang->line('Assigned to') ?>
+                                        <strong><span
+                                                    id="employee"></span></strong>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 mb-1"><?php echo $this->lang->line('Assigned by') ?>
+                                        <strong><span
+                                                    id="assign"></span></strong>
+
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <input type="hidden" class="form-control"
+                                           name="tid" id="taskid" value="">
+                                    <button type="button" class="btn btn-default"
+                                            data-dismiss="modal"><?php echo $this->lang->line('Close'); ?></button>
+
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
 
-    <div id="pop_model" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;
-                    </button>
-                    <h4 class="modal-title"><?php echo $this->lang->line('Change Status'); ?></h4>
+        <!-- add task -->
+        <!--dynamic delete -->
+        <div id="delete_model_1" class="modal fade">
+            <form id="mform_1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+
+                            <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                        </div>
+
+                        <div class="modal-footer">
+                            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                            <input type="hidden" id="object-id_1" value="" name="object_id">
+                            <input type="hidden" id="action-url_1" value="projects/delete_file">
+                            <button type="button" data-dismiss="modal" class="btn btn-primary delete-confirm"
+                                    id="delete-confirm_1"><?php echo $this->lang->line('Delete') ?></button>
+                            <button type="button" data-dismiss="modal"
+                                    class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                        </div>
+                    </div>
                 </div>
+            </form>
+        </div>
+        <!--dynamic delete 2-->
+        <div id="delete_model_2" class="modal fade">
+            <form id="mform_2">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 
-                <div class="modal-body">
-                    <form id="form_model">
-                        <div class="row">
-                            <div class="col-xs-12 mb-1"><label
-                                        for="status"><?php echo $this->lang->line('Change Status') ?></label>
-                                <select name="stat" class="form-control mb-1">
-                                    <option value='Due'><?php echo $this->lang->line('Due') ?></option>
-									<option value='Done'><?php echo $this->lang->line('Done') ?></option>
-									<option value='Progress'><?php echo $this->lang->line('Progress') ?></option>
-                                </select>
-                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+
+                            <input type="hidden" id="object-id_2" value="" name="object_id">
+                            <input type="hidden" id="action-url_2" value="projects/delete_milestone">
+                            <button type="button" data-dismiss="modal" class="btn btn-primary delete-confirm"
+                                    id="delete-confirm_2"><?php echo $this->lang->line('Delete') ?></button>
+                            <button type="button" data-dismiss="modal"
+                                    class="btn"><?php echo $this->lang->line('Cancel') ?></button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 3 -->
+        <div id="delete_model_3" class="modal fade">
+            <form id="mform_3">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
+                        </div>
+                        <div class="modal-body">
+                            <p><?php echo $this->lang->line('delete this task') ?> </p>
                         </div>
                         <div class="modal-footer">
-                            <input type="hidden" class="form-control"
-                                   name="tid" id="taskid" value="">
-                            <button type="button" class="btn btn-default"
-                                    data-dismiss="modal"><?php echo $this->lang->line('Close'); ?></button>
-                            <input type="hidden" id="action-url" value="tools/set_task">
-                            <button type="button" class="btn btn-primary"
-                                    id="submit_model"><?php echo $this->lang->line('Change Status'); ?></button>
+                            <input type="hidden" id="object-id_3" value="" name="deleteid">
+                            <input type="hidden" id="action-url_3" value="tools/delete_i">
+                            <button type="button" data-dismiss="modal" class="btn btn-primary delete-confirm"
+                                    id="delete-confirm_3"><?php echo $this->lang->line('Delete') ?></button>
+                            <button type="button" data-dismiss="modal"
+                                    class="btn"><?php echo $this->lang->line('Cancel') ?></button>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
         </div>
-    </div>
-    <div id="task_model" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;
-                    </button>
-                    <h4 class="modal-title" id="task_title"><?php echo $this->lang->line('Details'); ?></h4>
-                </div>
 
-                <div class="modal-body">
-                    <form id="form_model">
+        <script type="text/javascript">
 
+            $(document).ready(function () {
 
-                        <div class="row">
-                            <div class="col-xs-12 mb-1" id="description">
+                $('#todotable').DataTable({
 
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-xs-12 mb-1"><?php echo $this->lang->line('Priority') ?> <strong><span
-                                            id="priority"></span></strong>
+                    "processing": true,
+                    "serverSide": true,
+                    responsive: true,
+                    <?php datatable_lang();?>
+                    'createdRow': function (row, data, dataIndex) {
+                        $(row).attr('data-block', '0');
+                    },
+                    "order": [],
+                    "ajax": {
+                        "url": "<?php echo site_url('projects/todo_load_list')?>",
+                        "type": "POST",
+                        data: {
+                            'pid':<?php echo $project['id']; ?>,
+                            '<?=$this->security->get_csrf_token_name()?>': crsf_hash
+                        }
+                    },
+                    "columnDefs": [
+                        {
+                            "targets": [1],
+                            "orderable": true,
+                        },
+                    ],
 
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12 mb-1"><?php echo $this->lang->line('Assigned to') ?>
-                                <strong><span
-                                            id="employee"></span></strong>
+                });
 
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12 mb-1"><?php echo $this->lang->line('Assigned by') ?>
-                                <strong><span
-                                            id="assign"></span></strong>
+                $(function () {
+                    $('.select-box').select2();
 
-                            </div>
-                        </div>
-
-                        <div class="modal-footer">
-                            <input type="hidden" class="form-control"
-                                   name="tid" id="taskid" value="">
-                            <button type="button" class="btn btn-default"
-                                    data-dismiss="modal"><?php echo $this->lang->line('Close'); ?></button>
-
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- add task -->
-<!--dynamic delete -->
-<div id="delete_model_1" class="modal fade">
-    <form id="mform_1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-
-                    <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                </div>
-
-                <div class="modal-footer">
-                    <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
-                    <input type="hidden" id="object-id_1" value="" name="object_id">
-                    <input type="hidden" id="action-url_1" value="projects/delete_file">
-                    <button type="button" data-dismiss="modal" class="btn btn-primary delete-confirm"
-                            id="delete-confirm_1"><?php echo $this->lang->line('Delete') ?></button>
-                    <button type="button" data-dismiss="modal"
-                            class="btn"><?php echo $this->lang->line('Cancel') ?></button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-<!--dynamic delete 2-->
-<div id="delete_model_2" class="modal fade">
-    <form id="mform_2">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                     <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
-                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <input type="hidden" id="object-id_2" value="" name="object_id">
-                    <input type="hidden" id="action-url_2" value="projects/delete_milestone">
-                    <button type="button" data-dismiss="modal" class="btn btn-primary delete-confirm"
-                            id="delete-confirm_2"><?php echo $this->lang->line('Delete') ?></button>
-                    <button type="button" data-dismiss="modal"
-                            class="btn"><?php echo $this->lang->line('Cancel') ?></button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-<!-- 3 -->
-<div id="delete_model_3" class="modal fade">
-    <form id="mform_3">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"><?php echo $this->lang->line('Delete') ?></h4>
-                </div>
-                <div class="modal-body">
-                    <p><?php echo $this->lang->line('delete this task') ?> </p>
-                </div>
-                <div class="modal-footer">
-                    <input type="hidden" id="object-id_3" value="" name="deleteid">
-                    <input type="hidden" id="action-url_3" value="tools/delete_i">
-                    <button type="button" data-dismiss="modal" class="btn btn-primary delete-confirm"
-                            id="delete-confirm_3"><?php echo $this->lang->line('Delete') ?></button>
-                    <button type="button" data-dismiss="modal"
-                            class="btn"><?php echo $this->lang->line('Cancel') ?></button>
-                </div>
-            </div>
-        </div>
-</div>
-
-<script type="text/javascript">
-
-    $(document).ready(function () {
-
-        $('#todotable').DataTable({
-
-            "processing": true,
-            "serverSide": true,
-            responsive: true,
-            <?php datatable_lang();?>
-            'createdRow': function (row, data, dataIndex) {
-                $(row).attr('data-block', '0');
-            },
-            "order": [],
-            "ajax": {
-                "url": "<?php echo site_url('projects/todo_load_list')?>",
-                "type": "POST",
-                data: {
-                    'pid':<?php echo $project['id']; ?>,
-                    '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-                }
-            },
-            "columnDefs": [
-                {
-                    "targets": [1],
-                    "orderable": true,
-                },
-            ],
-
-        });
-
-        $(function () {
-            $('.select-box').select2();
-
-            $('.summernote').summernote({
-                height: 250,
-                toolbar: [
-                    // [groupName, [list of button]]
-                    ['style', ['bold', 'italic', 'underline', 'clear']],
-                    ['font', ['strikethrough', 'superscript', 'subscript']],
-                    ['fontsize', ['fontsize']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['height', ['height']],
-                    ['fullscreen', ['fullscreen']],
-                    ['codeview', ['codeview']]
-                ]
-            });
-        });
-
-        $(document).on('click', ".set-task", function (e) {
-            e.preventDefault();
-            $('#taskid').val($(this).attr('data-id'));
-
-            $('#pop_model').modal({backdrop: 'static', keyboard: false});
-
-        });
-
-
-        $(document).on('click', ".view_task", function (e) {
-            e.preventDefault();
-
-            var actionurl = 'tools/view_task';
-            var id = $(this).attr('data-id');
-            $('#task_model').modal({backdrop: 'static', keyboard: false});
-
-
-            $.ajax({
-
-                url: baseurl + actionurl,
-                type: 'POST',
-                data: {'tid': id, '<?=$this->security->get_csrf_token_name()?>': crsf_hash},
-                dataType: 'json',
-                success: function (data) {
-
-                    $('#description').html(data.description);
-                    $('#task_title').html(data.name);
-                    $('#employee').html(data.employee);
-                    $('#assign').html(data.assign);
-                    $('#priority').html(data.priority);
-                }
-
-            });
-
-        });
-        miniDash();
-
-
-    });
-
-</script>
-<script src="<?php echo assets_url('assets/vendors/js/upload/jquery.iframe-transport.js') ?>"></script>
-<script src="<?php echo assets_url('assets/vendors/js/upload/jquery.ui.widget.js') ?>"></script>
-<script src="<?php echo assets_url('assets/vendors/js/upload/load-image.all.min.js') ?>"></script>
-<script src="<?php echo assets_url('assets/vendors/js/upload/canvas-to-blob.min.js') ?>"></script>
-<!-- The basic File Upload plugin -->
-<script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload.js') ?>"></script>
-<!-- The File Upload processing plugin -->
-<script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-process.js') ?>"></script>
-<!-- The File Upload image preview & resize plugin -->
-<script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-image.js') ?>"></script>
-<!-- The File Upload audio preview plugin -->
-<script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-audio.js') ?>"></script>
-<!-- The File Upload video preview plugin -->
-<script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-video.js') ?>"></script>
-<!-- The File Upload validation plugin -->
-<script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-validate.js') ?>"></script>
-
-<script>
-    /*jslint unparam: true, regexp: true */
-    /*global window, $ */
-    $(function () {
-        'use strict';
-        // Change this to the location of your server-side upload handler:
-        var url = baseurl + 'projects/file_handling?id=<?php echo $project['id']; ?>',
-            uploadButton = $('<button/>')
-                .addClass('btn btn-primary')
-                .prop('disabled', true)
-                .text('Processing...')
-                .on('click', function () {
-                    var $this = $(this),
-                        data = $this.data();
-                    $this
-                        .off('click')
-                        .text('Abort')
-                        .on('click', function () {
-                            $this.remove();
-                            data.abort();
-                        });
-                    data.submit().always(function () {
-                        $this.remove();
+                    $('.summernote').summernote({
+                        height: 250,
+                        toolbar: [
+                            // [groupName, [list of button]]
+                            ['style', ['bold', 'italic', 'underline', 'clear']],
+                            ['font', ['strikethrough', 'superscript', 'subscript']],
+                            ['fontsize', ['fontsize']],
+                            ['color', ['color']],
+                            ['para', ['ul', 'ol', 'paragraph']],
+                            ['height', ['height']],
+                            ['fullscreen', ['fullscreen']],
+                            ['codeview', ['codeview']]
+                        ]
                     });
                 });
-        $('#fileupload').fileupload({
-            url: url,
-            dataType: 'json',
-            formData: {'<?=$this->security->get_csrf_token_name()?>': crsf_hash},
-            autoUpload: false,
-            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|docx|docs|txt|pdf|xls)$/i,
-            maxFileSize: 999000,
-            // Enable image resizing, except for Android and Opera,
-            // which actually support image resizing, but fail to
-            // send Blob objects via XHR requests:
-            disableImageResize: /Android(?!.*Chrome)|Opera/
-                .test(window.navigator.userAgent),
-            previewMaxWidth: 100,
-            previewMaxHeight: 100,
-            previewCrop: true
-        }).on('fileuploadadd', function (e, data) {
-            data.context = $('<div/>').appendTo('#files');
-            $.each(data.files, function (index, file) {
-                var node = $('<p/>')
-                    .append($('<span/>').text(file.name));
-                if (!index) {
-                    node
-                        .append('<br>')
-                        .append(uploadButton.clone(true).data(data));
-                }
-                node.appendTo(data.context);
+
+                $(document).on('click', ".set-task", function (e) {
+                    e.preventDefault();
+                    $('#taskid').val($(this).attr('data-id'));
+
+                    $('#pop_model').modal({backdrop: 'static', keyboard: false});
+
+                });
+
+
+                $(document).on('click', ".view_task", function (e) {
+                    e.preventDefault();
+
+                    var actionurl = 'tools/view_task';
+                    var id = $(this).attr('data-id');
+                    $('#task_model').modal({backdrop: 'static', keyboard: false});
+
+
+                    $.ajax({
+
+                        url: baseurl + actionurl,
+                        type: 'POST',
+                        data: {'tid': id, '<?=$this->security->get_csrf_token_name()?>': crsf_hash},
+                        dataType: 'json',
+                        success: function (data) {
+
+                            $('#description').html(data.description);
+                            $('#task_title').html(data.name);
+                            $('#employee').html(data.employee);
+                            $('#assign').html(data.assign);
+                            $('#priority').html(data.priority);
+                        }
+
+                    });
+
+                });
+                miniDash();
+
+
             });
-        }).on('fileuploadprocessalways', function (e, data) {
-            var index = data.index,
-                file = data.files[index],
-                node = $(data.context.children()[index]);
-            if (file.preview) {
-                node
-                    .prepend('<br>')
-                    .prepend(file.preview);
-            }
-            if (file.error) {
-                node
-                    .append('<br>')
-                    .append($('<span class="text-danger"/>').text(file.error));
-            }
-            if (index + 1 === data.files.length) {
-                data.context.find('button')
-                    .text('Upload')
-                    .prop('disabled', !!data.files.error);
-            }
-        }).on('fileuploadprogressall', function (e, data) {
-            var progress = parseInt(data.loaded / data.total * 100, 10);
-            $('#progress .progress-bar').css(
-                'width',
-                progress + '%'
-            );
-        }).on('fileuploaddone', function (e, data) {
-            $.each(data.result.files, function (index, file) {
-                if (file.url) {
-                    var link = $('<a>')
-                        .attr('target', '_blank')
-                        .prop('href', file.url);
-                    $(data.context.children()[index])
-                        .wrap(link);
-                } else if (file.error) {
-                    var error = $('<span class="text-danger"/>').text(file.error);
-                    $(data.context.children()[index])
-                        .append('<br>')
-                        .append(error);
-                }
+
+        </script>
+        <script src="<?php echo assets_url('assets/vendors/js/upload/jquery.iframe-transport.js') ?>"></script>
+        <script src="<?php echo assets_url('assets/vendors/js/upload/jquery.ui.widget.js') ?>"></script>
+        <script src="<?php echo assets_url('assets/vendors/js/upload/load-image.all.min.js') ?>"></script>
+        <script src="<?php echo assets_url('assets/vendors/js/upload/canvas-to-blob.min.js') ?>"></script>
+        <!-- The basic File Upload plugin -->
+        <script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload.js') ?>"></script>
+        <!-- The File Upload processing plugin -->
+        <script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-process.js') ?>"></script>
+        <!-- The File Upload image preview & resize plugin -->
+        <script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-image.js') ?>"></script>
+        <!-- The File Upload audio preview plugin -->
+        <script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-audio.js') ?>"></script>
+        <!-- The File Upload video preview plugin -->
+        <script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-video.js') ?>"></script>
+        <!-- The File Upload validation plugin -->
+        <script src="<?php echo assets_url('assets/vendors/js/upload/jquery.fileupload-validate.js') ?>"></script>
+
+        <script>
+            /*jslint unparam: true, regexp: true */
+            /*global window, $ */
+            $(function () {
+                'use strict';
+                // Change this to the location of your server-side upload handler:
+                var url = baseurl + 'projects/file_handling?id=<?php echo $project['id']; ?>',
+                    uploadButton = $('<button/>')
+                        .addClass('btn btn-primary')
+                        .prop('disabled', true)
+                        .text('Processing...')
+                        .on('click', function () {
+                            var $this = $(this),
+                                data = $this.data();
+                            $this
+                                .off('click')
+                                .text('Abort')
+                                .on('click', function () {
+                                    $this.remove();
+                                    data.abort();
+                                });
+                            data.submit().always(function () {
+                                $this.remove();
+                            });
+                        });
+                $('#fileupload').fileupload({
+                    url: url,
+                    dataType: 'json',
+                    formData: {'<?=$this->security->get_csrf_token_name()?>': crsf_hash},
+                    autoUpload: false,
+                    acceptFileTypes: /(\.|\/)(gif|jpe?g|png|docx|docs|txt|pdf|xls)$/i,
+                    maxFileSize: 999000,
+                    // Enable image resizing, except for Android and Opera,
+                    // which actually support image resizing, but fail to
+                    // send Blob objects via XHR requests:
+                    disableImageResize: /Android(?!.*Chrome)|Opera/
+                        .test(window.navigator.userAgent),
+                    previewMaxWidth: 100,
+                    previewMaxHeight: 100,
+                    previewCrop: true
+                }).on('fileuploadadd', function (e, data) {
+                    data.context = $('<div/>').appendTo('#files');
+                    $.each(data.files, function (index, file) {
+                        var node = $('<p/>')
+                            .append($('<span/>').text(file.name));
+                        if (!index) {
+                            node
+                                .append('<br>')
+                                .append(uploadButton.clone(true).data(data));
+                        }
+                        node.appendTo(data.context);
+                    });
+                }).on('fileuploadprocessalways', function (e, data) {
+                    var index = data.index,
+                        file = data.files[index],
+                        node = $(data.context.children()[index]);
+                    if (file.preview) {
+                        node
+                            .prepend('<br>')
+                            .prepend(file.preview);
+                    }
+                    if (file.error) {
+                        node
+                            .append('<br>')
+                            .append($('<span class="text-danger"/>').text(file.error));
+                    }
+                    if (index + 1 === data.files.length) {
+                        data.context.find('button')
+                            .text('Upload')
+                            .prop('disabled', !!data.files.error);
+                    }
+                }).on('fileuploadprogressall', function (e, data) {
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('#progress .progress-bar').css(
+                        'width',
+                        progress + '%'
+                    );
+                }).on('fileuploaddone', function (e, data) {
+                    $.each(data.result.files, function (index, file) {
+                        if (file.url) {
+                            var link = $('<a>')
+                                .attr('target', '_blank')
+                                .prop('href', file.url);
+                            $(data.context.children()[index])
+                                .wrap(link);
+                        } else if (file.error) {
+                            var error = $('<span class="text-danger"/>').text(file.error);
+                            $(data.context.children()[index])
+                                .append('<br>')
+                                .append(error);
+                        }
+                    });
+                }).on('fileuploadfail', function (e, data) {
+                    $.each(data.files, function (index) {
+                        var error = $('<span class="text-danger"/>').text('File upload failed.');
+                        $(data.context.children()[index])
+                            .append('<br>')
+                            .append(error);
+                    });
+                }).prop('disabled', !$.support.fileInput)
+                    .parent().addClass($.support.fileInput ? undefined : 'disabled');
             });
-        }).on('fileuploadfail', function (e, data) {
-            $.each(data.files, function (index) {
-                var error = $('<span class="text-danger"/>').text('File upload failed.');
-                $(data.context.children()[index])
-                    .append('<br>')
-                    .append(error);
+
+            var slider = $('#progress');
+            var textn = $('#prog');
+            textn.text(slider.val() + '%');
+            $(document).on('change', slider, function (e) {
+                e.preventDefault();
+                textn.text($('#progress').val() + '%');
+                $.ajax({
+
+                    url: baseurl + 'projects/progress',
+                    type: 'POST',
+                    data: {
+                        'pid':<?php echo $project['id']; ?>,
+                        'val': $('#progress').val(),
+                        '<?=$this->security->get_csrf_token_name()?>': crsf_hash
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+
+                        $('#description').html(data.description);
+                        $('#task_title').html(data.name);
+                        $('#employee').html(data.employee);
+                        $('#assign').html(data.assign);
+                        $('#priority').html(data.priority);
+                    }
+
+                });
             });
-        }).prop('disabled', !$.support.fileInput)
-            .parent().addClass($.support.fileInput ? undefined : 'disabled');
-    });
 
-    var slider = $('#progress');
-    var textn = $('#prog');
-    textn.text(slider.val() + '%');
-    $(document).on('change', slider, function (e) {
-        e.preventDefault();
-        textn.text($('#progress').val() + '%');
-        $.ajax({
-
-            url: baseurl + 'projects/progress',
-            type: 'POST',
-            data: {
-                'pid':<?php echo $project['id']; ?>,
-                'val': $('#progress').val(),
-                '<?=$this->security->get_csrf_token_name()?>': crsf_hash
-            },
-            dataType: 'json',
-            success: function (data) {
-
-                $('#description').html(data.description);
-                $('#task_title').html(data.name);
-                $('#employee').html(data.employee);
-                $('#assign').html(data.assign);
-                $('#priority').html(data.priority);
-            }
-
-        });
-    });
-
-</script>
+        </script>

@@ -1,7 +1,11 @@
-<div class="content-body yellow-top">
-    <div class="card">
+<div class="content-body">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5 class="title"> <?php echo $this->lang->line('Business Locations') ?> <a
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Business Locations') ?> <a
                         href="<?php echo base_url('locations/create') ?>"
                         class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
@@ -51,19 +55,11 @@
                     <td>$name</td>
                     <td>$addr</td>
                  
-                    <td><a href='" . base_url("locations/edit?id=$cid") . "' class='btn btn-warning btn-xs'><i class='icon-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;<a href='#' data-object-id='" . $cid . "' class='btn btn-danger btn-xs delete-object' title='Delete'><i class='fa fa-trash'></i></a></td></tr>";
+                    <td><div class='action-btn'> <a href='" . base_url("locations/edit?id=$cid") . "' class='btn btn-outline-primary btn-sm' title='" . $this->lang->line('Edit') . "'><i class='bi bi-pencil'></i></a><a href='#' data-object-id='" . $cid . "' class='btn btn-outline-danger btn-sm delete-object' title='" . $this->lang->line('Delete') . "'><i class='bi bi-trash'></i></a></div></td></tr>";
                         $i++;
                     }
                     ?>
                     </tbody>
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Name') ?></th>
-                        <th><?php echo $this->lang->line('Address') ?></th>
-                        <th><?php echo $this->lang->line('Action') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

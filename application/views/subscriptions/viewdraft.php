@@ -17,22 +17,22 @@
 					<div class="title-action">
 						<img src="<?php $loc = location($invoice['loc']); echo base_url('userfiles/company/' . $loc['logo']) ?>"
 									 class="img-responsive" style="max-height: 80px;">
-						<h2 class="btn btn-oval btn-danger">RASCUNHO</h2>
 						<div class="btn-group ">
+							<button type="button" class="btn btn-oval btn-danger"><i class="fa fa-draft"></i> RASCUNHO</button>
 							<?php $validtoken = hash_hmac('ripemd160', $invoice['iid'], $this->config->item('encryption_key'));?>
-							<a href="<?php echo 'edit?id=' . $invoice['iid'].'&ty=1'; ?>" class="btn btn-warning mb-1"><i class="fa fa-pencil" ></i> Alterar Rascunho</a>
-						 </div>
-						 <div class="btn-group ">
+							<!--<div class="btn-group ">
+								<a href="<php echo 'edit?id=' . $invoice['iid'].'&draf=1'; >" class="btn btn-warning mb-1"><i class="fa fa-pencil" ></i> Alterar Rascunho</a>
+							 </div>-->
 							<button type="button" class="btn btn-success mb-1 btn-min-width dropdown-toggle"
 									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
 										class="fa fa-print"></i> <?php echo $this->lang->line('Print') ?>
 							</button>
 							<div class="dropdown-menu">
 								<a class="dropdown-item"
-								   href="<?php echo base_url('subscriptions/printinvoice?id=' . $invoice['iid'] . '&ty=1&token=' . $validtoken); ?>"><?php echo $this->lang->line('Print') ?></a>
+								   href="<?php echo base_url('subscriptions/printinvoice?id=' . $invoice['iid'] . '&draf=1&token=' . $validtoken); ?>"><?php echo $this->lang->line('Print') ?></a>
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item"
-								   href="<?php echo base_url('subscriptions/printinvoice?id=' . $invoice['iid'] . '&ty=1&token=' . $validtoken); ?>&d=1"><?php echo $this->lang->line('PDF Download') ?></a>
+								   href="<?php echo base_url('subscriptions/printinvoice?id=' . $invoice['iid'] . '&draf=1&token=' . $validtoken); ?>&d=1"><?php echo $this->lang->line('PDF Download') ?></a>
 
 							</div>
 						</div>

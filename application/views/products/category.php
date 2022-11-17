@@ -1,13 +1,17 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5 class="title"> <?php echo $this->lang->line('Product Category') ?> 
-			<?php /*<a
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Product Category') ?>
+                <?php /*<a
                         href="<?php echo base_url('productcategory/add') ?>"
                         class="btn btn-primary btn-sm rounded">
-                    <?php echo $this->lang->line('Add new') . ' ' . $this->lang->line('Category') </a> */?>
-				<a href="<?php echo base_url('productcategory/add_sub') ?>"
-                        class="btn btn-blue btn-sm rounded">
+                    <?php echo $this->lang->line('Add new') . ' ' . $this->lang->line('Category') </a> */ ?>
+                <a href="<?php echo base_url('productcategory/add_sub') ?>"
+                   class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') . ' - ' . $this->lang->line('Category') ?>
                 </a>
             </h5>
@@ -57,25 +61,15 @@
 								<td>$total</td>
 								<td>$qty</td>
 								<td>$salessum/$worthsum</td>";
-								if($row['delete1'] == 1){
-									echo "<td><a href='" . base_url("productcategory/view?id=$cid") . "' class='btn btn-success btn-sm'><i class='fa fa-eye'></i> " . $this->lang->line('View') . "</a>&nbsp; <a class='btn btn-blue  btn-sm' href='" . base_url() . "productcategory/report_product?id=" . $cid . "' target='_blank'> <span class='fa fa-pie-chart'></span> " . $this->lang->line('Reports') . "</a>&nbsp;  <a href='" . base_url("productcategory/edit?id=$cid") . "' class='btn btn-warning btn-sm'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;<a href='#' data-object-id='" . $cid . "' data-object-id='" . $cid . "' class='btn btn-danger btn-sm delete-object' title='Delete'><i class='fa fa-trash'></i></a></td></tr>";
-								}else{
-									echo "<td><a href='" . base_url("productcategory/view?id=$cid") . "' class='btn btn-success btn-sm'><i class='fa fa-eye'></i> " . $this->lang->line('View') . "</a>&nbsp; <a class='btn btn-blue  btn-sm' href='" . base_url() . "productcategory/report_product?id=" . $cid . "' target='_blank'> <span class='fa fa-pie-chart'></span> " . $this->lang->line('Reports') . "</a>&nbsp;  <a href='" . base_url("productcategory/edit?id=$cid") . "' class='btn btn-warning btn-sm'><i class='fa fa-pencil'></i> " . $this->lang->line('Edit') . "</a>&nbsp;</td></tr>";
-								}
+                        if ($row['delete1'] == 1) {
+                            echo "<td><div class='action-btn'> <a href='" . base_url("productcategory/view?id=$cid") . "' class='btn btn-outline-success btn-sm' title=" . $this->lang->line('View') . "><i class='bi bi-eye'></i> " . "</a> <a class='btn btn-outline-warning  btn-sm' href='" . base_url() . "productcategory/report_product?id=" . $cid . "' target='_blank' title=" . $this->lang->line('Reports') . "> <span class='bi bi-pie-chart'></span> " . "</a><a href='" . base_url("productcategory/edit?id=$cid") . "' class='btn btn-outline-primary btn-sm' title=" . $this->lang->line('Edit') . "><i class='bi bi-pencil'></i> " . "</a><a href='#' data-object-id='" . $cid . "' data-object-id='" . $cid . "' class='btn btn-outline-danger btn-sm delete-object' title=" . $this->lang->line('Delete') . "><i class='bi bi-trash'></i></a></div></td></tr>";
+                        } else {
+                            echo "<td><div class='action-btn'><a href='" . base_url("productcategory/view?id=$cid") . "' class='btn btn-outline-success btn-sm' title=" . $this->lang->line('View') . "><i class='bi bi-eye'></i> " . "</a> <a class='btn btn-outline-warning  btn-sm' href='" . base_url() . "productcategory/report_product?id=" . $cid . "' target='_blank' title=" . $this->lang->line('Reports') . "> <span class='bi bi-pie-chart'></span> " . "</a> <a href='" . base_url("productcategory/edit?id=$cid") . "' class='btn btn-outline-primary btn-sm' title=" . $this->lang->line('Edit') . "><i class='bi bi-pencil'></i> " . "</a></div></td></tr>";
+                        }
                         $i++;
                     }
                     ?>
                     </tbody>
-                    <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th><?php echo $this->lang->line('Name') ?></th>
-                        <th><?php echo $this->lang->line('Total Products') ?></th>
-                        <th><?php echo $this->lang->line('Stock Quantity') ?></th>
-                        <th><?php echo $this->lang->line('Worth (Sales/Stock)') ?></th>
-                        <th><?php echo $this->lang->line('Action') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

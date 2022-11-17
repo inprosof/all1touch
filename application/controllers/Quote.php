@@ -52,7 +52,9 @@ class Quote extends CI_Controller
 	{
 		$tid = $this->input->get('id');
 		$typ = $this->input->get('typ');
-		$this->create($tid, $typ);
+		$typconv = $this->input->get('typdoc');
+		$ext = $this->input->get('ext');
+		$this->create($tid, $typconv, $typ);
 	}
 	
 	
@@ -60,17 +62,19 @@ class Quote extends CI_Controller
 	{
 		$tid = $this->input->get('id');
 		$typ = $this->input->get('typ');
-		$this->create($tid, $typ);
+		$typconv = $this->input->get('typdoc');
+		$ext = $this->input->get('ext');
+		$this->create($tid, $typconv, $typ);
 	}
 	
 	public function create_c()
 	{
-		$this->create(0, 0, 0);
+		$this->create(0, 0, 8);
 	}
 	
 	public function create_p()
 	{
-		$this->create(0, 0, 1);
+		$this->create(0, 0, 10);
 	}
 	
     //create invoice
@@ -110,25 +114,25 @@ class Quote extends CI_Controller
 		////////////////////////Relação entre documentos//////////////////////
 		///////////////////////////////////////////////////////////////////////
 		$typename = "";
-		if($typ == 1 || $typ == "1")
+		if($typ == 10 || $typ == "10")
 		{
 			$data['type_quote_id'] = 1;
 			$typename = "Fatura Pró-Forma ";
-			if(count($this->settings->billingterms(10)) == 0)
+			if(count($this->settings->billingterms($typ)) == 0)
 			{
 				exit('Deve Inserir pelo menos um Termo para o Tipo '.$typename.'. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
 													class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 			}
-			$data['terms'] = $this->settings->billingterms(10);
+			$data['terms'] = $this->settings->billingterms($typ);
 		}else{
 			$typename = "Orçamento ";
-			if(count($this->settings->billingterms(8)) == 0)
+			if(count($this->settings->billingterms($typ)) == 0)
 			{
 				exit('Deve Inserir pelo menos um Termo para o Tipo '.$typename.'. <a class="match-width match-height"  href="'.base_url().'settings/billing_terms"><i 
 													class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 			}
 			$data['type_quote_id'] = 0;
-			$data['terms'] = $this->settings->billingterms(8);
+			$data['terms'] = $this->settings->billingterms($typ);
 		}
 		
 		$data['type_quote'] = $typename;
@@ -167,7 +171,7 @@ class Quote extends CI_Controller
         $data['customergrouplist'] = $this->customers->group_list();
         $data['prazos_vencimento'] = $this->common->sprazovencimento();
 		$numget = 0;
-		if($typ == 1)
+		if($typ == 10)
 		{
 			$data['typesinvoicesdefault'] = $this->common->default_typ_doc(10);
 		}else{
@@ -188,7 +192,7 @@ class Quote extends CI_Controller
 												class="ft-chevron-right"></i> Click aqui para o Fazer. </a> ');
 		}else{
 			$seri_did_df = $this->common->default_series_id($this->aauth->get_user()->loc);
-			if($typ == 1)
+			if($typ == 10)
 			{
 				$numget = $this->common->lastdoc(10,$seri_did_df);
 				$data['custom_fields'] = [];
@@ -196,13 +200,20 @@ class Quote extends CI_Controller
 				$numget = $this->common->lastdoc(8,$seri_did_df);
 				$data['custom_fields'] = $this->custom->add_fields(3);
 			}
+			$data['c_custom_fields'] = $this->custom->add_fields(1);
 			$head['title'] = "Nova(o) ".$typename;
 			$data['lastinvoice'] = $numget;
 			$head['usernm'] = $this->aauth->get_user()->username;
 			$data['warehouse'] = $this->quote->warehouses();
 			$data['taxdetails'] = $this->common->taxdetail();
 			$this->load->view('fixed/header', $head);
-			$this->load->view('quotes/newquote', $data);
+			if($typ == 10 || $typ == "10")
+			{
+				$this->load->view('quotes/newproforma', $data);
+			}else{
+				$this->load->view('quotes/newquote', $data);
+			}
+			
 			$this->load->view('fixed/footer');
 		}
     }
@@ -223,34 +234,75 @@ class Quote extends CI_Controller
         $data['invoice'] = $this->quote->quote_details($tid);
 		
 		
-		///////////////////////////////////////////////////////////////////////
-		////////////////////////Relação entre documentos//////////////////////
-		$this->load->library("Related");
-		if($data['invoice']['status'] == 'draft'){
-			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
-			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
-			$data['products'] = $this->related->detailsAfterRelationProducts($tid,3,1);
-		}else{
-			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
-			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
-			$data['products'] = $this->related->detailsAfterRelationProducts($tid,3,0);
-		}		
+		$data['iddoc'] = $data['invoice']['id'];
 		$data['csd_name'] = $data['invoice']['name'];
 		$data['csd_tax'] = $data['invoice']['taxid'];
 		$data['csd_id'] = $data['invoice']['id'];
-		////////////////////////Relação entre documentos//////////////////////
+		
 		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 8)
+		{
+			$typerelatset = 3;
+		}else{
+			$typerelatset = 12;
+		}
+		
+		if($data['invoice']['status'] == 'draft'){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////		
 		$data['locations'] = $this->settings->company_details2($data['invoice']['loc']);
         $data['currency'] = $this->quote->currencies();
         $head['title'] = "Alterar Orçamento Nº" . $data['invoice']['tid'];
         $head['usernm'] = $this->aauth->get_user()->username;
         $data['warehouse'] = $this->quote->warehouses();
         $data['exchange'] = $this->plugins->universal_api(5);
-		$data['custom_fields'] = $this->custom->view_edit_fields($tid, 3);
-		$data['typesinvoices'] = "";
 		$data['expeditions'] = $this->common->sexpeditions();
         $data['taxlist'] = $this->common->taxlist_edit($data['invoice']['taxstatus']);
 		$data['countrys'] = $this->common->countrys();
+		$data['typesinvoices'] = [];
+		$data['typesinvoicesdefault'] = $this->common->default_typ_doc($data['invoice']['irs_type']);
+		$data['seriesinvoiceselect'] = $this->common->default_series($this->aauth->get_user()->loc);
+		if ($this->aauth->get_user()->loc == 0 || $this->aauth->get_user()->loc == "0")
+		{
+			$data['locations'] = $this->settings->company_details(1);
+		}else{
+			$data['locations'] = $this->settings->company_details2($this->aauth->get_user()->loc);
+		}
+		$data['c_custom_fields'] = $this->custom->view_edit_fields($data['invoice']['cid'], 1);
+		
+		if($data['invoice']['i_class'] == 0){
+			$data['custom_fields'] = $this->custom->view_edit_fields($tid, 3);
+		}else{
+			$data['custom_fields'] = [];
+		}
+		$data['taxdetails'] = $this->common->taxdetail();
+		if($this->aauth->get_user()->loc == 0)
+		{
+			$discship = $this->settings->online_pay_settings_main();
+		}else{
+			$discship = $this->settings->online_pay_settings($this->aauth->get_user()->loc);
+		}
+		$data['configs'] = $discship;
+		$data['permissoes'] = $this->settings->permissions_loc($this->aauth->get_user()->loc);
+		
+        if ($discship['emps'] == 1) {
+            $this->load->model('employee_model', 'employee');
+            $data['employee'] = $this->employee->list_employee();
+        }
 		
         $this->load->view('fixed/header', $head);
         $this->load->view('quotes/edit', $data);
@@ -708,17 +760,46 @@ class Quote extends CI_Controller
 			}
 		}
 		
+		$tuperelatio = 0;
+		if($type_quote == 0){
+			$tuperelatio = 3;
+		}else{
+			$tuperelatio = 12;
+		}
+		
 		///////////////////////////////////////////////////////////////////////
 		////////////////////////Relação entre documentos//////////////////////
 		$this->load->library("Related");
 		$this->load->library("Transport");
 		if($status == 'draft'){
-			if($relationid > 0){
-				$this->related->removeALL($invocieno,$typrelation,1);
-				if($type_quote == 0){
-					$this->related->add($invocieno,$typrelation,1,$relationid,3);
-				}else{
-					$this->related->add($invocieno,$typrelation,1,$relationid,12);
+			///////////////////////////////////////////////////////////////////////
+			////////////////////////Relação entre documentos//////////////////////
+			$this->related->removeALL($invocieno,$typrelation,1);
+			$idtyprelation = $this->input->post('idtyprelation');
+			$typrelation = $this->input->post('typrelation');
+			$tipoconvert = '';
+			//$val_tot_rel = $this->input->post('val_tot_rel');
+			$relaindex = 0;
+			$Relationslist = [];
+			if($typrelation != null){
+				foreach ($typrelation as $keyp => $value) {
+					$tipoconvert = $typrelation[$keyp];
+					//$val_doc = $val_tot_rel[$keyp];
+					$datare = array(
+						'tid' => $invocieno,
+						'ttype' => $typrelation[$keyp],
+						'type' => $tuperelatio,
+						'doc' => $idtyprelation[$keyp],
+						'draft' => 1,
+						'total_pay' => 0,
+						'total_due' => $total,
+						'total_doc' => $total);							
+					$Relationslist[$relaindex] = $datare;
+					$relaindex++;
+				}
+				
+				if(count($Relationslist) > 0){
+					$this->db->insert_batch('geopos_data_related', $Relationslist);
 				}
 			}
 			if($start_date_guide != null)
@@ -731,14 +812,35 @@ class Quote extends CI_Controller
 				
 			}
 		}else{
-			if($relationid > 0){
-				$this->related->removeALL($invocieno,$typrelation,0);
-				if($type_quote == 0){
-					$this->related->add($invocieno,$typrelation,0,$relationid,3);
-				}else{
-					$this->related->add($invocieno,$typrelation,0,$relationid,12);
+			///////////////////////////////////////////////////////////////////////
+			////////////////////////Relação entre documentos//////////////////////
+			$this->related->removeALL($invocieno,$typrelation,1);
+			$idtyprelation = $this->input->post('idtyprelation');
+			$typrelation = $this->input->post('typrelation');
+			$tipoconvert = '';
+			//$val_tot_rel = $this->input->post('val_tot_rel');
+			$relaindex = 0;
+			$Relationslist = [];
+			if($typrelation != null){
+				foreach ($typrelation as $keyp => $value) {
+					$tipoconvert = $typrelation[$keyp];
+					//$val_doc = $val_tot_rel[$keyp];
+					$datare = array(
+						'tid' => $invocieno,
+						'ttype' => $typrelation[$keyp],
+						'type' => $tuperelatio,
+						'doc' => $idtyprelation[$keyp],
+						'draft' => 0,
+						'total_pay' => 0,
+						'total_due' => $total,
+						'total_doc' => $total);							
+					$Relationslist[$relaindex] = $datare;
+					$relaindex++;
 				}
 				
+				if(count($Relationslist) > 0){
+					$this->db->insert_batch('geopos_data_related', $Relationslist);
+				}
 			}
 			if($start_date_guide != null)
 			{
@@ -856,7 +958,7 @@ class Quote extends CI_Controller
 					$tipoinseee = $TipoSave."guardado como Rascunho com Sucesso.";
 					$striPay .= '<br>Rascunho '.$TipoSave.'Nº (Provisório)'.$invocieno2.' para o Cliente: '.$customer_name;
 				}else{
-					$this->custom->save_fields_data($invocieno, 3);
+					
 					$multiClause = array('typ_doc' => $invoi_type, 'serie' => $invoi_serie);
 					$this->db->set('start', "$invocieno2", FALSE);
 					$this->db->where($multiClause);
@@ -866,13 +968,16 @@ class Quote extends CI_Controller
 					$this->db->where('id', $invocieno);
 					$this->db->update('geopos_quotes');
 					
+					$this->custom->save_fields_data($invocieno, 3);
+					
+					
 					$tipoinseee = $TipoSave."concluído com Sucesso.";
 					$striPay .= '<br>'.$TipoSave.'Nº'.$invocieno2.' finalizada para o Cliente: '.$customer_name;
 				}
 				
 				$this->aauth->applog($striPay, $this->aauth->get_user()->username, 'quote', $invocieno);
 			}
-			echo json_encode(array('status' => 'Success', 'message' => $tipoinseee . " <a href='view?id=$invocieno' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printquote?id=$invocieno' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a>&nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
+			echo json_encode(array('status' => 'Success', 'message' => "Documento Criado com Sucesso. <a href='view?id=$invocieno&draf=0' class='btn btn-primary btn-lg'><span class='fa fa-eye' aria-hidden='true'></span> " . $this->lang->line('View') . "  </a> &nbsp; &nbsp;<a href='printquote?id=$invocieno' class='btn btn-blue btn-lg' target='_blank'><span class='fa fa-print' aria-hidden='true'></span> " . $this->lang->line('Print') . "  </a>&nbsp; &nbsp; <a href='create' class='btn btn-warning btn-lg'><span class='fa fa-plus-circle' aria-hidden='true'></span></a>"));
 		 }
 	}
 
@@ -880,13 +985,16 @@ class Quote extends CI_Controller
     public function ajax_list()
     {
 		$type = $this->input->get('ty');
-        $list = $this->quote->get_datatables($this->limited,$type);
+		$typeconvert = 3;
+        if($type > 0){
+			$typeconvert = 12;
+		}
+		$list = $this->quote->get_datatables($this->limited,$type);
         $data = array();
         $no = $this->input->post('start');
 		$this->load->library("Related");
         foreach ($list as $invoices) {
-			//$textini = $invoices->type.'-'.$invoices->tid;
-			$textini = $invoices->tid;
+			$textini = $invoices->type. $invoices->tid;
 			if($invoices->status == 'draft')
 			{
 				$textini .= '<br>(Provisório)';
@@ -906,17 +1014,28 @@ class Quote extends CI_Controller
 			$statt2 = "";
 			$width = 0;
 			$valnow = 0;
-			$valrelated = $this->related->getRelated(0,$invoices->tid,0);
-			if(count($valrelated) > 0)
-			{
-				if($valrelated->total == 0 || $valrelated->total == null || $valrelated->total == "" || $invoices->total == 0 || $invoices->total == null || $invoices->total == "")
+			$valrelated = null;
+			if($invoices->i_class == 0){
+				$valrelated = $this->related->getRelated(0,$invoices->tid,0,0,3);
+			}else{
+				$valrelated = $this->related->getRelated(0,$invoices->tid,0,0,12);
+			}
+			
+			if ($valrelated != null) {
+				if(count($valrelated) > 0)
 				{
+					if($valrelated->total == 0 || $valrelated->total == null || $valrelated->total == "" || $invoices->total == 0 || $invoices->total == null || $invoices->total == "")
+					{
+						$width = round(0*100,2);
+						$valnow = 0;
+					}else
+					{
+						$width = round(($valrelated->total/$invoices->total)*100,2);
+						$valnow = $valrelated->total;
+					}
+				}else{
 					$width = round(0*100,2);
 					$valnow = 0;
-				}else
-				{
-					$width = round(($valrelated->total/$invoices->total)*100,2);
-					$valnow = $valrelated->total;
 				}
 			}else{
 				$width = round(0*100,2);
@@ -942,45 +1061,43 @@ class Quote extends CI_Controller
 				if($invoices->status == 'draft')
 				{
 					$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid&draf=1") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id&draf=1") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
-				}else{
-					$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid&draf=1") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id&draf=0") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
-				}
-				$option .= '<a data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>';
-				if($invoices->i_class == 0)
-				{
-					$option .= '&nbsp;<a href="' . base_url("quote/duplicate?typ=3&id=$invoices->id&draf=1") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
-				}else{
-					$option .= '&nbsp;<a href="' . base_url("quote/duplicate?typ=12&id=$invoices->id&draf=0") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
-				}
-				
-				$option .= '&nbsp;<a data-toggle="modal" data-target="#choise_docs_related" href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
-				
-				if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
-					if($invoices->status == 'draft')
-					{
-						$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object2"><span class="fa fa-trash"></span></a>';
+					
+					if($typeconvert == 3){
+						if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(9)) {
+							$option .= '<a href="' . base_url("quote/edit?id=$invoices->id&draf=1"). '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm"><span class="fa fa-pencil"></span></a>&nbsp;';
+						}
 					}else{
+						if ($this->aauth->get_user()->roleid == 7 || $this->aauth->premission(138)) {
+							$option .= '<a href="' . base_url("quote/edit?id=$invoices->id&draf=1"). '" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm"><span class="fa fa-pencil"></span></a>&nbsp;';
+						}
+					}
+				}else{
+					$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid&draf=0") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id&draf=0") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				}
+				$option .= '<a href="' . base_url("quote/duplicate?typ=$typeconvert&id=$invoices->id&draf=0") . '" data-object-type="'.$typeconvert.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
+				$option .= '&nbsp;<a data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="0" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+			}else{
+				$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid&draf=0") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id&draf=0") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
+				$option .= '<a href="' . base_url("quote/duplicate?typ=$typeconvert&id=$invoices->id&draf=0") . '" data-object-type="'.$typeconvert.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
+				
+				if($invoices->status != 'canceled'){
+					$option .= '&nbsp;<a data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-type="'.$typeconvert.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>';
+					$option .= '&nbsp;<a data-toggle="modal" data-target="#choise_docs_related" data-object-serie="'.$invoices->serie_name.'" data-object-type="'.$invoices->irs_type.'" data-object-type_n="'.$invoices->irs_type_c.'" data-object-type_s="'.$invoices->type.'" data-object-ext="0" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '"href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
+				}
+			}
+			
+			if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
+				if($invoices->status == 'draft' || $invoices->status == 'pending')
+				{
+					$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object2"><span class="fa fa-trash"></span></a>';
+				}else{
+					if($invoices->status != 'canceled'){
 						$option .= '&nbsp;<a href="#" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
 					}
 				}
-				
-				$row[] = $option;
-			}else{
-				$option = '<a href="' . base_url("quote/view?id=$invoices->id&type=$invoices->i_class&tid=$invoices->tid&draf=0") . '" class="btn btn-blue btn-sm"><i class="fa fa-eye"></i></a>&nbsp;<a href="' . base_url("quote/printquote?id=$invoices->id&draf=0") . '" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a>&nbsp;';
-				if($invoices->i_class == 0)
-				{
-					$option .= '<a href="' . base_url("quote/duplicate?typ=3&id=$invoices->id&draf=0") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>&nbsp;';
-				}else{
-					$option .= '<a href="' . base_url("quote/duplicate?typ=12&id=$invoices->id&draf=0") . '" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm" title="Duplicar"><span class="ft-target"></span></a>';
-				}
-				
-				if($invoices->status != 'canceled'){
-					$option .= '&nbsp;<a data-toggle="modal" data-target="#choise_type_convert" href="#" data-object-type="'.$invoices->irs_type_c.'" data-object-id="' . $invoices->id . '" data-object-tid="' . $invoices->tid . '" class="btn btn-success btn-sm convert-object" title="Converter"><span class="icon-briefcase"></span></a>&nbsp;';
-					$option .= '<a data-toggle="modal" data-target="#choise_docs_related" href="#" class="btn btn-success btn-sm related-object" title="Documentos Relacionados"><span class="icon-list"></span></a>';
-				}
-				
-				$row[] = $option;
 			}
+			
+			$row[] = $option;
             $data[] = $row;
         }
 
@@ -1020,16 +1137,13 @@ class Quote extends CI_Controller
 				}
 				$type = 'Orçamento ';
 				$data['custom_fields'] = $this->custom->view_fields_data($tid, 3);
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,3,0);
 			}else{
 				if (!$this->aauth->premission(136) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 					exit($this->lang->line('translate19'));
 				}
 				$type = 'Fatura Pró-Forma ';
 				$data['custom_fields'] = [];
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,12,0);
 			}
-			$data['products'] = $this->related->detailsAfterRelationProducts($tid,0);
 		}else{
 			$data['draft'] = 1;
 			$data['invoice'] = $this->quote->quote_details($tid,1);
@@ -1040,30 +1154,51 @@ class Quote extends CI_Controller
 				}
 				$type = 'Rascunho Orçamento ';
 				$data['custom_fields'] = $this->custom->view_fields_data($tid, 3);
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,3,1);
 			}else{
 				if (!$this->aauth->premission(136) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
 					exit($this->lang->line('translate19'));
 				}
 				$type = 'Rascunho Fatura Pró-Forma ';
 				$data['custom_fields'] = [];
-				$data['products'] = $this->related->detailsAfterRelationProducts($tid,12,1);
 			}
 		}
-		$data['history'] = $this->common->history($tid,'quote');
-		$data['attach'] = $this->quote->attach($tid);
 		
 		///////////////////////////////////////////////////////////////////////
 		////////////////////////Relação entre documentos//////////////////////
-		if($data['invoice']['status'] == 'draft'){
-			$data['docs_origem'] = $this->related->getRelated($tid,0,1);
-			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1);
+		$this->load->library("Related");
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 8)
+		{
+			$typerelatset = 3;
 		}else{
-			$data['docs_origem'] = $this->related->getRelated($tid,0,0);
-			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0);
+			$typerelatset = 12;
 		}
 		
-        $data['employee'] = $this->quote->employee($data['invoice']['eid']);
+		if($data['invoice']['status'] == 'draft'){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		$data['history'] = $this->common->history($tid,'quote');
+		$data['attach'] = $this->quote->attach($tid);
+		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
+        if (CUSTOM) 
+			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+			if($data['invoice']['i_class'] == 0)
+			{
+				$data['custom_fields'] = $this->custom->view_fields_data($tid, 3);
+			}
+		$data['employee'] = $this->quote->employee($data['invoice']['eid']);
         $head['usernm'] = $this->aauth->get_user()->username;
         $head['title'] = $type."Nº" . $data['invoice']['tid'];
         $this->load->view('fixed/header', $head);
@@ -1079,8 +1214,33 @@ class Quote extends CI_Controller
         $data['id'] = $tid;
         $data['title'] = $this->lang->line('Quote')." $tid";
         $data['invoice'] = $this->quote->quote_details($tid);
-        $data['products'] = $this->quote->quote_products($tid);
         $data['employee'] = $this->quote->employee($data['invoice']['eid']);
+		
+		///////////////////////////////////////////////////////////////////////
+		////////////////////////Relação entre documentos//////////////////////
+		$this->load->library("Related");
+		$data['relationid'] = $data['invoice']['factura_duplicada'];
+		$data['tiprelated'] = 0;
+		$typerelatset = 0;
+		if($data['invoice']['irs_type'] == 8)
+		{
+			$typerelatset = 3;
+		}else{
+			$typerelatset = 12;
+		}
+		
+		if($data['invoice']['status'] == 'draft'){
+			$data['docs_origem'] = $this->related->getRelated($tid,0,0,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,0,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,0);
+		}else{
+			$data['docs_origem'] = $this->related->getRelated($tid,0,1,$typerelatset,0);
+			$data['docs_deu_origem'] = $this->related->getRelated(0,$tid,1,0,$typerelatset);
+			$data['products'] = $this->related->detailsAfterRelationProducts($tid,$typerelatset,1);
+		}
+		
+		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
 		
 		$type = "";
 		if($data['invoice']['i_class'] == 0)
@@ -1089,9 +1249,21 @@ class Quote extends CI_Controller
 		}else{
 			$type = 'Fatura Pró-Forma';
 		}
+		
+		$data['c_custom_fields'] = [];
+		$data['custom_fields'] = [];
+        if (CUSTOM) 
+			$data['c_custom_fields'] = $this->custom->view_fields_data($data['invoice']['cid'], 1, 1);
+			if($data['invoice']['i_class'] == 0)
+			{
+				$data['custom_fields'] = $this->custom->view_fields_data($tid, 3);
+			}
+		
         $data['general'] = array('title' => $type, 'person' => $this->lang->line('Customer'), 'prefix' => $data['invoice']['irs_type_n'], 't_type' => 1);
 		$data['invoice']['type'] = $type;
         //PDF Rendering
+		
+		
 		
 		if($data['invoice']['status'] == 'draft'){
 			$data['invoice']['status'] = 'Rascunho';
@@ -1374,7 +1546,6 @@ class Quote extends CI_Controller
 		$tid = $this->input->post('deletetid');
 		$draft = $this->input->post('draft');
 		
-		
 		if($draft == 0)
 		{
 			//$this->db->delete('geopos_log', array('id_c' => $id,'type_log' => 'quote'));
@@ -1414,6 +1585,8 @@ class Quote extends CI_Controller
 
     public function update_status()
     {
+		print_r('Cheguei..........');
+		exit();
         $tid = $this->input->post('tid');
         $status = $this->input->post('status');
         $this->db->set('status', $status);

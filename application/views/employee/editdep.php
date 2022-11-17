@@ -1,7 +1,12 @@
 <article class="content">
-    <div class="card card-block">
-		<div class="card-header">
-            <h5><?php echo $this->lang->line('Edit') . ' ' . $this->lang->line('Department') ?></h5>
+    <div class="card yellow-top">
+        <div class="card-header">
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Edit') . ' ' . $this->lang->line('Department') ?>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -15,9 +20,8 @@
             <a href="#" class="close" data-dismiss="alert">&times;</a>
             <div class="message"></div>
         </div>
-        <div class="card card-block">
+        <div class="card-body">
             <form method="post" id="data_form" class="form-horizontal">
-                <hr>
 
                 <input type="hidden"
                        name="did"
@@ -26,9 +30,9 @@
 
                 <div class="form-group row">
 
-                    <label class="col-sm-3 col-form-label" for="note"><?php echo $this->lang->line('Name') ?></label>
+                    <label class="col-sm-2 col-form-label" for="note"><?php echo $this->lang->line('Name') ?></label>
 
-                    <div class="col-sm-8">
+                    <div class="col-sm-6">
                         <input type="text" placeholder="Department Name"
                                class="form-control margin-bottom b_input required" name="name"
                                value="<?php echo $department['val1'] ?>">
@@ -36,16 +40,14 @@
                 </div>
                 <div class="form-group row">
 
-                    <label class="col-sm-3 col-form-label"></label>
+                    <label class="col-sm-2 col-form-label"></label>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-6" id="paiCompanyUpdate">
                         <input type="submit" id="submit-data" class="btn btn-success margin-bottom"
-                               value="<?php echo $this->lang->line('Edit') ?>" data-loading-text="Adding...">
+                               value="<?php echo $this->lang->line('Edit') ?>" data-loading-text="Adicionando...">
                         <input type="hidden" value="employee/editdep" id="action-url">
                     </div>
                 </div>
-
-
             </form>
         </div>
     </div>

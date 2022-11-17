@@ -70,6 +70,15 @@ class Common
 		return $assets_list;
 	}
 	
+	
+	public function withholdingsidname($id = 0)
+    {
+		$query = $this->PI->db->query("SELECT geopos_config.val1 FROM geopos_config WHERE geopos_config.id = $id");
+		$result = $query->row_array();
+		return $result['val1'];
+    }
+	
+	
     function taxlist($id = 0)
     {
         $tax_list = '';

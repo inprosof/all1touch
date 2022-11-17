@@ -16,137 +16,146 @@
 
                     <div class="">
                         <?php
-                        $validtoken = hash_hmac('ripemd160', $invoice['iid'], $this->config->item('encryption_key'));
-                        if ($invoice['status'] != 'canceled') { ?>
-                        <div class="title-action">
-                            <img src="<?php $loc = location($invoice['loc']);
-                            echo base_url('userfiles/company/' . $loc['logo']) ?>"
-                                 class="img-responsive" style="max-height: 80px;">
-                            <!--<php if ($invoice['status'] != 'paid') {
-                                echo '<a href="#part_payment" data-toggle="modal" data-remote="false" data-type="reminder"
-                                   class="btn btn-large btn-info mb-1" title="Partial Payment"
-                                ><span class="fa fa-money"></span>'.$this->lang->line('Make Payment').'</a>';
-                                }?>-->
+                        $validtoken = hash_hmac('ripemd160', $invoice['iid'], $this->config->item('encryption_key'));?>
+						<div class="title-action">
+							<img src="<?php $loc = location($invoice['loc']); echo base_url('userfiles/company/' . $loc['logo']) ?>" class="img-responsive" style="max-height: 80px;">
+							<div class="btn-group ">
+								<button type="button" class="btn btn-primary mb-1 btn-min-width dropdown-toggle"
+										data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+											class="fa fa-print"></i> <?php echo $this->lang->line('Print') ?>
+								</button>
+								<div class="dropdown-menu">
+									<a class="dropdown-item"
+									   href="<?php echo base_url('invoices/printinvoice?id=' . $invoice['iid'] . '&temp='.INVV.'&draf=0&token=' . $validtoken); ?>"><?php echo $this->lang->line('Print') ?></a>
+									<div class="dropdown-divider"></div>
+									<a class="dropdown-item"
+									   href="<?php echo base_url('invoices/printinvoice?id=' . $invoice['iid'] . '&temp='.INVV.'&draf=0&token=' . $validtoken); ?>&d=1"><?php echo $this->lang->line('PDF Download') ?></a>
+								</div>
+							</div>
+							<?php 
+								$validtoken = hash_hmac('ripemd160', $invoice['iid'], $this->config->item('encryption_key'));
+								$textbut = 'https://api.whatsapp.com/send?phone='.$invoice['phone'].'&text=';
+								$codebase64 = $invoice['iid'] . '&0&'.INVV.'&' . $validtoken;
+								$codebase64 = base64_encode($codebase64);
+								$endefact = base_url('billing/viewwhat?invoice='.$codebase64);
+								$textbut .= 'Caríssimo(a)+Cliente+Nova+Fatura+'.$invoice['irs_type_s'] . '-' . $invoice['serie_name'] . '/' . $invoice['tid'].'+gerada.+'.$endefact.'+Cumprimentos';							
+							?>
+							<a href="<?php echo $textbut; ?>" target="_blank" class="btn btn-success mb-1"><i class="fa fa-whatsapp"></i>WhatsApp</a>
+							<?php if ($invoice['status'] != 'canceled') { ?>
+							<!--<php if ($invoice['status'] != 'paid') {
+								echo '<a href="#part_payment" data-toggle="modal" data-remote="false" data-type="reminder"
+								   class="btn btn-large btn-info mb-1" title="Partial Payment"
+								><span class="fa fa-money"></span>'.$this->lang->line('Make Payment').'</a>';
+								}?>-->
 
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-facebook dropdown-toggle mb-1"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
-                            <span
-                                    class="fa fa-envelope-o"></span> Email
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendbill"
-                                       data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
-                                    <div class="dropdown-divider"></div>
-                                    <?php if ($invoice['status'] != 'paid') {
-                                        echo '<a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendbill"
-                                       data-type="reminder">' . $this->lang->line('Payment Reminder') . '</a>';
-                                    } ?>
+							<div class="btn-group">
+								<button type="button" class="btn btn-facebook dropdown-toggle mb-1"
+										data-toggle="dropdown"
+										aria-haspopup="true" aria-expanded="false">
+							<span
+									class="fa fa-envelope-o"></span> Email
+								</button>
+								<div class="dropdown-menu">
+									<a href="#sendEmail" data-toggle="modal" data-remote="false"
+									   class="dropdown-item sendbill"
+									   data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
+									<div class="dropdown-divider"></div>
+									<?php if ($invoice['status'] != 'paid') {
+										echo '<a href="#sendEmail" data-toggle="modal" data-remote="false"
+									   class="dropdown-item sendbill"
+									   data-type="reminder">' . $this->lang->line('Payment Reminder') . '</a>';
+									} ?>
 
-                                    <a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendbill"
-                                       data-type="received"><?php echo $this->lang->line('Payment Received') ?></a>
-                                    <div class="dropdown-divider"></div>
-                                    <?php if ($invoice['status'] != 'paid') {
-                                        echo '<a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendbill" href="#"
-                                       data-type="overdue">' . $this->lang->line('Payment Overdue') . '</a>';
-                                    } ?>
-                                    <a href="#sendEmail" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendbill" data-type="refund">
-                                        <?php echo $this->lang->line('Refund Generated') ?></a>
+									<a href="#sendEmail" data-toggle="modal" data-remote="false"
+									   class="dropdown-item sendbill"
+									   data-type="received"><?php echo $this->lang->line('Payment Received') ?></a>
+									<div class="dropdown-divider"></div>
+									<?php if ($invoice['status'] != 'paid') {
+										echo '<a href="#sendEmail" data-toggle="modal" data-remote="false"
+									   class="dropdown-item sendbill" href="#"
+									   data-type="overdue">' . $this->lang->line('Payment Overdue') . '</a>';
+									} ?>
+									<a href="#sendEmail" data-toggle="modal" data-remote="false"
+									   class="dropdown-item sendbill" data-type="refund">
+										<?php echo $this->lang->line('Refund Generated') ?></a>
 
-                                </div>
+								</div>
 
-                            </div>
+							</div>
 
-                            <!-- SMS -->
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-blue dropdown-toggle mb-1"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
-                            <span
-                                    class="fa fa-mobile"></span> SMS
-                                </button>
-                                <div class="dropdown-menu"><a href="#sendSMS" data-toggle="modal"
-                                                              data-remote="false" class="dropdown-item sendsms"
-                                                              data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
-                                    <div class="dropdown-divider"></div>
-                                    <?php if ($invoice['status'] != 'paid') {
-                                        echo '<a href="#sendSMS" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendsms"
-                                       data-type="reminder">' . $this->lang->line('Payment Reminder') . '</a>';
-                                    } ?>
-                                    <a href="#sendSMS" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendsms"
-                                       data-type="received"><?php echo $this->lang->line('Payment Received') ?></a>
-                                    <div class="dropdown-divider"></div>
-                                    <?php if ($invoice['status'] != 'paid') {
-                                        echo '<a href="#sendSMS" data-toggle="modal" data-remote="false"
+							<!-- SMS -->
+							<div class="btn-group">
+								<button type="button" class="btn btn-blue dropdown-toggle mb-1"
+										data-toggle="dropdown"
+										aria-haspopup="true" aria-expanded="false">
+							<span
+									class="fa fa-mobile"></span> SMS
+								</button>
+								<div class="dropdown-menu"><a href="#sendSMS" data-toggle="modal"
+															  data-remote="false" class="dropdown-item sendsms"
+															  data-type="notification"><?php echo $this->lang->line('Invoice Notification') ?></a>
+									<div class="dropdown-divider"></div>
+									<?php if ($invoice['status'] != 'paid') {
+										echo '<a href="#sendSMS" data-toggle="modal" data-remote="false"
+									   class="dropdown-item sendsms"
+									   data-type="reminder">' . $this->lang->line('Payment Reminder') . '</a>';
+									} ?>
+									<a href="#sendSMS" data-toggle="modal" data-remote="false"
+									   class="dropdown-item sendsms"
+									   data-type="received"><?php echo $this->lang->line('Payment Received') ?></a>
+									<div class="dropdown-divider"></div>
+									<?php if ($invoice['status'] != 'paid') {
+										echo '<a href="#sendSMS" data-toggle="modal" data-remote="false"
 										   class="dropdown-item sendsms" href="#"
 										   data-type="overdue">' . $this->lang->line('Payment Overdue') . '</a>';
 
-                                    } ?>
-                                    <a href="#sendSMS" data-toggle="modal" data-remote="false"
-                                       class="dropdown-item sendsms"
-                                       data-type="refund"><?php echo $this->lang->line('Refund Generated') ?></a>
+									} ?>
+									<a href="#sendSMS" data-toggle="modal" data-remote="false"
+									   class="dropdown-item sendsms"
+									   data-type="refund"><?php echo $this->lang->line('Refund Generated') ?></a>
 
-                                </div>
+								</div>
 
-                            </div>
-                            <a href="<?php echo base_url('billing/view?id=' . $invoice['iid'] . '&token=' . $validtoken); ?>"
-                               class="btn btn-blue-grey mb-1"><i
-                                        class="fa fa-globe"></i><?php echo $this->lang->line('Preview') ?></a>
-                            <div class="btn-group ">
-                                <button type="button" class="btn btn-primary mb-1 btn-min-width dropdown-toggle"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-                                            class="icon-anchor"></i> <?php echo $this->lang->line('Extra') ?>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item"
-                                       href="<?php echo base_url() . 'invoices/delivery?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('Delivery Note') ?></a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item"
-                                       href="<?php echo base_url() . 'invoices/proforma?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('Proforma Invoice') ?></a>
+							</div>
+							<a href="<?php echo base_url('billing/view?id=' . $invoice['iid'] . '&temp='.INVV.'&draf=0&token=' . $validtoken); ?>"
+							   class="btn btn-blue-grey mb-1"><i
+										class="fa fa-globe"></i><?php echo $this->lang->line('Preview') ?></a>
+							<div class="btn-group ">
+								<button type="button" class="btn btn-primary mb-1 btn-min-width dropdown-toggle"
+										data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+											class="icon-anchor"></i> <?php echo $this->lang->line('Extra') ?>
+								</button>
+								<div class="dropdown-menu">
+									<a class="dropdown-item"
+									   href="<?php echo base_url() . 'invoices/delivery?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('Delivery Note') ?></a>
+									<div class="dropdown-divider"></div>
+									<a class="dropdown-item"
+									   href="<?php echo base_url() . 'invoices/printinvoice?id=' . $invoice['iid'].'&temp=1&draf=0&token=' . $validtoken; ?>"><?php echo $this->lang->line('Proforma Invoice') ?></a>
+									<a class="dropdown-item"
+									   href="<?php echo base_url() . 'invoices/printinvoice?id=' . $invoice['iid'].'&temp=1&d=1&draf=0&token=' . $validtoken; ?>"><?php echo $this->lang->line('Proforma Invoice').' '.$this->lang->line('PDF Download') ?></a>
 
-                                </div>
-                            </div>
-                            <div class="btn-group ">
-                                <button type="button" class="btn btn-vimeo mb-1 btn-md dropdown-toggle"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-                                            class="fa fa-print"></i> <?php echo $this->lang->line('POS Print') ?>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item"
-                                       href="<?php echo base_url() . 'pos_invoices/thermal_pdf?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('PDF Print') ?></a>
-                                </div>
-                            </div>
-                            <?php
-                            /*if ($invoice['multi'] > 0) {
-                                echo '<div class="badge bg-blue text-xs-center mt-2 white">' . $this->lang->line('Payment currency is different') . '</div>';
-                            }*/
-                            } else {
-                                echo '<h2 class="btn btn-oval btn-danger">ANULADA</h2>';
-                            } ?>
-                            <div class="btn-group ">
-                                <button type="button" class="btn btn-success mb-1 btn-min-width dropdown-toggle"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
-                                            class="fa fa-print"></i> <?php echo $this->lang->line('Print') ?>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item"
-                                       href="<?php echo base_url('invoices/printinvoice?id=' . $invoice['iid'] . '&ty=0&token=' . $validtoken); ?>"><?php echo $this->lang->line('Print') ?></a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item"
-                                       href="<?php echo base_url('invoices/printinvoice?id=' . $invoice['iid'] . '&ty=0&token=' . $validtoken); ?>&d=1"><?php echo $this->lang->line('PDF Download') ?></a>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+								</div>
+							</div>
+							<div class="btn-group ">
+								<button type="button" class="btn btn-vimeo mb-1 btn-md dropdown-toggle"
+										data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+											class="fa fa-print"></i> <?php echo $this->lang->line('POS Print') ?>
+								</button>
+								<div class="dropdown-menu">
+									<a class="dropdown-item"
+									   href="<?php echo base_url() . 'pos_invoices/thermal_pdf?id=' . $invoice['iid']; ?>"><?php echo $this->lang->line('PDF Print') ?></a>
+								</div>
+							</div>
+						<?php
+						/*if ($invoice['multi'] > 0) {
+							echo '<div class="badge bg-blue text-xs-center mt-2 white">' . $this->lang->line('Payment currency is different') . '</div>';
+						}*/
+						} else {
+							echo '<a href="#" class="btn btn-oval btn-danger">ANULADA</a>';
+						} ?>
+						
+						</div>
+					</div>
                 </div>
 
                 <ul class="nav nav-tabs" role="tablist">
@@ -337,18 +346,41 @@
                                                 $myArraytaxname = explode(";", $row['taxaname']);
                                                 $myArraytaxcod = explode(";", $row['taxacod']);
                                                 $myArraytaxvals = explode(";", $row['taxavals']);
+												$myArraytaxperc = explode(";", $row['taxaperc']);
+												$myArraytaxComo = explode(";", $row['taxacomo']);
                                                 for ($i = 0; $i < count($myArraytaxname); $i++) {
                                                     $jatem = false;
                                                     for ($oo = 0; $oo < count($arrtudo); $oo++) {
                                                         if ($arrtudo[$oo]['title'] == $myArraytaxname[$i]) {
                                                             $arrtudo[$oo]['val'] = ($arrtudo[$oo]['val'] + $myArraytaxvals[$i]);
-                                                            $jatem = true;
-                                                            break;
+															$arrtudo[$oo]['inci'] = ($arrtudo[$oo]['inci']+$row['subtotal']);
+															$jatem = true;
+															
+															if($arrtudo[$oo]['typ'] == '2'){
+																$nameise = $this->common->withholdingsidname($myArraytaxComo[$i]);
+																if($arrtudo[$oo]['nameise'] != $nameise){
+																	$arrtudo[$oo]['val'] = $nameise;
+																	$jatem = false;
+																}else{
+																	$arrtudo[$oo]['val'] = $arrtudo[$oo]['nameise'];
+																	break;
+																}
+															}else{
+																 break;
+															}
                                                         }
                                                     }
 
                                                     if (!$jatem) {
-                                                        $stack = array('title' => $myArraytaxname[$i], 'val' => $myArraytaxvals[$i]);
+														$nameiselog = '';
+														$typ = '0';
+														if($myArraytaxComo[$i] > 1){
+															$typ = '2';
+															$nameiselog = $this->common->withholdingsidname($myArraytaxComo[$i]);
+														}else if($myArraytaxComo[$i] > 1){
+															$typ = '1';
+														}														
+                                                        $stack = array('title' => $myArraytaxname[$i], 'val' => $myArraytaxvals[$i], 'perc'=>$myArraytaxperc[$i].' %', 'inci'=>$row['subtotal'], 'typ' => $typ, 'nameise' => $nameiselog);
                                                         array_push($arrtudo, $stack);
                                                     }
                                                 }
@@ -357,7 +389,12 @@
                                             for ($r = 0; $r < count($arrtudo); $r++) {
                                                 echo "<tr>";
                                                 echo "<td>" . $arrtudo[$r]['title'] . "</td>";
-                                                echo '<td class="text-xs-right">' . amountExchange($arrtudo[$r]['val'], 0, $this->aauth->get_user()->loc) . '</td>';
+												if($arrtudo[$r]['typ'] == '2'){
+													echo '<td class="text-xs-right">' . $arrtudo[$r]['nameise'] . '</td>';
+												}else{
+													echo '<td class="text-xs-right">' . amountExchange($arrtudo[$r]['val'], 0, $this->aauth->get_user()->loc) . '</td>';
+												}
+                                                
                                                 echo "</tr>";
                                             }
                                             ?>
@@ -522,8 +559,7 @@
 
                     <div class="tab-pane" id="tab2" role="tabpanel" aria-labelledby="base-tab2">
                         <h4>Documentos relacionados</h4>
-                        <h6>O
-                            documento <?php echo $invoice['irs_type_n'] . ' ' . $invoice['irs_type_s'] . ' ' . $invoice['serie_name'] . '/' . $invoice['tid'] ?>
+                        <h6>O documento <?php echo $invoice['irs_type_n'] . ' ' . $invoice['irs_type_s'] . ' ' . $invoice['serie_name'] . '/' . $invoice['tid'] ?>
                             teve origem nos documentos abaixo (Está conciliado com)</h6>
                         <div class="row">
                             <table class="table table-striped">
@@ -547,26 +583,26 @@
                                             $tiiid = $row['id'];
                                             echo '<tr>';
                                             echo "<td><strong>" . $row['tipo'] . "</strong></td>";
-                                            echo "<td>" . $row['serie_name'] . '/' . $row['tid'] . "</td>";
+                                            echo "<td>" . $row['serie_name'] . '/' . $row['tid_doc'] . "</td>";
                                             echo "<td>" . $row['invoicedate'] . "</td>";
                                             echo "<td>" . $row['tax_id'] . "</td>";
                                             echo "<td>" . amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc) . "</td>";
                                             echo "<td>" . amountExchange($row['tax'], 0, $this->aauth->get_user()->loc) . "</td>";
                                             echo "<td>" . amountExchange($row['total'], 0, $this->aauth->get_user()->loc) . "</td>";
+											$drafd = $row['draft'];
+											$extd = $row['ext'];
                                             if ($row['type_related'] == "0" || $row['type_related'] == "2") {
-                                                if ($row['draft'] == "0") {
-                                                    echo '<td><a href="' . base_url("invoices/view?id=$tiiid&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-                                                } else {
-                                                    echo '<td><a href="' . base_url("invoices/view?id=$tiiid&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
-                                                }
+                                                echo '<td><a href="' . base_url("invoices/view?id=$tiiid&draf=$drafd&ext=$extd") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+													<a href="' . base_url("invoices/printinvoice?id=$tiiid&draf=$drafd&ext=$extd") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
                                             } else if ($row['type_related'] == "1") {
-                                                echo '<td><a href="' . base_url("invoices/view?id=$tiiid&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("invoices/printinvoice?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                                echo '<td><a href="' . base_url("invoices/view?id=$tiiid&draf=0&ext=$extaa") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiid&draf=$drafd&ext=$extd") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
                                             } else if ($row['type_related'] == "3") {
-                                                echo '<td><a href="' . base_url("quote/view?id=$tiiid&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("quote/printquote?id=$tiiid&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                                echo '<td><a href="' . base_url("quote/view?id=$tiiid&draf=$drafd&ext=$extd") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("quote/printquote?id=$tiiid&draf=$drafd&ext=$extd") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                            } else if ($row['type_related'] == "13" || $row['type_related'] == "14") {
+                                                echo '<td><a href="' . base_url("receipts/view?id=$tiiid&draf=$drafd&ext=$extd") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("receipts/printinvoice?id=$tiiid&draf=$drafd&ext=$extd") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
                                             }
                                             echo '</tr>';
                                         }
@@ -605,26 +641,37 @@
                                             $tiiide = $row['id'];
                                             echo '<tr>';
                                             echo "<td><strong>" . $row['tipo'] . "</strong></td>";
-                                            echo "<td>" . $row['serie_name'] . '/' . $row['tid'] . "</td>";
+                                            echo "<td>" . $row['serie_name'] . '/' . $row['tid_doc'] . "</td>";
                                             echo "<td>" . $row['invoicedate'] . "</td>";
                                             echo "<td>" . $row['tax_id'] . "</td>";
                                             echo "<td>" . amountExchange($row['subtotal'], 0, $this->aauth->get_user()->loc) . "</td>";
-                                            echo "<td>" . amountExchange($row['tax'], 0, $this->aauth->get_user()->loc) . "</td>";
-                                            echo "<td>" . amountExchange($row['total'], 0, $this->aauth->get_user()->loc) . "</td>";
+											if($row['type_related'] == "13" || $row['type_related'] == "14")
+											{
+												echo "<td>" . amountExchange(0, 0, $this->aauth->get_user()->loc) . "</td>";
+											}else{
+												echo "<td>" . amountExchange($row['tax'], 0, $this->aauth->get_user()->loc) . "</td>";
+											}
+											echo "<td>" . amountExchange($row['total'], 0, $this->aauth->get_user()->loc) . "</td>";
+											
+											$drafd = $row['draft'];
+											$extd = $row['ext'];
                                             if ($row['type_related'] == "0" || $row['type_related'] == "2") {
                                                 if ($row['draft'] == "0") {
-                                                    echo '<td><a href="' . base_url("invoices/view?id=$tiiide&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                                    echo '<td><a href="' . base_url("invoices/view?id=$tiiide&draf=$drafd&ext=$extd") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiide&draf=$drafd&ext=$extd") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
                                                 } else {
-                                                    echo '<td><a href="' . base_url("invoices/view?id=$tiiide&ty=1") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=1") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                                    echo '<td><a href="' . base_url("invoices/view?id=$tiiide&draf=$drafd&ext=$extd") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiide&draf=$drafd&ext=$extd") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
                                                 }
                                             } else if ($row['type_related'] == "1") {
-                                                echo '<td><a href="' . base_url("invoices/view?id=$tiiide&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("invoices/printinvoice?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                                echo '<td><a href="' . base_url("invoices/view?id=$tiiide&draf=$drafd&ext=$extd") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("invoices/printinvoice?id=$tiiide&draf=$drafd&ext=$extd") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
                                             } else if ($row['type_related'] == "3") {
-                                                echo '<td><a href="' . base_url("quote/view?id=$tiiide&ty=0") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
-															<a href="' . base_url("quote/printquote?id=$tiiide&ty=0") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                                echo '<td><a href="' . base_url("quote/view?id=$tiiide&draf=$drafd&ext=$extd") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("quote/printquote?id=$tiiide&draf=$drafd&ext=$extd") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
+                                            } else if ($row['type_related'] == "13" || $row['type_related'] == "14") {
+                                                echo '<td><a href="' . base_url("receipts/view?id=$tiiide&draf=$drafd&ext=$extd") . '" class="btn btn-success btn-sm" title="View"><i class="fa fa-eye"></i></a>
+															<a href="' . base_url("receipts/printquote?id=$tiiide&draf=$drafd&ext=$extd") . '&d=1" class="btn btn-info btn-sm"  title="Download"><span class="fa fa-download"></span></a> ';
                                             }
 
                                             echo '</tr>';

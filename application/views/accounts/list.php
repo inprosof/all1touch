@@ -39,12 +39,17 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Accounts') ?> <a
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Accounts') ?> <a
                         href="<?php echo base_url('accounts/add') ?>"
-                        class="btn btn-primary btn-sm rounded" <?php if($this->aauth->premission(69) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
-                    <?php echo $this->lang->line('Add new') ?></a></h5>
+                        class="btn btn-primary btn-sm btn-new" <?php if ($this->aauth->premission(69) || $this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7) echo ''; else echo 'hidden' ?>>
+                    <?php echo $this->lang->line('Add new') ?></a>
+            </h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -64,7 +69,8 @@
 
 
                 <div class="table-responsive">
-                    <table id="acctable" class="table table-hover mb-1" cellspacing="0" width="100%">
+                    <table id="acctable" class="table table-striped table-bordered zero-configuration" cellspacing="0"
+                           width="100%">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -72,67 +78,54 @@
                             <th><?php echo $this->lang->line('Name') ?></th>
                             <th><?php echo $this->lang->line('Balance') ?></th>
                             <th><?php echo $this->lang->line('Type') ?></th>
-							<th>Úl. Alteração</th>
+                            <th>Úl. Alteração</th>
                             <th><?php echo $this->lang->line('Actions') ?></th>
-
-
                         </tr>
                         </thead>
                         <tbody>
                         </tbody>
-                        <tfoot>
-                        <tr>
-                            <th>#</th>
-                            <th><?php echo $this->lang->line('Account No') ?></th>
-                            <th><?php echo $this->lang->line('Name') ?></th>
-                            <th><?php echo $this->lang->line('Balance') ?></th>
-                            <th><?php echo $this->lang->line('Type') ?></th>
-							<th>Úl. Alteração</th>
-                            <th><?php echo $this->lang->line('Actions') ?></th>
-                        </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>
         </div>
         <input type="hidden" id="dashurl" value="accounts/account_stats">
     </div>
-	<script type="text/javascript">
-	$(document).ready(function () {
-		$('#acctable').DataTable({
-				'processing': true,
-				'serverSide': true,
-				'stateSave': true,
-				<?php datatable_lang();?>
-				responsive: true,
-				'order': [],
-				'ajax': {
-					'url': "<?php echo site_url('accounts/account_list')?>",
-					'type': 'POST',
-					'data': {
-						'<?php echo $this->security->get_csrf_token_name()?>': crsf_hash
-					}
-				},
-				'columnDefs': [
-					{
-						'targets': [0],
-						'orderable': false,
-					},
-				],
-				dom: 'Blfrtip',
-				buttons: [
-					{
-						extend: 'excelHtml5',
-						footer: true,
-						exportOptions: {
-							columns: [2, 3, 4, 5]
-						}
-					}
-				],
-			});
-		miniDash();
-	});
-	</script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#acctable').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'stateSave': true,
+                <?php datatable_lang();?>
+                responsive: true,
+                'order': [],
+                'ajax': {
+                    'url': "<?php echo site_url('accounts/account_list')?>",
+                    'type': 'POST',
+                    'data': {
+                        '<?php echo $this->security->get_csrf_token_name()?>': crsf_hash
+                    }
+                },
+                'columnDefs': [
+                    {
+                        'targets': [0],
+                        'orderable': false,
+                    },
+                ],
+                dom: 'Blfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        footer: true,
+                        exportOptions: {
+                            columns: [2, 3, 4, 5]
+                        }
+                    }
+                ],
+            });
+            miniDash();
+        });
+    </script>
     <div id="delete_model" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">

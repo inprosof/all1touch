@@ -1,9 +1,12 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
             <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
                 <?php echo $this->lang->line('Employee') ?> <a href="<?php echo base_url('employee/add') ?>"
-                                                               class="btn btn-primary btn-sm rounded">
+                                                               class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?>
                 </a>
             </h5>
@@ -26,7 +29,8 @@
 
 
                 <form method="post" id="data_form" class="form-horizontal">
-                    <table id="" class="table table-striped table-bordered zero-configuration table-responsive"
+                    <table id="table-block"
+                           class="table table-striped table-bordered zero-configuration table-responsive"
                            cellspacing="0" width="100%">
                         <thead>
                         <tr>
@@ -36,9 +40,9 @@
                             <th><?php echo $this->lang->line('Sales Person') ?></th>
                             <th><?php echo $this->lang->line('Sales Manager') ?></th>
                             <th><?php echo $this->lang->line('Project Manager') ?></th>
-							<th>Vendedor Externo</th>
-							<th><?php echo $this->lang->line('Business Manager') ?></th>
-							<th><?php echo $this->lang->line('Business Owner') ?></th>
+                            <th>Vendedor Externo</th>
+                            <th><?php echo $this->lang->line('Business Manager') ?></th>
+                            <th><?php echo $this->lang->line('Business Owner') ?></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -58,9 +62,9 @@
                                        class="m-1" <?php if ($row['r_2']) echo 'checked="checked"' ?>></td>
                             <td><input type="checkbox" name="r_<?php echo $i ?>_3"
                                        class="m-1" <?php if ($row['r_3']) echo 'checked="checked"' ?>></td>
-							<td><input type="checkbox" name="r_<?php echo $i ?>_6"
+                            <td><input type="checkbox" name="r_<?php echo $i ?>_6"
                                        class="m-1" <?php if ($row['r_6']) echo 'checked="checked"' ?>></td>
-							<td><input type="checkbox" name="r_<?php echo $i ?>_8"
+                            <td><input type="checkbox" name="r_<?php echo $i ?>_8"
                                        class="m-1" <?php if ($row['r_8']) echo 'checked="checked"' ?>></td>
                             <td><input type="checkbox" name="r_<?php echo $i ?>_4"
                                        class="m-1" <?php if ($row['r_4']) echo 'checked="checked"' ?>></td>
@@ -72,29 +76,16 @@
                         }
                         ?>
                         </tbody>
-                        <tfoot>
-                        <tr>
-                            <th>#</th>
-                            <th><?php echo $this->lang->line('Name') ?></th>
-                            <th><?php echo $this->lang->line('Inventory Manager') ?></th>
-                            <th><?php echo $this->lang->line('Sales Person') ?></th>
-                            <th><?php echo $this->lang->line('Sales Manager') ?></th>
-                            <th><?php echo $this->lang->line('Project Manager') ?></th>
-							<th>Vendedor Externo</th>
-							<th><?php echo $this->lang->line('Business Manager') ?></th>
-							<th><?php echo $this->lang->line('Business Owner') ?></th>
 
-                        </tr>
-                        </tfoot>
                     </table>
                     <div class="form-group row">
 
                         <div class="col-sm-1"></div>
 
-                        <div class="col-sm-6">
-                            <input type="submit" id="submit-data" class="btn btn-success margin-bottom btn-lg"
+                        <div class="col-sm-12" id="paiCompanyUpdate">
+                            <input type="submit" id="submit-data" class="btn btn-success margin-bottom btn-md"
                                    value="<?php echo $this->lang->line('Update') ?>"
-                                   data-loading-text="Adding...">
+                                   data-loading-text="Adicionando...">
                             <input type="hidden" value="employee/permissions_update" id="action-url">
                         </div>
                     </div>

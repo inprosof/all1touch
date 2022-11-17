@@ -1,7 +1,11 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Products') . ' ' . $this->lang->line('Label'); ?></h5>
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Products') . ' ' . $this->lang->line('Label'); ?></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
                 <ul class="list-inline mb-0">
@@ -56,19 +60,21 @@
                 </div>
                 <hr>
                 <?php echo $this->lang->line('Print') ?> <?php echo $this->lang->line('Settings') ?>
-                <hr> <div class="form-group row">
-                <div class="col-sm-2"><label class="col-form-label"
+                <hr>
+                <div class="form-group row">
+                    <div class="col-sm-2"><label class="col-form-label"
                                                  for="b_type">Barcode Type</label>
                         <select class="form-control" name="b_type">
                             <option value="1">EAN-13</option>
-                             <option value="2">CODE-128</option>
+                            <option value="2">CODE-128</option>
                             <option value="3">CODE-39</option>
                             <option value="4">EAN-5</option>
                             <option value="5">EAN-8</option>
                             <option value="6">UPC-A</option>
                             <option value="7">UPC-E</option>
                         </select>
-                    </div> </div>
+                    </div>
+                </div>
                 <div class="form-group row">
 
 
@@ -98,12 +104,12 @@
 
                     </div>
 
-            <!--        <div class="col-sm-2"><label class="col-form-label"
-                                                 for="padding">Padding</label>
-                        <input name="padding" class="form-control required" type="number" value="10">
-                        <small>in PX</small>
+                    <!--        <div class="col-sm-2"><label class="col-form-label"
+                                                         for="padding">Padding</label>
+                                <input name="padding" class="form-control required" type="number" value="10">
+                                <small>in PX</small>
 
-                    </div>-->
+                            </div>-->
 
 
                     <div class="col-sm-2"><label class="col-form-label"
@@ -125,7 +131,7 @@
                     <div class="col-sm-2"><label class="col-form-label"
                                                  for="width">Total Cols</label>
                         <select class="form-control" name="items_per_row">
-                           <option value="0">1</option>
+                            <option value="0">1</option>
                             <option value="1" selected>2</option>
                             <option value="2">3</option>
                             <option value="3">4</option>
@@ -138,24 +144,28 @@
                             <option value="19">20</option>
 
                         </select>
-                    </div>  </div>  <div class="row mb-2">
+                    </div>
+                </div>
+                <div class="row mb-2">
 
 
-    <div class="col-sm-2"><label class="col-form-label"
+                    <div class="col-sm-2"><label class="col-form-label"
                                                  for="width">BarCode Width</label>
-               <input name="bar_width" class="form-control required" type="number" value="50">
-                    </div>                     <div class="col-sm-2"><label class="col-form-label"
+                        <input name="bar_width" class="form-control required" type="number" value="50">
+                    </div>
+                    <div class="col-sm-2"><label class="col-form-label"
                                                  for="width">BarCode height</label>
 
-                                              <input name="bar_height" class="form-control required" type="number" value="30">
-                    </div>  <div class="col-sm-2"><label class="col-form-label"
+                        <input name="bar_height" class="form-control required" type="number" value="30">
+                    </div>
+                    <div class="col-sm-2"><label class="col-form-label"
                                                  for="font_size">Font Size</label>
                         <select class="form-control" name="font_size">
                             <option value="8">8pt</option>
                             <option value="9">9pt</option>
                             <option value="10">10pt</option>
-                           <option value="11" selected>11pt</option>
-                            <option value="12" >12pt</option>
+                            <option value="11" selected>11pt</option>
+                            <option value="12">12pt</option>
                             <option value="13">13pt</option>
                             <option value="14">14pt</option>
                             <option value="15">15pt</option>
@@ -168,8 +178,9 @@
 
                         </select>
                     </div>
-                    </div>  <div class="row mb-2">
-   <div class="col-sm-2"><label class="col-form-label"
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-2"><label class="col-form-label"
                                                  for="store_name">Product Name</label>
                         <select class="form-control" name="product_name">
                             <option value="1">Yes</option>
@@ -205,9 +216,10 @@
                             <option value="0">No</option>
                             <option value="1">Yes</option>
                         </select>
-                    </div>    <div class="col-sm-2"><label class="col-form-label"
+                    </div>
+                    <div class="col-sm-2"><label class="col-form-label"
                                                  for="max_char">Max Characters (each line)</label>
-               <input name="max_char" class="form-control required" type="number" value="50">
+                        <input name="max_char" class="form-control required" type="number" value="50">
                     </div>
                 </div>
 
@@ -215,10 +227,10 @@
                 <div class="form-group row">
 
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-12" id="paiCompanyUpdate">
                         <input type="submit" class="btn btn-success margin-bottom"
                                value="<?php echo $this->lang->line('Print') ?>"
-                               data-loading-text="Adding...">
+                               data-loading-text="Adicionando...">
 
                     </div>
                 </div>

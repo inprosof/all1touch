@@ -329,6 +329,7 @@ class Export extends CI_Controller {
         $process = $this->salaryprocess_model->get_process_by_id($id);
         $data['lang']['ss_taxe'] = $system['social_security'];
         $data['process'] = $process;
+		
         $data['time_course'] = $process['year'] . '/' . $process['month'];
         $data['employee'] = $this->employee_model->employee_details($process['employee_id']);
         //$data['list'] = $this->reports_model->get_statements_employee($pay_acc, $trans_type, $sdate, $edate);
@@ -347,13 +348,24 @@ class Export extends CI_Controller {
         $company = '<strong>' . $loc['cname'] . '</strong><br>' . $loc['address'] . '<br>' . $loc['city'] . ', ' . $loc['region'] . '<br>' . $loc['country'] . ' -  ' . $loc['postbox'] . '<br>' . $this->lang->line('Phone') . ': ' . $loc['phone'] . '<br> ' . $this->lang->line('Email') . ': ' . $loc['email'];
         if ($loc['taxid'])
             $company .= '<br>' . $this->lang->line('Tax') . ' ID: ' . $loc['taxid'];
+		
         $data['lang']['company'] = $company;
         $html = $this->load->view('employee/salary_pdf', $data, true);
         ini_set('memory_limit', '64M');
-        $this->load->library('pdf');
-        $pdf = $this->pdf->load();
-        $pdf->WriteHTML($html);
-        $pdf->Output('Salary_' . $employee['name'] . '_' . $data['time_course'] . '.pdf', 'I');
+		
+		$this->load->library('pdf');
+        $pdf = $this->pdf->load_split(array('margin_top' => 10));
+		$loc2 = location(0);
+		$footer = '<hr><div style="text-align: right;font-family: serif; font-size: 6pt; color: #5C5C5C; font-style: italic;margin-top:-20pt;">';
+		$footer .= 'Processado por Programa Certificado nº '.$loc2['certification'].' {PAGENO}/{nbpg} </div>';
+        $pdf->SetHTMLFooter($footer);
+		$pdf->WriteHTML($html);
+		$file_name = preg_replace('/[^A-Za-z0-9]+/', '-', $data['employee']['name'] . '_' . $data['time_course']);
+        if ($this->input->get('d')) {
+            $pdf->Output($file_name . '.pdf', 'D');
+        } else {
+            $pdf->Output($file_name . '.pdf', 'I');
+        }
     }
 
     function trans_cat() {

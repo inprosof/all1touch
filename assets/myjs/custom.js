@@ -285,7 +285,7 @@ $('#addproduct').on('click', function () {
     $('#ganak').val(nxt);
     var functionNum = "'" + cvalue + "'";		
 	
-    var data = '<tr><td><div id="accordionDocs' + cvalue + '" role="tablist" aria-multiselectable="true"><div id="obs_inv" class="class="input-group"><input type="text" class="form-control" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' + cvalue + '"><a data-toggle="collapse" data-parent="#accordionDocs' + cvalue + '" href="#obs_accor_inv' + cvalue + '" aria-expanded="false" aria-controls="obs_accor_inv' + cvalue + '" class="card-title lead collapsed"> <i class="fa fa-plus-circle"></i></a></div></div></td><td><div class="input-group"><input type="text" class="form-control req amnt" name="product_qty[]" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" value="1"  inputmode="numeric"><span id="product_uni-' + cvalue + '" name="product_uni[]" class="lightMode"></span></div></td><input type="hidden" id="alert-' + cvalue + '" value=""  name="alert[]"> <input type="hidden" id="verif_typ-' + cvalue + '" value=""  name="verif_typ[]"><td><input type="text" class="form-control req prc" name="product_price[]" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off" inputmode="numeric"></td><td><input type="text" class="form-control discount" name="product_discount[]" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotalNew(' + functionNum + ')" autocomplete="off"></td> <td><div class="input-group"><input type="text" disabled class="col-form-label text-center" id="texttaxa-' + cvalue + '" value="0%"><a title="Alterar" hidden class="btn btn-blue btn-sm butedittax" name="butedittax[]" id="butedittax-'+cvalue+'"><span class="fa fa-edit" aria-hidden="false"></span></a></div></td><td><span class="currenty">' + currency + '</span> <strong><span class=\'ttlText\' id="result-' + cvalue + '">0</span></strong></td><td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeProd" title="Remove" > <i class="fa fa-minus-square"></i></button><input type="hidden" name="taxacomo[]" id="taxacomo-' + cvalue + '" value=""><input type="hidden" name="taxavals[]" id="taxavals-' + cvalue + '" value=""><input type="hidden" name="taxaname[]" id="taxaname-' + cvalue + '" value=""><input type="hidden" name="taxaperc[]" id="taxaperc-' + cvalue + '" value=""><input type="hidden" name="taxacod[]" id="taxacod-' + cvalue + '" value=""><input type="hidden" name="taxaid[]" id="taxaid-' + cvalue + '" value=""><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot" name="total[]" id="total-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="0"><input type="hidden" name="unit[]" id="unit-' + cvalue + '" value=""><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value=""><input type="hidden" name="serial[]" id="serial-' + cvalue + '" value=""> </td></tr><tr><td colspan="8" class="pdIn2"><div id="obs_accor_inv' + cvalue + '" role="tabpanel" aria-labelledby="obs_inv" class="card-collapse collapse" aria-expanded="false"><div class="card-body"><textarea class="form-control" id="product_description-' + cvalue + '" name="product_description[]" placeholder="Enter Product description" autocomplete="off"></textarea></div></div></td></tr>';
+    var data = '<tr><td><div id="accordionDocs' + cvalue + '" role="tablist" aria-multiselectable="true"><div id="obs_inv" class="class="input-group"><input type="text" class="form-control" name="product_name[]" placeholder="Enter Product name or Code" id="productname-' + cvalue + '"><a data-toggle="collapse" data-parent="#accordionDocs' + cvalue + '" href="#obs_accor_inv' + cvalue + '" aria-expanded="false" aria-controls="obs_accor_inv' + cvalue + '" class="card-title lead collapsed"> <i class="fa fa-plus-circle"></i></a></div></div></td><td><div class="input-group"><input type="text" class="form-control req amnt" name="product_qty[]" id="amount-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalVerifytaxs(' + cvalue + ')" autocomplete="off" value="1"  inputmode="numeric"><span id="product_uni-' + cvalue + '" name="product_uni[]" class="lightMode"></span></div></td><input type="hidden" id="alert-' + cvalue + '" value=""  name="alert[]"> <input type="hidden" id="verif_typ-' + cvalue + '" value=""  name="verif_typ[]"><td><input type="text" class="form-control req prc" name="product_price[]" id="price-' + cvalue + '" onkeypress="return isNumber(event)" onkeyup="rowTotalVerifytaxs(' + cvalue + ')" autocomplete="off" inputmode="numeric"></td><td><input type="text" class="form-control discount" name="product_discount[]" onkeypress="return isNumber(event)" id="discount-' + cvalue + '" onkeyup="rowTotalVerifytaxs(' + cvalue + ')" autocomplete="off"></td> <td><div class="input-group"><input type="text" disabled class="col-form-label text-center" id="texttaxa-' + cvalue + '" value="0%"><a title="Alterar" hidden class="btn btn-blue btn-sm butedittax" name="butedittax[]" id="butedittax-'+cvalue+'"><span class="fa fa-edit" aria-hidden="false"></span></a></div></td><td><span class="currenty">' + currency + '</span> <strong><span class=\'ttlText\' id="result-' + cvalue + '">0</span></strong></td><td class="text-center"><button type="button" data-rowid="' + cvalue + '" class="btn btn-danger removeProd" title="Remove" > <i class="fa fa-minus-square"></i></button><input type="hidden" name="taxacomo[]" id="taxacomo-' + cvalue + '" value=""><input type="hidden" name="taxavals[]" id="taxavals-' + cvalue + '" value=""><input type="hidden" name="taxaname[]" id="taxaname-' + cvalue + '" value=""><input type="hidden" name="taxaperc[]" id="taxaperc-' + cvalue + '" value=""><input type="hidden" name="taxacod[]" id="taxacod-' + cvalue + '" value=""><input type="hidden" name="taxaid[]" id="taxaid-' + cvalue + '" value=""><input type="hidden" name="disca[]" id="disca-' + cvalue + '" value="0"><input type="hidden" class="ttInputsub" name="subtotal[]" id="subtotal-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot2" name="product_tax[]" id="product_tax-' + cvalue + '" value="0"><input type="hidden" class="ttInputtot" name="total[]" id="total-' + cvalue + '" value="0"><input type="hidden" class="pdIn" name="pid[]" id="pid-' + cvalue + '" value="0"><input type="hidden" name="unit[]" id="unit-' + cvalue + '" value=""><input type="hidden" name="hsn[]" id="hsn-' + cvalue + '" value=""><input type="hidden" name="serial[]" id="serial-' + cvalue + '" value=""> </td></tr><tr><td colspan="8" class="pdIn2"><div id="obs_accor_inv' + cvalue + '" role="tabpanel" aria-labelledby="obs_inv" class="card-collapse collapse" aria-expanded="false"><div class="card-body"><textarea class="form-control" id="product_description-' + cvalue + '" name="product_description[]" placeholder="Enter Product description" autocomplete="off"></textarea></div></div></td></tr>';
     //ajax request
     // $('#saman-row').append(data);
     $('tr.last-item-row').before(data);
@@ -419,7 +419,8 @@ $('#addproduct').on('click', function () {
 				$('#taxavals-' + cvalue).val(vat_vals);
 				$('#taxacomo-' + cvalue).val(vat_como);
 				
-				rowTotalNew(cvalue);
+				billUpyogInv();
+				//rowTotalNew(cvalue);
 			});
 			$('#butedittax-'+ cvalue).on('click', function () {
 				$("#newtaxs").modal("show");
@@ -613,7 +614,6 @@ $('#addtax').on('click', function () {
 						$('#tax_ise-' + id[1]).addClass('hidden');
 						$('#tax_ise-' + id[1]).attr('hidden');
 					}
-				
 					$('#tax_val-' + id[1]).val('0.00');
 					rowTotalTax(cvalue);
 					billUpyogProduct();
@@ -1039,6 +1039,138 @@ var deleteRow = function (num) {
     $("#bigtotal").html(clean);
 };
 
+var rowTotalVerifytaxs = function (numb, pos = false) {
+	var pid = formInputGet("#pid", numb);
+	var result;
+	var page = '';
+	var totalValue = 0;
+	
+	var qttProdval = deciFormat($("#amount-" + numb).val());
+	var priceValval = deciFormat($("#price-" + numb).val());
+	var qttProd = accounting.unformat(qttProdval, accounting.settings.number.decimal);
+	var priceVal = accounting.unformat(priceValval, accounting.settings.number.decimal);
+	var discountVal = deciFormat($("#discount-" + numb).val());
+	
+	var alertaa = $("#alert-" + numb).val();
+	var verify_typ = $("#verif_typ-" + numb).val();
+	var alertVal = accounting.unformat(alertaa, accounting.settings.number.decimal);
+	
+	var vatVal = 0;
+	var totalPrice = qttProd * priceVal;
+	var totalValue = totalPrice;
+	
+	var rutura = false;
+	if ($("#inv_page").val() == 'new_i' && pid > 0) {
+		if(verify_typ == 1){
+			if (alertVal <= +qttProd) {
+				var aqt = alertVal - qttProd;
+				if(pos)
+				{
+					
+				}else{
+					rutura = true;
+					alert('Rutura de Stock! ' + accounting.formatNumber(aqt));
+				}
+			}
+		}
+		
+	}
+	
+	if(!rutura)
+	{
+		var i = 0;
+		var Inpercentage = 0;
+		var product_tax = 0;
+		var disFormat = $("#discount_format").val();
+		var vat_name = $('#taxaname-' + numb).val();
+		var vat_vals = $('#taxavals-' + numb).val();
+		var vat_perc = $('#taxaperc-' + numb).val();
+		var vat_cod = $('#taxacod-' + numb).val();
+		var vat_id = $('#taxaid-' + numb).val();
+		var vat_como = $('#taxacomo-' + numb).val();
+		var vat_text = $('#texttaxa-' + numb).val();
+		
+		
+		var myArraytaxperc = [];
+		if (typeof vat_perc === 'string') {
+			myArraytaxperc = vat_perc.split(";");
+			if(myArraytaxperc.length == 0){
+				myArraytaxperc.push({
+					vat_perc
+				});
+			}
+		}
+		
+		
+		for (var iq = 0; iq < myArraytaxperc.length; iq++ ) {
+			Inpercentage = precentCalc(totalValue, myArraytaxperc[iq]);
+			var valPerc = accounting.unformat(Inpercentage, accounting.settings.number.decimal);
+			product_tax += valPerc;
+			
+			if(iq == 0)
+			{
+				vat_vals = parseFloat(valPerc);
+			}else{
+				vat_vals += ';'+parseFloat(valPerc);
+			}
+		}
+		
+		
+		var disco = 0;
+		//Antes tax
+		if (disFormat != '%') {
+			var discount = precentCalc(totalPrice, discountVal);
+			totalValue = parseFloat(totalPrice) - parseFloat(discount);
+			disco = deciFormat(discount);
+			$("#subtotal-" + numb).val(parseFloat(totalValue));
+		}
+		
+		console.log('Val 1: '+vat_name);
+		console.log('Val 2: '+vat_text);
+		console.log('Val 3: '+vat_id);
+		console.log('Val 4: '+vat_cod);
+		console.log('Val 5: '+vat_perc);
+		console.log('Val 6: '+vat_vals);
+		console.log('Val 7: '+vat_como);
+		
+		totalValue += product_tax;
+		//depois tax
+		if (disFormat == '%') {
+			var discount = precentCalc(totalValue, discountVal);
+			totalValue = parseFloat(totalValue) - parseFloat(discount);
+			disco = deciFormat(discount);
+			$("#subtotal-" + numb).val(parseFloat(totalValue).toFixed(two_fixed));
+		}
+		
+		$('#disca-' + numb).val(disco);
+		$("#result-" + numb).text(parseFloat(totalValue).toFixed(two_fixed));
+		$("#total-" + numb).val(parseFloat(totalValue));
+		$("#product_tax-" + numb).val(parseFloat(product_tax));
+		$('#taxaname-' + numb).val(vat_name);
+		$('#texttaxa-' + numb).val(vat_text);
+		$('#taxaid-' + numb).val(vat_id);
+		$('#taxacod-' + numb).val(vat_cod);
+		$('#taxaperc-' + numb).val(vat_perc);
+		$('#taxavals-' + numb).val(vat_vals);
+		$('#taxacomo-' + numb).val(vat_como);
+	}else{
+		$('#amount-' + numb).val('1');
+		$('#price-' + numb).val('');
+		$('#subtotal-' + numb).val('');
+		$('#pid-' + numb).val('');
+		$('#discount-' + numb).val('');
+		$('#product_description-' + numb).val('');
+		$('#unit-' + numb).val('1');
+		$('#product_uni-' + numb).text('');
+		$('#hsn-' + numb).val('');
+		$('#alert-' + numb).val('');
+		$('#verif_typ-' + numb).val('');
+		$('#serial-' + numb).val('');
+	}
+	
+	billUpyogInv();
+}
+
 var rowTotalNew = function (numb, pos = false) {
 	var pid = formInputGet("#pid", numb);
 	$.ajax({
@@ -1065,7 +1197,7 @@ var rowTotalNew = function (numb, pos = false) {
 			var totalPrice = qttProd * priceVal;
 			var totalValue = totalPrice;
 			
-			console.log('Tipo: '+verify_typ);
+			var rutura = false;
 			if ($("#inv_page").val() == 'new_i' && pid > 0) {
 				if(verify_typ == 1){
 					if (alertVal <= +qttProd) {
@@ -1074,87 +1206,105 @@ var rowTotalNew = function (numb, pos = false) {
 						{
 							
 						}else{
+							rutura = true;
 							alert('Rutura de Stock! ' + accounting.formatNumber(aqt));
 						}
 					}
 				}
 				
 			}
-            var i = 0;
-			var Inpercentage = 0;
-			var product_tax = 0;
-			var disFormat = $("#discount_format").val();
-			
-			
-			var disco = 0;
-			//Antes tax
-			if (disFormat != '%') {
-				var discount = precentCalc(totalPrice, discountVal);
-				totalValue = parseFloat(totalPrice) - parseFloat(discount);
-				disco = deciFormat(discount);
-				$("#subtotal-" + numb).val(parseFloat(totalValue));
-			}
-			
-			var vat_name = "";
-			var vat_vals = "";
-			var vat_perc = "";
-			var vat_cod = "";
-			var vat_id = "";
-			var vat_como = "";
-			var vat_text = "";
-			
-			for (var i = 0; i < data.length; i++ ) {
-				Inpercentage = precentCalc(totalValue, data[i][5]);
-				valPerc = accounting.unformat(Inpercentage, accounting.settings.number.decimal);
-				product_tax += valPerc;
-				if(i == 0)
-				{
-					if(data[i][4] == 'ISE'){
-						vat_text = data[i][1];
-					}else{
-						vat_text = data[i][5]+'%';
-					}
-					vat_name = data[i][1];
-					vat_vals = parseFloat(valPerc);
-					vat_perc = data[i][5];
-					vat_cod = data[i][4];
-					vat_id = data[i][0];
-					vat_como = data[i][3];
-				}else{
-					if(data[i][4] == 'ISE'){
-						vat_text += '/'+data[i][1];
-					}else{
-						vat_text += '/'+data[i][5]+'%';
-					}
-					vat_name += ';'+data[i][1];
-					vat_vals += ';'+parseFloat(valPerc);
-					vat_perc += ';'+data[i][5];
-					vat_cod += ';'+data[i][4];
-					vat_id += ';'+data[i][0];
-					vat_como += ';'+data[i][3];
+			if(!rutura)
+			{
+				var i = 0;
+				var Inpercentage = 0;
+				var product_tax = 0;
+				var disFormat = $("#discount_format").val();
+				
+				
+				var disco = 0;
+				//Antes tax
+				if (disFormat != '%') {
+					var discount = precentCalc(totalPrice, discountVal);
+					totalValue = parseFloat(totalPrice) - parseFloat(discount);
+					disco = deciFormat(discount);
+					$("#subtotal-" + numb).val(parseFloat(totalValue));
 				}
+				
+				var vat_name = "";
+				var vat_vals = "";
+				var vat_perc = "";
+				var vat_cod = "";
+				var vat_id = "";
+				var vat_como = "";
+				var vat_text = "";
+				
+				for (var i = 0; i < data.length; i++ ) {
+					Inpercentage = precentCalc(totalValue, data[i][5]);
+					valPerc = accounting.unformat(Inpercentage, accounting.settings.number.decimal);
+					product_tax += valPerc;
+					if(i == 0)
+					{
+						if(data[i][4] == 'ISE'){
+							vat_text = data[i][1];
+						}else{
+							vat_text = data[i][5]+'%';
+						}
+						vat_name = data[i][1];
+						vat_vals = parseFloat(valPerc);
+						vat_perc = data[i][5];
+						vat_cod = data[i][4];
+						vat_id = data[i][0];
+						vat_como = data[i][3];
+					}else{
+						if(data[i][4] == 'ISE'){
+							vat_text += '/'+data[i][1];
+						}else{
+							vat_text += '/'+data[i][5]+'%';
+						}
+						vat_name += ';'+data[i][1];
+						vat_vals += ';'+parseFloat(valPerc);
+						vat_perc += ';'+data[i][5];
+						vat_cod += ';'+data[i][4];
+						vat_id += ';'+data[i][0];
+						vat_como += ';'+data[i][3];
+					}
+				}
+				
+				totalValue += product_tax;
+				//depois tax
+				if (disFormat == '%') {
+					var discount = precentCalc(totalValue, discountVal);
+					totalValue = parseFloat(totalValue) - parseFloat(discount);
+					disco = deciFormat(discount);
+					$("#subtotal-" + numb).val(parseFloat(totalValue).toFixed(two_fixed));
+				}
+				
+				$('#disca-' + numb).val(disco);
+				$("#result-" + numb).text(parseFloat(totalValue).toFixed(two_fixed));
+				$("#total-" + numb).val(parseFloat(totalValue));
+				$("#product_tax-" + numb).val(parseFloat(product_tax));
+				$('#taxaname-' + numb).val(vat_name);
+				$('#texttaxa-' + numb).val(vat_text);
+				$('#taxaid-' + numb).val(vat_id);
+				$('#taxacod-' + numb).val(vat_cod);
+				$('#taxaperc-' + numb).val(vat_perc);
+				$('#taxavals-' + numb).val(vat_vals);
+				$('#taxacomo-' + numb).val(vat_como);
+			}else{
+				$('#amount-' + numb).val('1');
+				$('#price-' + numb).val('');
+				$('#subtotal-' + numb).val('');
+				$('#pid-' + numb).val('');
+				$('#discount-' + numb).val('');
+				$('#product_description-' + numb).val('');
+				$('#unit-' + numb).val('1');
+				$('#product_uni-' + numb).text('');
+				$('#hsn-' + numb).val('');
+				$('#alert-' + numb).val('');
+				$('#verif_typ-' + numb).val('');
+				$('#serial-' + numb).val('');				
+				//rowTotalTax(numb);
 			}
-			
-			totalValue += product_tax;
-			//depois tax
-			if (disFormat == '%') {
-				var discount = precentCalc(totalValue, discountVal);
-				totalValue = parseFloat(totalValue) - parseFloat(discount);
-				disco = deciFormat(discount);
-				$("#subtotal-" + numb).val(parseFloat(totalValue).toFixed(two_fixed));
-			}
-			
-			$('#disca-' + numb).val(disco);
-			$("#result-" + numb).text(parseFloat(totalValue).toFixed(two_fixed));
-			$("#total-" + numb).val(parseFloat(totalValue));
-			$("#product_tax-" + numb).val(parseFloat(product_tax));
-			$('#taxaname-' + numb).val(vat_name);
-			$('#texttaxa-' + numb).val(vat_text);
-			$('#taxaid-' + numb).val(vat_id);
-			$('#taxacod-' + numb).val(vat_cod);
-			$('#taxaperc-' + numb).val(vat_perc);
-			$('#taxavals-' + numb).val(vat_vals);
-			$('#taxacomo-' + numb).val(vat_como);
 			
 			billUpyogInv();
         }

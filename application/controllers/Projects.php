@@ -345,7 +345,7 @@ class Projects extends CI_Controller
 
     public function delete_i()
     {
-		if (!$this->aauth->premission(11)) {
+        if (!$this->aauth->premission(11)) {
             exit($this->lang->line('translate19'));
         }
         $id = $this->input->post('deleteid');
@@ -379,7 +379,7 @@ class Projects extends CI_Controller
             $row[] = $project->customer;
             $row[] = '<span class="project_' . $project->status . '">' . $this->lang->line($project->status) . '</span>';
 
-            $row[] = '<a href="' . base_url() . 'projects/explore?id=' . $project->id . '" class="btn btn-primary btn-sm rounded" data-id="' . $project->id . '" data-stat="0"> <i class="fa fa-eye"></i>  ' . $this->lang->line('View') . ' </a> <a class="btn btn-info btn-sm" href="' . base_url() . 'projects/edit?id=' . $project->id . '" data-object-id="' . $project->id . '"> <i class="fa fa-pencil"></i> </a>&nbsp;<a class="btn btn-danger btn-sm delete-object" href="#" data-object-id="' . $project->id . '"> <i class="fa fa-trash"></i> </a>';
+            $row[] = '<div class="action-btn"><a href="' . base_url() . 'projects/explore?id=' . $project->id . '" class="btn btn-outline-success btn-sm" data-id="' . $project->id . '" data-stat="0" title="' . $this->lang->line('View') . '"> <i class="bi bi-eye"></i>  ' . ' </a> <a class="btn btn-outline-primary btn-sm" href="' . base_url() . 'projects/edit?id=' . $project->id . '" data-object-id="' . $project->id . '" title="' . $this->lang->line('Edit') . '"> <i class="bi bi-pencil"></i> </a><a class="btn btn-outline-danger btn-sm delete-object" href="#" data-object-id="' . $project->id . '" title="' . $this->lang->line('Delete') . '"> <i class="bi bi-trash"></i> </a></div>';
 
 
             $data[] = $row;
@@ -432,21 +432,21 @@ class Projects extends CI_Controller
 
         foreach ($list as $task) {
             $no++;
-			if ($task->status == 'Done') {
-                $name = '<a class="check text-success" data-id="' . $task->id . '" data-stat="'. $task->status .'"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
-            }else if($task->status == 'Due'){
-				$name = '<a class="check text-warning" data-id="' . $task->id . '" data-stat="'. $task->status .'"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
-			}else{
-				$name = '<a class="check text-default" data-id="' . $task->id . '" data-stat="'. $task->status .'"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
-			}
-			
+            if ($task->status == 'Done') {
+                $name = '<a class="check text-success" data-id="' . $task->id . '" data-stat="' . $task->status . '"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
+            } else if ($task->status == 'Due') {
+                $name = '<a class="check text-warning" data-id="' . $task->id . '" data-stat="' . $task->status . '"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
+            } else {
+                $name = '<a class="check text-default" data-id="' . $task->id . '" data-stat="' . $task->status . '"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
+            }
+
             $row = array();
             $row[] = $no;
             $row[] = '<a href="#" class="btn btn-primary btn-sm rounded set-task" data-id="' . $task->id . '" data-stat="0"> SET </a>' . $name;
             $row[] = dateformat($task->duedate);
             $row[] = dateformat($task->start);
             $row[] = '<span class="task_' . $task->status . '">' . $this->lang->line($task->status) . '</span>';
-            $row[] = '<a class="btn-info btn-sm" href="' . base_url('projects') . '/edittask?id=' . $task->id . '" data-object-id="' . $task->id . '"> <i class="icon-pencil"></i> </a>&nbsp;<a class="btn-brown btn-sm delete-custom" data-did="3" href="#"  data-object-id="' . $task->id . '"> <i class="fa fa-trash"></i> </a>';
+            $row[] = '<a class="btn-info btn-sm" href="' . base_url('projects') . '/edittask?id=' . $task->id . '" data-object-id="' . $task->id . '"> <i class="icon-pencil"></i> </a>&nbsp;<a class="btn-brown btn-sm delete-custom" data-did="3" href="#"  data-object-id="' . $task->id . '"> <i class="bi bi-trash"></i> </a>';
             $data[] = $row;
         }
 

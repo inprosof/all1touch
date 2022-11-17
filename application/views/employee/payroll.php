@@ -1,9 +1,13 @@
 <div class="content-body">
-    <div class="card">
+    <div class="card yellow-top">
         <div class="card-header">
-            <h5><?php echo $this->lang->line('Payroll') . ' ' . $this->lang->line('Transactions') ?> <a
+            <h5 class="title">
+                <a class="btn-back" onclick=history.go(-1)>
+                    <i class="bi bi-arrow-left-circle text-info" style="font-size: 1.4rem;"></i>
+                </a>
+                <?php echo $this->lang->line('Payroll') . ' ' . $this->lang->line('Transactions') ?> <a
                         href="<?php echo base_url('employee/payroll_create') ?>"
-                        class="btn btn-primary btn-md rounded">
+                        class="btn btn-primary btn-sm btn-new">
                     <?php echo $this->lang->line('Add new') ?></a></h5>
             <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
             <div class="heading-elements">
@@ -38,18 +42,6 @@
                     </thead>
                     <tbody>
                     </tbody>
-
-                    <tfoot>
-                    <tr>
-                        <th><?php echo $this->lang->line('Date') ?></th>
-                        <th><?php echo $this->lang->line('Debit') ?></th>
-                        <th><?php echo $this->lang->line('Credit') ?></th>
-                        <th><?php echo $this->lang->line('Account') ?></th>
-                        <th><?php echo $this->lang->line('Employee') ?></th>
-                        <th><?php echo $this->lang->line('Method') ?></th>
-                        <th><?php echo $this->lang->line('Action') ?></th>
-                    </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>

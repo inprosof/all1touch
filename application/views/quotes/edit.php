@@ -10,6 +10,7 @@
                     <div class="row">
                         <div class="col-sm-6 cmp-pnl">
                             <div id="customerpanel" class="inner-cmp-pnl">
+								<input type="hidden" value="<?php echo $relationid ?>" name="relationid" id="relationid">
 								<input type="hidden" name="iddoc" value="<?php echo $invoice['iddoc'] ?>">
 								<input type="hidden" name="vers" value="<?php echo $invoice['version'] ?>">
 								<input type="hidden" value="<?php echo $locations['address']; ?>" name="compa_adr" id="compa_adr">
@@ -40,8 +41,6 @@
 									<div class="clientinfo">
 										<?php echo $this->lang->line('Client Details'); ?>
 										<hr>
-										<input type="hidden" name="typrelation" id="typrelation" value="<?php echo $typrelation?>" />
-										<input type="hidden" name="relationid" id="relationid" value="<?php echo $relationid?>" />
 										<input type="hidden" name="customer_id" id="customer_id" value="<?php echo $invoice['csd']; ?>">
 										<div id="customer_name"><strong><?php echo $invoice['name']; ?></strong></div>
 									</div>
@@ -143,7 +142,7 @@
 								</div>
 								<div class="form-group row">
 									<div class="col-sm-6"><label for="invoicedate"
-																 class="caption"><?php echo $invoice['type'].' Data de Emissão'; ?></label>
+																 class="caption"><?php echo 'Data de Emissão'; ?></label>
 
 										<div class="input-group">
 											<div class="input-group-addon"><span class="icon-calendar4"
@@ -171,7 +170,7 @@
 								<div class="form-group row">
 									<div class="col-sm-12">
 										<label for="toAddInfo"
-											   class="caption"><?php echo $invoice['type'].' Notas' ?></label>
+											   class="caption"><?php echo 'Notas' ?></label>
 										<textarea class="form-control round" name="notes" rows="2"><?php echo $invoice['notes'] ?></textarea></div>
 								</div>
                             </div>
@@ -219,8 +218,6 @@
 								foreach ($myArraytaxperc as $row2) {
 									$valsumperc = $row2.'%';
 								}
-								if($row['serial'] != '') 
-									$row['product'].=' - '.$row['serial'];
 								$myArraytaxname = explode(";", $row['taxaname']);
 								$myArraytaxcod = explode(";", $row['taxacod']);
 								$myArraytaxvals = explode(";", $row['taxavals']);
@@ -271,8 +268,7 @@
 								<input type="hidden" class="ttInputtot" name="total[]" id="total-' . $cvalue . '" value="' .$row['totaltax']. '">
 								<input type="hidden" class="pdIn" name="pid[]" id="pid-' . $cvalue . '" value="' . $row['pid'] . '">
 								<input type="hidden" name="unit[]" id="unit-' . $cvalue . '" value="' . $row['unit'] . '">
-								<input type="hidden" name="hsn[]" id="hsn-' . $cvalue . '" value="' . $row['code'] . '">
-								<input type="hidden" name="serial[]" id="serial-' . $cvalue . '" value="' . $row['serial'] . '"> </td>
+								<input type="hidden" name="hsn[]" id="hsn-' . $cvalue . '" value="' . $row['code'] . '"></td>
 								</tr>
 								<tr>
 									<td colspan="8">
@@ -609,7 +605,7 @@
 							<tbody>
 							<tr class="last-item-row-buts sub_c_buts">
 								<td>
-									<?php echo $invoice['type'].' Termos' ?> 
+									<?php echo 'Termos' ?> 
 									<select name="pterms" class="selectpicker form-control">
 									<option value="<?php echo $invoice['termid']; ?>"><?php echo '--'.$invoice['termtit'].'--'; ?></option>
 									<?php foreach ($terms as $row) {
@@ -638,7 +634,7 @@
 					<input type="hidden" name="tota_items" id="tota_items" value="<?php echo $invoice['items']?>">
                     <input type="hidden" value="<?php echo currency($this->aauth->get_user()->loc); ?>" name="currency">
                     <input type="hidden" value="<?php echo $taxdetails['handle']; ?>" name="taxformat" id="tax_format">
-                    <input type="hidden" value="<?php echo $invoice['tax_status']?>" name="tax_handle" id="tax_status">
+                    <input type="hidden" value="<?php echo $invoice['taxstatus']?>" name="tax_handle" id="tax_status">
                     <input type="hidden" value="yes" name="applyDiscount" id="discount_handle">
                     <input type="hidden" value="<?php echo $invoice['format_discount']?>" name="discountFormat" id="discount_format">
                     <input type="hidden" value="<?php echo $invoice['ship_tax']?>" name="ship_rate" id="ship_rate">

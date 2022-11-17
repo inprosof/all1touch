@@ -81,7 +81,7 @@ class Tools extends CI_Controller
             $tdate = datefordatabase($tdate);
 
             if ($this->tools->edittask($id, $name, $status, $priority, $stdate, $tdate, $employee, $content)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . "  <a href='todo' class='btn btn-blue btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . "  <a href='todo' class='btn btn-blue btn-lg'><span class='bi bi-eye' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }
@@ -105,7 +105,7 @@ class Tools extends CI_Controller
 
     public function save_addtask()
     {
-		if (!$this->aauth->premission(66) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
+        if (!$this->aauth->premission(66) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
         }
         $name = $this->input->post('name', true);
@@ -129,20 +129,20 @@ class Tools extends CI_Controller
 
     public function set_task()
     {
-		$id = $this->input->post('tid');
-		$stat = $this->input->post('stat');
+        $id = $this->input->post('tid');
+        $stat = $this->input->post('stat');
         $this->tools->settask($id, $stat);
         echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED'), 'pstatus' => 'Success'));
     }
 
-	public function view_note()
+    public function view_note()
     {
         $id = $this->input->post('tid');
         $note = $this->tools->note_v($id);
         echo json_encode(array('title' => $note['title'], 'content' => $note['content'], 'date_ini' => $note['cdate'], 'date_last' => $note['last_edit'], 'employee' => $note['employee']));
     }
-	
-	
+
+
     public function view_task()
     {
         $id = $this->input->post('tid');
@@ -157,9 +157,9 @@ class Tools extends CI_Controller
 
     public function delete_i()
     {
-		if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7) {
+            exit($this->lang->line('translate19'));
+        }
         $id = $this->input->post('deleteid');
 
         if ($this->tools->deletetask($id)) {
@@ -173,7 +173,7 @@ class Tools extends CI_Controller
     public function todo_load_list()
     {
         if (!$this->aauth->premission(4)) {
-			exit($this->lang->line('translate19'));
+            exit($this->lang->line('translate19'));
         }
         $cday = $this->input->get('cday');
         $list = $this->tools->task_datatables($cday);
@@ -182,30 +182,30 @@ class Tools extends CI_Controller
 
         foreach ($list as $task) {
             $no++;
-			if ($task->status == 'Done') {
-                $name = '<a class="check text-success" data-id="' . $task->id . '" data-stat="'. $task->status .'"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
-            }else if($task->status == 'Due'){
-				$name = '<a class="check text-warning" data-id="' . $task->id . '" data-stat="'. $task->status .'"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
-			}else{
-				$name = '<a class="check text-default" data-id="' . $task->id . '" data-stat="'. $task->status .'"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
-			}
-			
+            if ($task->status == 'Done') {
+                $name = '<a class="check text-success" data-id="' . $task->id . '" data-stat="' . $task->status . '"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
+            } else if ($task->status == 'Due') {
+                $name = '<a class="check text-warning" data-id="' . $task->id . '" data-stat="' . $task->status . '"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
+            } else {
+                $name = '<a class="check text-default" data-id="' . $task->id . '" data-stat="' . $task->status . '"> <i class="fa fa-check"></i> </a><a href="#" data-id="' . $task->id . '" class="view_task">' . $task->name . '</a>';
+            }
+
             $row = array();
             $row[] = $no;
-			
-			$row[] = '<a href="#" class="btn btn-primary btn-sm rounded set-task" data-id="' . $task->id . '" data-stat="0"> SET </a>' . $name;
+
+            $row[] = '<a href="#" class="btn btn-primary btn-sm rounded set-task" data-id="' . $task->id . '" data-stat="0"> SET </a>' . $name;
             $row[] = dateformat($task->duedate);
             $row[] = dateformat($task->start);
-			$row[] = '<span class="task_' . $task->status . '">' . $this->lang->line($task->status) . '</span>';
-			$option = '';
-			if ($this->aauth->premission(67) || $this->aauth->get_user()->roleid == 7){
-				$option .= '<a href="edittask?id=' . $task->id . '" data-object-id="' . $task->id . '" class="btn btn-primary btn-sm"><span class="fa fa-pencil"></span>  ' . $this->lang->line('Edit') . '</a>&nbsp;';
-			}
-			
-			if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
-				$option .= '<a href="#" data-object-id="' . $task->id . '" class="btn btn-danger btn-sm delete-object"><span class="fa fa-trash"></span></a>';
-			}
-			$row[] = $option;
+            $row[] = '<span class="task_' . $task->status . '">' . $this->lang->line($task->status) . '</span>';
+            $option = '';
+            if ($this->aauth->premission(67) || $this->aauth->get_user()->roleid == 7) {
+                $option .= '<div class="action-btn"><a href="edittask?id=' . $task->id . '" data-object-id="' . $task->id . '" class="btn btn-outline-primary btn-sm" title="' . $this->lang->line('Edit') . '"><span class="bi bi-pencil"></span>  ' . '</a>';
+            }
+
+            if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7) {
+                $option .= '<a href="#" data-object-id="' . $task->id . '" class="btn btn-outline-danger btn-sm delete-object" title="' . $this->lang->line('Delete') . '"><span class="bi bi-trash"></span></a></div>';
+            }
+            $row[] = $option;
             $data[] = $row;
         }
 
@@ -285,24 +285,22 @@ class Tools extends CI_Controller
             $row = array();
             $no++;
             $row[] = $no;
-			$row[] = dateformat($note->cdate);
-			$row[] = dateformat($note->last_edit);
+            $row[] = dateformat($note->cdate);
+            $row[] = dateformat($note->last_edit);
             $row[] = $note->title;
             $row[] = $note->name_add;
-			$row[] = $note->cli_add;
-			$option = '';
-			if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(80))
-			{
-				 $option .= '<a href="#" data-id="' . $note->id . '" class="view_note"><span class="fa fa-eye"></span>  ' . $this->lang->line('View') . '</a>&nbsp;';
-			}
-			if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(82))
-			{
-				$option .= ' <a href="editnote?id=' . $note->id . '&cid=' . $note->fid . '" class="btn btn-info btn-sm"><span class="fa fa-eye"></span> ' . $this->lang->line('Edit') . '</a>&nbsp;';
-			}
-			if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
-				$option .= ' <a class="btn btn-danger btn-sm delete-object" href="#" data-object-id="' . $note->id . '"> <i class="fa fa-trash"></i> </a>';
-			}
-			$row[] = $option;
+            $row[] = $note->cli_add;
+            $option = '';
+            if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(80)) {
+                $option .= '<div class="action-btn"><a href="#" data-id="' . $note->id . '" class="view_note btn btn-outline-success btn-sm" title="' . $this->lang->line('View') . '"><span class="bi bi-eye"></span>  ' . '</a>';
+            }
+            if ($this->aauth->get_user()->roleid == 5 || $this->aauth->get_user()->roleid == 7 || $this->aauth->premission(82)) {
+                $option .= ' <a href="editnote?id=' . $note->id . '&cid=' . $note->fid . '" class="btn btn-outline-primary btn-sm" title="' . $this->lang->line('Edit') . '"><span class="bi bi-pencil"></span> ' . '</a>';
+            }
+            if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7) {
+                $option .= ' <a class="btn btn-outline-danger btn-sm delete-object" href="#" data-object-id="' . $note->id . '" title="' . $this->lang->line('Delete') . '"> <i class="bi bi-trash"></i> </a></div>';
+            }
+            $row[] = $option;
             $data[] = $row;
         }
 
@@ -355,7 +353,7 @@ class Tools extends CI_Controller
             $content = $this->input->post('content');
 
             if ($this->tools->editnote($id, $title, $content)) {
-                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . "  <a href='editnote?id=$id' class='btn btn-blue btn-lg'><span class='fa fa-eye' aria-hidden='true'></span>  </a>"));
+                echo json_encode(array('status' => 'Success', 'message' => $this->lang->line('UPDATED') . "  <a href='editnote?id=$id' class='btn btn-blue btn-lg'><span class='bi bi-eye' aria-hidden='true'></span>  </a>"));
             } else {
                 echo json_encode(array('status' => 'Error', 'message' => $this->lang->line('ERROR')));
             }
@@ -374,9 +372,9 @@ class Tools extends CI_Controller
 
     public function delete_note()
     {
-        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7) {
+            exit($this->lang->line('translate19'));
+        }
         $id = $this->input->post('deleteid');
 
         if ($this->tools->deletenote($id)) {
@@ -421,14 +419,14 @@ class Tools extends CI_Controller
             $no++;
             $row[] = $no;
             $row[] = dateformat($document->cdate);
-			$row[] = $document->title;
-			$row[] = $document->name_add;
-			$row[] = $document->cli_add;
-            $option = '<a href="' . base_url('userfiles/documents/' . $document->filename) . '" class="btn btn-success btn-xs"><i class="fa fa-eye"></i> ' . $this->lang->line('View') . '</a>&nbsp;';
-			if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7){
-				$option .= '<a class="btn btn-danger btn-xs delete-object" href="#" data-object-id="' . $document->id . '"> <i class="fa fa-trash"></i> </a>';
-			}
-            $row[] = $option;				 
+            $row[] = $document->title;
+            $row[] = $document->name_add;
+            $row[] = $document->cli_add;
+            $option = '<div class="action-btn"><a href="' . base_url('userfiles/documents/' . $document->filename) . '" class="btn btn-outline-success btn-sm" title="' . $this->lang->line('View') . '"><i class="bi bi-eye"></i> ' . '</a>';
+            if ($this->aauth->premission(121) || $this->aauth->get_user()->roleid == 7) {
+                $option .= '<a class="btn btn-outline-danger btn-sm delete-object" href="#" data-object-id="' . $document->id . '" title="' . $this->lang->line('Delete') . '"> <i class="bi bi-trash"></i> </a></div>';
+            }
+            $row[] = $option;
             $data[] = $row;
         }
 
@@ -446,7 +444,7 @@ class Tools extends CI_Controller
     {
         if (!$this->aauth->premission(90) || (!$this->aauth->get_user()->roleid == 5 && !$this->aauth->get_user()->roleid == 7)) {
             exit($this->lang->line('translate19'));
-												  
+
 
         }
         $this->load->helper(array('form'));
@@ -490,9 +488,9 @@ class Tools extends CI_Controller
 
     public function delete_document()
     {
-        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7){
-			exit($this->lang->line('translate19'));
-		}
+        if (!$this->aauth->premission(121) && !$this->aauth->get_user()->roleid == 7) {
+            exit($this->lang->line('translate19'));
+        }
         $id = $this->input->post('deleteid');
 
         if ($this->tools->deletedocument($id)) {
